@@ -12,6 +12,7 @@ import {
   IconButton,
   Card,
   CardHeader,
+  CardContent,
   CircularProgress,
   MenuItem,
   Menu
@@ -78,6 +79,8 @@ export function CertificateDisplay(props) {
 
     try {
       await client.signAndBroadcast(address, [revokeCertificateJson], baseFee, "Test Akashlytics");
+
+      await loadValidCertificates();
     } finally {
       setIsLoadingCertificates(false);
     }
@@ -148,8 +151,8 @@ export function CertificateDisplay(props) {
       "typeUrl": "/akash.cert.v1beta1.MsgCreateCertificate",
       "value": {
         owner: address,
-        cert: window.forge.util.encode64(crtpem),
-        pubkey: window.forge.util.encode64(pubpem)
+        cert: Buffer.from(crtpem).toString("base64"),
+        pubkey: Buffer.from(pubpem).toString("base64")
       }
     }
 
@@ -183,16 +186,17 @@ export function CertificateDisplay(props) {
         } title={(
           <>
             <><VerifiedUserIcon /> Certificate</>
-            {isLoadingCertificates && <CircularProgress />}
-            {validCertificates.length === 0 && (
-              <>
-                <Button variant="contained" color="primary" onClick={() => createCertificate()}>Create Certificate</Button>
-              </>
-            )}
-
           </>
         )} subheader={certificate && "Serial: " + certificate.serial}>
         </CardHeader>
+        <CardContent>
+          {isLoadingCertificates && <CircularProgress />}
+          {!isLoadingCertificates && validCertificates.length === 0 && (
+            <>
+              <Button variant="contained" color="primary" onClick={() => createCertificate()}>Create Certificate</Button>
+            </>
+          )}
+        </CardContent>
         <Menu
           id="cert-menu"
           anchorEl={anchorEl}
