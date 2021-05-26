@@ -26,6 +26,7 @@ import {
   ListItemIcon,
   ListItemSecondaryAction
 } from "@material-ui/core";
+import { useHistory } from "react-router";
 
 const yaml = require('js-yaml');
 
@@ -64,12 +65,12 @@ function humanFileSize(bytes, si = false, dp = 1) {
 }
 
 export function DeploymentList(props) {
-  const [deployments, setDeployments] = useState([]);
   const [isLoadingDeployments, setIsLoadingDeployments] = useState(false);
 
   const classes = useStyles();
+  const history = useHistory();
 
-  const { address, selectedWallet } = props;
+  const { address, selectedWallet, deployments, setDeployments } = props;
 
   useEffect(() => {
     loadDeployments(address);
@@ -102,6 +103,8 @@ export function DeploymentList(props) {
   }
 
   async function createDeployment() {
+    history.push("/createDeployment");
+
     const flags = {};
     const response = await fetch(DemoDeployYaml);
     const txt = await response.text();
@@ -137,7 +140,7 @@ export function DeploymentList(props) {
   }
 
   async function viewDeployment(deployment) {
-    props.onOpenDeployment(deployment);
+    history.push("/deployment/" + deployment.dseq);
   }
 
   const orderedDeployments = [...deployments].sort((a, b) => a.createdAt < b.createdAt ? 1 : -1);
@@ -173,7 +176,7 @@ export function DeploymentList(props) {
 
           {isLoadingDeployments && <CircularProgress />}
 
-          <Button variant="contained" color="primary" onClick={() => createDeployment()}><AddIcon />&nbsp;Create Deployment</Button>
+          <Button variant="contained" size="large" color="primary" onClick={() => createDeployment()}><AddIcon />&nbsp;Create Deployment</Button>
         </CardContent>
       </Card>
     </>

@@ -3,8 +3,10 @@ import { apiEndpoint, rpcEndpoint } from "./shared/constants";
 import { MsgCloseDeployment } from "./ProtoAkashTypes";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { customRegistry, baseFee, createFee } from "./shared/utils/blockchainUtils";
+import { useParams, useHistory } from "react-router-dom";
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import CancelPresentationIcon from '@material-ui/icons/CancelPresentation';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import {
   makeStyles,
   Button,
@@ -43,8 +45,11 @@ export function DeploymentDetail(props) {
   const [anchorEl, setAnchorEl] = useState(null);
 
   const classes = useStyles();
+  const history = useHistory();
+  let { dseq } = useParams();
 
-  const { address, selectedWallet, deployment } = props;
+  const { address, selectedWallet } = props;
+  const deployment = props.deployments.find(d => d.dseq === dseq);
 
   const loadBids = useCallback(async () => {
     setIsLoadingBids(true);
@@ -137,8 +142,6 @@ export function DeploymentDetail(props) {
     loadLeases();
   }
 
-
-
   function handleMenuClick(ev) {
     setAnchorEl(ev.currentTarget);
   }
@@ -147,6 +150,10 @@ export function DeploymentDetail(props) {
     setAnchorEl(null);
   };
 
+  function handleBackClick(){
+    history.push("/");
+  }
+
   return (
     <>
       <Card className={classes.root} variant="outlined">
@@ -154,8 +161,13 @@ export function DeploymentDetail(props) {
           <IconButton aria-label="settings" aria-haspopup="true" onClick={handleMenuClick}>
             <MoreVertIcon />
           </IconButton>
-        } title={"Deployment"}
-          subheader={<>DSEQ: {deployment.dseq} - {deployment.state}</>}>
+        } title={<>
+          <IconButton aria-label="back" onClick={handleBackClick}>
+            <ChevronLeftIcon />
+          </IconButton>
+          DSEQ: {deployment.dseq}
+        </>}
+          subheader={<>{deployment.state}</>}>
 
         </CardHeader>
         <Menu
