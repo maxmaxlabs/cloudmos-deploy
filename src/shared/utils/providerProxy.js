@@ -20,15 +20,16 @@ spawnProxy();
 
 let requestResponses = [];
 
-async function makeRequest(url, method) {
+async function makeRequest(url, method, body, certPem, keyPem) {
   const requestId = nanoid();
 
   child.send({
     id: requestId,
     url: url,
     method: method,
-    certPem: localStorage.getItem("DeploymentCertificate"),
-    keyPem: localStorage.getItem("DeploymentCertificatePrivateKey")
+    body: body,
+    certPem: certPem,
+    keyPem: keyPem
   });
 
   return new Promise((res, rej) => {
@@ -63,7 +64,7 @@ exports.queryProvider = async function (url, method, body, certPem, prvPem) {
     //     CertPem: certPem,
     //     PrvPem: prvPem
     // }));
-    const response = await makeRequest(url, method);
+    const response = await makeRequest(url, method, body, certPem, prvPem);
 
     return response;
   } catch (err) {

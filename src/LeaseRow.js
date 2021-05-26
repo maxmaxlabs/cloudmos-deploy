@@ -27,27 +27,30 @@ export function LeaseRow(props) {
 
   const classes = useStyles();
 
-  const { lease } = props;
+  const { lease, cert } = props;
 
   useEffect(() => {
     async function loadProviderInfo() {
       const providerInfo = await fetchProviderInfo(lease.provider);
       setProviderInfo(providerInfo);
     }
-    loadProviderInfo();
-  }, [lease]);
+
+    if (cert) {
+      loadProviderInfo();
+    }
+  }, [lease, cert]);
 
   useEffect(() => {
     async function loadLeaseDetailsFromProvider() {
       const leaseStatusPath = `${providerInfo.host_uri}/lease/${lease.dseq}/${lease.gseq}/${lease.oseq}/status`;
-      const response = await window.electron.queryProvider(leaseStatusPath, "GET");
+      const response = await window.electron.queryProvider(leaseStatusPath, "GET", null, cert.certPem, cert.keyPem);
       setLeaseInfoFromProvider(response);
     }
 
-    if (lease.state === "active" && providerInfo) {
+    if (lease.state === "active" && providerInfo && cert) {
       loadLeaseDetailsFromProvider();
     }
-  }, [lease, providerInfo])
+  }, [lease, providerInfo, cert])
 
   async function sendManifest(dseq) {
     // const flags = {};

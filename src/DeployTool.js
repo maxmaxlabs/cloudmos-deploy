@@ -38,7 +38,7 @@ export function DeployTool(props) {
           <DeploymentList address={address} selectedWallet={selectedWallet} onOpenDeployment={d => setSelectedDeployment(d)} />
         </Grid>
         <Grid item xs={6}>
-          {selectedDeployment && <DeploymentDetail address={address} selectedWallet={selectedWallet} deployment={selectedDeployment} />}
+          {selectedDeployment && <DeploymentDetail cert={props.cert} address={address} selectedWallet={selectedWallet} deployment={selectedDeployment} />}
         </Grid>
       </Grid>
     </div >

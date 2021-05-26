@@ -3,10 +3,12 @@ import { makeStyles } from '@material-ui/core/styles';
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { rpcEndpoint, apiEndpoint } from "./shared/constants";
 import { customRegistry, baseFee } from "./shared/utils/blockchainUtils";
+import { usePasswordConfirmationModal } from "./ConfirmPasswordModal/ConfirmPasswordModalContext"
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import SystemUpdateAltIcon from '@material-ui/icons/SystemUpdateAlt';
 import AutorenewIcon from '@material-ui/icons/Autorenew';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
 import {
   Button,
   IconButton,
@@ -17,7 +19,6 @@ import {
   MenuItem,
   Menu
 } from '@material-ui/core';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
 
 var rs = require("jsrsasign");
 
@@ -43,6 +44,7 @@ export function CertificateDisplay(props) {
   const [validCertificates, setValidCertificates] = useState([]);
   const [isLoadingCertificates, setIsLoadingCertificates] = useState(false);
   const classes = useStyles();
+  const { askForPasswordConfirmation } = usePasswordConfirmationModal();
 
   const { address, selectedWallet } = props;
 
@@ -98,6 +100,12 @@ export function CertificateDisplay(props) {
   }
 
   async function createCertificate() {
+    const password = await askForPasswordConfirmation();
+    if (!password) {
+      console.log("cancelled");
+      return;
+    }
+    
     setIsLoadingCertificates(true);
 
     const notBefore = new Date();
@@ -112,6 +120,9 @@ export function CertificateDisplay(props) {
     var prv = kp.prvKeyObj;
     var pub = kp.pubKeyObj;
     var prvpem = rs.KEYUTIL.getPEM(prv, "PKCS8PRV");
+
+    var encryptedKey = rs.KEYUTIL.getPEM(prv, "PKCS8PRV", password);
+
     var pubpem = rs.KEYUTIL.getPEM(pub, "PKCS8PUB").replaceAll("PUBLIC KEY", "EC PUBLIC KEY");
 
     // STEP2. specify certificate parameters
@@ -138,14 +149,8 @@ export function CertificateDisplay(props) {
 
     const crtpem = cert.getPEM();
 
-    // STEP3. show PEM strings of keys and a certificate
-    console.log(prvpem);
-    console.log(pubpem);
-    console.log(crtpem);
-
-    localStorage.setItem("DeploymentCertificatePrivateKey", prvpem);
-    localStorage.setItem("DeploymentCertificatePublicKey", pubpem);
-    localStorage.setItem("DeploymentCertificate", crtpem);
+    localStorage.setItem(address + ".crt", crtpem);
+    localStorage.setItem(address + ".key", encryptedKey);
 
     const createCertificateMsg = {
       "typeUrl": "/akash.cert.v1beta1.MsgCreateCertificate",

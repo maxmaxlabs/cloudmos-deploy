@@ -4,9 +4,11 @@ import { MemoryRouter, Route } from "react-router-dom";
 import { DeployTool } from "./DeployTool";
 import WalletImport from './WalletImport';
 import WalletOpen from "./WalletOpen";
+import { PasswordConfirmationModalProvider } from "./ConfirmPasswordModal/ConfirmPasswordModalContext";
 
 function App() {
   const [selectedWallet, setSelectedWallet] = useState(null);
+  const [cert, setCert] = useState(null);
   const [address, setAddress] = useState(null);
 
   useEffect(() => {
@@ -21,24 +23,31 @@ function App() {
 
   const walletExists = localStorage.getItem("Wallet") !== null;
 
+  function handleWalletOpen(wallet, cert) {
+    setSelectedWallet(wallet);
+    setCert(cert);
+  }
+
   return (
-    <MemoryRouter
-      initialEntries={["/"]}
-      initialIndex={1}
-    >
-      {/* <Route exact path="/walletImport">
+    <PasswordConfirmationModalProvider>
+      <MemoryRouter
+        initialEntries={["/"]}
+        initialIndex={1}
+      >
+        {/* <Route exact path="/walletImport">
           <WalletImport />
         </Route> */}
-      <Route exact path="/">
-        {selectedWallet && address ? (
-          <DeployTool selectedWallet={selectedWallet} address={address} />
-        ) : (
-          walletExists ?
-            <WalletOpen onWalletOpen={wallet => setSelectedWallet(wallet)} />
-            : <WalletImport onWalletOpen={wallet => setSelectedWallet(wallet)} />
-        )}
-      </Route>
-    </MemoryRouter>
+        <Route exact path="/">
+          {selectedWallet && address ? (
+            <DeployTool selectedWallet={selectedWallet} address={address} cert={cert} />
+          ) : (
+            walletExists ?
+              <WalletOpen onWalletOpen={handleWalletOpen} />
+              : <WalletImport onWalletOpen={handleWalletOpen} />
+          )}
+        </Route>
+      </MemoryRouter>
+    </PasswordConfirmationModalProvider>
   );
 }
 

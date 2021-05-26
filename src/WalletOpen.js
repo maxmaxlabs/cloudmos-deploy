@@ -4,7 +4,7 @@ import Container from '@material-ui/core/Container';
 import { Button, CircularProgress } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
-import { openWallet } from "./walletHelper";
+import { openCert, openWallet } from "./walletHelper";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -38,8 +38,10 @@ export default function WalletOpen(props) {
 
     try {
       const wallet = await openWallet(password);
+      const address = (await wallet.getAccounts())[0].address;
+      const cert = await openCert(address, password);
 
-      props.onWalletOpen(wallet);
+      props.onWalletOpen(wallet, cert);
     } catch (err) {
       console.error(err);
       //enqueueSnackbar(err, { variant: "error" });
@@ -65,6 +67,7 @@ export default function WalletOpen(props) {
               onChange={ev => setPassword(ev.target.value)}
               type="password"
               variant="outlined"
+              autoFocus
             />
 
             {isLoading && <CircularProgress />}

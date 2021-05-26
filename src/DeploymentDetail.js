@@ -197,7 +197,7 @@ export function DeploymentDetail(props) {
             {!isLoadingLeases && (
               <>
                 {leases.map(lease => (
-                  <LeaseRow key={lease.id} lease={lease} />
+                  <LeaseRow key={lease.id} cert={props.cert} lease={lease} />
                 ))}
               </>
             )}
