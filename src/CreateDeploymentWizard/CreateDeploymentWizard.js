@@ -10,7 +10,8 @@ import {
   Card,
   CardHeader,
   CardContent,
-  IconButton
+  IconButton,
+  Box
 } from "@material-ui/core";
 import { TemplateList } from "./TemplateList";
 import { ManifestEdit } from "./ManifestEdit";
@@ -68,14 +69,7 @@ export function CreateDeploymentWizard(props) {
   };
 
   const handleNext = () => {
-    const newActiveStep =
-      isLastStep() && !allStepsCompleted()
-        ? // It's the last step, but not all steps have been completed
-        // find the first step that has been completed
-        steps.findIndex((step, i) => !completed.has(i))
-        : activeStep + 1;
-
-    setActiveStep(newActiveStep);
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
   const handleBack = () => {
@@ -91,11 +85,6 @@ export function CreateDeploymentWizard(props) {
     newCompleted.add(activeStep);
     setCompleted(newCompleted);
 
-    /**
-     * Sigh... it would be much nicer to replace the following if conditional with
-     * `if (!this.allStepsComplete())` however state is not set when we do this,
-     * thus we have to resort to not being very DRY.
-     */
     if (completed.size !== totalSteps()) {
       handleNext();
     }
@@ -125,7 +114,7 @@ export function CreateDeploymentWizard(props) {
          </>} />
         <CardContent>
           <div className={classes.root}>
-            <Stepper alternativeLabel nonLinear activeStep={activeStep}>
+            <Stepper alternativeLabel activeStep={activeStep}>
               {steps.map((label, index) => {
                 const stepProps = {};
                 const buttonProps = {};
@@ -144,7 +133,7 @@ export function CreateDeploymentWizard(props) {
             </Stepper>
             <div>
               {activeStep === 0 && <TemplateList setIsNextDisabled={setIsNextDisabled} selectedTemplate={selectedTemplate} setSelectedTemplate={c => setSelectedTemplate(c)} />}
-              {activeStep === 1 && <ManifestEdit editedManifest={editedManifest} setEditedManifest={setEditedManifest} />}
+              {activeStep === 1 && <ManifestEdit setIsNextDisabled={setIsNextDisabled} editedManifest={editedManifest} setEditedManifest={setEditedManifest} />}
               {allStepsCompleted() ? (
                 <div>
                   <Typography className={classes.instructions}>
@@ -154,7 +143,7 @@ export function CreateDeploymentWizard(props) {
                 </div>
               ) : (
                 <div>
-                  <div>
+                  <Box pt={2}>
                     {activeStep > 0 && (
                       <Button onClick={handleBack} className={classes.button}>
                         Back
@@ -165,7 +154,7 @@ export function CreateDeploymentWizard(props) {
                         {completedSteps() === totalSteps() - 1 ? 'Finish' : 'Next'}
                       </Button>
                     )}
-                  </div>
+                  </Box>
                 </div>
               )}
             </div>

@@ -9,10 +9,6 @@ import Radio from '@material-ui/core/Radio';
 import IconButton from '@material-ui/core/IconButton';
 import GitHubIcon from '@material-ui/icons/GitHub';
 
-import HelloWorldYml from "../data/hello-world.yml";
-import { StepperButtons } from './StepperButtons';
-
-
 const useStyles = makeStyles((theme) => ({
   root: {
     width: '100%',
@@ -20,7 +16,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-console.log(HelloWorldYml);
 export function TemplateList(props) {
   const classes = useStyles();
 

@@ -59,7 +59,7 @@ export function WalletDisplay(props) {
           title={
             <>
               <AccountBalanceWalletIcon />
-              {balance} uakt
+              {balance/1000000} AKT
               <IconButton onClick={() => loadBalance()} aria-label="refresh">
                 <RefreshIcon />
               </IconButton>

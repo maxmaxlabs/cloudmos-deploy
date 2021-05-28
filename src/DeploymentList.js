@@ -86,6 +86,7 @@ export function DeploymentList(props) {
     return;
 
     history.push("/createDeployment");
+    return;
 
     const flags = {};
     const response = await fetch(DemoDeployYaml);
