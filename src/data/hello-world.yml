@@ -1,0 +1,41 @@
+---
+version: "2.0"
+
+services:
+  web:
+    image: tombeynon/akash-hello-world:release-v0.1.1
+    expose:
+      - port: 80
+        as: 80
+        accept:
+          - akashhw.tombeynon.co.uk
+        to:
+          - global: true
+
+profiles:
+  compute:
+    web:
+      resources:
+        cpu:
+          units: 0.5
+        memory:
+          size: 512Mi
+        storage:
+          size: 512Mi
+  placement:
+    dcloud:
+      attributes:
+        host: akash
+      signedBy:
+        anyOf:
+          - "akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63"
+      pricing:
+        web:
+          denom: uakt
+          amount: 1
+
+deployment:
+  web:
+    dcloud:
+      profile: web
+      count: 1

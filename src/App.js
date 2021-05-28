@@ -5,7 +5,7 @@ import { makeStyles, Grid } from '@material-ui/core';
 import WalletImport from './WalletImport';
 import WalletOpen from "./WalletOpen";
 import { PasswordConfirmationModalProvider } from "./ConfirmPasswordModal/ConfirmPasswordModalContext";
-import { SelectManifestTemplate } from "./CreateDeploymentWizard/SelectManifestTemplate";
+import { CreateDeploymentWizard } from "./CreateDeploymentWizard/CreateDeploymentWizard";
 import { DeploymentList } from "./DeploymentList";
 import { WalletDisplay } from "./WalletDisplay";
 import { CertificateDisplay } from "./CertificateDisplay";
@@ -73,7 +73,7 @@ function App() {
               initialIndex={1}
             >
               <Route exact path="/createDeployment">
-                <SelectManifestTemplate />
+                <CreateDeploymentWizard />
               </Route>
               <Route path="/deployment/:dseq">
                 <DeploymentDetail deployments={deployments} cert={cert} address={address} selectedWallet={selectedWallet} />
