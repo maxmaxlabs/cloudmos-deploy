@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
-import './App.css';
+import React, { useState, useEffect } from "react";
+import "./App.css";
 import { MemoryRouter, Route } from "react-router-dom";
-import { makeStyles, Grid } from '@material-ui/core';
-import WalletImport from './WalletImport';
+import { makeStyles, Grid } from "@material-ui/core";
+import WalletImport from "./WalletImport";
 import WalletOpen from "./WalletOpen";
 import { PasswordConfirmationModalProvider } from "./ConfirmPasswordModal/ConfirmPasswordModalContext";
 import { SelectManifestTemplate } from "./CreateDeploymentWizard/SelectManifestTemplate";
@@ -15,13 +15,13 @@ const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
     backgroundColor: "#f5f5f5",
-    padding: "20px"
+    padding: "20px",
   },
   paper: {
     padding: theme.spacing(2),
-    textAlign: 'center',
-    color: theme.palette.text.secondary
-  }
+    textAlign: "center",
+    color: theme.palette.text.secondary,
+  },
 }));
 
 function App() {
@@ -50,36 +50,48 @@ function App() {
   }
 
   if (!selectedWallet || !address) {
-    return walletExists ?
+    return walletExists ? (
       <WalletOpen onWalletOpen={handleWalletOpen} />
-      : <WalletImport onWalletOpen={handleWalletOpen} />
+    ) : (
+      <WalletImport onWalletOpen={handleWalletOpen} />
+    );
   }
 
   return (
     <PasswordConfirmationModalProvider>
       <div className={classes.root}>
-        <Grid container pt={2} spacing={1}>
+        <Grid container spacing={1}>
           <Grid item xs={6}>
             <WalletDisplay selectedWallet={selectedWallet} address={address} />
           </Grid>
 
           <Grid item xs={6}>
-            <CertificateDisplay selectedWallet={selectedWallet} address={address} />
+            <CertificateDisplay
+              selectedWallet={selectedWallet}
+              address={address}
+            />
           </Grid>
 
           <Grid item xs={12}>
-            <MemoryRouter
-              initialEntries={["/"]}
-              initialIndex={1}
-            >
+            <MemoryRouter initialEntries={["/"]} initialIndex={1}>
               <Route exact path="/createDeployment">
                 <SelectManifestTemplate />
               </Route>
               <Route path="/deployment/:dseq">
-                <DeploymentDetail deployments={deployments} cert={cert} address={address} selectedWallet={selectedWallet} />
+                <DeploymentDetail
+                  deployments={deployments}
+                  cert={cert}
+                  address={address}
+                  selectedWallet={selectedWallet}
+                />
               </Route>
               <Route exact path="/">
-                <DeploymentList deployments={deployments} setDeployments={setDeployments} address={address} selectedWallet={selectedWallet} />
+                <DeploymentList
+                  deployments={deployments}
+                  setDeployments={setDeployments}
+                  address={address}
+                  selectedWallet={selectedWallet}
+                />
               </Route>
             </MemoryRouter>
           </Grid>

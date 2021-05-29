@@ -1,14 +1,14 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { fetchProviderInfo } from "./shared/providerCache";
-import PublishIcon from '@material-ui/icons/Publish';
-import LaunchIcon from '@material-ui/icons/Launch';
+import PublishIcon from "@material-ui/icons/Publish";
+import LaunchIcon from "@material-ui/icons/Launch";
 import {
   makeStyles,
   IconButton,
   CardActions,
   Card,
   CardContent,
-  CardHeader
+  CardHeader,
 } from "@material-ui/core";
 
 //const yaml = require('js-yaml');
@@ -16,8 +16,8 @@ import {
 const useStyles = makeStyles((theme) => ({
   root: {
     "& .MuiCardHeader-title": {
-      fontSize: "18px"
-    }
+      fontSize: "18px",
+    },
   },
 }));
 
@@ -43,29 +43,31 @@ export function LeaseRow(props) {
   useEffect(() => {
     async function loadLeaseDetailsFromProvider() {
       const leaseStatusPath = `${providerInfo.host_uri}/lease/${lease.dseq}/${lease.gseq}/${lease.oseq}/status`;
-      const response = await window.electron.queryProvider(leaseStatusPath, "GET", null, cert.certPem, cert.keyPem);
+      const response = await window.electron.queryProvider(
+        leaseStatusPath,
+        "GET",
+        null,
+        cert.certPem,
+        cert.keyPem
+      );
       setLeaseInfoFromProvider(response);
     }
 
     if (lease.state === "active" && providerInfo && cert) {
       loadLeaseDetailsFromProvider();
     }
-  }, [lease, providerInfo, cert])
+  }, [lease, providerInfo, cert]);
 
   async function sendManifest(dseq) {
     // const flags = {};
     // const response = await fetch(DemoDeployYaml);
     // const txt = await response.text();
     // const doc = yaml.load(txt);
-
     // const mani = Manifest(doc);
-
     // const prvKeyPem = localStorage.getItem("DeploymentCertificatePrivateKey");
     // const certPem = localStorage.getItem("DeploymentCertificate");
-
     // var cert = new rs.X509();
     // cert.readCertPEM(certPem);
-
     // //JSON.stringify(mani);
   }
 
@@ -84,11 +86,17 @@ export function LeaseRow(props) {
         subheader={lease.state}
         action={
           <>
-            {externalUrl && (<IconButton onClick={handleExternalUrlClick}><LaunchIcon /></IconButton>)}
+            {externalUrl && (
+              <IconButton onClick={handleExternalUrlClick}>
+                <LaunchIcon />
+              </IconButton>
+            )}
           </>
-        } />
+        }
+      />
       <CardContent>
-        Provider:<br />
+        Provider:
+        <br />
         {lease.provider}
       </CardContent>
       <CardActions disableSpacing>
@@ -97,5 +105,5 @@ export function LeaseRow(props) {
         </IconButton>
       </CardActions>
     </Card>
-  )
+  );
 }

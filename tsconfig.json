@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "noEmitOnError": false,
+    "removeComments": false,
+    "sourceMap": true,
+    "downlevelIteration": true,
+    "target": "ES5",
+    "jsx": "react",
+    "module": "commonjs",
+    "allowJs": false,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "watch": false,
+    "lib": ["es6", "dom"],
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "baseUrl": "./",
+    "paths": {
+      "@src/*": ["src/*"],
+      "@app/*": ["*"]
+    }
+  },
+  "include": [
+    "src/**/*",
+    "electron/electron-starter.ts",
+    "electron/providerProxy.ts",
+    "electron/preload.ts"
+  ],
+  "exclude": ["node_modules", "wwwroot", "dist"],
+  "compileOnSave": false
+}

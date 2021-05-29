@@ -1,28 +1,43 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow } = require('electron')
-const path = require('path')
+import { app, BrowserWindow } from 'electron';
+import * as path from "path";
+const url = require("url");
 
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 1024,
     height: 768,
-    icon: path.join(__dirname, 'appIcon.png'),
+    icon: path.join(__dirname, '../public/appIcon.png'),
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
-      webSecurity: false
+      preload: path.join(__dirname, '../electron/preload.js'),
+      webSecurity: false,
+      nodeIntegration: true
     }
   });
 
   //mainWindow.removeMenu();
 
+  if (process.env.NODE_ENV === "development") {
+    mainWindow.loadURL(`http://localhost:4000`);
+    mainWindow.webContents.openDevTools();
+  } else {
+    mainWindow.loadURL(
+      url.format({
+        pathname: path.join(__dirname, "index.html"),
+        protocol: "file:",
+        slashes: true,
+      })
+    );
+  }
+
   // and load the index.html of the app.
-  const startUrl = process.env.ELECTRON_START_URL || url.format({
-    pathname: path.join(__dirname, '/../build/index.html'),
-    protocol: 'file:',
-    slashes: true,
-  });
-  mainWindow.loadURL(startUrl);
+  // const startUrl = process.env.ELECTRON_START_URL || url.format({
+  //   pathname: path.join(__dirname, '../index.html'),
+  //   protocol: 'file:',
+  //   slashes: true,
+  // });
+  // mainWindow.loadURL(startUrl);
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()

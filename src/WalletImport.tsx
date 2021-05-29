@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import TextField from '@material-ui/core/TextField';
-import Container from '@material-ui/core/Container';
-import { Button } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import Paper from '@material-ui/core/Paper';
+import React, { useState } from "react";
+import TextField from "@material-ui/core/TextField";
+import Container from "@material-ui/core/Container";
+import { Button } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
+import Paper from "@material-ui/core/Paper";
 //import { useHistory } from "react-router-dom";
 import { importWallet } from "./walletHelper";
 
@@ -13,19 +13,19 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: "#f5f5f5",
     paddingTop: "20px",
 
-    '& .MuiTextField-root': {
-      marginBottom: "20px"
+    "& .MuiTextField-root": {
+      marginBottom: "20px",
     },
-    '& .MuiButton-root': {
+    "& .MuiButton-root": {
       marginLeft: "5px",
-      marginRight: "5px"
-    }
+      marginRight: "5px",
+    },
   },
   paper: {
     padding: theme.spacing(2),
-    textAlign: 'center',
-    color: theme.palette.text.secondary
-  }
+    textAlign: "center",
+    color: theme.palette.text.secondary,
+  },
 }));
 
 export default function WalletImport(props) {
@@ -47,7 +47,7 @@ export default function WalletImport(props) {
 
   return (
     <div className={classes.root}>
-      <Container maxWidth="sm" pt={2}>
+      <Container maxWidth="sm" component="div">
         <Paper className={classes.paper}>
           <h1>Import an existing wallet</h1>
           <br />
@@ -58,7 +58,7 @@ export default function WalletImport(props) {
               fullWidth
               rows={4}
               value={mnemonic}
-              onChange={ev => setMnemonic(ev.target.value)}
+              onChange={(ev) => setMnemonic(ev.target.value)}
               variant="outlined"
             />
 
@@ -67,7 +67,7 @@ export default function WalletImport(props) {
               fullWidth
               rows={4}
               value={name}
-              onChange={ev => setName(ev.target.value)}
+              onChange={(ev) => setName(ev.target.value)}
               variant="outlined"
             />
 
@@ -76,13 +76,15 @@ export default function WalletImport(props) {
               fullWidth
               rows={4}
               value={password}
-              onChange={ev => setPassword(ev.target.value)}
+              onChange={(ev) => setPassword(ev.target.value)}
               type="password"
               variant="outlined"
             />
 
             {/* <Button variant="contained" color="default" onClick={onCancelClick}>Cancel</Button> */}
-            <Button variant="contained" color="primary" onClick={onImportClick}>Import</Button>
+            <Button variant="contained" color="primary" onClick={onImportClick}>
+              Import
+            </Button>
           </form>
         </Paper>
       </Container>

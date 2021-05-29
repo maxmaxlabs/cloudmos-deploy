@@ -1,7 +1,14 @@
-import { useEffect, useState } from 'react';
-import { Button, TextField, Dialog, DialogTitle, DialogContent, DialogActions } from '@material-ui/core';
-import Alert from '@material-ui/lab/Alert';
-import { openWallet } from '../walletHelper';
+import React, { useEffect, useState } from "react";
+import {
+  Button,
+  TextField,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from "@material-ui/core";
+import Alert from "@material-ui/lab/Alert";
+import { openWallet } from "../walletHelper";
 
 export function ConfirmPasswordModal(props) {
   const [password, setPassword] = useState("");
@@ -36,11 +43,10 @@ export function ConfirmPasswordModal(props) {
       <DialogContent dividers>
         <div>
           <form onSubmit={handleSubmit}>
-
             <TextField
               label="Password"
               value={password}
-              onChange={ev => setPassword(ev.target.value)}
+              onChange={(ev) => setPassword(ev.target.value)}
               type="password"
               variant="outlined"
               autoFocus
@@ -50,9 +56,13 @@ export function ConfirmPasswordModal(props) {
         </div>
       </DialogContent>
       <DialogActions>
-        <Button variant="contained" onClick={props.onClose} type="button">Cancel</Button>
-        <Button variant="contained" color="primary" type="submit">Confirm</Button>
+        <Button variant="contained" onClick={props.onClose} type="button">
+          Cancel
+        </Button>
+        <Button variant="contained" color="primary" type="submit">
+          Confirm
+        </Button>
       </DialogActions>
     </Dialog>
-  )
+  );
 }

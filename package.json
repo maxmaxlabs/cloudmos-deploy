@@ -2,35 +2,17 @@
   "name": "akashlytics-deploy-tool",
   "version": "0.1.0",
   "private": true,
-  "dependencies": {
-    "@cosmjs/proto-signing": "^0.25.2",
-    "@cosmjs/stargate": "^0.25.2",
-    "@material-ui/core": "^4.11.4",
-    "@material-ui/icons": "^4.11.2",
-    "@material-ui/lab": "^4.0.0-alpha.58",
-    "@testing-library/jest-dom": "^5.12.0",
-    "@testing-library/react": "^11.2.7",
-    "@testing-library/user-event": "^12.8.3",
-    "json-stable-stringify": "^1.0.1",
-    "jsrsasign": "^10.2.0",
-    "nanoid": "^3.1.23",
-    "node-fetch": "^2.6.1",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-router-dom": "^5.2.0",
-    "react-scripts": "4.0.3",
-    "web-vitals": "^1.1.2"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "electron": "electron .",
-    "electron-dev": "set ELECTRON_START_URL=http://localhost:3000 && electron ."
-  },
-  "main": "src/electron-starter.js",
+  "main": "./dist/main.js",
   "homepage": "./",
+  "scripts": {
+    "start": "webpack serve --config webpack.dev.js --open",
+    "dev": "webpack --config webpack.dev.js --watch",
+    "build": "webpack --config webpack.prod.js",
+    "electron": "electron .",
+    "electron-dev": "set ELECTRON_START_URL=http://localhost:3000 && electron .",
+    "dev:electron": "cross-env NODE_ENV=development webpack --config webpack.electron.config.js --mode development && electron .",
+    "dev:react": "cross-env NODE_ENV=development webpack-dev-server --config webpack.react.config.js --mode development"
+  },
   "eslintConfig": {
     "extends": [
       "react-app",
@@ -54,7 +36,39 @@
       "last 1 safari version"
     ]
   },
+  "dependencies": {
+    "@cosmjs/proto-signing": "^0.25.2",
+    "@cosmjs/stargate": "^0.25.2",
+    "@material-ui/core": "^4.11.4",
+    "@material-ui/icons": "^4.11.2",
+    "@material-ui/lab": "^4.0.0-alpha.58",
+    "json-stable-stringify": "^1.0.1",
+    "jsrsasign": "^10.2.0",
+    "nanoid": "^3.1.23",
+    "node-fetch": "^2.6.1",
+    "react-router-dom": "^5.2.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
   "devDependencies": {
-    "electron": "^12.0.7"
+    "@babel/core": "^7.9.0",
+    "@babel/preset-env": "^7.9.5",
+    "@babel/preset-react": "^7.9.4",
+    "@babel/preset-typescript": "^7.9.0",
+    "@types/react": "^16.9.34",
+    "@types/react-dom": "^16.9.6",
+    "babel-loader": "^8.1.0",
+    "clean-webpack-plugin": "^4.0.0-alpha.0",
+    "cross-env": "^7.0.3",
+    "css-loader": "^5.2.6",
+    "electron": "^8.2.2",
+    "electron-builder": "^22.7.0",
+    "file-loader": "^6.2.0",
+    "html-webpack-plugin": "^4.2.0",
+    "style-loader": "^2.0.0",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.10.3",
+    "webpack-node-externals": "^3.0.0"
   }
 }

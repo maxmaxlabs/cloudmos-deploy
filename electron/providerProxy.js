@@ -53,7 +53,7 @@ async function makeRequest(url, method, body, certPem, keyPem) {
   });
 }
 
-exports.queryProvider = async function (url, method, body, certPem, prvPem) {
+export const queryProvider = async function (url, method, body, certPem, prvPem) {
   console.log("Querying provider using proxy");
 
   try {

@@ -1,5 +1,5 @@
 const { contextBridge, shell } = require('electron')
-const providerProxy = require("./shared/utils/providerProxy");
+const providerProxy = require("./providerProxy");
 
 // All of the Node.js APIs are available in the preload process.
 // It has the same sandbox as a Chrome extension.

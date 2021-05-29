@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import TextField from '@material-ui/core/TextField';
-import Container from '@material-ui/core/Container';
-import { Button, CircularProgress } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import Paper from '@material-ui/core/Paper';
+import React, { useState } from "react";
+import TextField from "@material-ui/core/TextField";
+import Container from "@material-ui/core/Container";
+import { Button, CircularProgress } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
+import Paper from "@material-ui/core/Paper";
 import { openCert, openWallet } from "./walletHelper";
 
 const useStyles = makeStyles((theme) => ({
@@ -12,19 +12,19 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: "#f5f5f5",
     paddingTop: "20px",
 
-    '& .MuiTextField-root': {
-      marginBottom: "20px"
+    "& .MuiTextField-root": {
+      marginBottom: "20px",
     },
-    '& .MuiButton-root': {
+    "& .MuiButton-root": {
       marginLeft: "5px",
-      marginRight: "5px"
-    }
+      marginRight: "5px",
+    },
   },
   paper: {
     padding: theme.spacing(2),
-    textAlign: 'center',
-    color: theme.palette.text.secondary
-  }
+    textAlign: "center",
+    color: theme.palette.text.secondary,
+  },
 }));
 
 export default function WalletOpen(props) {
@@ -53,18 +53,17 @@ export default function WalletOpen(props) {
 
   return (
     <div className={classes.root}>
-      <Container maxWidth="sm" pt={2}>
+      <Container maxWidth="sm" component="div">
         <Paper className={classes.paper}>
           <h1>Opening your wallet</h1>
           <br />
           <form noValidate autoComplete={"false"} onSubmit={onOpenClick}>
-
             <TextField
               label="Enter your password"
               fullWidth
               rows={4}
               value={password}
-              onChange={ev => setPassword(ev.target.value)}
+              onChange={(ev) => setPassword(ev.target.value)}
               type="password"
               variant="outlined"
               autoFocus
@@ -72,7 +71,11 @@ export default function WalletOpen(props) {
 
             {isLoading && <CircularProgress />}
             {/* <Button variant="contained" color="default" onClick={onCancelClick}>Cancel</Button> */}
-            {!isLoading && <Button type="submit" variant="contained" color="primary">Open</Button>}
+            {!isLoading && (
+              <Button type="submit" variant="contained" color="primary">
+                Open
+              </Button>
+            )}
           </form>
         </Paper>
       </Container>

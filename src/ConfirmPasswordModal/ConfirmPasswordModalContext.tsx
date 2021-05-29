@@ -1,17 +1,21 @@
 import React, { useState } from "react";
 import { ConfirmPasswordModal } from "./ConfirmPasswordModal";
 
-const PasswordConfirmationModalContext = React.createContext({});
+type PasswordConfirmationModalContextType = {
+  openModal?: (options) => any;
+};
+const PasswordConfirmationModalContext =
+  React.createContext<PasswordConfirmationModalContextType>({});
 
 export const PasswordConfirmationModalProvider = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [options, setOptions] = useState(null);
-  
+
   const openModal = (options) => {
     setIsOpen(true);
     setOptions(options);
   };
-  
+
   function handleConfirmPassword(password) {
     setIsOpen(false);
     options.actionCallback(password);
@@ -27,7 +31,8 @@ export const PasswordConfirmationModalProvider = ({ children }) => {
       <ConfirmPasswordModal
         isOpen={isOpen}
         onClose={handleClose}
-        onConfirmPassword={handleConfirmPassword} />
+        onConfirmPassword={handleConfirmPassword}
+      />
       {children}
     </PasswordConfirmationModalContext.Provider>
   );

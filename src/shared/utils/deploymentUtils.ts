@@ -46,8 +46,7 @@ function parseSizeStr(str) {
 function toResourceUnits(computeResources) {
   if (!computeResources) return {};
 
-  let units = {
-  };
+  let units: any = {};
   if (computeResources.cpu) {
     units.cpu = {
       units: { val: (computeResources.cpu.units * 1000).toString() },
@@ -308,7 +307,7 @@ function DeploymentIDFromFlagsForOwner(flags, owner) {
 }
 
 
-function DepositFromFlags(flags) {
+function DepositFromFlags(flags?) {
   // let val = flags["deposit"];
 
   // if(!val) return {};
