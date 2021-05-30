@@ -9,7 +9,7 @@ import { SelectManifestTemplate } from "./CreateDeploymentWizard/SelectManifestT
 import { DeploymentList } from "./DeploymentList";
 import { WalletDisplay } from "./WalletDisplay";
 import { CertificateDisplay } from "./CertificateDisplay";
-import { DeploymentDetail } from "./DeploymentDetail";
+import { DeploymentDetail } from "./components/DeploymentDetail";
 
 const useStyles = makeStyles((theme) => ({
   root: {
