@@ -102,7 +102,8 @@ export function DeploymentList(props) {
         dseq: d.deployment.deployment_id.dseq,
         state: d.deployment.state,
         createdAt: parseInt(d.deployment.created_at),
-        transferredAmount: d.escrow_account.transferred.amount,
+        escrowBalance: d.escrow_account.balance,
+        transferred: d.escrow_account.transferred,
         cpuAmount: deploymentResourceSum(
           d,
           (r) => parseInt(r.cpu.units.val) / 1000
@@ -113,6 +114,7 @@ export function DeploymentList(props) {
         storageAmount: deploymentResourceSum(d, (r) =>
           parseInt(r.storage.quantity.val)
         ),
+        escrowAccount: { ...d.escrow_account },
       }))
     );
 

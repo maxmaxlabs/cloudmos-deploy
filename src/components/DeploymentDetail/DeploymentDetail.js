@@ -41,7 +41,7 @@ import { DeploymentSubHeader } from "./DeploymentSubHeader";
 export function DeploymentDetail(props) {
   const [bids, setBids] = useState([]);
   const [leases, setLeases] = useState([]);
-
+  const [currentBlock, setCurrentBlock] = useState(null);
   const [isLoadingBids, setIsLoadingBids] = useState(false);
   const [isLoadingLeases, setIsLoadingLeases] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -101,16 +101,28 @@ export function DeploymentDetail(props) {
         gseq: l.lease.lease_id.gseq,
         oseq: l.lease.lease_id.oseq,
         state: l.lease.state,
+        price: l.lease.price,
       }))
     );
 
     setIsLoadingLeases(false);
   }, [deployment, address]);
 
+  const loadBlock = useCallback(async () => {
+    // setIsLoadingLeases(true);
+    const response = await fetch(`${apiEndpoint}/blocks/${deployment.dseq}`);
+    const data = await response.json();
+
+    setCurrentBlock(data);
+
+    // setIsLoadingLeases(false);
+  }, [deployment, address]);
+
   useEffect(() => {
     loadBids();
     loadLeases();
-  }, [deployment, loadBids, loadLeases]);
+    loadBlock();
+  }, [deployment, loadBids, loadLeases, loadBlock]);
 
   async function closeDeployment(deployment) {
     handleMenuClose();
@@ -212,10 +224,25 @@ export function DeploymentDetail(props) {
               <IconButton aria-label="back" onClick={handleBackClick}>
                 <ChevronLeftIcon />
               </IconButton>
-              <Typography variant="h4" className={classes.title}>Deployment detail</Typography>
+              <Typography variant="h4" className={classes.title}>
+                Deployment detail
+              </Typography>
             </>
           }
-          subheader={<DeploymentSubHeader deployment={deployment} />}
+          subheader={
+            <DeploymentSubHeader
+              deployment={deployment}
+              block={currentBlock}
+              deploymentCost={
+                leases && leases.length > 0
+                  ? leases.reduce(
+                      (prev, current) => prev + current.price.amount,
+                      []
+                    )
+                  : 0
+              }
+            />
+          }
         />
         <Menu
           id="long-menu"

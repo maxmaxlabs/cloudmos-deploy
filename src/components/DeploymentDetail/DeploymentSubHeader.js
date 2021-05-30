@@ -8,6 +8,13 @@ import {
 } from "@material-ui/core";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import clsx from "clsx";
+import {
+  getAvgCostPerMonth,
+  getTimeLeft,
+  uaktToAKT,
+} from "../../shared/utils/priceUtils";
+import formatDistanceToNow from "date-fns/formatDistanceToNow";
+import isValid from "date-fns/isValid";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -47,8 +54,10 @@ const useStyles = makeStyles((theme) => ({
 // storageAmount: 5368709120
 // transferredAmount: "1202268"
 
-export function DeploymentSubHeader({ deployment }) {
+export function DeploymentSubHeader({ deployment, block, deploymentCost }) {
   const classes = useStyles();
+  const timeLeft = getTimeLeft(deploymentCost, deployment.escrowBalance.amount);
+  // const timeLeft = formatDistanceToNow(new Date(block.block_meta.header.time));
 
   const handleMenuClick = (event) => {
     console.log("menu");
@@ -75,23 +84,33 @@ export function DeploymentSubHeader({ deployment }) {
       <Grid item xs={5}>
         <LabelValue
           label="Escrow Balance:"
-          value={`${deployment.transferredAmount}uakt`}
+          // value={`${deployment.escrowBalance.amount}${deployment.escrowBalance.denom}`}
+          value={`${uaktToAKT(deployment.escrowBalance.amount)}AKT`}
         />
       </Grid>
-      <Grid item xs={4}>
-        <LabelValue label="Time left:" value="TODO" />
-      </Grid>
+      {deployment.state === "active" && (
+        <Grid item xs={4}>
+          <LabelValue
+            label="Time left:"
+            value={isValid(timeLeft) && formatDistanceToNow(timeLeft)}
+          />
+        </Grid>
+      )}
       <Grid item xs={3}>
         <LabelValue label="DSEQ:" value={deployment.dseq} />
       </Grid>
       <Grid item xs={5}>
         <LabelValue
           label="Amount spent:"
-          value={`${deployment.transferredAmount}uakt`}
+          // value={`${deployment.transferred.amount}${deployment.transferred.denom}`}
+          value={`${uaktToAKT(deployment.transferred.amount, 100000)}AKT`}
         />
       </Grid>
       <Grid item xs={4}>
-        <LabelValue label="~cost/month:" value="TODO" />
+        <LabelValue
+          label="~Cost/Month:"
+          value={`${getAvgCostPerMonth(deploymentCost)}AKT`}
+        />
       </Grid>
 
       <Box className={classes.actionContainer}>
