@@ -1,12 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { apiEndpoint, rpcEndpoint } from "../../shared/constants";
-import { MsgCloseDeployment } from "../../ProtoAkashTypes";
-import { SigningStargateClient } from "@cosmjs/stargate";
-import {
-  customRegistry,
-  baseFee,
-  createFee,
-} from "../../shared/utils/blockchainUtils";
+import { apiEndpoint } from "../../shared/constants";
 import { useParams, useHistory } from "react-router-dom";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
@@ -25,18 +18,14 @@ import {
   ListItem,
   ListItemText,
 } from "@material-ui/core";
-import { LeaseRow } from "../../LeaseRow";
+import { LeaseRow } from "./LeaseRow";
 import { useStyles } from "./DeploymentDetail.styles";
 import { DeploymentSubHeader } from "./DeploymentSubHeader";
-
-// Deployment
-// cpuAmount: 1
-// createdAt: 747596
-// dseq: "747591"
-// memoryAmount: 1073741824
-// state: "active"
-// storageAmount: 5368709120
-// transferredAmount: "1202268"
+import {
+  closeDeployment,
+  acceptBid,
+  deploymentGroupResourceSum,
+} from "../../shared/utils/deploymentDetailUtils";
 
 export function DeploymentDetail(props) {
   const [bids, setBids] = useState([]);
@@ -65,6 +54,8 @@ export function DeploymentDetail(props) {
     );
     const data = await response.json();
 
+    console.log("bids", data);
+
     setBids(
       data.bids.map((b) => ({
         owner: b.bid.bid_id.owner,
@@ -91,18 +82,40 @@ export function DeploymentDetail(props) {
     );
     const data = await response.json();
 
+    console.log("leases", data);
+
     setLeases(
-      data.leases.map((l) => ({
-        id:
-          l.lease.lease_id.dseq + l.lease.lease_id.gseq + l.lease.lease_id.oseq,
-        owner: l.lease.lease_id.owner,
-        provider: l.lease.lease_id.provider,
-        dseq: l.lease.lease_id.dseq,
-        gseq: l.lease.lease_id.gseq,
-        oseq: l.lease.lease_id.oseq,
-        state: l.lease.state,
-        price: l.lease.price,
-      }))
+      data.leases.map((l) => {
+        const group =
+          deployment.groups.filter(
+            (g) => g.group_id.gseq === l.lease.lease_id.gseq
+          )[0] || {};
+
+        return {
+          id:
+            l.lease.lease_id.dseq +
+            l.lease.lease_id.gseq +
+            l.lease.lease_id.oseq,
+          owner: l.lease.lease_id.owner,
+          provider: l.lease.lease_id.provider,
+          dseq: l.lease.lease_id.dseq,
+          gseq: l.lease.lease_id.gseq,
+          oseq: l.lease.lease_id.oseq,
+          state: l.lease.state,
+          price: l.lease.price,
+          cpuAmount: deploymentGroupResourceSum(
+            group,
+            (r) => parseInt(r.cpu.units.val) / 1000
+          ),
+          memoryAmount: deploymentGroupResourceSum(group, (r) =>
+            parseInt(r.memory.quantity.val)
+          ),
+          storageAmount: deploymentGroupResourceSum(group, (r) =>
+            parseInt(r.storage.quantity.val)
+          ),
+          group,
+        };
+      })
     );
 
     setIsLoadingLeases(false);
@@ -124,72 +137,17 @@ export function DeploymentDetail(props) {
     loadBlock();
   }, [deployment, loadBids, loadLeases, loadBlock]);
 
-  async function closeDeployment(deployment) {
+  const onCloseDeployment = async () => {
     handleMenuClose();
-    const client = await SigningStargateClient.connectWithSigner(
-      rpcEndpoint,
-      selectedWallet,
-      {
-        registry: customRegistry,
-      }
-    );
+    await closeDeployment(deployment, address, selectedWallet);
+  };
 
-    const closeJson = {
-      id: {
-        owner: address,
-        dseq: parseInt(deployment.dseq),
-      },
-    };
-
-    const closeDeploymentJson = {
-      typeUrl: "/akash.deployment.v1beta1.MsgCloseDeployment",
-      value: closeJson,
-    };
-
-    const err = MsgCloseDeployment.verify(closeJson);
-
-    if (err) throw err;
-
-    await client.signAndBroadcast(
-      address,
-      [closeDeploymentJson],
-      baseFee,
-      "Test Akashlytics"
-    );
-  }
-
-  async function acceptBid(bid) {
-    const client = await SigningStargateClient.connectWithSigner(
-      rpcEndpoint,
-      selectedWallet,
-      {
-        registry: customRegistry,
-      }
-    );
-
-    const createLeaseMsg = {
-      typeUrl: "/akash.market.v1beta1.MsgCreateLease",
-      value: {
-        bid_id: {
-          owner: bid.owner,
-          dseq: bid.dseq,
-          gseq: bid.gseq,
-          oseq: bid.oseq,
-          provider: bid.provider,
-        },
-      },
-    };
-
-    await client.signAndBroadcast(
-      address,
-      [createLeaseMsg],
-      createFee("200000"),
-      "Test Akashlytics"
-    );
+  const onAcceptBid = async (bid) => {
+    await acceptBid(bid, address, selectedWallet);
 
     loadBids();
     loadLeases();
-  }
+  };
 
   function handleMenuClick(ev) {
     setAnchorEl(ev.currentTarget);
@@ -261,18 +219,18 @@ export function DeploymentDetail(props) {
           }}
         >
           {deployment.state === "active" && (
-            <MenuItem onClick={() => closeDeployment(deployment)}>
+            <MenuItem onClick={() => onCloseDeployment()}>
               <CancelPresentationIcon />
               &nbsp;Close
             </MenuItem>
           )}
         </Menu>
         <CardContent>
-          <>
-            <Typography variant="h6" gutterBottom>
-              Bids
-            </Typography>
-            {!isLoadingBids && (
+          {!isLoadingBids && bids.some((b) => b.state === "open") && (
+            <>
+              <Typography variant="h6" gutterBottom>
+                Bids
+              </Typography>
               <List component="nav" dense>
                 {bids.map((bid) => (
                   <ListItem key={bid.provider}>
@@ -295,7 +253,7 @@ export function DeploymentDetail(props) {
                       <Button
                         variant="contained"
                         color="primary"
-                        onClick={() => acceptBid(bid)}
+                        onClick={() => onAcceptBid(bid)}
                       >
                         Accept
                       </Button>
@@ -303,22 +261,26 @@ export function DeploymentDetail(props) {
                   </ListItem>
                 ))}
               </List>
-            )}
-            {isLoadingBids && <CircularProgress />}
+            </>
+          )}
 
-            <Typography variant="h6" gutterBottom>
-              Leases
-            </Typography>
-            {!isLoadingLeases && (
-              <>
-                {leases.map((lease) => (
-                  <LeaseRow key={lease.id} cert={props.cert} lease={lease} />
-                ))}
-              </>
-            )}
+          {!isLoadingLeases && (
+            <>
+              <Typography variant="h5" gutterBottom className={classes.title}>
+                Leases
+              </Typography>
+              {leases.map((lease) => (
+                <LeaseRow
+                  key={lease.id}
+                  cert={props.cert}
+                  lease={lease}
+                  deployment={deployment}
+                />
+              ))}
+            </>
+          )}
 
-            {isLoadingLeases && <CircularProgress />}
-          </>
+          {(isLoadingLeases || isLoadingBids) && <CircularProgress />}
         </CardContent>
       </Card>
     </>

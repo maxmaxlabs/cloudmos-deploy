@@ -27,6 +27,8 @@ import {
   ListItemSecondaryAction,
 } from "@material-ui/core";
 import { useHistory } from "react-router";
+import { humanFileSize } from "./shared/utils/unitUtils";
+import { deploymentResourceSum } from "./shared/utils/deploymentDetailUtils";
 
 const yaml = require("js-yaml");
 
@@ -41,30 +43,6 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 }));
-
-function humanFileSize(bytes, si = false, dp = 1) {
-  const thresh = si ? 1000 : 1024;
-
-  if (Math.abs(bytes) < thresh) {
-    return bytes + " B";
-  }
-
-  const units = si
-    ? ["kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
-    : ["KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"];
-  let u = -1;
-  const r = 10 ** dp;
-
-  do {
-    bytes /= thresh;
-    ++u;
-  } while (
-    Math.round(Math.abs(bytes) * r) / r >= thresh &&
-    u < units.length - 1
-  );
-
-  return bytes.toFixed(dp) + " " + units[u];
-}
 
 export function DeploymentList(props) {
   const [isLoadingDeployments, setIsLoadingDeployments] = useState(false);
@@ -87,15 +65,7 @@ export function DeploymentList(props) {
     );
     const deployments = await response.json();
 
-    function deploymentResourceSum(deployment, resourceSelector) {
-      return deployment.groups
-        .map((g) =>
-          g.group_spec.resources
-            .map((r) => r.count * resourceSelector(r.resources))
-            .reduce((a, b) => a + b)
-        )
-        .reduce((a, b) => a + b);
-    }
+    console.log("deployments", deployments);
 
     setDeployments(
       deployments.deployments.map((d) => ({
@@ -115,6 +85,7 @@ export function DeploymentList(props) {
           parseInt(r.storage.quantity.val)
         ),
         escrowAccount: { ...d.escrow_account },
+        groups: [...d.groups],
       }))
     );
 

@@ -15,49 +15,29 @@ import {
 } from "../../shared/utils/priceUtils";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import isValid from "date-fns/isValid";
+import { StatusPill } from "../../shared/components/StatusPill";
+import { LabelValue } from "../../shared/components/LabelValue";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    padding: "1rem",
-  },
-  status: {
-    marginLeft: "1rem",
-    width: "1rem",
-    height: "1rem",
-    borderRadius: "1rem",
-  },
-  statusActive: {
-    backgroundColor: "green",
-  },
-  statusClosed: {
-    backgroundColor: "red",
+    paddingTop: "1rem",
   },
   actionContainer: {
-    diplay: "flex",
+    display: "flex",
     alignItems: "center",
-    padding: "1rem 0",
+    padding: "1rem .5rem",
     "& .MuiButtonBase-root:first-child": {
       marginLeft: 0,
     },
   },
   actionButton: {
-    marginLeft: "1rem",
+    marginLeft: ".5rem",
   },
 }));
-
-// Deployment
-// cpuAmount: 1
-// createdAt: 747596
-// dseq: "747591"
-// memoryAmount: 1073741824
-// state: "active"
-// storageAmount: 5368709120
-// transferredAmount: "1202268"
 
 export function DeploymentSubHeader({ deployment, block, deploymentCost }) {
   const classes = useStyles();
   const timeLeft = getTimeLeft(deploymentCost, deployment.escrowBalance.amount);
-  // const timeLeft = formatDistanceToNow(new Date(block.block_meta.header.time));
 
   const handleMenuClick = (event) => {
     console.log("menu");
@@ -71,12 +51,7 @@ export function DeploymentSubHeader({ deployment, block, deploymentCost }) {
           value={
             <>
               <div>{deployment.state}</div>
-              <div
-                className={clsx(classes.status, {
-                  [classes.statusActive]: deployment.state === "active",
-                  [classes.statusClosed]: deployment.state === "closed",
-                })}
-              />
+              <StatusPill state={deployment.state} />
             </>
           }
         />
@@ -147,26 +122,3 @@ export function DeploymentSubHeader({ deployment, block, deploymentCost }) {
     </Grid>
   );
 }
-const useLabelStyles = makeStyles((theme) => ({
-  root: { display: "flex", alignItems: "center" },
-  label: {
-    fontWeight: "bold",
-    color: "black",
-  },
-  value: {
-    display: "flex",
-    alignItems: "center",
-    marginLeft: "1rem",
-  },
-}));
-
-const LabelValue = ({ label, value }) => {
-  const classes = useLabelStyles();
-
-  return (
-    <Box className={classes.root}>
-      <FormLabel className={classes.label}>{label}</FormLabel>
-      <div className={classes.value}>{value}</div>
-    </Box>
-  );
-};
