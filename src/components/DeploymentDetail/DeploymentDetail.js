@@ -2,13 +2,10 @@ import { useState, useEffect, useCallback } from "react";
 import { apiEndpoint } from "../../shared/constants";
 import { useParams, useHistory } from "react-router-dom";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
-import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import {
   Button,
   CircularProgress,
-  MenuItem,
-  Menu,
   IconButton,
   Card,
   CardContent,
@@ -22,7 +19,6 @@ import { LeaseRow } from "./LeaseRow";
 import { useStyles } from "./DeploymentDetail.styles";
 import { DeploymentSubHeader } from "./DeploymentSubHeader";
 import {
-  closeDeployment,
   acceptBid,
   deploymentGroupResourceSum,
 } from "../../shared/utils/deploymentDetailUtils";
@@ -33,7 +29,6 @@ export function DeploymentDetail(props) {
   const [currentBlock, setCurrentBlock] = useState(null);
   const [isLoadingBids, setIsLoadingBids] = useState(false);
   const [isLoadingLeases, setIsLoadingLeases] = useState(false);
-  const [anchorEl, setAnchorEl] = useState(null);
 
   const classes = useStyles();
   const history = useHistory();
@@ -137,24 +132,11 @@ export function DeploymentDetail(props) {
     loadBlock();
   }, [deployment, loadBids, loadLeases, loadBlock]);
 
-  const onCloseDeployment = async () => {
-    handleMenuClose();
-    await closeDeployment(deployment, address, selectedWallet);
-  };
-
   const onAcceptBid = async (bid) => {
     await acceptBid(bid, address, selectedWallet);
 
     loadBids();
     loadLeases();
-  };
-
-  function handleMenuClick(ev) {
-    setAnchorEl(ev.currentTarget);
-  }
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
   };
 
   function handleBackClick() {
@@ -168,15 +150,6 @@ export function DeploymentDetail(props) {
           classes={{
             title: classes.cardTitle,
           }}
-          action={
-            <IconButton
-              aria-label="settings"
-              aria-haspopup="true"
-              onClick={handleMenuClick}
-            >
-              <MoreVertIcon />
-            </IconButton>
-          }
           title={
             <>
               <IconButton aria-label="back" onClick={handleBackClick}>
@@ -199,32 +172,12 @@ export function DeploymentDetail(props) {
                     )
                   : 0
               }
+              address={address}
+              selectedWallet={selectedWallet}
             />
           }
         />
-        <Menu
-          id="long-menu"
-          anchorEl={anchorEl}
-          keepMounted
-          getContentAnchorEl={null}
-          open={Boolean(anchorEl)}
-          onClose={handleMenuClose}
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "right",
-          }}
-          transformOrigin={{
-            vertical: "top",
-            horizontal: "right",
-          }}
-        >
-          {deployment.state === "active" && (
-            <MenuItem onClick={() => onCloseDeployment()}>
-              <CancelPresentationIcon />
-              &nbsp;Close
-            </MenuItem>
-          )}
-        </Menu>
+
         <CardContent>
           {!isLoadingBids && bids.some((b) => b.state === "open") && (
             <>

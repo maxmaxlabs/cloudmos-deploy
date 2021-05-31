@@ -1,12 +1,15 @@
+import { useState } from "react";
 import {
   Grid,
-  FormLabel,
+  Menu,
   makeStyles,
   Box,
   Button,
   IconButton,
+  MenuItem,
 } from "@material-ui/core";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
+import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
 import clsx from "clsx";
 import {
   getAvgCostPerMonth,
@@ -17,6 +20,7 @@ import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import isValid from "date-fns/isValid";
 import { StatusPill } from "../../shared/components/StatusPill";
 import { LabelValue } from "../../shared/components/LabelValue";
+import { closeDeployment } from "../../shared/utils/deploymentDetailUtils";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -33,14 +37,34 @@ const useStyles = makeStyles((theme) => ({
   actionButton: {
     marginLeft: ".5rem",
   },
+  menuItem: {
+    paddingBottom: "3px",
+    paddingTop: "3px",
+  },
 }));
 
-export function DeploymentSubHeader({ deployment, block, deploymentCost }) {
+export function DeploymentSubHeader({
+  deployment,
+  block,
+  deploymentCost,
+  address,
+  selectedWallet,
+}) {
   const classes = useStyles();
   const timeLeft = getTimeLeft(deploymentCost, deployment.escrowBalance.amount);
+  const [anchorEl, setAnchorEl] = useState(null);
 
-  const handleMenuClick = (event) => {
-    console.log("menu");
+  const onCloseDeployment = async () => {
+    handleMenuClose();
+    await closeDeployment(deployment, address, selectedWallet);
+  };
+
+  function handleMenuClick(ev) {
+    setAnchorEl(ev.currentTarget);
+  }
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
   };
 
   return (
@@ -118,6 +142,33 @@ export function DeploymentSubHeader({ deployment, block, deploymentCost }) {
         >
           <MoreVertIcon />
         </IconButton>
+
+        <Menu
+          id="long-menu"
+          anchorEl={anchorEl}
+          keepMounted
+          getContentAnchorEl={null}
+          open={Boolean(anchorEl)}
+          onClose={handleMenuClose}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "right",
+          }}
+          transformOrigin={{
+            vertical: "top",
+            horizontal: "right",
+          }}
+        >
+          {deployment.state === "active" && (
+            <MenuItem
+              onClick={() => onCloseDeployment()}
+              classes={{ root: classes.menuItem }}
+            >
+              <CancelPresentationIcon />
+              &nbsp;Close
+            </MenuItem>
+          )}
+        </Menu>
       </Box>
     </Grid>
   );
