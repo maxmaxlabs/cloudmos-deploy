@@ -21,6 +21,12 @@ import isValid from "date-fns/isValid";
 import { StatusPill } from "../../shared/components/StatusPill";
 import { LabelValue } from "../../shared/components/LabelValue";
 import { closeDeployment } from "../../shared/utils/deploymentDetailUtils";
+import CodeIcon from "@material-ui/icons/Code";
+import {
+  RAW_JSON_BIDS,
+  RAW_JSON_DEPLOYMENT,
+  RAW_JSON_LEASES,
+} from "../../shared/constants";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -49,6 +55,7 @@ export function DeploymentSubHeader({
   deploymentCost,
   address,
   selectedWallet,
+  updateShownRawJson,
 }) {
   const classes = useStyles();
   const timeLeft = getTimeLeft(deploymentCost, deployment.escrowBalance.amount);
@@ -57,6 +64,11 @@ export function DeploymentSubHeader({
   const onCloseDeployment = async () => {
     handleMenuClose();
     await closeDeployment(deployment, address, selectedWallet);
+  };
+
+  const onUpdateShownRawJson = (json) => {
+    handleMenuClose();
+    updateShownRawJson(json)
   };
 
   function handleMenuClick(ev) {
@@ -159,6 +171,27 @@ export function DeploymentSubHeader({
             horizontal: "right",
           }}
         >
+          <MenuItem
+            onClick={() => onUpdateShownRawJson(RAW_JSON_DEPLOYMENT)}
+            classes={{ root: classes.menuItem }}
+          >
+            <CodeIcon />
+            &nbsp;View deployment JSON
+          </MenuItem>
+          <MenuItem
+            onClick={() => onUpdateShownRawJson(RAW_JSON_BIDS)}
+            classes={{ root: classes.menuItem }}
+          >
+            <CodeIcon />
+            &nbsp;View bids JSON
+          </MenuItem>
+          <MenuItem
+            onClick={() => onUpdateShownRawJson(RAW_JSON_LEASES)}
+            classes={{ root: classes.menuItem }}
+          >
+            <CodeIcon />
+            &nbsp;View leases JSON
+          </MenuItem>
           {deployment.state === "active" && (
             <MenuItem
               onClick={() => onCloseDeployment()}

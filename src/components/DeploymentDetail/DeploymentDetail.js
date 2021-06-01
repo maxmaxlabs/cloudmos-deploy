@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { apiEndpoint } from "../../shared/constants";
 import { useParams, useHistory } from "react-router-dom";
-import MoreVertIcon from "@material-ui/icons/MoreVert";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import CloseIcon from "@material-ui/icons/Close";
 import {
   Button,
   CircularProgress,
@@ -14,6 +14,7 @@ import {
   List,
   ListItem,
   ListItemText,
+  Box,
 } from "@material-ui/core";
 import { LeaseRow } from "./LeaseRow";
 import { useStyles } from "./DeploymentDetail.styles";
@@ -22,6 +23,12 @@ import {
   acceptBid,
   deploymentGroupResourceSum,
 } from "../../shared/utils/deploymentDetailUtils";
+import {
+  RAW_JSON_BIDS,
+  RAW_JSON_DEPLOYMENT,
+  RAW_JSON_LEASES,
+} from "../../shared/constants";
+import { syntaxHighlight } from "../../shared/utils/stringUtils";
 
 export function DeploymentDetail(props) {
   const [bids, setBids] = useState([]);
@@ -29,6 +36,7 @@ export function DeploymentDetail(props) {
   const [currentBlock, setCurrentBlock] = useState(null);
   const [isLoadingBids, setIsLoadingBids] = useState(false);
   const [isLoadingLeases, setIsLoadingLeases] = useState(false);
+  const [shownRawJson, setShownRawJson] = useState(null);
 
   const classes = useStyles();
   const history = useHistory();
@@ -143,6 +151,48 @@ export function DeploymentDetail(props) {
     history.push("/");
   }
 
+  const getRawJson = (json) => {
+    let value;
+
+    switch (json) {
+      case RAW_JSON_DEPLOYMENT:
+        value = deployment;
+        break;
+      case RAW_JSON_LEASES:
+        value = leases;
+        break;
+      case RAW_JSON_BIDS:
+        value = bids;
+        break;
+
+      default:
+        break;
+    }
+
+    return JSON.stringify(value, null, 2);
+  };
+
+  const getRawJsonTitle = (json) => {
+    let title = "";
+
+    switch (json) {
+      case RAW_JSON_DEPLOYMENT:
+        title = "Deployment JSON";
+        break;
+      case RAW_JSON_LEASES:
+        title = "Leases JSON";
+        break;
+      case RAW_JSON_BIDS:
+        title = "Bids JSON";
+        break;
+
+      default:
+        break;
+    }
+
+    return title;
+  };
+
   return (
     <>
       <Card className={classes.root} variant="outlined">
@@ -174,66 +224,100 @@ export function DeploymentDetail(props) {
               }
               address={address}
               selectedWallet={selectedWallet}
+              updateShownRawJson={(json) => setShownRawJson(json)}
             />
           }
         />
 
         <CardContent>
-          {!isLoadingBids && bids.some((b) => b.state === "open") && (
+          {shownRawJson ? (
+            <Box>
+              <Box display="flex">
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => setShownRawJson(null)}
+                  startIcon={<CloseIcon />}
+                >
+                  Close
+                </Button>
+
+                <Typography variant="h6" className={classes.rawJsonTitle}>
+                  {getRawJsonTitle(shownRawJson)}
+                </Typography>
+              </Box>
+
+              <pre className={classes.rawJson}>
+                <code
+                  dangerouslySetInnerHTML={{
+                    __html: syntaxHighlight(getRawJson(shownRawJson)),
+                  }}
+                ></code>
+              </pre>
+            </Box>
+          ) : (
             <>
-              <Typography variant="h6" gutterBottom>
-                Bids
-              </Typography>
-              <List component="nav" dense>
-                {bids.map((bid) => (
-                  <ListItem key={bid.provider}>
-                    <ListItemText
-                      primary={
-                        <>
-                          Price: {bid.price.amount}
-                          {bid.price.denom}
-                        </>
-                      }
-                      secondary={
-                        <>
-                          {bid.provider}
-                          <br />
-                          {bid.state}
-                        </>
-                      }
+              {!isLoadingBids && bids.some((b) => b.state === "open") && (
+                <>
+                  <Typography variant="h6" gutterBottom>
+                    Bids
+                  </Typography>
+                  <List component="nav" dense>
+                    {bids.map((bid) => (
+                      <ListItem key={bid.provider}>
+                        <ListItemText
+                          primary={
+                            <>
+                              Price: {bid.price.amount}
+                              {bid.price.denom}
+                            </>
+                          }
+                          secondary={
+                            <>
+                              {bid.provider}
+                              <br />
+                              {bid.state}
+                            </>
+                          }
+                        />
+                        {bid.state === "open" && (
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => onAcceptBid(bid)}
+                          >
+                            Accept
+                          </Button>
+                        )}
+                      </ListItem>
+                    ))}
+                  </List>
+                </>
+              )}
+
+              {!isLoadingLeases && (
+                <>
+                  <Typography
+                    variant="h5"
+                    gutterBottom
+                    className={classes.title}
+                  >
+                    Leases
+                  </Typography>
+                  {leases.map((lease) => (
+                    <LeaseRow
+                      key={lease.id}
+                      cert={props.cert}
+                      lease={lease}
+                      deployment={deployment}
                     />
-                    {bid.state === "open" && (
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => onAcceptBid(bid)}
-                      >
-                        Accept
-                      </Button>
-                    )}
-                  </ListItem>
-                ))}
-              </List>
+                  ))}
+                </>
+              )}
+
+              {(isLoadingLeases || isLoadingBids) && <CircularProgress />}
             </>
           )}
-
-          {!isLoadingLeases && (
-            <>
-              <Typography variant="h5" gutterBottom className={classes.title}>
-                Leases
-              </Typography>
-              {leases.map((lease) => (
-                <LeaseRow
-                  key={lease.id}
-                  cert={props.cert}
-                  lease={lease}
-                  deployment={deployment}
-                />
-              ))}
-            </>
-          )}
-
-          {(isLoadingLeases || isLoadingBids) && <CircularProgress />}
         </CardContent>
       </Card>
     </>
