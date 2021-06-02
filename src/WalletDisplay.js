@@ -11,19 +11,19 @@ import CardHeader from "@material-ui/core/CardHeader";
 
 const useStyles = makeStyles({
   root: {
-    minWidth: 275,
+    minWidth: 275
   },
   bullet: {
     display: "inline-block",
     margin: "0 2px",
-    transform: "scale(0.8)",
+    transform: "scale(0.8)"
   },
   title: {
-    fontSize: 14,
+    fontSize: 14
   },
   pos: {
-    marginBottom: 12,
-  },
+    marginBottom: 12
+  }
 });
 
 export function WalletDisplay(props) {
@@ -37,9 +37,7 @@ export function WalletDisplay(props) {
   // }
 
   const loadBalance = useCallback(async () => {
-    const response = await fetch(
-      apiEndpoint + "/cosmos/bank/v1beta1/balances/" + address
-    );
+    const response = await fetch(apiEndpoint + "/cosmos/bank/v1beta1/balances/" + address);
     const data = await response.json();
     const balance = data.balances.length > 0 ? data.balances[0].amount : 0;
     setBalance(balance);

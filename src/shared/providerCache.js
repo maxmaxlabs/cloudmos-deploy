@@ -13,4 +13,4 @@ export const fetchProviderInfo = async (providerAddress) => {
   providerCache[providerAddress] = data.provider;
 
   return data.provider;
-}
+};

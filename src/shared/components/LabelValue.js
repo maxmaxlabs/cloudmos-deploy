@@ -5,13 +5,13 @@ const useStyles = makeStyles((theme) => ({
   root: { display: "flex", alignItems: "center" },
   label: {
     fontWeight: "bold",
-    color: "black",
+    color: "black"
   },
   value: {
     display: "flex",
     alignItems: "center",
-    marginLeft: "1rem",
-  },
+    marginLeft: "1rem"
+  }
 }));
 
 export const LabelValue = ({ label, value, ...rest }) => {

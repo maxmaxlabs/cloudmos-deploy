@@ -3,18 +3,18 @@ import { makeStyles } from "@material-ui/core";
 export const useStyles = makeStyles((theme) => ({
   root: {
     "& .MuiListItemText-secondary .MuiSvgIcon-root:not(:first-child)": {
-      marginLeft: "5px",
+      marginLeft: "5px"
     },
     "& .MuiListItemText-secondary .MuiSvgIcon-root": {
-      fontSize: "20px",
-    },
+      fontSize: "20px"
+    }
   },
   cardTitle: {
-    display: "flex",
+    display: "flex"
   },
   title: {
     fontWeight: "bold",
-    marginLeft: ".5rem",
+    marginLeft: ".5rem"
   },
   rawJson: {
     maxHeight: "400px",
@@ -22,23 +22,23 @@ export const useStyles = makeStyles((theme) => ({
     border: "1px solid #f3f3f3",
     padding: "1rem",
     "& .string": {
-      color: "green",
+      color: "green"
     },
     "& .number": {
-      color: "darkorange",
+      color: "darkorange"
     },
     "& .boolean": {
-      color: "blue",
+      color: "blue"
     },
     "& .null": {
-      color: "magenta",
+      color: "magenta"
     },
     "& .key": {
-      color: "red",
-    },
+      color: "red"
+    }
   },
   rawJsonTitle: {
     marginLeft: "1rem",
-    fontWeight: "bold",
-  },
+    fontWeight: "bold"
+  }
 }));

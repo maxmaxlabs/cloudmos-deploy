@@ -1,18 +1,18 @@
-const path = require('path')
+const path = require("path");
 
-const { nanoid } = require('nanoid');
+const { nanoid } = require("nanoid");
 
 let child = null;
 function spawnProxy() {
-  const spawn = require('child_process').spawn;
-  const command = path.resolve('./tools/akashlytics-provider-proxy.exe');
+  const spawn = require("child_process").spawn;
+  const command = path.resolve("./tools/akashlytics-provider-proxy.exe");
   const parameters = [];
 
   child = spawn(command, parameters, {
-    stdio: ['pipe', 'pipe', 'pipe', 'ipc']
+    stdio: ["pipe", "pipe", "pipe", "ipc"]
   });
 
-  child.on('message', (response) => {
+  child.on("message", (response) => {
     requestResponses[response.id] = response;
   });
 }
@@ -72,4 +72,4 @@ exports.queryProvider = async function (url, method, body, certPem, prvPem) {
     console.log("Failed to query provider with proxy");
     throw err;
   }
-}
+};

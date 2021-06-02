@@ -6,14 +6,14 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: "1rem",
     width: "1rem",
     height: "1rem",
-    borderRadius: "1rem",
+    borderRadius: "1rem"
   },
   statusActive: {
-    backgroundColor: "green",
+    backgroundColor: "green"
   },
   statusClosed: {
-    backgroundColor: "red",
-  },
+    backgroundColor: "red"
+  }
 }));
 
 export function StatusPill({ state }) {
@@ -23,7 +23,7 @@ export function StatusPill({ state }) {
     <div
       className={clsx(classes.root, {
         [classes.statusActive]: state === "active",
-        [classes.statusClosed]: state === "closed",
+        [classes.statusClosed]: state === "closed"
       })}
     />
   );

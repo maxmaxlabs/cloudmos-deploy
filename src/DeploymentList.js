@@ -24,7 +24,7 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
-  ListItemSecondaryAction,
+  ListItemSecondaryAction
 } from "@material-ui/core";
 import { useHistory } from "react-router";
 import { humanFileSize } from "./shared/utils/unitUtils";
@@ -36,12 +36,12 @@ const useStyles = makeStyles((theme) => ({
   root: {
     padding: "5px 10px",
     "& .MuiListItemText-secondary .MuiSvgIcon-root:not(:first-child)": {
-      marginLeft: "5px",
+      marginLeft: "5px"
     },
     "& .MuiListItemText-secondary .MuiSvgIcon-root": {
-      fontSize: "20px",
-    },
-  },
+      fontSize: "20px"
+    }
+  }
 }));
 
 export function DeploymentList(props) {
@@ -58,11 +58,7 @@ export function DeploymentList(props) {
 
   async function loadDeployments(address) {
     setIsLoadingDeployments(true);
-    const response = await fetch(
-      apiEndpoint +
-        "/akash/deployment/v1beta1/deployments/list?filters.owner=" +
-        address
-    );
+    const response = await fetch(apiEndpoint + "/akash/deployment/v1beta1/deployments/list?filters.owner=" + address);
     const deployments = await response.json();
 
     console.log("deployments", deployments);
@@ -74,18 +70,11 @@ export function DeploymentList(props) {
         createdAt: parseInt(d.deployment.created_at),
         escrowBalance: d.escrow_account.balance,
         transferred: d.escrow_account.transferred,
-        cpuAmount: deploymentResourceSum(
-          d,
-          (r) => parseInt(r.cpu.units.val) / 1000
-        ),
-        memoryAmount: deploymentResourceSum(d, (r) =>
-          parseInt(r.memory.quantity.val)
-        ),
-        storageAmount: deploymentResourceSum(d, (r) =>
-          parseInt(r.storage.quantity.val)
-        ),
+        cpuAmount: deploymentResourceSum(d, (r) => parseInt(r.cpu.units.val) / 1000),
+        memoryAmount: deploymentResourceSum(d, (r) => parseInt(r.memory.quantity.val)),
+        storageAmount: deploymentResourceSum(d, (r) => parseInt(r.storage.quantity.val)),
         escrowAccount: { ...d.escrow_account },
-        groups: [...d.groups],
+        groups: [...d.groups]
       }))
     );
 
@@ -109,12 +98,12 @@ export function DeploymentList(props) {
       id: dd.deploymentId,
       groups: dd.groups,
       version: dd.version,
-      deposit: dd.deposit,
+      deposit: dd.deposit
     };
 
     const txData = {
       typeUrl: "/akash.deployment.v1beta1.MsgCreateDeployment",
-      value: msg,
+      value: msg
     };
 
     const err = MsgCreateDeployment.verify(msg);
@@ -123,13 +112,9 @@ export function DeploymentList(props) {
 
     if (err) throw err;
 
-    const client = await SigningStargateClient.connectWithSigner(
-      rpcEndpoint,
-      selectedWallet,
-      {
-        registry: customRegistry,
-      }
-    );
+    const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, selectedWallet, {
+      registry: customRegistry
+    });
 
     await client.signAndBroadcast(address, [txData], baseFee);
 
@@ -140,9 +125,7 @@ export function DeploymentList(props) {
     history.push("/deployment/" + deployment.dseq);
   }
 
-  const orderedDeployments = [...deployments].sort((a, b) =>
-    a.createdAt < b.createdAt ? 1 : -1
-  );
+  const orderedDeployments = [...deployments].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
 
   return (
     <>
@@ -150,11 +133,7 @@ export function DeploymentList(props) {
         <CardHeader title="Deployments" />
         <CardContent>
           {orderedDeployments.map((deployment) => (
-            <ListItem
-              key={deployment.dseq}
-              button
-              onClick={() => viewDeployment(deployment)}
-            >
+            <ListItem key={deployment.dseq} button onClick={() => viewDeployment(deployment)}>
               <ListItemIcon>
                 {deployment.state === "active" && <CloudIcon />}
                 {deployment.state === "closed" && <CancelPresentationIcon />}
@@ -173,10 +152,7 @@ export function DeploymentList(props) {
                 }
               />
               <ListItemSecondaryAction>
-                <IconButton
-                  edge="end"
-                  onClick={() => viewDeployment(deployment)}
-                >
+                <IconButton edge="end" onClick={() => viewDeployment(deployment)}>
                   <ChevronRightIcon />
                 </IconButton>
               </ListItemSecondaryAction>
@@ -185,12 +161,7 @@ export function DeploymentList(props) {
 
           {isLoadingDeployments && <CircularProgress />}
 
-          <Button
-            variant="contained"
-            size="large"
-            color="primary"
-            onClick={() => createDeployment()}
-          >
+          <Button variant="contained" size="large" color="primary" onClick={() => createDeployment()}>
             <AddIcon />
             &nbsp;Create Deployment
           </Button>

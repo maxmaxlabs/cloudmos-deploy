@@ -11,7 +11,7 @@ import {
   List,
   ListItem,
   ListItemText,
-  ListItemSecondaryAction,
+  ListItemSecondaryAction
 } from "@material-ui/core";
 import { StatusPill } from "../../shared/components/StatusPill";
 import { LabelValue } from "../../shared/components/LabelValue";
@@ -22,12 +22,12 @@ import LaunchIcon from "@material-ui/icons/Launch";
 const useStyles = makeStyles((theme) => ({
   root: {},
   cardHeader: {
-    borderBottom: "1px solid rgba(0,0,0,0.1)",
+    borderBottom: "1px solid rgba(0,0,0,0.1)"
   },
   cardHeaderTitle: {
-    fontSize: "18px",
+    fontSize: "18px"
   },
-  title: {},
+  title: {}
 }));
 
 export function LeaseRow(props) {
@@ -54,13 +54,7 @@ export function LeaseRow(props) {
   useEffect(() => {
     async function loadLeaseDetailsFromProvider() {
       const leaseStatusPath = `${providerInfo.host_uri}/lease/${lease.dseq}/${lease.gseq}/${lease.oseq}/status`;
-      const response = await window.electron.queryProvider(
-        leaseStatusPath,
-        "GET",
-        null,
-        cert.certPem,
-        cert.keyPem
-      );
+      const response = await window.electron.queryProvider(leaseStatusPath, "GET", null, cert.certPem, cert.keyPem);
       console.log("leaseDetail", response);
       setLeaseInfoFromProvider(response);
     }
@@ -82,8 +76,6 @@ export function LeaseRow(props) {
     // cert.readCertPEM(certPem);
     // //JSON.stringify(mani);
   }
-
-  // let externalUrl = leaseInfoFromProvider?.services?.web?.uris[0];
 
   function handleExternalUrlClick(ev, externalUrl) {
     ev.preventDefault();
@@ -118,18 +110,13 @@ export function LeaseRow(props) {
           label="Price:"
           value={
             <>
-              {lease.price.amount}uakt (
-              {`~${getAvgCostPerMonth(lease.price.amount)}akt/month`})
+              {lease.price.amount}uakt ({`~${getAvgCostPerMonth(lease.price.amount)}akt/month`})
             </>
           }
         />
         <LabelValue label="Provider:" value={lease.provider} marginTop="5px" />
 
-        <SpecDetail
-          cpuAmount={lease.cpuAmount}
-          memoryAmount={lease.memoryAmount}
-          storageAmount={lease.storageAmount}
-        />
+        <SpecDetail cpuAmount={lease.cpuAmount} memoryAmount={lease.memoryAmount} storageAmount={lease.storageAmount} />
 
         {leaseInfoFromProvider?.services?.web?.uris?.length > 0 && (
           <>
@@ -140,14 +127,10 @@ export function LeaseRow(props) {
             <List dense>
               {leaseInfoFromProvider.services.web.uris.map((uri) => {
                 return (
-                  <ListItem>
+                  <ListItem key={uri}>
                     <ListItemText primary={uri} />
                     <ListItemSecondaryAction>
-                      <IconButton
-                        edge="end"
-                        aria-label="uri"
-                        onClick={(ev) => handleExternalUrlClick(ev, uri)}
-                      >
+                      <IconButton edge="end" aria-label="uri" onClick={(ev) => handleExternalUrlClick(ev, uri)}>
                         <LaunchIcon />
                       </IconButton>
                     </ListItemSecondaryAction>
@@ -157,20 +140,7 @@ export function LeaseRow(props) {
             </List>
           </>
         )}
-
-        {/* <>
-            {externalUrl && (
-              <IconButton onClick={handleExternalUrlClick}>
-                <LaunchIcon />
-              </IconButton>
-            )}
-          </> */}
       </CardContent>
-      {/* <CardActions disableSpacing>
-        <IconButton edge="end" onClick={() => sendManifest(lease.dseq)}>
-          <PublishIcon />
-        </IconButton>
-      </CardActions> */}
     </Card>
   );
 }

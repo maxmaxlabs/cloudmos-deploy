@@ -3,31 +3,12 @@ import { apiEndpoint } from "../../shared/constants";
 import { useParams, useHistory } from "react-router-dom";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import CloseIcon from "@material-ui/icons/Close";
-import {
-  Button,
-  CircularProgress,
-  IconButton,
-  Card,
-  CardContent,
-  CardHeader,
-  Typography,
-  List,
-  ListItem,
-  ListItemText,
-  Box,
-} from "@material-ui/core";
+import { Button, CircularProgress, IconButton, Card, CardContent, CardHeader, Typography, List, ListItem, ListItemText, Box } from "@material-ui/core";
 import { LeaseRow } from "./LeaseRow";
 import { useStyles } from "./DeploymentDetail.styles";
 import { DeploymentSubHeader } from "./DeploymentSubHeader";
-import {
-  acceptBid,
-  deploymentGroupResourceSum,
-} from "../../shared/utils/deploymentDetailUtils";
-import {
-  RAW_JSON_BIDS,
-  RAW_JSON_DEPLOYMENT,
-  RAW_JSON_LEASES,
-} from "../../shared/constants";
+import { acceptBid, deploymentGroupResourceSum } from "../../shared/utils/deploymentDetailUtils";
+import { RAW_JSON_BIDS, RAW_JSON_DEPLOYMENT, RAW_JSON_LEASES } from "../../shared/constants";
 import { syntaxHighlight } from "../../shared/utils/stringUtils";
 
 export function DeploymentDetail(props) {
@@ -48,13 +29,7 @@ export function DeploymentDetail(props) {
   const loadBids = useCallback(async () => {
     setIsLoadingBids(true);
 
-    const response = await fetch(
-      apiEndpoint +
-        "/akash/market/v1beta1/bids/list?filters.owner=" +
-        address +
-        "&filters.dseq=" +
-        deployment.dseq
-    );
+    const response = await fetch(apiEndpoint + "/akash/market/v1beta1/bids/list?filters.owner=" + address + "&filters.dseq=" + deployment.dseq);
     const data = await response.json();
 
     console.log("bids", data);
@@ -67,7 +42,7 @@ export function DeploymentDetail(props) {
         gseq: b.bid.bid_id.gseq,
         oseq: b.bid.bid_id.oseq,
         price: b.bid.price,
-        state: b.bid.state,
+        state: b.bid.state
       }))
     );
 
@@ -76,29 +51,17 @@ export function DeploymentDetail(props) {
 
   const loadLeases = useCallback(async () => {
     setIsLoadingLeases(true);
-    const response = await fetch(
-      apiEndpoint +
-        "/akash/market/v1beta1/leases/list?filters.owner=" +
-        address +
-        "&filters.dseq=" +
-        deployment.dseq
-    );
+    const response = await fetch(apiEndpoint + "/akash/market/v1beta1/leases/list?filters.owner=" + address + "&filters.dseq=" + deployment.dseq);
     const data = await response.json();
 
     console.log("leases", data);
 
     setLeases(
       data.leases.map((l) => {
-        const group =
-          deployment.groups.filter(
-            (g) => g.group_id.gseq === l.lease.lease_id.gseq
-          )[0] || {};
+        const group = deployment.groups.filter((g) => g.group_id.gseq === l.lease.lease_id.gseq)[0] || {};
 
         return {
-          id:
-            l.lease.lease_id.dseq +
-            l.lease.lease_id.gseq +
-            l.lease.lease_id.oseq,
+          id: l.lease.lease_id.dseq + l.lease.lease_id.gseq + l.lease.lease_id.oseq,
           owner: l.lease.lease_id.owner,
           provider: l.lease.lease_id.provider,
           dseq: l.lease.lease_id.dseq,
@@ -106,17 +69,10 @@ export function DeploymentDetail(props) {
           oseq: l.lease.lease_id.oseq,
           state: l.lease.state,
           price: l.lease.price,
-          cpuAmount: deploymentGroupResourceSum(
-            group,
-            (r) => parseInt(r.cpu.units.val) / 1000
-          ),
-          memoryAmount: deploymentGroupResourceSum(group, (r) =>
-            parseInt(r.memory.quantity.val)
-          ),
-          storageAmount: deploymentGroupResourceSum(group, (r) =>
-            parseInt(r.storage.quantity.val)
-          ),
-          group,
+          cpuAmount: deploymentGroupResourceSum(group, (r) => parseInt(r.cpu.units.val) / 1000),
+          memoryAmount: deploymentGroupResourceSum(group, (r) => parseInt(r.memory.quantity.val)),
+          storageAmount: deploymentGroupResourceSum(group, (r) => parseInt(r.storage.quantity.val)),
+          group
         };
       })
     );
@@ -126,7 +82,7 @@ export function DeploymentDetail(props) {
 
   const loadBlock = useCallback(async () => {
     // setIsLoadingLeases(true);
-    const response = await fetch(`${apiEndpoint}/blocks/${deployment.dseq}`);
+    const response = await fetch(`${apiEndpoint}/blocks/${deployment.createdAt}`);
     const data = await response.json();
 
     setCurrentBlock(data);
@@ -198,7 +154,7 @@ export function DeploymentDetail(props) {
       <Card className={classes.root} variant="outlined">
         <CardHeader
           classes={{
-            title: classes.cardTitle,
+            title: classes.cardTitle
           }}
           title={
             <>
@@ -214,14 +170,7 @@ export function DeploymentDetail(props) {
             <DeploymentSubHeader
               deployment={deployment}
               block={currentBlock}
-              deploymentCost={
-                leases && leases.length > 0
-                  ? leases.reduce(
-                      (prev, current) => prev + current.price.amount,
-                      []
-                    )
-                  : 0
-              }
+              deploymentCost={leases && leases.length > 0 ? leases.reduce((prev, current) => prev + current.price.amount, []) : 0}
               address={address}
               selectedWallet={selectedWallet}
               updateShownRawJson={(json) => setShownRawJson(json)}
@@ -233,12 +182,7 @@ export function DeploymentDetail(props) {
           {shownRawJson ? (
             <Box>
               <Box display="flex">
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => setShownRawJson(null)}
-                  startIcon={<CloseIcon />}
-                >
+                <Button variant="contained" color="primary" onClick={() => setShownRawJson(null)} startIcon={<CloseIcon />}>
                   Close
                 </Button>
 
@@ -250,7 +194,7 @@ export function DeploymentDetail(props) {
               <pre className={classes.rawJson}>
                 <code
                   dangerouslySetInnerHTML={{
-                    __html: syntaxHighlight(getRawJson(shownRawJson)),
+                    __html: syntaxHighlight(getRawJson(shownRawJson))
                   }}
                 ></code>
               </pre>
@@ -281,11 +225,7 @@ export function DeploymentDetail(props) {
                           }
                         />
                         {bid.state === "open" && (
-                          <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => onAcceptBid(bid)}
-                          >
+                          <Button variant="contained" color="primary" onClick={() => onAcceptBid(bid)}>
                             Accept
                           </Button>
                         )}
@@ -297,20 +237,11 @@ export function DeploymentDetail(props) {
 
               {!isLoadingLeases && (
                 <>
-                  <Typography
-                    variant="h5"
-                    gutterBottom
-                    className={classes.title}
-                  >
+                  <Typography variant="h5" gutterBottom className={classes.title}>
                     Leases
                   </Typography>
                   {leases.map((lease) => (
-                    <LeaseRow
-                      key={lease.id}
-                      cert={props.cert}
-                      lease={lease}
-                      deployment={deployment}
-                    />
+                    <LeaseRow key={lease.id} cert={props.cert} lease={lease} deployment={deployment} />
                   ))}
                 </>
               )}

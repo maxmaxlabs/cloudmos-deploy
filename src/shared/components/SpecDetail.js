@@ -9,17 +9,17 @@ const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
     alignItems: "center",
-    padding: "1rem 0",
+    padding: "1rem 0"
   },
   specIcon: {
-    fontSize: "2rem",
+    fontSize: "2rem"
   },
   specDetail: {
-    marginLeft: ".5rem",
+    marginLeft: ".5rem"
   },
   marginLeft: {
-    marginLeft: "1rem",
-  },
+    marginLeft: "1rem"
+  }
 }));
 
 export function SpecDetail({ cpuAmount, memoryAmount, storageAmount }) {
