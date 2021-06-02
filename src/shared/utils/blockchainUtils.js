@@ -11,12 +11,14 @@ registery.register("/akash.cert.v1beta1.MsgCreateCertificate", MsgCreateCertific
 export const customRegistry = registery;
 
 export const baseFee = {
-  gas: "120000", // 200000 for create lease?
-  amount: [{
-    "denom": "uakt",
-    "amount": "1200"
-  }]
-}
+  gas: "200000",
+  amount: [
+    {
+      denom: "uakt",
+      amount: "1200"
+    }
+  ]
+};
 
 export function createFee(gas) {
   return { ...baseFee, gas: gas };

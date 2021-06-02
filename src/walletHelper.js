@@ -7,7 +7,7 @@ export async function importWallet(mnemonic, passphrase) {
     prefix: "akash"
   });
 
-  const serializedWallet = await wallet.serialize(passphrase)
+  const serializedWallet = await wallet.serialize(passphrase);
   localStorage.setItem("Wallet", serializedWallet);
 
   return wallet;
@@ -22,11 +22,11 @@ export async function openWallet(password) {
 
 export async function openCert(address, password) {
   const certPem = localStorage.getItem(address + ".crt");
-  if(!certPem) return null;
+  if (!certPem) return null;
 
   const encryptedKeyPem = localStorage.getItem(address + ".key");
 
-  if(!encryptedKeyPem) return null;
+  if (!encryptedKeyPem) return null;
 
   const key = rs.KEYUTIL.getKeyFromEncryptedPKCS8PEM(encryptedKeyPem, password);
 
