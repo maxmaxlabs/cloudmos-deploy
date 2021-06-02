@@ -2,34 +2,22 @@ import { Field, Enum, Type, Root } from "protobufjs";
 
 // Deployments
 
-const DeploymentID = new Type("DeploymentID")
-  .add(new Field("owner", 1, "string"))
-  .add(new Field("dseq", 2, "uint64"));
+const DeploymentID = new Type("DeploymentID").add(new Field("owner", 1, "string")).add(new Field("dseq", 2, "uint64"));
 
-let root = new Root()
-  .define("test")
-  .add(DeploymentID);
+let root = new Root().define("test").add(DeploymentID);
 
-export const MsgCloseDeployment = new Type("MsgCloseDeployment")
-  .add(new Field("id", 1, "DeploymentID"))
+export const MsgCloseDeployment = new Type("MsgCloseDeployment").add(new Field("id", 1, "DeploymentID"));
 //.add(DeploymentID);
 
-const Coin = new Type("Coin")
-  .add(new Field("denom", 1, "string"))
-  .add(new Field("amount", 2, "string"));
+const Coin = new Type("Coin").add(new Field("denom", 1, "string")).add(new Field("amount", 2, "string"));
 
-const Kind = new Enum("Kind", { "SHARED_HTTP": 0, "RANDOM_PORT": 1 });
+const Kind = new Enum("Kind", { SHARED_HTTP: 0, RANDOM_PORT: 1 });
 
-const Endpoint = new Type("Endpoint")
-  .add(new Field("kind", 1, "Kind"))
-  .add(Kind);
+const Endpoint = new Type("Endpoint").add(new Field("kind", 1, "Kind")).add(Kind);
 
-const Attribute = new Type("Attribute")
-  .add(new Field("key", 1, "string"))
-  .add(new Field("value", 2, "string"));
+const Attribute = new Type("Attribute").add(new Field("key", 1, "string")).add(new Field("value", 2, "string"));
 
-const ResourceValue = new Type("ResourceValue")
-  .add(new Field("val", 1, "string"));
+const ResourceValue = new Type("ResourceValue").add(new Field("val", 1, "string"));
 
 const CPU = new Type("CPU")
   .add(new Field("units", 1, "ResourceValue"))
@@ -60,15 +48,13 @@ const ResourceUnits = new Type("ResourceUnits")
   .add(Endpoint);
 
 const Resource = new Type("Resource")
-  .add(new Field("resources", 1, "ResourceUnits"))// unit
+  .add(new Field("resources", 1, "ResourceUnits")) // unit
   .add(ResourceUnits)
   .add(new Field("count", 2, "uint32"))
   .add(new Field("price", 3, "Coin"))
   .add(Coin);
 
-const SignedBy = new Type("SignedBy")
-  .add(new Field("all_of", 1, "string", "repeated"))
-  .add(new Field("any_of", 2, "string", "repeated"));
+const SignedBy = new Type("SignedBy").add(new Field("all_of", 1, "string", "repeated")).add(new Field("any_of", 2, "string", "repeated"));
 
 const PlacementRequirements = new Type("PlacementRequirements")
   .add(new Field("signed_by", 1, "SignedBy"))
@@ -94,13 +80,9 @@ export const MsgCreateDeployment = new Type("MsgCreateDeployment")
 
 // Certificates
 
-const CertificateID = new Type("CertificateID")
-  .add(new Field("owner", 1, "string"))
-  .add(new Field("serial", 2, "string"));
+const CertificateID = new Type("CertificateID").add(new Field("owner", 1, "string")).add(new Field("serial", 2, "string"));
 
-export const MsgRevokeCertificate = new Type("MsgRevokeCertificate")
-  .add(new Field("id", 1, "CertificateID"))
-  .add(CertificateID);
+export const MsgRevokeCertificate = new Type("MsgRevokeCertificate").add(new Field("id", 1, "CertificateID")).add(CertificateID);
 
 export const MsgCreateCertificate = new Type("MsgCreateCertificate")
   .add(new Field("owner", 1, "string"))
@@ -116,11 +98,7 @@ export const BidID = new Type("BidID")
   .add(new Field("oseq", 4, "uint32"))
   .add(new Field("provider", 5, "string"));
 
-export const MsgCreateLease = new Type("MsgCreateLease")
-  .add(new Field("bid_id", 1, "BidID"))
-  .add(BidID);
-
-
+export const MsgCreateLease = new Type("MsgCreateLease").add(new Field("bid_id", 1, "BidID")).add(BidID);
 
 root.add(MsgCloseDeployment);
 root.add(MsgCreateDeployment);
