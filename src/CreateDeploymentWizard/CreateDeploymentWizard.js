@@ -3,19 +3,19 @@ import { makeStyles } from '@material-ui/core/styles';
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepButton from '@material-ui/core/StepButton';
-import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import {
   Card,
   CardHeader,
   CardContent,
-  IconButton,
-  Box
+  IconButton
 } from "@material-ui/core";
 import { TemplateList } from "./TemplateList";
 import { ManifestEdit } from "./ManifestEdit";
+import { CreateLease } from "./CreateLease";
 import { useHistory } from "react-router";
+import { PrerequisiteList } from "./PrerequisiteList";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -47,6 +47,8 @@ export function CreateDeploymentWizard(props) {
 
   const history = useHistory();
   const steps = getSteps();
+
+  const { address, selectedWallet } = props;
 
   useEffect(() => {
     setEditedManifest(selectedTemplate?.content);
@@ -90,11 +92,6 @@ export function CreateDeploymentWizard(props) {
     }
   };
 
-  const handleReset = () => {
-    setActiveStep(0);
-    setCompleted(new Set());
-  };
-
   function isStepComplete(step) {
     return completed.has(step);
   }
@@ -132,31 +129,10 @@ export function CreateDeploymentWizard(props) {
               })}
             </Stepper>
             <div>
-              {activeStep === 0 && <TemplateList setIsNextDisabled={setIsNextDisabled} selectedTemplate={selectedTemplate} setSelectedTemplate={c => setSelectedTemplate(c)} />}
-              {activeStep === 1 && <ManifestEdit setIsNextDisabled={setIsNextDisabled} editedManifest={editedManifest} setEditedManifest={setEditedManifest} />}
-              {allStepsCompleted() ? (
-                <div>
-                  <Typography className={classes.instructions}>
-                    All steps completed - you&apos;re finished
-            </Typography>
-                  <Button onClick={handleReset}>Reset</Button>
-                </div>
-              ) : (
-                <div>
-                  <Box pt={2}>
-                    {activeStep > 0 && (
-                      <Button onClick={handleBack} className={classes.button}>
-                        Back
-                      </Button>
-                    )}
-                    {activeStep !== steps.length && (
-                      <Button variant="contained" color="primary" disabled={isNextDisabled} onClick={handleComplete}>
-                        {completedSteps() === totalSteps() - 1 ? 'Finish' : 'Next'}
-                      </Button>
-                    )}
-                  </Box>
-                </div>
-              )}
+              {activeStep === 0 && <PrerequisiteList handleNext={handleComplete} refreshBalance={props.refreshBalance} />}
+              {activeStep === 1 && <TemplateList handleNext={handleComplete} selectedTemplate={selectedTemplate} setSelectedTemplate={c => setSelectedTemplate(c)} />}
+              {activeStep === 2 && <ManifestEdit handleNext={handleComplete} setIsNextDisabled={setIsNextDisabled} editedManifest={editedManifest} setEditedManifest={setEditedManifest} />}
+              {activeStep === 3 && <CreateLease handleNext={handleComplete} dseq={"1136891"} address={address} selectedWallet={selectedWallet} />}
             </div>
           </div>
         </CardContent>
@@ -166,5 +142,5 @@ export function CreateDeploymentWizard(props) {
 }
 
 function getSteps() {
-  return ['Choose Template', 'Create Deployment', 'Create a Lease'];
+  return ['Checking Prerequisites', 'Choose Template', 'Create Deployment', 'Create a Lease'];
 }

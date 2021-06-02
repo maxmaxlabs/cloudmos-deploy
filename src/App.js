@@ -1,36 +1,23 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import './App.css';
-import { MemoryRouter, Route } from "react-router-dom";
-import { makeStyles, Grid } from '@material-ui/core';
-import WalletImport from './WalletImport';
-import WalletOpen from "./WalletOpen";
+import { apiEndpoint } from "./shared/constants";
 import { PasswordConfirmationModalProvider } from "./ConfirmPasswordModal/ConfirmPasswordModalContext";
-import { CreateDeploymentWizard } from "./CreateDeploymentWizard/CreateDeploymentWizard";
-import { DeploymentList } from "./DeploymentList";
-import { WalletDisplay } from "./WalletDisplay";
-import { CertificateDisplay } from "./CertificateDisplay";
-import { DeploymentDetail } from "./components/DeploymentDetail";
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    flexGrow: 1,
-    backgroundColor: "#f5f5f5",
-    padding: "20px"
-  },
-  paper: {
-    padding: theme.spacing(2),
-    textAlign: 'center',
-    color: theme.palette.text.secondary
-  }
-}));
+import { MainView } from "./MainView";
+import { CertificateProvider } from "./CertificateProvider/CertificateProviderContext";
 
 function App() {
   const [selectedWallet, setSelectedWallet] = useState(null);
-  const [cert, setCert] = useState(null);
   const [address, setAddress] = useState(null);
-  const [deployments, setDeployments] = useState([]);
+  const [balance, setBalance] = useState(null);
 
-  const classes = useStyles();
+  const refreshBalance = useCallback(async () => {
+    const response = await fetch(apiEndpoint + "/cosmos/bank/v1beta1/balances/" + address);
+    const data = await response.json();
+    const balance = data.balances.length > 0 ? data.balances[0].amount : 0;
+    setBalance(balance);
+
+    return balance;
+  }, [address])
 
   useEffect(() => {
     async function getAddress() {
@@ -42,49 +29,21 @@ function App() {
     }
   }, [selectedWallet]);
 
-  const walletExists = localStorage.getItem("Wallet") !== null;
+  useEffect(() => {
+    if (address) {
+      refreshBalance();
+    }
+  }, [address, refreshBalance]);
 
-  function handleWalletOpen(wallet, cert) {
+  function handleWalletOpen(wallet) {
     setSelectedWallet(wallet);
-    setCert(cert);
-  }
-
-  if (!selectedWallet || !address) {
-    return walletExists ?
-      <WalletOpen onWalletOpen={handleWalletOpen} />
-      : <WalletImport onWalletOpen={handleWalletOpen} />
   }
 
   return (
     <PasswordConfirmationModalProvider>
-      <div className={classes.root}>
-        <Grid container pt={2} spacing={1}>
-          <Grid item xs={6}>
-            <WalletDisplay selectedWallet={selectedWallet} address={address} />
-          </Grid>
-
-          <Grid item xs={6}>
-            <CertificateDisplay selectedWallet={selectedWallet} address={address} />
-          </Grid>
-
-          <Grid item xs={12}>
-            <MemoryRouter
-              initialEntries={["/"]}
-              initialIndex={1}
-            >
-              <Route exact path="/createDeployment">
-                <CreateDeploymentWizard />
-              </Route>
-              <Route path="/deployment/:dseq">
-                <DeploymentDetail deployments={deployments} cert={cert} address={address} selectedWallet={selectedWallet} />
-              </Route>
-              <Route exact path="/">
-                <DeploymentList deployments={deployments} setDeployments={setDeployments} address={address} selectedWallet={selectedWallet} />
-              </Route>
-            </MemoryRouter>
-          </Grid>
-        </Grid>
-      </div>
+      <CertificateProvider address={address}>
+        <MainView handleWalletOpen={handleWalletOpen} balance={balance} refreshBalance={refreshBalance} selectedWallet={selectedWallet} address={address} />
+      </CertificateProvider>
     </PasswordConfirmationModalProvider>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -6,7 +6,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
 import Radio from '@material-ui/core/Radio';
-import IconButton from '@material-ui/core/IconButton';
+import { IconButton, Button } from '@material-ui/core';
 import GitHubIcon from '@material-ui/icons/GitHub';
 
 const useStyles = makeStyles((theme) => ({
@@ -21,11 +21,8 @@ export function TemplateList(props) {
 
   const { selectedTemplate, setSelectedTemplate } = props;
 
-  useEffect(() => {
-    props.setIsNextDisabled(!selectedTemplate)
-  }, [selectedTemplate])
-
-  const handleToggle = (value) => () => {
+  const handleToggle = (value) => {
+    console.log(value);
     setSelectedTemplate(templates.find(t => t.code === value));
   };
 
@@ -40,7 +37,7 @@ export function TemplateList(props) {
           const labelId = `checkbox-list-label-${value.code}`;
 
           return (
-            <ListItem key={value.code} dense button onClick={handleToggle(value.code)}>
+            <ListItem key={value.code} dense button onClick={() => handleToggle(value.code)}>
               <ListItemIcon>
                 <Radio
                   checked={selectedTemplate?.code === value.code}
@@ -61,6 +58,10 @@ export function TemplateList(props) {
           );
         })}
       </List>
+
+      <Button variant="contained" color="primary" disabled={!selectedTemplate} onClick={props.handleNext}>
+        Continue
+      </Button>
     </>
   )
 }

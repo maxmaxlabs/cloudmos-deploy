@@ -27,44 +27,29 @@ const useStyles = makeStyles({
 });
 
 export function WalletDisplay(props) {
-  const [balance, setBalance] = useState(null);
   const classes = useStyles();
 
-  const { address } = props;
+  const { address, balance, refreshBalance } = props;
 
   // function importWallet() {
   //     history.push("/walletImport");
   // }
 
-  const loadBalance = useCallback(async () => {
-    const response = await fetch(apiEndpoint + "/cosmos/bank/v1beta1/balances/" + address);
-    const data = await response.json();
-    const balance = data.balances.length > 0 ? data.balances[0].amount : 0;
-    setBalance(balance);
-  }, [address]);
-
-  useEffect(() => {
-    loadBalance();
-  }, [address, loadBalance]);
-
   return (
     <>
       <Card className={classes.root} variant="outlined">
-        <CardHeader
-          action={
-            <IconButton aria-label="settings">
-              <MoreVertIcon />
+        <CardHeader action={
+          <IconButton aria-label="settings">
+            <MoreVertIcon />
+          </IconButton>
+        } title={(
+          <>
+            <AccountBalanceWalletIcon />{balance / 1000000} AKT
+            <IconButton onClick={() => refreshBalance()} aria-label="refresh">
+              <RefreshIcon />
             </IconButton>
-          }
-          title={
-            <>
-              <AccountBalanceWalletIcon />
-              {balance/1000000} AKT
-              <IconButton onClick={() => loadBalance()} aria-label="refresh">
-                <RefreshIcon />
-              </IconButton>
-            </>
-          }
+          </>
+        )}
           subheader={address}
         ></CardHeader>
       </Card>

@@ -19,6 +19,7 @@ import {
   MenuItem,
   Menu
 } from '@material-ui/core';
+import { useCertificate } from "./CertificateProvider/CertificateProviderContext";
 
 var rs = require("jsrsasign");
 
@@ -41,30 +42,16 @@ const useStyles = makeStyles({
 });
 
 export function CertificateDisplay(props) {
-  const [validCertificates, setValidCertificates] = useState([]);
-  const [isLoadingCertificates, setIsLoadingCertificates] = useState(false);
+  const { certificate, isLoadingCertificates, loadValidCertificates } = useCertificate();
   const classes = useStyles();
   const { askForPasswordConfirmation } = usePasswordConfirmationModal();
 
   const { address, selectedWallet } = props;
 
-  const loadValidCertificates = useCallback(async () => {
-    setIsLoadingCertificates(true);
-    const response = await fetch(apiEndpoint + "/akash/cert/v1beta1/certificates/list?filter.state=valid&filter.owner=" + address);
-    const data = await response.json();
-
-    setValidCertificates(data.certificates);
-    setIsLoadingCertificates(false);
-  }, [address]);
-
-  useEffect(() => {
-    loadValidCertificates();
-  }, [address, loadValidCertificates]);
-
   async function revokeCertificate(cert) {
     handleClose();
 
-    setIsLoadingCertificates(true);
+    //setIsLoadingCertificates(true);
     const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, selectedWallet, {
       registry: customRegistry
     });
@@ -84,7 +71,7 @@ export function CertificateDisplay(props) {
 
       await loadValidCertificates();
     } finally {
-      setIsLoadingCertificates(false);
+      //setIsLoadingCertificates(false);
     }
   }
 
@@ -105,8 +92,8 @@ export function CertificateDisplay(props) {
       console.log("cancelled");
       return;
     }
-    
-    setIsLoadingCertificates(true);
+
+    //setIsLoadingCertificates(true);
 
     const notBefore = new Date();
     let notAfter = new Date();
@@ -170,7 +157,6 @@ export function CertificateDisplay(props) {
     loadValidCertificates();
   }
 
-  const certificate = validCertificates[0];
   const [anchorEl, setAnchorEl] = useState(null);
 
   function handleMenuClick(ev) {
@@ -185,9 +171,11 @@ export function CertificateDisplay(props) {
     <>
       <Card className={classes.root} variant="outlined">
         <CardHeader action={
-          <IconButton aria-label="settings" aria-haspopup="true" onClick={handleMenuClick}>
-            <MoreVertIcon />
-          </IconButton>
+          certificate && (
+            <IconButton aria-label="settings" aria-haspopup="true" onClick={handleMenuClick}>
+              <MoreVertIcon />
+            </IconButton>
+          )
         } title={(
           <>
             <><VerifiedUserIcon /> Certificate</>
@@ -196,31 +184,33 @@ export function CertificateDisplay(props) {
         </CardHeader>
         <CardContent>
           {isLoadingCertificates && <CircularProgress />}
-          {!isLoadingCertificates && validCertificates.length === 0 && (
+          {!isLoadingCertificates && !certificate && (
             <>
               <Button variant="contained" color="primary" onClick={() => createCertificate()}>Create Certificate</Button>
             </>
           )}
         </CardContent>
-        <Menu
-          id="cert-menu"
-          anchorEl={anchorEl}
-          keepMounted
-          open={Boolean(anchorEl)}
-          onClose={handleClose}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'right',
-          }}
-          transformOrigin={{
-            vertical: 'top',
-            horizontal: 'right',
-          }}
-        >
-          <MenuItem onClick={() => revokeCertificate(certificate)}><DeleteForeverIcon />&nbsp;Revoke</MenuItem>
-          <MenuItem onClick={handleClose}><SystemUpdateAltIcon />&nbsp;Export</MenuItem>
-          <MenuItem onClick={handleClose}><AutorenewIcon />&nbsp;Regenerate</MenuItem>
-        </Menu>
+        {certificate && (
+          <Menu
+            id="cert-menu"
+            anchorEl={anchorEl}
+            keepMounted
+            open={Boolean(anchorEl)}
+            onClose={handleClose}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+          >
+            <MenuItem onClick={() => revokeCertificate(certificate)}><DeleteForeverIcon />&nbsp;Revoke</MenuItem>
+            {/* <MenuItem onClick={handleClose}><SystemUpdateAltIcon />&nbsp;Export</MenuItem> */}
+            <MenuItem onClick={handleClose}><AutorenewIcon />&nbsp;Regenerate</MenuItem>
+          </Menu>
+        )}
       </Card>
     </>
   )

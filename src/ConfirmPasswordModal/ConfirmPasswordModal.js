@@ -51,7 +51,7 @@ export function ConfirmPasswordModal(props) {
       </DialogContent>
       <DialogActions>
         <Button variant="contained" onClick={props.onClose} type="button">Cancel</Button>
-        <Button variant="contained" color="primary" type="submit">Confirm</Button>
+        <Button variant="contained" color="primary" onClick={handleSubmit}>Confirm</Button>
       </DialogActions>
     </Dialog>
   )

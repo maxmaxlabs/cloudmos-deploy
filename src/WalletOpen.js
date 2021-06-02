@@ -4,7 +4,8 @@ import Container from '@material-ui/core/Container';
 import { Button, CircularProgress } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
-import { openCert, openWallet } from "./walletHelper";
+import { openWallet } from "./walletHelper";
+import { useCertificate } from './CertificateProvider/CertificateProviderContext';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -31,6 +32,7 @@ export default function WalletOpen(props) {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const classes = useStyles();
+  const { loadLocalCert } = useCertificate();
 
   async function onOpenClick(ev) {
     ev.preventDefault();
@@ -39,9 +41,9 @@ export default function WalletOpen(props) {
     try {
       const wallet = await openWallet(password);
       const address = (await wallet.getAccounts())[0].address;
-      const cert = await openCert(address, password);
+      loadLocalCert(address, password);
 
-      props.onWalletOpen(wallet, cert);
+      props.onWalletOpen(wallet);
     } catch (err) {
       console.error(err);
       //enqueueSnackbar(err, { variant: "error" });
