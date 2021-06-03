@@ -3,9 +3,14 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
+import { ErrorBoundary } from "react-error-boundary";
+import { ErrorFallback } from "./shared/components/ErrorFallback";
+
 ReactDOM.render(
   <React.StrictMode>
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
       <App />
+    </ErrorBoundary>
   </React.StrictMode>,
   document.getElementById("root")
 );
