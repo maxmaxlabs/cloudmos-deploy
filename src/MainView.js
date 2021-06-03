@@ -10,6 +10,8 @@ import { WalletDisplay } from "./WalletDisplay";
 import { CertificateDisplay } from "./CertificateDisplay";
 import { DeploymentDetail } from "./components/DeploymentDetail";
 import { useWallet } from "./WalletProvider/WalletProviderContext";
+import { ErrorBoundary } from "react-error-boundary";
+import { ErrorFallback } from "./shared/components/ErrorFallback";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -40,26 +42,30 @@ export function MainView() {
   return (
     <div className={classes.root}>
       <Grid container pt={2} spacing={1}>
-        <Grid item xs={6}>
-          <WalletDisplay />
-        </Grid>
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
+          <Grid item xs={6}>
+            <WalletDisplay />
+          </Grid>
 
-        <Grid item xs={6}>
-          <CertificateDisplay />
-        </Grid>
+          <Grid item xs={6}>
+            <CertificateDisplay />
+          </Grid>
+        </ErrorBoundary>
 
         <Grid item xs={12}>
-          <MemoryRouter initialEntries={["/"]} initialIndex={1}>
-            <Route exact path="/createDeployment/:step?/:dseq?">
-              <CreateDeploymentWizard />
-            </Route>
-            <Route path="/deployment/:dseq">
-              <DeploymentDetail deployments={deployments} />
-            </Route>
-            <Route exact path="/">
-              <DeploymentList deployments={deployments} setDeployments={setDeployments} />
-            </Route>
-          </MemoryRouter>
+          <ErrorBoundary FallbackComponent={ErrorFallback}>
+            <MemoryRouter initialEntries={["/"]} initialIndex={1}>
+              <Route exact path="/createDeployment/:step?/:dseq?">
+                <CreateDeploymentWizard />
+              </Route>
+              <Route path="/deployment/:dseq">
+                <DeploymentDetail deployments={deployments} />
+              </Route>
+              <Route exact path="/">
+                <DeploymentList deployments={deployments} setDeployments={setDeployments} />
+              </Route>
+            </MemoryRouter>
+          </ErrorBoundary>
         </Grid>
       </Grid>
     </div>
