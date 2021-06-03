@@ -29,6 +29,7 @@ import {
 import { useHistory } from "react-router";
 import { humanFileSize } from "./shared/utils/unitUtils";
 import { deploymentResourceSum } from "./shared/utils/deploymentDetailUtils";
+import { useWallet } from "./WalletProvider/WalletProviderContext";
 
 const yaml = require("js-yaml");
 
@@ -49,8 +50,9 @@ export function DeploymentList(props) {
 
   const classes = useStyles();
   const history = useHistory();
+  const { address, selectedWallet } = useWallet();
 
-  const { address, selectedWallet, deployments, setDeployments } = props;
+  const { deployments, setDeployments } = props;
 
   useEffect(() => {
     loadDeployments(address);

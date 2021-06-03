@@ -10,6 +10,7 @@ import { DeploymentSubHeader } from "./DeploymentSubHeader";
 import { acceptBid, deploymentGroupResourceSum } from "../../shared/utils/deploymentDetailUtils";
 import { RAW_JSON_BIDS, RAW_JSON_DEPLOYMENT, RAW_JSON_LEASES } from "../../shared/constants";
 import { syntaxHighlight } from "../../shared/utils/stringUtils";
+import { useWallet } from "../../WalletProvider/WalletProviderContext";
 
 export function DeploymentDetail(props) {
   const [bids, setBids] = useState([]);
@@ -21,9 +22,9 @@ export function DeploymentDetail(props) {
 
   const classes = useStyles();
   const history = useHistory();
+  const { address, selectedWallet } = useWallet();
   let { dseq } = useParams();
 
-  const { address, selectedWallet } = props;
   const deployment = props.deployments.find((d) => d.dseq === dseq);
 
   const loadBids = useCallback(async () => {
@@ -88,7 +89,7 @@ export function DeploymentDetail(props) {
     setCurrentBlock(data);
 
     // setIsLoadingLeases(false);
-  }, [deployment, address]);
+  }, [deployment]);
 
   useEffect(() => {
     loadBids();

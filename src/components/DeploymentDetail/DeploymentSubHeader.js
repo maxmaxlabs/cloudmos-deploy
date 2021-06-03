@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Grid, Menu, makeStyles, Box, Button, IconButton, MenuItem } from "@material-ui/core";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
-import clsx from "clsx";
 import { getAvgCostPerMonth, getTimeLeft, uaktToAKT } from "../../shared/utils/priceUtils";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import isValid from "date-fns/isValid";

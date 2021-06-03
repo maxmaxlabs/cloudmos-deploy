@@ -1,12 +1,11 @@
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { makeStyles } from '@material-ui/core/styles';
 import { SigningStargateClient } from "@cosmjs/stargate";
-import { rpcEndpoint, apiEndpoint } from "./shared/constants";
+import { rpcEndpoint } from "./shared/constants";
 import { customRegistry, baseFee } from "./shared/utils/blockchainUtils";
 import { usePasswordConfirmationModal } from "./ConfirmPasswordModal/ConfirmPasswordModalContext"
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
-import SystemUpdateAltIcon from '@material-ui/icons/SystemUpdateAlt';
 import AutorenewIcon from '@material-ui/icons/Autorenew';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import {

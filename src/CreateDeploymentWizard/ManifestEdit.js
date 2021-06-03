@@ -11,7 +11,6 @@ export function ManifestEdit(props) {
   const { editedManifest, setEditedManifest } = props;
 
   function handleTextChange(value) {
-
     try {
       yaml.load(value);
       setParsingError(null);
@@ -25,10 +24,6 @@ export function ManifestEdit(props) {
 
     setEditedManifest(value);
   }
-
-  useEffect(() => {
-    props.setIsNextDisabled(!!parsingError)
-  }, [parsingError]);
 
   const options = {
     selectOnLineNumbers: true,

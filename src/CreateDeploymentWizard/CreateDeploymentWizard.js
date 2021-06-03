@@ -3,7 +3,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepButton from '@material-ui/core/StepButton';
-import Typography from '@material-ui/core/Typography';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import {
   Card,
@@ -40,15 +39,12 @@ export function CreateDeploymentWizard(props) {
   const classes = useStyles();
   const [activeStep, setActiveStep] = useState(0);
   const [completed, setCompleted] = useState(new Set());
-  const [isNextDisabled, setIsNextDisabled] = useState(true);
 
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [editedManifest, setEditedManifest] = useState(null);
 
   const history = useHistory();
   const steps = getSteps();
-
-  const { address, selectedWallet } = props;
 
   useEffect(() => {
     setEditedManifest(selectedTemplate?.content);
@@ -129,10 +125,10 @@ export function CreateDeploymentWizard(props) {
               })}
             </Stepper>
             <div>
-              {activeStep === 0 && <PrerequisiteList handleNext={handleComplete} refreshBalance={props.refreshBalance} />}
+              {activeStep === 0 && <PrerequisiteList handleNext={handleComplete} />}
               {activeStep === 1 && <TemplateList handleNext={handleComplete} selectedTemplate={selectedTemplate} setSelectedTemplate={c => setSelectedTemplate(c)} />}
-              {activeStep === 2 && <ManifestEdit handleNext={handleComplete} setIsNextDisabled={setIsNextDisabled} editedManifest={editedManifest} setEditedManifest={setEditedManifest} />}
-              {activeStep === 3 && <CreateLease handleNext={handleComplete} dseq={"1136891"} address={address} selectedWallet={selectedWallet} />}
+              {activeStep === 2 && <ManifestEdit handleNext={handleComplete} handleBack={handleBack} editedManifest={editedManifest} setEditedManifest={setEditedManifest} />}
+              {activeStep === 3 && <CreateLease handleNext={handleComplete} dseq={"1136891"} />}
             </div>
           </div>
         </CardContent>

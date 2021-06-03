@@ -1,23 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import {
-  makeStyles,
-  Button,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  CircularProgress
-} from '@material-ui/core';
-import { green } from '@material-ui/core/colors';
-import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
-import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
-import { useCertificate } from '../CertificateProvider/CertificateProviderContext';
+import React, { useEffect, useState } from "react";
+import { makeStyles, Button, List, ListItem, ListItemText, ListItemIcon, CircularProgress } from "@material-ui/core";
+import { green } from "@material-ui/core/colors";
+import CheckCircleOutlineIcon from "@material-ui/icons/CheckCircleOutline";
+import ErrorOutlineIcon from "@material-ui/icons/ErrorOutline";
+import { useCertificate } from "../CertificateProvider/CertificateProviderContext";
+import { useWallet } from "../WalletProvider/WalletProviderContext";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    width: '100%',
-    backgroundColor: theme.palette.background.paper,
-  },
+    width: "100%",
+    backgroundColor: theme.palette.background.paper
+  }
 }));
 
 export function PrerequisiteList(props) {
@@ -25,17 +18,22 @@ export function PrerequisiteList(props) {
   const [isCertificateValidated, setIsCertificateValidated] = useState(null);
   const [isLocalCertificateValidated, setIsLocalCertificateValidated] = useState(null);
 
+  const { refreshBalance } = useWallet();
   const { loadValidCertificates, localCert, isLocalCertMatching } = useCertificate();
 
-  useEffect(async () => {
-    const balance = await props.refreshBalance();
-    setIsBalanceValidated(balance >= 5000000);
+  useEffect(() => {
+    async function loadPrerequisites() {
+      const balance = await refreshBalance();
+      setIsBalanceValidated(balance >= 5000000);
 
-    const certificate = await loadValidCertificates();
-    setIsCertificateValidated(certificate?.certificate?.state === "valid");
+      const certificate = await loadValidCertificates();
+      setIsCertificateValidated(certificate?.certificate?.state === "valid");
 
-    setIsLocalCertificateValidated(localCert && isLocalCertMatching);
-  }, []);
+      setIsLocalCertificateValidated(localCert && isLocalCertMatching);
+    }
+
+    loadPrerequisites();
+  }, [refreshBalance, loadValidCertificates, localCert, isLocalCertMatching]);
 
   const classes = useStyles();
 
@@ -76,5 +74,5 @@ export function PrerequisiteList(props) {
         Continue
       </Button>
     </>
-  )
+  );
 }

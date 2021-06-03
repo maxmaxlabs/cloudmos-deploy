@@ -4,6 +4,7 @@ import { apiEndpoint, rpcEndpoint } from "../shared/constants";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { customRegistry, createFee } from "../shared/utils/blockchainUtils";
 import { ListSubheader, Button, Radio, List, ListItemText, ListItemIcon, ListItem, CircularProgress } from "@material-ui/core";
+import { useWallet } from "../WalletProvider/WalletProviderContext";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -17,9 +18,10 @@ export function CreateLease(props) {
   const [isLoadingBids, setIsLoadingBids] = useState(false);
   const [selectedBid, setSelectedBid] = useState(null);
 
+  const { address, selectedWallet } = useWallet();
   const classes = useStyles();
 
-  const { dseq, address, selectedWallet } = props;
+  const { dseq } = props;
 
   useEffect(() => {
     loadBids();
@@ -77,7 +79,6 @@ export function CreateLease(props) {
   }
 
   const groupedBids = bids.reduce((a, b) => {
-    console.log(a, b);
     a[b.gseq] = [...(a[b.gseq] || []), b];
     return a;
   }, {});
@@ -86,35 +87,33 @@ export function CreateLease(props) {
     <>
       {isLoadingBids && <CircularProgress />}
       {Object.keys(groupedBids).map((gseq) => (
-        <>
-          <List key={gseq} className={classes.root} subheader={<ListSubheader component="div">GSEQ: {gseq}</ListSubheader>}>
-            {groupedBids[gseq].map((bid) => {
-              const labelId = `checkbox-list-label-${bid.id}`;
+        <List key={gseq} className={classes.root} subheader={<ListSubheader component="div">GSEQ: {gseq}</ListSubheader>}>
+          {groupedBids[gseq].map((bid) => {
+            const labelId = `checkbox-list-label-${bid.id}`;
 
-              return (
-                <ListItem disabled={true} key={bid.id} dense button onClick={() => handleToggle(bid.id)}>
-                  <ListItemIcon>
-                    <Radio
-                      checked={selectedBid?.id === bid.id}
-                      //onChange={handleChange}
-                      value={bid.id}
-                      name="radio-button-demo"
-                    />
-                  </ListItemIcon>
-                  <ListItemText
-                    id={labelId}
-                    primary={
-                      <>
-                        {bid.price.amount} uakt / block ({bid.state})
-                      </>
-                    }
-                    secondary={bid.provider}
+            return (
+              <ListItem disabled={true} key={bid.id} dense button onClick={() => handleToggle(bid.id)}>
+                <ListItemIcon>
+                  <Radio
+                    checked={selectedBid?.id === bid.id}
+                    //onChange={handleChange}
+                    value={bid.id}
+                    name="radio-button-demo"
                   />
-                </ListItem>
-              );
-            })}
-          </List>
-        </>
+                </ListItemIcon>
+                <ListItemText
+                  id={labelId}
+                  primary={
+                    <>
+                      {bid.price.amount} uakt / block ({bid.state})
+                    </>
+                  }
+                  secondary={bid.provider}
+                />
+              </ListItem>
+            );
+          })}
+        </List>
       ))}
 
       <Button variant="contained" color="primary" onClick={handleNext} disabled={!selectedBid}>

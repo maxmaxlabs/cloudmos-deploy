@@ -1,14 +1,15 @@
 import { useState } from "react";
-import './App.css';
+import "./App.css";
 import { MemoryRouter, Route } from "react-router-dom";
-import { makeStyles, Grid } from '@material-ui/core';
-import WalletImport from './WalletImport';
+import { makeStyles, Grid } from "@material-ui/core";
+import WalletImport from "./WalletImport";
 import WalletOpen from "./WalletOpen";
 import { CreateDeploymentWizard } from "./CreateDeploymentWizard/CreateDeploymentWizard";
 import { DeploymentList } from "./DeploymentList";
 import { WalletDisplay } from "./WalletDisplay";
 import { CertificateDisplay } from "./CertificateDisplay";
 import { DeploymentDetail } from "./components/DeploymentDetail";
+import { useWallet } from "./WalletProvider/WalletProviderContext";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -18,50 +19,45 @@ const useStyles = makeStyles((theme) => ({
   },
   paper: {
     padding: theme.spacing(2),
-    textAlign: 'center',
+    textAlign: "center",
     color: theme.palette.text.secondary
   }
 }));
 
-export function MainView(props) {
+export function MainView() {
   const [deployments, setDeployments] = useState([]);
 
-  const { balance, refreshBalance, selectedWallet, address, handleWalletOpen } = props;
+  const { address, selectedWallet } = useWallet();
 
   const classes = useStyles();
 
   const walletExists = localStorage.getItem("Wallet") !== null;
 
   if (!selectedWallet || !address) {
-    return walletExists ?
-      <WalletOpen onWalletOpen={handleWalletOpen} />
-      : <WalletImport onWalletOpen={handleWalletOpen} />
+    return walletExists ? <WalletOpen /> : <WalletImport />;
   }
 
   return (
     <div className={classes.root}>
       <Grid container pt={2} spacing={1}>
         <Grid item xs={6}>
-          <WalletDisplay balance={balance} refreshBalance={refreshBalance} selectedWallet={selectedWallet} address={address} />
+          <WalletDisplay />
         </Grid>
 
         <Grid item xs={6}>
-          <CertificateDisplay selectedWallet={selectedWallet} address={address} />
+          <CertificateDisplay />
         </Grid>
 
         <Grid item xs={12}>
-          <MemoryRouter
-            initialEntries={["/"]}
-            initialIndex={1}
-          >
+          <MemoryRouter initialEntries={["/"]} initialIndex={1}>
             <Route exact path="/createDeployment">
-              <CreateDeploymentWizard refreshBalance={refreshBalance} address={address} selectedWallet={selectedWallet} />
+              <CreateDeploymentWizard />
             </Route>
             <Route path="/deployment/:dseq">
-              <DeploymentDetail deployments={deployments} address={address} selectedWallet={selectedWallet} />
+              <DeploymentDetail deployments={deployments} />
             </Route>
             <Route exact path="/">
-              <DeploymentList deployments={deployments} setDeployments={setDeployments} address={address} selectedWallet={selectedWallet} />
+              <DeploymentList deployments={deployments} setDeployments={setDeployments} />
             </Route>
           </MemoryRouter>
         </Grid>

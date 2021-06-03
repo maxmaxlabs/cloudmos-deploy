@@ -1,14 +1,17 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { apiEndpoint } from "../shared/constants";
 import { openCert } from "../walletHelper";
+import { useWallet } from "../WalletProvider/WalletProviderContext";
 
 const CertificateProviderContext = React.createContext({});
 
-export const CertificateProvider = ({ address, children }) => {
+export const CertificateProvider = ({ children }) => {
   const [validCertificates, setValidCertificates] = useState([]);
   const [isLoadingCertificates, setIsLoadingCertificates] = useState(false);
   const [localCert, setLocalCert] = useState(null);
   const [isLocalCertMatching, setIsLocalCertMatching] = useState(false);
+
+  const {address} = useWallet();
 
   const loadValidCertificates = useCallback(async () => {
     setIsLoadingCertificates(true);
