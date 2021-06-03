@@ -17,7 +17,7 @@ export const CertificateProvider = ({ address, children }) => {
 
     setValidCertificates(data.certificates);
     setIsLoadingCertificates(false);
-console.log(data.certificates[0]);
+    
     return data.certificates[0];
   }, [address]);
 
@@ -29,7 +29,7 @@ console.log(data.certificates[0]);
 
   const loadLocalCert = async (address, password) => {
     const cert = await openCert(address, password);
-    console.log(cert);
+    
     setLocalCert(cert);
   }
 

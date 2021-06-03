@@ -61,8 +61,6 @@ export function DeploymentList(props) {
     const response = await fetch(apiEndpoint + "/akash/deployment/v1beta1/deployments/list?filters.owner=" + address);
     const deployments = await response.json();
 
-    console.log("deployments", deployments);
-
     setDeployments(
       deployments.deployments.map((d) => ({
         dseq: d.deployment.deployment_id.dseq,
@@ -82,9 +80,6 @@ export function DeploymentList(props) {
   }
 
   async function createDeployment() {
-    console.log("not today..");
-    return;
-
     history.push("/createDeployment");
     return;
 

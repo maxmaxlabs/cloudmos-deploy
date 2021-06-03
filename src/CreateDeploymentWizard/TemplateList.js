@@ -22,7 +22,6 @@ export function TemplateList(props) {
   const { selectedTemplate, setSelectedTemplate } = props;
 
   const handleToggle = (value) => {
-    console.log(value);
     setSelectedTemplate(templates.find(t => t.code === value));
   };
 
