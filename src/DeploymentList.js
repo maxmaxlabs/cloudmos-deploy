@@ -28,7 +28,7 @@ import {
 } from "@material-ui/core";
 import { useHistory } from "react-router";
 import { humanFileSize } from "./shared/utils/unitUtils";
-import { deploymentResourceSum } from "./shared/utils/deploymentDetailUtils";
+import { deploymentToDto } from "./shared/utils/deploymentDetailUtils";
 import { useWallet } from "./WalletProvider/WalletProviderContext";
 
 const yaml = require("js-yaml");
@@ -61,21 +61,10 @@ export function DeploymentList(props) {
   async function loadDeployments(address) {
     setIsLoadingDeployments(true);
     const response = await fetch(apiEndpoint + "/akash/deployment/v1beta1/deployments/list?filters.owner=" + address);
-    const deployments = await response.json();
+    let deployments = await response.json();
 
     setDeployments(
-      deployments.deployments.map((d) => ({
-        dseq: d.deployment.deployment_id.dseq,
-        state: d.deployment.state,
-        createdAt: parseInt(d.deployment.created_at),
-        escrowBalance: d.escrow_account.balance,
-        transferred: d.escrow_account.transferred,
-        cpuAmount: deploymentResourceSum(d, (r) => parseInt(r.cpu.units.val) / 1000),
-        memoryAmount: deploymentResourceSum(d, (r) => parseInt(r.memory.quantity.val)),
-        storageAmount: deploymentResourceSum(d, (r) => parseInt(r.storage.quantity.val)),
-        escrowAccount: { ...d.escrow_account },
-        groups: [...d.groups]
-      }))
+      deployments.deployments.filter(x => x.deployment.created_at !== "1136893").map((d) => deploymentToDto(d))
     );
 
     setIsLoadingDeployments(false);

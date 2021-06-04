@@ -1,25 +1,19 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { makeStyles } from "@material-ui/core/styles";
 import { apiEndpoint, rpcEndpoint } from "../shared/constants";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { customRegistry, createFee } from "../shared/utils/blockchainUtils";
-import { ListSubheader, Button, Radio, List, ListItemText, ListItemIcon, ListItem, CircularProgress } from "@material-ui/core";
+import { Button, CircularProgress } from "@material-ui/core";
 import { useWallet } from "../WalletProvider/WalletProviderContext";
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    width: "100%",
-    backgroundColor: theme.palette.background.paper
-  }
-}));
+import { BidGroup } from "./BidGroup";
+import { useHistory } from "react-router";
 
 export function CreateLease(props) {
   const [bids, setBids] = useState([]);
   const [isLoadingBids, setIsLoadingBids] = useState(false);
-  const [selectedBid, setSelectedBid] = useState(null);
+  const [selectedBids, setSelectedBids] = useState({});
 
   const { address, selectedWallet } = useWallet();
-  const classes = useStyles();
+  const history = useHistory();
 
   const { dseq } = props;
 
@@ -49,16 +43,16 @@ export function CreateLease(props) {
     setIsLoadingBids(false);
   }, [address, dseq]);
 
-  const handleToggle = (value) => {
-    setSelectedBid(bids.find((b) => b.id === value));
+  const handleBidSelected = (bid) => {
+    setSelectedBids({ ...selectedBids, [bid.gseq]: bid });
   };
 
-  async function acceptBid(bid) {
+  async function acceptBid(bids) {
     const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, selectedWallet, {
       registry: customRegistry
     });
 
-    const createLeaseMsg = {
+    const messages = bids.map((bid) => ({
       typeUrl: "/akash.market.v1beta1.MsgCreateLease",
       value: {
         bid_id: {
@@ -69,13 +63,15 @@ export function CreateLease(props) {
           provider: bid.provider
         }
       }
-    };
+    }));
 
-    await client.signAndBroadcast(address, [createLeaseMsg], createFee("200000"), "Test Akashlytics");
+    await client.signAndBroadcast(address, messages, createFee("200000"), "Test Akashlytics");
   }
 
   async function handleNext() {
-    await acceptBid(selectedBid);
+    //await acceptBid(selectedBids);
+
+    history.push("/deployment/" + dseq);
   }
 
   const groupedBids = bids.reduce((a, b) => {
@@ -83,41 +79,17 @@ export function CreateLease(props) {
     return a;
   }, {});
 
+  const groupCount = Object.keys(groupedBids).length;
+
   return (
     <>
       {isLoadingBids && <CircularProgress />}
       {Object.keys(groupedBids).map((gseq) => (
-        <List key={gseq} className={classes.root} subheader={<ListSubheader component="div">GSEQ: {gseq}</ListSubheader>}>
-          {groupedBids[gseq].map((bid) => {
-            const labelId = `checkbox-list-label-${bid.id}`;
-
-            return (
-              <ListItem disabled={true} key={bid.id} dense button onClick={() => handleToggle(bid.id)}>
-                <ListItemIcon>
-                  <Radio
-                    checked={selectedBid?.id === bid.id}
-                    //onChange={handleChange}
-                    value={bid.id}
-                    name="radio-button-demo"
-                  />
-                </ListItemIcon>
-                <ListItemText
-                  id={labelId}
-                  primary={
-                    <>
-                      {bid.price.amount} uakt / block ({bid.state})
-                    </>
-                  }
-                  secondary={bid.provider}
-                />
-              </ListItem>
-            );
-          })}
-        </List>
+        <BidGroup key={gseq} gseq={gseq} bids={groupedBids[gseq]} handleBidSelected={handleBidSelected} selectedBid={selectedBids[gseq]} />
       ))}
 
-      <Button variant="contained" color="primary" onClick={handleNext} disabled={!selectedBid}>
-        Accept Bid
+      <Button variant="contained" color="primary" onClick={handleNext} disabled={Object.keys(groupedBids).some(gseq => !selectedBids[gseq])}>
+        Accept Bid{groupCount > 1 ? "s" : ""}
       </Button>
     </>
   );

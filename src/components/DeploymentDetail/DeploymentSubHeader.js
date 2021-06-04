@@ -9,7 +9,7 @@ import { StatusPill } from "../../shared/components/StatusPill";
 import { LabelValue } from "../../shared/components/LabelValue";
 import { closeDeployment } from "../../shared/utils/deploymentDetailUtils";
 import CodeIcon from "@material-ui/icons/Code";
-import { RAW_JSON_BIDS, RAW_JSON_DEPLOYMENT, RAW_JSON_LEASES } from "../../shared/constants";
+import { RAW_JSON_DEPLOYMENT, RAW_JSON_LEASES } from "../../shared/constants";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -127,10 +127,6 @@ export function DeploymentSubHeader({ deployment, block, deploymentCost, address
           <MenuItem onClick={() => onUpdateShownRawJson(RAW_JSON_DEPLOYMENT)} classes={{ root: classes.menuItem }}>
             <CodeIcon />
             &nbsp;View deployment JSON
-          </MenuItem>
-          <MenuItem onClick={() => onUpdateShownRawJson(RAW_JSON_BIDS)} classes={{ root: classes.menuItem }}>
-            <CodeIcon />
-            &nbsp;View bids JSON
           </MenuItem>
           <MenuItem onClick={() => onUpdateShownRawJson(RAW_JSON_LEASES)} classes={{ root: classes.menuItem }}>
             <CodeIcon />

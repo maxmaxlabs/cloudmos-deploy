@@ -7,48 +7,24 @@ import { Button, CircularProgress, IconButton, Card, CardContent, CardHeader, Ty
 import { LeaseRow } from "./LeaseRow";
 import { useStyles } from "./DeploymentDetail.styles";
 import { DeploymentSubHeader } from "./DeploymentSubHeader";
-import { acceptBid, deploymentGroupResourceSum } from "../../shared/utils/deploymentDetailUtils";
-import { RAW_JSON_BIDS, RAW_JSON_DEPLOYMENT, RAW_JSON_LEASES } from "../../shared/constants";
+import { deploymentGroupResourceSum } from "../../shared/utils/deploymentDetailUtils";
+import { RAW_JSON_DEPLOYMENT, RAW_JSON_LEASES } from "../../shared/constants";
 import { syntaxHighlight } from "../../shared/utils/stringUtils";
 import { useWallet } from "../../WalletProvider/WalletProviderContext";
+import { deploymentToDto } from "../../shared/utils/deploymentDetailUtils";
 
 export function DeploymentDetail(props) {
-  const [bids, setBids] = useState([]);
   const [leases, setLeases] = useState([]);
   const [currentBlock, setCurrentBlock] = useState(null);
-  const [isLoadingBids, setIsLoadingBids] = useState(false);
   const [isLoadingLeases, setIsLoadingLeases] = useState(false);
   const [shownRawJson, setShownRawJson] = useState(null);
+  const [deployment, setDeployment] = useState(null);
+  const [isLoadingDeployment, setIsLoadingDeployment] = useState(false);
 
   const classes = useStyles();
   const history = useHistory();
   const { address, selectedWallet } = useWallet();
   let { dseq } = useParams();
-
-  const deployment = props.deployments.find((d) => d.dseq === dseq);
-
-  const loadBids = useCallback(async () => {
-    setIsLoadingBids(true);
-
-    const response = await fetch(apiEndpoint + "/akash/market/v1beta1/bids/list?filters.owner=" + address + "&filters.dseq=" + deployment.dseq);
-    const data = await response.json();
-
-    console.log("bids", data);
-
-    setBids(
-      data.bids.map((b) => ({
-        owner: b.bid.bid_id.owner,
-        provider: b.bid.bid_id.provider,
-        dseq: b.bid.bid_id.dseq,
-        gseq: b.bid.bid_id.gseq,
-        oseq: b.bid.bid_id.oseq,
-        price: b.bid.price,
-        state: b.bid.state
-      }))
-    );
-
-    setIsLoadingBids(false);
-  }, [address, deployment]);
 
   const loadLeases = useCallback(async () => {
     setIsLoadingLeases(true);
@@ -92,17 +68,27 @@ export function DeploymentDetail(props) {
   }, [deployment]);
 
   useEffect(() => {
-    loadBids();
-    loadLeases();
-    loadBlock();
-  }, [deployment, loadBids, loadLeases, loadBlock]);
+    if (deployment) {
+      loadLeases();
+      loadBlock();
+    }
+  }, [deployment, loadLeases, loadBlock]);
 
-  const onAcceptBid = async (bid) => {
-    await acceptBid(bid, address, selectedWallet);
-
-    loadBids();
-    loadLeases();
-  };
+  useEffect(() => {
+    (async function () {
+      let deploymentFromList = props.deployments.find((d) => d.dseq === dseq);
+      if (deploymentFromList) {
+        setDeployment(deploymentFromList);
+      } else {
+        setIsLoadingDeployment(true);
+        const response = await fetch(apiEndpoint + "/akash/deployment/v1beta1/deployments/info?id.owner=" + address + "&id.dseq=" + dseq);
+        const deployment = await response.json();
+        console.log(deployment);
+        setDeployment(deploymentToDto(deployment));
+        setIsLoadingDeployment(false);
+      }
+    })();
+  }, []);
 
   function handleBackClick() {
     history.push("/");
@@ -117,9 +103,6 @@ export function DeploymentDetail(props) {
         break;
       case RAW_JSON_LEASES:
         value = leases;
-        break;
-      case RAW_JSON_BIDS:
-        value = bids;
         break;
 
       default:
@@ -138,9 +121,6 @@ export function DeploymentDetail(props) {
         break;
       case RAW_JSON_LEASES:
         title = "Leases JSON";
-        break;
-      case RAW_JSON_BIDS:
-        title = "Bids JSON";
         break;
 
       default:
@@ -168,14 +148,16 @@ export function DeploymentDetail(props) {
             </>
           }
           subheader={
-            <DeploymentSubHeader
-              deployment={deployment}
-              block={currentBlock}
-              deploymentCost={leases && leases.length > 0 ? leases.reduce((prev, current) => prev + current.price.amount, []) : 0}
-              address={address}
-              selectedWallet={selectedWallet}
-              updateShownRawJson={(json) => setShownRawJson(json)}
-            />
+            deployment && (
+              <DeploymentSubHeader
+                deployment={deployment}
+                block={currentBlock}
+                deploymentCost={leases && leases.length > 0 ? leases.reduce((prev, current) => prev + current.price.amount, []) : 0}
+                address={address}
+                selectedWallet={selectedWallet}
+                updateShownRawJson={(json) => setShownRawJson(json)}
+              />
+            )
           }
         />
 
@@ -202,40 +184,6 @@ export function DeploymentDetail(props) {
             </Box>
           ) : (
             <>
-              {!isLoadingBids && bids.some((b) => b.state === "open") && (
-                <>
-                  <Typography variant="h6" gutterBottom>
-                    Bids
-                  </Typography>
-                  <List component="nav" dense>
-                    {bids.map((bid) => (
-                      <ListItem key={bid.provider}>
-                        <ListItemText
-                          primary={
-                            <>
-                              Price: {bid.price.amount}
-                              {bid.price.denom}
-                            </>
-                          }
-                          secondary={
-                            <>
-                              {bid.provider}
-                              <br />
-                              {bid.state}
-                            </>
-                          }
-                        />
-                        {bid.state === "open" && (
-                          <Button variant="contained" color="primary" onClick={() => onAcceptBid(bid)}>
-                            Accept
-                          </Button>
-                        )}
-                      </ListItem>
-                    ))}
-                  </List>
-                </>
-              )}
-
               {!isLoadingLeases && (
                 <>
                   <Typography variant="h5" gutterBottom className={classes.title}>
@@ -247,7 +195,7 @@ export function DeploymentDetail(props) {
                 </>
               )}
 
-              {(isLoadingLeases || isLoadingBids) && <CircularProgress />}
+              {(isLoadingLeases || isLoadingDeployment) && <CircularProgress />}
             </>
           )}
         </CardContent>
