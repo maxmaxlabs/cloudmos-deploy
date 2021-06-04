@@ -1,10 +1,5 @@
 import { useState, useEffect } from "react";
-import { apiEndpoint, rpcEndpoint } from "./shared/constants";
-import { NewDeploymentData } from "./shared/utils/deploymentUtils";
-import { MsgCreateDeployment } from "./ProtoAkashTypes";
-import { SigningStargateClient } from "@cosmjs/stargate";
-import { customRegistry, baseFee } from "./shared/utils/blockchainUtils";
-import DemoDeployYaml from "./demo.deploy.yml";
+import { apiEndpoint } from "./shared/constants";
 import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
 import CloudIcon from "@material-ui/icons/Cloud";
 import AddIcon from "@material-ui/icons/Add";
@@ -50,7 +45,7 @@ export function DeploymentList(props) {
 
   const classes = useStyles();
   const history = useHistory();
-  const { address, selectedWallet } = useWallet();
+  const { address } = useWallet();
 
   const { deployments, setDeployments } = props;
 
@@ -64,51 +59,17 @@ export function DeploymentList(props) {
     let deployments = await response.json();
 
     setDeployments(
-      deployments.deployments.filter(x => x.deployment.created_at !== "1136893").map((d) => deploymentToDto(d))
+      deployments.deployments.map((d) => deploymentToDto(d))
     );
 
     setIsLoadingDeployments(false);
   }
 
-  async function createDeployment() {
+  function createDeployment() {
     history.push("/createDeployment");
-    return;
-
-    const flags = {};
-    const response = await fetch(DemoDeployYaml);
-    const txt = await response.text();
-    const doc = yaml.load(txt);
-
-    const dd = await NewDeploymentData(doc, flags, address); // TODO Flags
-
-    const msg = {
-      id: dd.deploymentId,
-      groups: dd.groups,
-      version: dd.version,
-      deposit: dd.deposit
-    };
-
-    const txData = {
-      typeUrl: "/akash.deployment.v1beta1.MsgCreateDeployment",
-      value: msg
-    };
-
-    const err = MsgCreateDeployment.verify(msg);
-    // const encoded = MsgCreateDeployment.fromObject(msg);
-    // const decoded = MsgCreateDeployment.toObject(encoded);
-
-    if (err) throw err;
-
-    const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, selectedWallet, {
-      registry: customRegistry
-    });
-
-    await client.signAndBroadcast(address, [txData], baseFee);
-
-    loadDeployments(address);
   }
 
-  async function viewDeployment(deployment) {
+  function viewDeployment(deployment) {
     history.push("/deployment/" + deployment.dseq);
   }
 

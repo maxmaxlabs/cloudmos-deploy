@@ -39,7 +39,7 @@ export function DeploymentSubHeader({ deployment, block, deploymentCost, address
 
   const onCloseDeployment = async () => {
     handleMenuClose();
-    await closeDeployment(deployment, address, selectedWallet);
+    await closeDeployment(deployment.dseq, address, selectedWallet);
   };
 
   const onUpdateShownRawJson = (json) => {

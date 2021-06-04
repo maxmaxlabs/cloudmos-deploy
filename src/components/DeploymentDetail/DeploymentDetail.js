@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { apiEndpoint } from "../../shared/constants";
-import { useParams, useHistory } from "react-router-dom";
+import { useParams, useHistory, useLocation } from "react-router-dom";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import CloseIcon from "@material-ui/icons/Close";
 import { Button, CircularProgress, IconButton, Card, CardContent, CardHeader, Typography, List, ListItem, ListItemText, Box } from "@material-ui/core";
@@ -33,28 +33,31 @@ export function DeploymentDetail(props) {
 
     console.log("leases", data);
 
-    setLeases(
-      data.leases.map((l) => {
-        const group = deployment.groups.filter((g) => g.group_id.gseq === l.lease.lease_id.gseq)[0] || {};
+    const leases = data.leases.map((l) => {
+      const group = deployment.groups.filter((g) => g.group_id.gseq === l.lease.lease_id.gseq)[0] || {};
 
-        return {
-          id: l.lease.lease_id.dseq + l.lease.lease_id.gseq + l.lease.lease_id.oseq,
-          owner: l.lease.lease_id.owner,
-          provider: l.lease.lease_id.provider,
-          dseq: l.lease.lease_id.dseq,
-          gseq: l.lease.lease_id.gseq,
-          oseq: l.lease.lease_id.oseq,
-          state: l.lease.state,
-          price: l.lease.price,
-          cpuAmount: deploymentGroupResourceSum(group, (r) => parseInt(r.cpu.units.val) / 1000),
-          memoryAmount: deploymentGroupResourceSum(group, (r) => parseInt(r.memory.quantity.val)),
-          storageAmount: deploymentGroupResourceSum(group, (r) => parseInt(r.storage.quantity.val)),
-          group
-        };
-      })
-    );
+      return {
+        id: l.lease.lease_id.dseq + l.lease.lease_id.gseq + l.lease.lease_id.oseq,
+        owner: l.lease.lease_id.owner,
+        provider: l.lease.lease_id.provider,
+        dseq: l.lease.lease_id.dseq,
+        gseq: l.lease.lease_id.gseq,
+        oseq: l.lease.lease_id.oseq,
+        state: l.lease.state,
+        price: l.lease.price,
+        cpuAmount: deploymentGroupResourceSum(group, (r) => parseInt(r.cpu.units.val) / 1000),
+        memoryAmount: deploymentGroupResourceSum(group, (r) => parseInt(r.memory.quantity.val)),
+        storageAmount: deploymentGroupResourceSum(group, (r) => parseInt(r.storage.quantity.val)),
+        group
+      };
+    });
 
+    setLeases(leases);
     setIsLoadingLeases(false);
+    
+    if (leases.length === 0) {
+      history.push("/createDeployment/createLease/" + dseq);
+    }
   }, [deployment, address]);
 
   const loadBlock = useCallback(async () => {

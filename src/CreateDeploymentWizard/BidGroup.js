@@ -15,7 +15,7 @@ export function BidGroup(props) {
   return (
     <List className={classes.root} subheader={<ListSubheader component="div">GSEQ: {gseq}</ListSubheader>}>
       {bids.map((bid) => (
-        <ListItem disabled={false/*bid.state !== "open"*/} key={bid.id} dense button onClick={() => handleBidSelected(bid)}>
+        <ListItem disabled={bid.state !== "open"} key={bid.id} dense button onClick={() => handleBidSelected(bid)}>
           <ListItemIcon>
             <Radio
               checked={selectedBid?.id === bid.id}

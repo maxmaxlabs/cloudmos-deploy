@@ -8,6 +8,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Radio from '@material-ui/core/Radio';
 import { IconButton, Button } from '@material-ui/core';
 import GitHubIcon from '@material-ui/icons/GitHub';
+import { useHistory } from 'react-router';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -18,6 +19,7 @@ const useStyles = makeStyles((theme) => ({
 
 export function TemplateList(props) {
   const classes = useStyles();
+  const history = useHistory();
 
   const { selectedTemplate, setSelectedTemplate } = props;
 
@@ -27,6 +29,10 @@ export function TemplateList(props) {
 
   function handleGithubOpen(value) {
     window.electron.openUrl(value.githubUrl);
+  }
+
+  function handleNextClick(){
+    history.push("/createDeployment/editManifest")
   }
 
   return (
@@ -58,7 +64,7 @@ export function TemplateList(props) {
         })}
       </List>
 
-      <Button variant="contained" color="primary" disabled={!selectedTemplate} onClick={props.handleNext}>
+      <Button variant="contained" color="primary" disabled={!selectedTemplate} onClick={handleNextClick}>
         Continue
       </Button>
     </>

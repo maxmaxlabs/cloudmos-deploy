@@ -50,7 +50,7 @@ export function MainView() {
 
         <Grid item xs={12}>
           <MemoryRouter initialEntries={["/"]} initialIndex={1}>
-            <Route exact path="/createDeployment">
+            <Route exact path="/createDeployment/:step?/:dseq?">
               <CreateDeploymentWizard />
             </Route>
             <Route path="/deployment/:dseq">

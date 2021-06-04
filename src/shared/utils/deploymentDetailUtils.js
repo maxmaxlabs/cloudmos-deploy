@@ -3,7 +3,7 @@ import { SigningStargateClient } from "@cosmjs/stargate";
 import { customRegistry, baseFee, createFee } from "./blockchainUtils";
 import { rpcEndpoint } from "../constants";
 
-export async function closeDeployment(deployment, address, selectedWallet) {
+export async function closeDeployment(dseq, address, selectedWallet) {
   // handleMenuClose();
   const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, selectedWallet, {
     registry: customRegistry
@@ -12,7 +12,7 @@ export async function closeDeployment(deployment, address, selectedWallet) {
   const closeJson = {
     id: {
       owner: address,
-      dseq: parseInt(deployment.dseq)
+      dseq: parseInt(dseq)
     }
   };
 

@@ -5,6 +5,7 @@ import CheckCircleOutlineIcon from "@material-ui/icons/CheckCircleOutline";
 import ErrorOutlineIcon from "@material-ui/icons/ErrorOutline";
 import { useCertificate } from "../CertificateProvider/CertificateProviderContext";
 import { useWallet } from "../WalletProvider/WalletProviderContext";
+import { useHistory } from "react-router";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -20,6 +21,7 @@ export function PrerequisiteList(props) {
 
   const { refreshBalance } = useWallet();
   const { loadValidCertificates, localCert, isLocalCertMatching } = useCertificate();
+  const history = useHistory();
 
   useEffect(() => {
     async function loadPrerequisites() {
@@ -36,6 +38,10 @@ export function PrerequisiteList(props) {
   }, [refreshBalance, loadValidCertificates, localCert, isLocalCertMatching]);
 
   const classes = useStyles();
+
+  function handleNextClick(){
+    history.push("/createDeployment/chooseTemplate");
+  }
 
   const allCheckSucceeded = isBalanceValidated && isCertificateValidated && isLocalCertificateValidated;
 
@@ -70,7 +76,7 @@ export function PrerequisiteList(props) {
         </ListItem>
       </List>
 
-      <Button variant="contained" color="primary" disabled={!allCheckSucceeded} onClick={props.handleNext}>
+      <Button variant="contained" color="primary" disabled={!allCheckSucceeded} onClick={handleNextClick}>
         Continue
       </Button>
     </>
