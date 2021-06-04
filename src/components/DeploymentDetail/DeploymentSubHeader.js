@@ -10,6 +10,7 @@ import { LabelValue } from "../../shared/components/LabelValue";
 import { closeDeployment } from "../../shared/utils/deploymentDetailUtils";
 import CodeIcon from "@material-ui/icons/Code";
 import { RAW_JSON_DEPLOYMENT, RAW_JSON_LEASES } from "../../shared/constants";
+import { useHistory } from "react-router";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -37,9 +38,13 @@ export function DeploymentSubHeader({ deployment, block, deploymentCost, address
   const timeLeft = getTimeLeft(deploymentCost, deployment.escrowBalance.amount);
   const [anchorEl, setAnchorEl] = useState(null);
 
+  const history = useHistory();
+
   const onCloseDeployment = async () => {
     handleMenuClose();
     await closeDeployment(deployment.dseq, address, selectedWallet);
+
+    history.push("/");
   };
 
   const onUpdateShownRawJson = (json) => {
