@@ -18,7 +18,7 @@ import {
   MenuItem,
   Menu
 } from '@material-ui/core';
-import { useCertificate } from "./CertificateProvider/CertificateProviderContext";
+import { useCertificate } from "./context/CertificateProvider/CertificateProviderContext";
 
 var rs = require("jsrsasign");
 

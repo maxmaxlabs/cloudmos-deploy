@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { apiEndpoint } from "../shared/constants";
-import { openCert } from "../walletHelper";
-import { useWallet } from "../WalletProvider/WalletProviderContext";
+import { apiEndpoint } from "../../shared/constants";
+import { openCert } from "../../walletHelper";
+import { useWallet } from "../../WalletProvider/WalletProviderContext";
 
 const CertificateProviderContext = React.createContext({});
 

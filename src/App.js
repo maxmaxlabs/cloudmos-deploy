@@ -2,7 +2,7 @@ import "./App.css";
 import { useRef } from "react";
 import { PasswordConfirmationModalProvider } from "./ConfirmPasswordModal/ConfirmPasswordModalContext";
 import { MainView } from "./MainView";
-import { CertificateProvider } from "./CertificateProvider/CertificateProviderContext";
+import { CertificateProvider } from "./context/CertificateProvider/CertificateProviderContext";
 import { WalletProvider } from "./WalletProvider/WalletProviderContext";
 import { SnackbarProvider } from "notistack";
 import { IconButton, makeStyles } from "@material-ui/core";
