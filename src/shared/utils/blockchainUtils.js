@@ -20,6 +20,21 @@ export const baseFee = {
   ]
 };
 
-export function createFee(gas) {
-  return { ...baseFee, gas: gas };
+export const baseGas = 700000;
+
+export const fees = {
+  low: 1400,
+  avg: 3500,
+  high: 5600
+};
+
+/**
+ * Get the fee object for an Akash transaction
+ * @param {string} type low | avg | high
+ * @param {number} gas transaction gas
+ * @param {number} msgCount number of messages
+ * @returns The fee object
+ */
+export function createFee(type, gas = baseGas, msgCount = 1) {
+  return { gas, amount: [{ denom: "uakt", amount: fees[type] * msgCount }] };
 }

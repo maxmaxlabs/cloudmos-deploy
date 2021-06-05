@@ -5,7 +5,7 @@ import { Button, CircularProgress } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import { openWallet } from "./walletHelper";
-import { useCertificate } from "./CertificateProvider/CertificateProviderContext";
+import { useCertificate } from "./context/CertificateProvider/CertificateProviderContext";
 import { useWallet } from "./WalletProvider/WalletProviderContext";
 
 const useStyles = makeStyles((theme) => ({
