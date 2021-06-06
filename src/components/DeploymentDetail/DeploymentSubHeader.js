@@ -7,13 +7,14 @@ import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import isValid from "date-fns/isValid";
 import { StatusPill } from "../../shared/components/StatusPill";
 import { LabelValue } from "../../shared/components/LabelValue";
-import { closeDeployment } from "../../shared/utils/deploymentDetailUtils";
 import CodeIcon from "@material-ui/icons/Code";
 import { RAW_JSON_DEPLOYMENT, RAW_JSON_LEASES } from "../../shared/constants";
 import { useHistory } from "react-router";
 import { getDeploymentLocalData } from "../../shared/utils/deploymentLocalDataUtils";
 import { Manifest } from "../../shared/utils/deploymentUtils";
 import { useCertificate } from "../../CertificateProvider/CertificateProviderContext";
+import { useTransactionModal } from "../../context/TransactionModal";
+import { TransactionMessage } from "../../shared/utils/blockchainUtils";
 
 const stableStringify = require("json-stable-stringify");
 const yaml = require("js-yaml");
@@ -39,17 +40,23 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function DeploymentSubHeader({ deployment, block, deploymentCost, address, selectedWallet, updateShownRawJson }) {
+export function DeploymentSubHeader({ deployment, block, deploymentCost, address, updateShownRawJson }) {
   const classes = useStyles();
   const timeLeft = getTimeLeft(deploymentCost, deployment.escrowBalance.amount);
   const [anchorEl, setAnchorEl] = useState(null);
+  const { sendTransaction } = useTransactionModal();
 
   const { localCert } = useCertificate();
   const history = useHistory();
 
   const onCloseDeployment = async () => {
     handleMenuClose();
-    await closeDeployment(deployment.dseq, address, selectedWallet);
+    // TODO
+    try {
+      const message = TransactionMessage.getCloseDeploymentMsg(address, deployment.dseq);
+      // TODO handle response
+      const response = await sendTransaction([message]);
+    } catch (error) {}
 
     history.push("/");
   };
@@ -74,6 +81,7 @@ export function DeploymentSubHeader({ deployment, block, deploymentCost, address
     const mani = Manifest(doc);
     console.log(mani);
 
+    // TODO replace hard coded provider url
     const response = await window.electron.queryProvider(
       "https://provider.ewr1p0.mainnet.akashian.io:8443" + "/deployment/" + deployment.dseq + "/manifest",
       "PUT",

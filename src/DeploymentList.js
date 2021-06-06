@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { apiEndpoint } from "./shared/constants";
+import { TransactionMessage } from "./shared/utils/blockchainUtils";
 import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
 import CloudIcon from "@material-ui/icons/Cloud";
 import AddIcon from "@material-ui/icons/Add";
@@ -25,6 +26,7 @@ import { useHistory } from "react-router";
 import { humanFileSize } from "./shared/utils/unitUtils";
 import { deploymentToDto } from "./shared/utils/deploymentDetailUtils";
 import { useWallet } from "./WalletProvider/WalletProviderContext";
+import { useTransactionModal } from "./context/TransactionModal";
 
 const yaml = require("js-yaml");
 
@@ -41,13 +43,12 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export function DeploymentList(props) {
-  const [isLoadingDeployments, setIsLoadingDeployments] = useState(false);
-
+  const { deployments, setDeployments } = props;
   const classes = useStyles();
   const history = useHistory();
-  const { address } = useWallet();
-
-  const { deployments, setDeployments } = props;
+  const [isLoadingDeployments, setIsLoadingDeployments] = useState(false);
+  const { address, selectedWallet } = useWallet();
+  const { sendTransaction } = useTransactionModal();
 
   useEffect(() => {
     loadDeployments(address);

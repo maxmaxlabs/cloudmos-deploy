@@ -3,7 +3,7 @@ import { makeStyles, Button, List, ListItem, ListItemText, ListItemIcon, Circula
 import { green } from "@material-ui/core/colors";
 import CheckCircleOutlineIcon from "@material-ui/icons/CheckCircleOutline";
 import ErrorOutlineIcon from "@material-ui/icons/ErrorOutline";
-import { useCertificate } from "../CertificateProvider/CertificateProviderContext";
+import { useCertificate } from "../context/CertificateProvider/CertificateProviderContext";
 import { useWallet } from "../WalletProvider/WalletProviderContext";
 import { useHistory } from "react-router";
 
