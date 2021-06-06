@@ -20,10 +20,9 @@ export function DeploymentDetail(props) {
   const [shownRawJson, setShownRawJson] = useState(null);
   const [deployment, setDeployment] = useState(null);
   const [isLoadingDeployment, setIsLoadingDeployment] = useState(false);
-
   const classes = useStyles();
   const history = useHistory();
-  const { address, selectedWallet } = useWallet();
+  const { address } = useWallet();
   let { dseq } = useParams();
 
   const loadLeases = useCallback(async () => {
@@ -157,7 +156,6 @@ export function DeploymentDetail(props) {
                 block={currentBlock}
                 deploymentCost={leases && leases.length > 0 ? leases.reduce((prev, current) => prev + current.price.amount, []) : 0}
                 address={address}
-                selectedWallet={selectedWallet}
                 updateShownRawJson={(json) => setShownRawJson(json)}
               />
             )

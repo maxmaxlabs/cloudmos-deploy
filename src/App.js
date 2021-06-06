@@ -3,6 +3,7 @@ import { useRef } from "react";
 import { PasswordConfirmationModalProvider } from "./ConfirmPasswordModal/ConfirmPasswordModalContext";
 import { MainView } from "./MainView";
 import { CertificateProvider } from "./context/CertificateProvider/CertificateProviderContext";
+import { TransactionModalProvider } from "./context/TransactionModal/TransactionModalContext";
 import { WalletProvider } from "./WalletProvider/WalletProviderContext";
 import { SnackbarProvider } from "notistack";
 import { IconButton, makeStyles } from "@material-ui/core";
@@ -33,13 +34,15 @@ function App() {
         </IconButton>
       )}
     >
-      <PasswordConfirmationModalProvider>
-        <WalletProvider>
-          <CertificateProvider>
-            <MainView />
-          </CertificateProvider>
-        </WalletProvider>
-      </PasswordConfirmationModalProvider>
+      <TransactionModalProvider>
+        <PasswordConfirmationModalProvider>
+          <WalletProvider>
+            <CertificateProvider>
+              <MainView />
+            </CertificateProvider>
+          </WalletProvider>
+        </PasswordConfirmationModalProvider>
+      </TransactionModalProvider>
     </SnackbarProvider>
   );
 }

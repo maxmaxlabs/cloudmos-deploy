@@ -12,6 +12,7 @@ import { useCertificate } from "../CertificateProvider/CertificateProviderContex
 import { fetchProviderInfo } from "../shared/providerCache";
 import Alert from "@material-ui/lab/Alert";
 import { getDeploymentLocalData } from "../shared/utils/deploymentLocalDataUtils";
+import { useTransactionModal } from "../context/TransactionModal";
 
 const yaml = require("js-yaml");
 
@@ -19,7 +20,7 @@ export function CreateLease(props) {
   const [bids, setBids] = useState([]);
   const [isLoadingBids, setIsLoadingBids] = useState(false);
   const [selectedBids, setSelectedBids] = useState({});
-
+  const { sendTransaction } = useTransactionModal();
   const { address, selectedWallet } = useWallet();
   const { localCert } = useCertificate();
   const history = useHistory();
@@ -61,26 +62,13 @@ export function CreateLease(props) {
   };
 
   async function acceptBids(bids) {
-    const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, selectedWallet, {
-      registry: customRegistry
-    });
-
-    const messages = Object.keys(bids)
-      .map((gseq) => bids[gseq])
-      .map((bid) => ({
-        typeUrl: "/akash.market.v1beta1.MsgCreateLease",
-        value: {
-          bid_id: {
-            owner: bid.owner,
-            dseq: bid.dseq,
-            gseq: bid.gseq,
-            oseq: bid.oseq,
-            provider: bid.provider
-          }
-        }
-      }));
-
-    await client.signAndBroadcast(address, messages, createFee("200000"), "Test Akashlytics");
+    try {
+      const messages = Object.keys(bids)
+        .map((gseq) => bids[gseq])
+        .map((bid) => TransactionMessage.getCreateLeaseMsg(bid));
+      // TODO handle response
+      const response = await sendTransaction(messages);
+    } catch (error) {}
 
     history.push("/deployment/" + dseq);
   }

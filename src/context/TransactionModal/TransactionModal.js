@@ -1,19 +1,24 @@
 import { useEffect, useState } from "react";
-import { Button, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Box } from "@material-ui/core";
+import { Button, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Box, Tabs, Tab, AppBar, useTheme } from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
-import { openWallet } from "../../walletHelper";
 import { a11yProps } from "../../shared/utils/a11yUtils";
 import { TabPanel } from "../../shared/components/TabPanel";
-import { createFee } from "../../shared/utils/blockchainUtils";
+import { createFee, customRegistry } from "../../shared/utils/blockchainUtils";
+import { SigningStargateClient } from "@cosmjs/stargate";
+import { rpcEndpoint } from "../../shared/constants";
+import { useWallet } from "../../WalletProvider/WalletProviderContext";
 
 const a11yPrefix = "transaction-tab";
 
 export function TransactionModal(props) {
   const { isOpen, onConfirmTransaction, messages } = props;
-  // const [password, setPassword] = useState("");
+  const { address, selectedWallet } = useWallet();
+  const [isSendingTransaction, setIsSendingTransaction] = useState(false);
   const [error, setError] = useState("");
   const [tabIndex, setTabIndex] = useState(0);
-  const { address, selectedWallet } = useWallet();
+  const [memo, setMemo] = useState("Akashlytics tx");
+  const [gas, setGas] = useState();
+  const theme = useTheme();
 
   useEffect(() => {
     // setPassword("");
@@ -24,22 +29,23 @@ export function TransactionModal(props) {
     setError("");
 
     try {
-      // await openWallet(password);
+      const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, selectedWallet, {
+        registry: customRegistry
+      });
+
       await client.signAndBroadcast(address, messages, createFee("avg"));
 
       onConfirmTransaction();
     } catch (err) {
       console.error(err);
+      // TODO return error?
+      // or throw?
       // setError("Invalid password");
     }
   }
 
   const handleTabChange = (event, newValue) => {
     setTabIndex(newValue);
-  };
-
-  const handleChangeIndex = (index) => {
-    setTabIndex(index);
   };
 
   return (
@@ -60,14 +66,18 @@ export function TransactionModal(props) {
           </Tabs>
         </AppBar>
 
-        <SwipeableViews axis={theme.direction === "rtl" ? "x-reverse" : "x"} index={tabIndex} onChangeIndex={handleChangeIndex}>
-          <TabPanel value={tabIndex} index={0} dir={theme.direction}>
-            Item One
-          </TabPanel>
-          <TabPanel value={tabIndex} index={1} dir={theme.direction}>
-            Item Two
-          </TabPanel>
-        </SwipeableViews>
+        <TabPanel value={tabIndex} index={0}>
+          Item One
+          {/**
+           * TODO
+           */}
+        </TabPanel>
+        <TabPanel value={tabIndex} index={1}>
+          Item Two
+          {/**
+           * TODO
+           */}
+        </TabPanel>
       </DialogContent>
       <DialogActions>
         <Button variant="contained" onClick={props.onClose} type="button">

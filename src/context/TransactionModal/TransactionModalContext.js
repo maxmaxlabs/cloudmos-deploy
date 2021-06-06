@@ -14,23 +14,25 @@ export const TransactionModalProvider = ({ children }) => {
 
   function handleConfirmTransaction() {
     setIsOpen(false);
-    options.actionCallback();
+    options.actionCallback(/** maybe some info about the tx */);
+    setOptions(null);
   }
 
   function handleClose() {
     setIsOpen(false);
     options.actionCallback(null);
+    setOptions(null);
   }
 
   return (
     <TransactionModalContext.Provider value={{ openModal }}>
-      <TransactionModal isOpen={isOpen} onClose={handleClose} onConfirmTransaction={handleConfirmTransaction} messages={options.messages} />
+      {options && <TransactionModal isOpen={isOpen} onClose={handleClose} onConfirmTransaction={handleConfirmTransaction} messages={options.messages} />}
       {children}
     </TransactionModalContext.Provider>
   );
 };
 
-export const transactionModal = () => {
+export const useTransactionModal = () => {
   const { openModal } = React.useContext(TransactionModalContext);
 
   const sendTransaction = (messages) =>

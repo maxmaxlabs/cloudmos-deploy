@@ -55,29 +55,11 @@ export function ManifestEdit(props) {
 
     const dd = await NewDeploymentData(doc, flags, address); // TODO Flags
 
-    const msg = {
-      id: dd.deploymentId,
-      groups: dd.groups,
-      version: dd.version,
-      deposit: dd.deposit
-    };
-
-    const txData = {
-      typeUrl: "/akash.deployment.v1beta1.MsgCreateDeployment",
-      value: msg
-    };
-
-    const err = MsgCreateDeployment.verify(msg);
-    // const encoded = MsgCreateDeployment.fromObject(msg);
-    // const decoded = MsgCreateDeployment.toObject(encoded);
-
-    if (err) throw err;
-
-    const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, selectedWallet, {
-      registry: customRegistry
-    });
-    
-    await client.signAndBroadcast(address, [txData], baseFee);
+    try {
+      const message = TransactionMessage.getCreateDeploymentMsg(dd);
+      // TODO handle response
+      const response = await sendTransaction([message]);
+    } catch (error) {}
 
     saveDeploymentManifest(dd.deploymentId.dseq, editedManifest, dd.version);
 
