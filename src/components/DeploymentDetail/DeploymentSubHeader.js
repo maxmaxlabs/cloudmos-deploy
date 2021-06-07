@@ -14,7 +14,7 @@ import { getDeploymentLocalData } from "../../shared/utils/deploymentLocalDataUt
 import { Manifest } from "../../shared/utils/deploymentUtils";
 import { useCertificate } from "../../CertificateProvider/CertificateProviderContext";
 import { useTransactionModal } from "../../context/TransactionModal";
-import { TransactionMessage } from "../../shared/utils/blockchainUtils";
+import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
 
 const stableStringify = require("json-stable-stringify");
 const yaml = require("js-yaml");
@@ -53,7 +53,7 @@ export function DeploymentSubHeader({ deployment, block, deploymentCost, address
     handleMenuClose();
     // TODO
     try {
-      const message = TransactionMessage.getCloseDeploymentMsg(address, deployment.dseq);
+      const message = TransactionMessageData.getCloseDeploymentMsg(address, deployment.dseq);
       // TODO handle response
       const response = await sendTransaction([message]);
     } catch (error) {}

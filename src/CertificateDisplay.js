@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { TransactionMessage } from "./shared/utils/blockchainUtils";
+import { TransactionMessageData } from "./shared/utils/TransactionMessageData";
 import { usePasswordConfirmationModal } from "./ConfirmPasswordModal/ConfirmPasswordModalContext";
 import { useTransactionModal } from "./context/TransactionModal";
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser";
@@ -44,7 +44,7 @@ export function CertificateDisplay(props) {
     //setIsLoadingCertificates(true);
 
     try {
-      const message = TransactionMessage.getRevokeCertificateMsg(address, cert.serial);
+      const message = TransactionMessageData.getRevokeCertificateMsg(address, cert.serial);
 
       // TODO handle response
       const response = await sendTransaction([message]);
@@ -86,7 +86,7 @@ export function CertificateDisplay(props) {
     var kp = rs.KEYUTIL.generateKeypair("EC", "secp256r1");
     var prv = kp.prvKeyObj;
     var pub = kp.pubKeyObj;
-    var prvpem = rs.KEYUTIL.getPEM(prv, "PKCS8PRV");
+    // var prvpem = rs.KEYUTIL.getPEM(prv, "PKCS8PRV");
 
     var encryptedKey = rs.KEYUTIL.getPEM(prv, "PKCS8PRV", password);
 
@@ -120,7 +120,7 @@ export function CertificateDisplay(props) {
     localStorage.setItem(address + ".key", encryptedKey);
 
     try {
-      const message = TransactionMessage.getCreateCertificateMsg(address, crtpem, pubpem);
+      const message = TransactionMessageData.getCreateCertificateMsg(address, crtpem, pubpem);
       // TODO handle response
       const response = await sendTransaction([message]);
     } catch (error) {}

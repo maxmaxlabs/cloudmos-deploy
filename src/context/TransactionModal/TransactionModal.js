@@ -1,14 +1,96 @@
 import { useEffect, useState } from "react";
-import { Button, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Box, Tabs, Tab, AppBar, useTheme } from "@material-ui/core";
+import {
+  Button,
+  TextField,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Box,
+  Tabs,
+  Tab,
+  AppBar,
+  makeStyles,
+  Typography,
+  Badge,
+  List,
+  ButtonGroup,
+  Link
+} from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
 import { a11yProps } from "../../shared/utils/a11yUtils";
 import { TabPanel } from "../../shared/components/TabPanel";
-import { createFee, customRegistry } from "../../shared/utils/blockchainUtils";
+import { baseGas, createFee, customRegistry } from "../../shared/utils/blockchainUtils";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { rpcEndpoint } from "../../shared/constants";
 import { useWallet } from "../../WalletProvider/WalletProviderContext";
+import clsx from "clsx";
+import { TransactionMessage } from "./TransactionMessage";
+import { uaktToAKT } from "../../shared/utils/priceUtils";
 
 const a11yPrefix = "transaction-tab";
+
+const useStyles = makeStyles((theme) => ({
+  tabContent: {
+    padding: 0,
+    height: 500,
+    overflowY: "hidden",
+    display: "flex",
+    flexDirection: "column"
+  },
+  badge: {
+    right: "-1rem",
+    top: "50%",
+    fontSize: ".5rem",
+    height: ".9rem",
+    fontWeight: "bold"
+  },
+  label: { fontSize: ".9rem", fontWeight: "bold" },
+  tabPanel: { overflowY: "auto", padding: ".5rem" },
+  messages: {
+    maxHeight: 100,
+    overflowY: "auto"
+  },
+  messagesData: {
+    overflowX: "auto",
+    whiteSpace: "pre",
+    overflowWrap: "break-word",
+    fontSize: ".9rem"
+  },
+  fullWidth: {
+    width: "100%"
+  },
+  feeButton: {
+    flexGrow: 1,
+    flexBasis: "33.333333%"
+  },
+  feeButtonLabel: {
+    display: "block",
+    lineHeight: "1rem",
+    padding: ".5rem 0"
+  },
+  feeButtonLabelAmount: {
+    fontSize: ".8rem",
+    color: "grey", // TODO Theme
+    fontWeight: "lighter",
+    paddingTop: 4
+  },
+  textWhite: {
+    color: "#ffffff"
+  },
+  setGasLink: {
+    display: "flex",
+    justifyContent: "flex-end",
+    padding: "2px",
+    paddingBottom: "1rem",
+    fontSize: ".9rem",
+    fontWeight: "bold"
+  },
+  actionButton: {
+    flexGrow: 1,
+    flexBasis: "50%"
+  }
+}));
 
 export function TransactionModal(props) {
   const { isOpen, onConfirmTransaction, messages } = props;
@@ -17,12 +99,17 @@ export function TransactionModal(props) {
   const [error, setError] = useState("");
   const [tabIndex, setTabIndex] = useState(0);
   const [memo, setMemo] = useState("Akashlytics tx");
-  const [gas, setGas] = useState();
-  const theme = useTheme();
+  const [gas, setGas] = useState(baseGas);
+  const [isSettingGas, setIsSettingGas] = useState(false);
+  const [currentFee, setCurrentFee] = useState("avg");
+  const classes = useStyles();
+  const lowFee = createFee("low", baseGas, messages.length);
+  const avgFee = createFee("avg", baseGas, messages.length);
+  const highFee = createFee("high", baseGas, messages.length);
 
-  useEffect(() => {
-    // setPassword("");
-  }, [isOpen]);
+  // useEffect(() => {
+  //   // setPassword("");
+  // }, [isOpen]);
 
   async function handleSubmit(ev) {
     ev.preventDefault();
@@ -33,7 +120,9 @@ export function TransactionModal(props) {
         registry: customRegistry
       });
 
-      await client.signAndBroadcast(address, messages, createFee("avg"));
+      const fee = createFee(currentFee, gas, messages.length);
+
+      await client.signAndBroadcast(address, messages, fee);
 
       onConfirmTransaction();
     } catch (err) {
@@ -48,10 +137,22 @@ export function TransactionModal(props) {
     setTabIndex(newValue);
   };
 
+  const onSetGasClick = (event) => {
+    event.preventDefault();
+    setIsSettingGas(!isSettingGas);
+  };
+
   return (
-    <Dialog open={props.isOpen} onClose={props.onClose} aria-labelledby="transaction-modal" aria-describedby="transaction modal description">
+    <Dialog
+      open={props.isOpen}
+      onClose={props.onClose}
+      maxWidth="xs"
+      fullWidth
+      aria-labelledby="transaction-modal"
+      aria-describedby="transaction modal description"
+    >
       <DialogTitle id="transaction-modal">Akash Transaction</DialogTitle>
-      <DialogContent dividers>
+      <DialogContent dividers classes={{ root: classes.tabContent }}>
         <AppBar position="static" color="default">
           <Tabs
             value={tabIndex}
@@ -66,24 +167,94 @@ export function TransactionModal(props) {
           </Tabs>
         </AppBar>
 
-        <TabPanel value={tabIndex} index={0}>
-          Item One
-          {/**
-           * TODO
-           */}
+        <TabPanel value={tabIndex} index={0} className={classes.tabPanel}>
+          <Badge color="secondary" badgeContent={messages.length} classes={{ badge: classes.badge }}>
+            <Typography variant="h4" className={classes.label}>
+              Messages
+            </Typography>
+          </Badge>
+
+          <List dense className={classes.messages}>
+            {messages.map((message, i) => {
+              return <TransactionMessage key={`message_${i}`} message={message} />;
+            })}
+          </List>
+
+          <Box padding="1rem 0">
+            <TextField
+              label="Memo"
+              value={memo}
+              onChange={(ev) => setMemo(ev.target.value)}
+              type="text"
+              variant="outlined"
+              classes={{ root: classes.fullWidth }}
+            />
+          </Box>
+
+          <Box>
+            <ButtonGroup size="large" color="primary" aria-label="large outlined primary button group" classes={{ root: classes.fullWidth }}>
+              <Button
+                classes={{ root: classes.feeButton, label: classes.feeButtonLabel }}
+                variant={currentFee === "low" ? "contained" : "outlined"}
+                onClick={() => setCurrentFee("low")}
+              >
+                <Box>Low</Box>
+                {/* TODO <div>Price</div> */}
+                <div className={clsx(classes.feeButtonLabelAmount, { [classes.textWhite]: currentFee === "low" })}>
+                  {uaktToAKT(lowFee.amount[0].amount, 4)}AKT
+                </div>
+              </Button>
+              <Button
+                classes={{ root: classes.feeButton, label: classes.feeButtonLabel }}
+                variant={currentFee === "avg" ? "contained" : "outlined"}
+                onClick={() => setCurrentFee("avg")}
+              >
+                <Box>Avg</Box>
+                {/* TODO <div>Price</div> */}
+                <div className={clsx(classes.feeButtonLabelAmount, { [classes.textWhite]: currentFee === "avg" })}>
+                  {uaktToAKT(avgFee.amount[0].amount, 4)}AKT
+                </div>
+              </Button>
+              <Button
+                classes={{ root: classes.feeButton, label: classes.feeButtonLabel }}
+                variant={currentFee === "high" ? "contained" : "outlined"}
+                onClick={() => setCurrentFee("high")}
+              >
+                <Box>High</Box>
+                {/* TODO <div>Price</div> */}
+                <div className={clsx(classes.feeButtonLabelAmount, { [classes.textWhite]: currentFee === "high" })}>
+                  {uaktToAKT(highFee.amount[0].amount, 4)}AKT
+                </div>
+              </Button>
+            </ButtonGroup>
+          </Box>
+          <Box>
+            <Typography className={classes.setGasLink}>
+              <Link href="#" onClick={onSetGasClick}>
+                Set gas
+              </Link>
+            </Typography>
+            {isSettingGas && (
+              <TextField
+                label="Gas"
+                value={gas}
+                onChange={(ev) => setGas(ev.target.value)}
+                type="number"
+                variant="outlined"
+                classes={{ root: classes.fullWidth }}
+              />
+            )}
+          </Box>
         </TabPanel>
-        <TabPanel value={tabIndex} index={1}>
-          Item Two
-          {/**
-           * TODO
-           */}
+        <TabPanel value={tabIndex} index={1} className={clsx(classes.tabPanel)}>
+          <Box className={classes.messagesData}>{JSON.stringify(messages, null, 2)}</Box>
         </TabPanel>
       </DialogContent>
       <DialogActions>
-        <Button variant="contained" onClick={props.onClose} type="button">
+        <Button variant="outlined" color="secondary" onClick={props.onClose} type="button" classes={{ root: classes.actionButton }}>
           Reject
         </Button>
-        <Button variant="contained" color="primary" onClick={handleSubmit}>
+        <Button variant="contained" color="primary" onClick={handleSubmit} classes={{ root: classes.actionButton }}>
           Approve
         </Button>
       </DialogActions>
