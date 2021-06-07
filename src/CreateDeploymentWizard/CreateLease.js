@@ -1,8 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { apiEndpoint, rpcEndpoint } from "../shared/constants";
-import { SigningStargateClient } from "@cosmjs/stargate";
-import { customRegistry, createFee } from "../shared/utils/blockchainUtils";
-import { Box, Button, CircularProgress } from "@material-ui/core";
+import { apiEndpoint } from "../shared/constants";
+import { TransactionMessageData } from "../shared/utils/TransactionMessageData";
+import { makeStyles, ListSubheader, Button, Radio, List, ListItemText, ListItemIcon, ListItem, CircularProgress } from "@material-ui/core";
 import { useWallet } from "../WalletProvider/WalletProviderContext";
 import { BidGroup } from "./BidGroup";
 import { useHistory } from "react-router";
@@ -65,7 +64,7 @@ export function CreateLease(props) {
     try {
       const messages = Object.keys(bids)
         .map((gseq) => bids[gseq])
-        .map((bid) => TransactionMessage.getCreateLeaseMsg(bid));
+        .map((bid) => TransactionMessageData.getCreateLeaseMsg(bid));
       // TODO handle response
       const response = await sendTransaction(messages);
     } catch (error) {}

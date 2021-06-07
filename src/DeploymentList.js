@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { apiEndpoint } from "./shared/constants";
-import { TransactionMessage } from "./shared/utils/blockchainUtils";
 import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
 import CloudIcon from "@material-ui/icons/Cloud";
 import AddIcon from "@material-ui/icons/Add";
