@@ -7,7 +7,13 @@ import { useWallet } from "../WalletProvider/WalletProviderContext";
 import { BidGroup } from "./BidGroup";
 import { useHistory } from "react-router";
 import { closeDeployment } from "../shared/utils/deploymentDetailUtils";
+import { Manifest } from "../shared/utils/deploymentUtils";
+import { useCertificate } from "../CertificateProvider/CertificateProviderContext";
+import { fetchProviderInfo } from "../shared/providerCache";
 import Alert from "@material-ui/lab/Alert";
+import { getDeploymentLocalData } from "../shared/utils/deploymentLocalDataUtils";
+
+const yaml = require("js-yaml");
 
 export function CreateLease(props) {
   const [bids, setBids] = useState([]);
@@ -15,9 +21,10 @@ export function CreateLease(props) {
   const [selectedBids, setSelectedBids] = useState({});
 
   const { address, selectedWallet } = useWallet();
+  const { localCert } = useCertificate();
   const history = useHistory();
 
-  const { dseq } = props;
+  const { dseq, editedManifest } = props;
 
   useEffect(() => {
     loadBids();
@@ -58,26 +65,60 @@ export function CreateLease(props) {
       registry: customRegistry
     });
 
-    const messages = Object.keys(bids).map(gseq => bids[gseq]).map((bid) => ({
-      typeUrl: "/akash.market.v1beta1.MsgCreateLease",
-      value: {
-        bid_id: {
-          owner: bid.owner,
-          dseq: bid.dseq,
-          gseq: bid.gseq,
-          oseq: bid.oseq,
-          provider: bid.provider
+    const messages = Object.keys(bids)
+      .map((gseq) => bids[gseq])
+      .map((bid) => ({
+        typeUrl: "/akash.market.v1beta1.MsgCreateLease",
+        value: {
+          bid_id: {
+            owner: bid.owner,
+            dseq: bid.dseq,
+            gseq: bid.gseq,
+            oseq: bid.oseq,
+            provider: bid.provider
+          }
         }
-      }
-    }));
+      }));
 
     await client.signAndBroadcast(address, messages, createFee("200000"), "Test Akashlytics");
 
     history.push("/deployment/" + dseq);
   }
 
+  async function sendManifest(providerInfo, manifestStr) {
+    const flags = {};
+    const doc = yaml.load(manifestStr);
+    const mani = Manifest(doc);
+
+    const response = await window.electron.queryProvider(
+      providerInfo.host_uri + "/deployment/" + dseq + "/manifest",
+      "PUT",
+      JSON.stringify(mani, (key, value) => {
+        if (key === "storage" || key === "memory") {
+          let newValue = { ...value };
+          newValue.size = newValue.quantity;
+          delete newValue.quantity;
+          return newValue;
+        }
+        return value;
+      }),
+      localCert.certPem,
+      localCert.keyPem
+    );
+    console.log(response);
+  }
+
   async function handleNext() {
+    console.log("Accepting bids...");
     await acceptBids(selectedBids);
+
+    const deploymentData = getDeploymentLocalData(dseq);
+    if (deploymentData && deploymentData.manifest) {
+      console.log("Querying provider info");
+      const providerInfo = await fetchProviderInfo(selectedBids[Object.keys(selectedBids)[0]].provider);
+      console.log("Sending manifest");
+      await sendManifest(providerInfo, deploymentData.manifest);
+    }
 
     history.push("/deployment/" + dseq);
   }
@@ -114,8 +155,8 @@ export function CreateLease(props) {
       {!isLoadingBids && allClosed && (
         <>
           <Alert severity="info">
-            All bids for this deployment are closed. This can happen if no bids are accepted for more than 5 minutes after the deployment creation.
-            You can close this deployment and create a new one.
+            All bids for this deployment are closed. This can happen if no bids are accepted for more than 5 minutes after the deployment creation. You can
+            close this deployment and create a new one.
           </Alert>
           <Box mt={1}>
             <Button variant="contained" color="primary" onClick={handleCloseDeployment}>

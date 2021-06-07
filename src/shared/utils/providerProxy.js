@@ -57,13 +57,6 @@ exports.queryProvider = async function (url, method, body, certPem, prvPem) {
   console.log("Querying provider using proxy");
 
   try {
-    // const response = await connection.send("queryProvider", JSON.stringify({
-    //     Url: url,
-    //     Method: method,
-    //     Body: body,
-    //     CertPem: certPem,
-    //     PrvPem: prvPem
-    // }));
     const response = await makeRequest(url, method, body, certPem, prvPem);
 
     return response;

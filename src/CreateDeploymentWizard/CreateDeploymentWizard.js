@@ -55,7 +55,7 @@ export function CreateDeploymentWizard() {
     case "editManifest":
       activeStep = 2;
       break;
-    case "createLease":
+    case "acceptBids":
       activeStep = 3;
       break;
   }
@@ -89,7 +89,7 @@ export function CreateDeploymentWizard() {
                 const buttonProps = {};
                 return (
                   <Step key={label} {...stepProps}>
-                    <StepButton onClick={handleStep(index)} completed={isStepComplete(index)} {...buttonProps}>
+                    <StepButton onClick={() => handleStep(index)} completed={isStepComplete(index)} {...buttonProps}>
                       {label}
                     </StepButton>
                   </Step>
@@ -104,7 +104,7 @@ export function CreateDeploymentWizard() {
               {activeStep === 2 && (
                 <ManifestEdit editedManifest={editedManifest} setEditedManifest={setEditedManifest} />
               )}
-              {activeStep === 3 && <CreateLease dseq={dseq} />}
+              {activeStep === 3 && <CreateLease dseq={dseq} editedManifest={editedManifest} />}
             </div>
           </div>
         </CardContent>
@@ -114,5 +114,5 @@ export function CreateDeploymentWizard() {
 }
 
 function getSteps() {
-  return ["Checking Prerequisites", "Choose Template", "Create Deployment", "Create a Lease"];
+  return ["Checking Prerequisites", "Choose Template", "Create Deployment", "Accept Bids"];
 }

@@ -56,7 +56,7 @@ export function DeploymentDetail(props) {
     setIsLoadingLeases(false);
     
     if (leases.length === 0) {
-      history.push("/createDeployment/createLease/" + dseq);
+      history.push("/createDeployment/acceptBids/" + dseq);
     }
   }, [deployment, address]);
 

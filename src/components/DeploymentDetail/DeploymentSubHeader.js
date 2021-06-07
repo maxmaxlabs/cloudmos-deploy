@@ -11,6 +11,12 @@ import { closeDeployment } from "../../shared/utils/deploymentDetailUtils";
 import CodeIcon from "@material-ui/icons/Code";
 import { RAW_JSON_DEPLOYMENT, RAW_JSON_LEASES } from "../../shared/constants";
 import { useHistory } from "react-router";
+import { getDeploymentLocalData } from "../../shared/utils/deploymentLocalDataUtils";
+import { Manifest } from "../../shared/utils/deploymentUtils";
+import { useCertificate } from "../../CertificateProvider/CertificateProviderContext";
+
+const stableStringify = require("json-stable-stringify");
+const yaml = require("js-yaml");
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -38,6 +44,7 @@ export function DeploymentSubHeader({ deployment, block, deploymentCost, address
   const timeLeft = getTimeLeft(deploymentCost, deployment.escrowBalance.amount);
   const [anchorEl, setAnchorEl] = useState(null);
 
+  const { localCert } = useCertificate();
   const history = useHistory();
 
   const onCloseDeployment = async () => {
@@ -58,6 +65,23 @@ export function DeploymentSubHeader({ deployment, block, deploymentCost, address
 
   const handleMenuClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleUpdateDeploymentClick = async () => {
+    const deploymentData = getDeploymentLocalData(deployment.dseq);
+    const flags = {};
+    const doc = yaml.load(deploymentData.manifest);
+    const mani = Manifest(doc);
+    console.log(mani);
+
+    const response = await window.electron.queryProvider(
+      "https://provider.ewr1p0.mainnet.akashian.io:8443" + "/deployment/" + deployment.dseq + "/manifest",
+      "PUT",
+      stableStringify(mani),
+      localCert.certPem,
+      localCert.keyPem
+    );
+    console.log(response);
   };
 
   return (
@@ -106,7 +130,7 @@ export function DeploymentSubHeader({ deployment, block, deploymentCost, address
         <Button variant="contained" color="primary" className={classes.actionButton}>
           View manifest
         </Button>
-        <Button variant="contained" color="primary" className={classes.actionButton}>
+        <Button onClick={handleUpdateDeploymentClick} variant="contained" color="primary" className={classes.actionButton}>
           Update deployment
         </Button>
         <IconButton aria-label="settings" aria-haspopup="true" onClick={handleMenuClick} className={classes.actionButton}>

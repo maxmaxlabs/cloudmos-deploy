@@ -8,6 +8,8 @@ import { useWallet } from "../WalletProvider/WalletProviderContext";
 import { rpcEndpoint } from "../shared/constants";
 import MonacoEditor from "react-monaco-editor";
 import Alert from "@material-ui/lab/Alert";
+import { useHistory } from "react-router";
+import { saveDeploymentManifest } from "../shared/utils/deploymentLocalDataUtils";
 
 const yaml = require("js-yaml");
 
@@ -15,6 +17,7 @@ export function ManifestEdit(props) {
   const [parsingError, setParsingError] = useState(null);
 
   const { address, selectedWallet } = useWallet();
+  const history = useHistory();
 
   const { editedManifest, setEditedManifest } = props;
 
@@ -73,10 +76,12 @@ export function ManifestEdit(props) {
     const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, selectedWallet, {
       registry: customRegistry
     });
-
+    
     await client.signAndBroadcast(address, [txData], baseFee);
 
-    //history.push("/createDeployment/createLease/" + )
+    saveDeploymentManifest(dd.deploymentId.dseq, editedManifest, dd.version);
+
+    history.push("/createDeployment/acceptBids/" + dd.deploymentId.dseq);
   }
 
   return (
