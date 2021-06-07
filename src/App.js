@@ -34,15 +34,15 @@ function App() {
         </IconButton>
       )}
     >
-      <TransactionModalProvider>
-        <PasswordConfirmationModalProvider>
-          <WalletProvider>
+      <WalletProvider>
+        <TransactionModalProvider>
+          <PasswordConfirmationModalProvider>
             <CertificateProvider>
               <MainView />
             </CertificateProvider>
-          </WalletProvider>
-        </PasswordConfirmationModalProvider>
-      </TransactionModalProvider>
+          </PasswordConfirmationModalProvider>
+        </TransactionModalProvider>
+      </WalletProvider>
     </SnackbarProvider>
   );
 }

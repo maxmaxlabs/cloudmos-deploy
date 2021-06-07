@@ -73,7 +73,7 @@ export function CertificateDisplay(props) {
       return;
     }
 
-    //setIsLoadingCertificates(true);
+    // setIsLoadingCertificates(true);
 
     const notBefore = new Date();
     let notAfter = new Date();
@@ -120,9 +120,13 @@ export function CertificateDisplay(props) {
     localStorage.setItem(address + ".key", encryptedKey);
 
     try {
+      debugger;
+
       const message = TransactionMessageData.getCreateCertificateMsg(address, crtpem, pubpem);
       // TODO handle response
       const response = await sendTransaction([message]);
+
+      debugger;
     } catch (error) {}
 
     loadValidCertificates();
