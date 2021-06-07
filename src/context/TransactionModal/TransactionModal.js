@@ -115,6 +115,8 @@ export function TransactionModal(props) {
     ev.preventDefault();
     setError("");
 
+    debugger;
+
     try {
       const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, selectedWallet, {
         registry: customRegistry
@@ -122,14 +124,15 @@ export function TransactionModal(props) {
 
       const fee = createFee(currentFee, gas, messages.length);
 
-      await client.signAndBroadcast(address, messages, fee);
+      const response = await client.signAndBroadcast(address, messages, fee);
 
-      onConfirmTransaction();
+      onConfirmTransaction(response);
     } catch (err) {
       console.error(err);
       // TODO return error?
       // or throw?
       // setError("Invalid password");
+      onConfirmTransaction();
     }
   }
 
@@ -238,7 +241,7 @@ export function TransactionModal(props) {
               <TextField
                 label="Gas"
                 value={gas}
-                onChange={(ev) => setGas(ev.target.value)}
+                onChange={(ev) => setGas((ev.target.value || baseGas).toString())}
                 type="number"
                 variant="outlined"
                 classes={{ root: classes.fullWidth }}

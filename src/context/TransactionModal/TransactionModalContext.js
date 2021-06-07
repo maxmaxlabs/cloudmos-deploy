@@ -12,9 +12,9 @@ export const TransactionModalProvider = ({ children }) => {
     setOptions(options);
   };
 
-  function handleConfirmTransaction() {
+  function handleConfirmTransaction(response) {
     setIsOpen(false);
-    options.actionCallback(/** maybe some info about the tx */);
+    options.actionCallback(response); /** maybe some info about the tx */
     setOptions(null);
   }
 

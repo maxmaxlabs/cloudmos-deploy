@@ -11,7 +11,7 @@ registery.register(TransactionMessageData.Types.MSG_CREATE_CERTIFICATE, MsgCreat
 
 export const customRegistry = registery;
 
-export const baseGas = 500000;
+export const baseGas = "500000";
 export const fees = {
   low: 1400,
   avg: 3500,
@@ -26,5 +26,5 @@ export const fees = {
  * @returns The fee object
  */
 export const createFee = (type, gas = baseGas, msgCount = 1) => {
-  return { gas, amount: [{ denom: "uakt", amount: fees[type] * msgCount }] };
+  return { gas, amount: [{ denom: "uakt", amount: (fees[type] * msgCount).toString() }] };
 };
