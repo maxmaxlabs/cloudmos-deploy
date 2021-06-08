@@ -33,6 +33,7 @@ function App() {
           <CloseIcon />
         </IconButton>
       )}
+      dense
     >
       <WalletProvider>
         <TransactionModalProvider>

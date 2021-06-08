@@ -16,7 +16,8 @@ var rs = require("jsrsasign");
 const useStyles = makeStyles({
   root: {
     minWidth: 275,
-    minHeight: 104
+    minHeight: 104,
+    height: "100%"
   },
   bullet: {
     display: "inline-block",
@@ -120,13 +121,9 @@ export function CertificateDisplay(props) {
     localStorage.setItem(address + ".key", encryptedKey);
 
     try {
-      debugger;
-
       const message = TransactionMessageData.getCreateCertificateMsg(address, crtpem, pubpem);
       // TODO handle response
       const response = await sendTransaction([message]);
-
-      debugger;
     } catch (error) {}
 
     loadValidCertificates();
@@ -177,6 +174,7 @@ export function CertificateDisplay(props) {
             id="cert-menu"
             anchorEl={anchorEl}
             keepMounted
+            getContentAnchorEl={null}
             open={Boolean(anchorEl)}
             onClose={handleClose}
             anchorOrigin={{
