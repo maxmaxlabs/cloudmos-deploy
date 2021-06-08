@@ -56,9 +56,13 @@ export function DeploymentSubHeader({ deployment, block, deploymentCost, address
       const message = TransactionMessageData.getCloseDeploymentMsg(address, deployment.dseq);
       // TODO handle response
       const response = await sendTransaction([message]);
-    } catch (error) {}
 
-    history.push("/");
+      if (response) {
+        history.push("/");
+      }
+    } catch (error) {
+      throw error;
+    }
   };
 
   const onUpdateShownRawJson = (json) => {

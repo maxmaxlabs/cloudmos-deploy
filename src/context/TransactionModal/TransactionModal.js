@@ -191,7 +191,7 @@ export function TransactionModal(props) {
   return (
     <Dialog
       open={props.isOpen}
-      onClose={props.onClose}
+      onClose={!isSendingTransaction && props.onClose}
       maxWidth="xs"
       fullWidth
       aria-labelledby="transaction-modal"
