@@ -12,7 +12,7 @@ import { RAW_JSON_DEPLOYMENT, RAW_JSON_LEASES } from "../../shared/constants";
 import { useHistory } from "react-router";
 import { getDeploymentLocalData } from "../../shared/utils/deploymentLocalDataUtils";
 import { Manifest } from "../../shared/utils/deploymentUtils";
-import { useCertificate } from "../../CertificateProvider/CertificateProviderContext";
+import { useCertificate } from "../../context/CertificateProvider/CertificateProviderContext";
 import { useTransactionModal } from "../../context/TransactionModal";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
 

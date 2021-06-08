@@ -18,7 +18,7 @@ import { LabelValue } from "../../shared/components/LabelValue";
 import { getAvgCostPerMonth } from "../../shared/utils/priceUtils";
 import { SpecDetail } from "../../shared/components/SpecDetail";
 import LaunchIcon from "@material-ui/icons/Launch";
-import { useCertificate } from "../../CertificateProvider/CertificateProviderContext";
+import { useCertificate } from "../../context/CertificateProvider/CertificateProviderContext";
 
 const useStyles = makeStyles((theme) => ({
   root: {},

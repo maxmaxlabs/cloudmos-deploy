@@ -1,21 +1,19 @@
 import { useState } from "react";
 import { Box, Typography, Button } from "@material-ui/core";
 import { NewDeploymentData } from "../shared/utils/deploymentUtils";
-import { MsgCreateDeployment } from "../ProtoAkashTypes";
-import { SigningStargateClient } from "@cosmjs/stargate";
-import { customRegistry, baseFee } from "../shared/utils/blockchainUtils";
 import { useWallet } from "../WalletProvider/WalletProviderContext";
-import { rpcEndpoint } from "../shared/constants";
 import MonacoEditor from "react-monaco-editor";
 import Alert from "@material-ui/lab/Alert";
 import { useHistory } from "react-router";
 import { saveDeploymentManifest } from "../shared/utils/deploymentLocalDataUtils";
+import { TransactionMessageData } from "../shared/utils/TransactionMessageData";
+import { useTransactionModal } from "../context/TransactionModal";
 
 const yaml = require("js-yaml");
 
 export function ManifestEdit(props) {
   const [parsingError, setParsingError] = useState(null);
-
+  const { sendTransaction } = useTransactionModal();
   const { address, selectedWallet } = useWallet();
   const history = useHistory();
 
@@ -55,8 +53,10 @@ export function ManifestEdit(props) {
 
     const dd = await NewDeploymentData(doc, flags, address); // TODO Flags
 
+    debugger;
+
     try {
-      const message = TransactionMessage.getCreateDeploymentMsg(dd);
+      const message = TransactionMessageData.getCreateDeploymentMsg(dd);
       // TODO handle response
       const response = await sendTransaction([message]);
     } catch (error) {}

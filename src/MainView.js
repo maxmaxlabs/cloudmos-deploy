@@ -29,7 +29,6 @@ const useStyles = makeStyles((theme) => ({
 export function MainView() {
   const [deployments, setDeployments] = useState([]);
   const { address, selectedWallet } = useWallet();
-
   const classes = useStyles();
 
   const walletExists = localStorage.getItem("Wallet") !== null;

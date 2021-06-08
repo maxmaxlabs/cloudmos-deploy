@@ -1,13 +1,12 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { apiEndpoint } from "../shared/constants";
 import { TransactionMessageData } from "../shared/utils/TransactionMessageData";
-import { makeStyles, ListSubheader, Button, Radio, List, ListItemText, ListItemIcon, ListItem, CircularProgress } from "@material-ui/core";
+import { Button, CircularProgress, Box } from "@material-ui/core";
 import { useWallet } from "../WalletProvider/WalletProviderContext";
 import { BidGroup } from "./BidGroup";
 import { useHistory } from "react-router";
-import { closeDeployment } from "../shared/utils/deploymentDetailUtils";
 import { Manifest } from "../shared/utils/deploymentUtils";
-import { useCertificate } from "../CertificateProvider/CertificateProviderContext";
+import { useCertificate } from "../context/CertificateProvider/CertificateProviderContext";
 import { fetchProviderInfo } from "../shared/providerCache";
 import Alert from "@material-ui/lab/Alert";
 import { getDeploymentLocalData } from "../shared/utils/deploymentLocalDataUtils";
@@ -60,18 +59,6 @@ export function CreateLease(props) {
     setSelectedBids({ ...selectedBids, [bid.gseq]: bid });
   };
 
-  async function acceptBids(bids) {
-    try {
-      const messages = Object.keys(bids)
-        .map((gseq) => bids[gseq])
-        .map((bid) => TransactionMessageData.getCreateLeaseMsg(bid));
-      // TODO handle response
-      const response = await sendTransaction(messages);
-    } catch (error) {}
-
-    history.push("/deployment/" + dseq);
-  }
-
   async function sendManifest(providerInfo, manifestStr) {
     const flags = {};
     const doc = yaml.load(manifestStr);
@@ -97,7 +84,17 @@ export function CreateLease(props) {
 
   async function handleNext() {
     console.log("Accepting bids...");
-    await acceptBids(selectedBids);
+    debugger;
+
+    try {
+      const messages = Object.keys(selectedBids)
+        .map((gseq) => selectedBids[gseq])
+        .map((bid) => TransactionMessageData.getCreateLeaseMsg(bid));
+      // TODO handle response
+      const response = await sendTransaction(messages);
+    } catch (error) {
+      debugger;
+    }
 
     const deploymentData = getDeploymentLocalData(dseq);
     if (deploymentData && deploymentData.manifest) {
@@ -111,7 +108,11 @@ export function CreateLease(props) {
   }
 
   async function handleCloseDeployment() {
-    await closeDeployment(dseq, address, selectedWallet);
+    try {
+      const message = TransactionMessageData.getCloseDeploymentMsg(address, dseq);
+      // TODO handle response
+      const response = await sendTransaction([message]);
+    } catch (error) {}
 
     history.push("/");
   }

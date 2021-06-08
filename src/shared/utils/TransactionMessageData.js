@@ -50,7 +50,7 @@ export class TransactionMessageData {
       value: {
         bid_id: {
           owner: bid.owner,
-          dseq: bid.dseq,
+          dseq: parseInt(bid.dseq),
           gseq: bid.gseq,
           oseq: bid.oseq,
           provider: bid.provider
