@@ -15,9 +15,9 @@ import {
   Badge,
   List,
   ButtonGroup,
-  Link
+  Link,
+  CircularProgress
 } from "@material-ui/core";
-import Alert from "@material-ui/lab/Alert";
 import { a11yProps } from "../../shared/utils/a11yUtils";
 import { TabPanel } from "../../shared/components/TabPanel";
 import { baseGas, createFee, customRegistry } from "../../shared/utils/blockchainUtils";
@@ -27,6 +27,7 @@ import { useWallet } from "../../WalletProvider/WalletProviderContext";
 import clsx from "clsx";
 import { TransactionMessage } from "./TransactionMessage";
 import { uaktToAKT } from "../../shared/utils/priceUtils";
+import { useSnackbar } from "notistack";
 
 const a11yPrefix = "transaction-tab";
 
@@ -89,12 +90,20 @@ const useStyles = makeStyles((theme) => ({
   actionButton: {
     flexGrow: 1,
     flexBasis: "50%"
+  },
+  snackBarTitle: {
+    fontSize: "1rem",
+    lineHeight: "1rem",
+    fontWeight: "bold"
+  },
+  snackBarSubTitle: {
+    fontSize: ".9rem"
   }
 }));
 
 export function TransactionModal(props) {
   const { isOpen, onConfirmTransaction, messages } = props;
-  const { address, selectedWallet } = useWallet();
+  const { address, selectedWallet, refreshBalance } = useWallet();
   const [isSendingTransaction, setIsSendingTransaction] = useState(false);
   const [error, setError] = useState("");
   const [tabIndex, setTabIndex] = useState(0);
@@ -106,16 +115,24 @@ export function TransactionModal(props) {
   const lowFee = createFee("low", baseGas, messages.length);
   const avgFee = createFee("avg", baseGas, messages.length);
   const highFee = createFee("high", baseGas, messages.length);
-
-  // useEffect(() => {
-  //   // setPassword("");
-  // }, [isOpen]);
+  const { enqueueSnackbar } = useSnackbar();
 
   async function handleSubmit(ev) {
     ev.preventDefault();
     setError("");
+    setIsSendingTransaction(true);
 
-    debugger;
+    enqueueSnackbar(
+      <div>
+        <Typography variant="h5" className={classes.snackBarTitle}>
+          Tx is pending...
+        </Typography>
+        <Typography variant="body1" className={classes.snackBarSubTitle}>
+          Please wait a few seconds
+        </Typography>
+      </div>,
+      { variant: "info" }
+    );
 
     try {
       const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, selectedWallet, {
@@ -123,15 +140,41 @@ export function TransactionModal(props) {
       });
 
       const fee = createFee(currentFee, gas, messages.length);
+      const response = await client.signAndBroadcast(address, messages, fee, memo);
 
-      const response = await client.signAndBroadcast(address, messages, fee);
+      console.log(response);
 
+      enqueueSnackbar(
+        <div>
+          <Typography variant="h5" className={classes.snackBarTitle}>
+            Tx succeeds!
+          </Typography>
+          <Typography variant="body1" className={classes.snackBarSubTitle}>
+            Congratulations 🎉
+          </Typography>
+        </div>,
+        { variant: "success" }
+      );
+
+      refreshBalance();
+
+      // return response message
       onConfirmTransaction(response);
     } catch (err) {
       console.error(err);
-      // TODO return error?
-      // or throw?
-      // setError("Invalid password");
+
+      enqueueSnackbar(
+        <div>
+          <Typography variant="h5" className={classes.snackBarTitle}>
+            Tx has failed...
+          </Typography>
+          <Typography variant="body1" className={classes.snackBarSubTitle}>
+            An error has occured
+          </Typography>
+        </div>,
+        { variant: "error" }
+      );
+
       onConfirmTransaction();
     }
   }
@@ -254,11 +297,18 @@ export function TransactionModal(props) {
         </TabPanel>
       </DialogContent>
       <DialogActions>
-        <Button variant="outlined" color="secondary" onClick={props.onClose} type="button" classes={{ root: classes.actionButton }}>
+        <Button
+          variant="outlined"
+          color="secondary"
+          onClick={props.onClose}
+          disabled={isSendingTransaction}
+          type="button"
+          classes={{ root: classes.actionButton }}
+        >
           Reject
         </Button>
-        <Button variant="contained" color="primary" onClick={handleSubmit} classes={{ root: classes.actionButton }}>
-          Approve
+        <Button variant="contained" color="primary" onClick={handleSubmit} disabled={isSendingTransaction} classes={{ root: classes.actionButton }}>
+          {isSendingTransaction ? <CircularProgress size="24px" color="primary" /> : "Approve"}
         </Button>
       </DialogActions>
     </Dialog>

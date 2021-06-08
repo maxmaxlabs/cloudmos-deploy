@@ -16,7 +16,7 @@ import { ErrorFallback } from "./shared/components/ErrorFallback";
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
-    backgroundColor: "#f5f5f5",
+    // backgroundColor: "#f5f5f5",
     padding: "20px"
   },
   paper: {
