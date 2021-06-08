@@ -19,11 +19,11 @@ export function CreateLease(props) {
   const [isLoadingBids, setIsLoadingBids] = useState(false);
   const [selectedBids, setSelectedBids] = useState({});
   const { sendTransaction } = useTransactionModal();
-  const { address, selectedWallet } = useWallet();
+  const { address } = useWallet();
   const { localCert } = useCertificate();
   const history = useHistory();
 
-  const { dseq, editedManifest } = props;
+  const { dseq } = props;
 
   useEffect(() => {
     loadBids();
@@ -84,7 +84,6 @@ export function CreateLease(props) {
 
   async function handleNext() {
     console.log("Accepting bids...");
-    debugger;
 
     try {
       const messages = Object.keys(selectedBids)
@@ -93,7 +92,7 @@ export function CreateLease(props) {
       // TODO handle response
       const response = await sendTransaction(messages);
     } catch (error) {
-      debugger;
+      throw error;
     }
 
     const deploymentData = getDeploymentLocalData(dseq);
@@ -112,7 +111,9 @@ export function CreateLease(props) {
       const message = TransactionMessageData.getCloseDeploymentMsg(address, dseq);
       // TODO handle response
       const response = await sendTransaction([message]);
-    } catch (error) {}
+    } catch (error) {
+      throw error;
+    }
 
     history.push("/");
   }
@@ -128,7 +129,7 @@ export function CreateLease(props) {
 
   return (
     <>
-      {isLoadingBids && <CircularProgress />}
+      {(isLoadingBids || bids.length === 0) && <CircularProgress />}
       {dseqList.map((gseq) => (
         <BidGroup key={gseq} gseq={gseq} bids={groupedBids[gseq]} handleBidSelected={handleBidSelected} selectedBid={selectedBids[gseq]} />
       ))}
@@ -140,7 +141,7 @@ export function CreateLease(props) {
           </Button>
         </Box>
       )}
-      {!isLoadingBids && allClosed && (
+      {!isLoadingBids && bids.length > 0 && allClosed && (
         <>
           <Alert severity="info">
             All bids for this deployment are closed. This can happen if no bids are accepted for more than 5 minutes after the deployment creation. You can

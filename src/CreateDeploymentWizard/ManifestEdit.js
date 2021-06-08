@@ -53,13 +53,13 @@ export function ManifestEdit(props) {
 
     const dd = await NewDeploymentData(doc, flags, address); // TODO Flags
 
-    debugger;
-
     try {
       const message = TransactionMessageData.getCreateDeploymentMsg(dd);
       // TODO handle response
       const response = await sendTransaction([message]);
-    } catch (error) {}
+    } catch (error) {
+      throw error;
+    }
 
     saveDeploymentManifest(dd.deploymentId.dseq, editedManifest, dd.version);
 

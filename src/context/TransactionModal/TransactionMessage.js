@@ -72,7 +72,7 @@ const getMessage = (message, classes) => {
             primary="Create Deployment"
             secondary={
               <>
-                New deployment with id <strong>{message.value.id.owner}</strong> and a deposit of <strong>{uaktToAKT(message.value.deposit.amount)}AKT</strong>
+                New deployment with dseq <strong>{message.value.id.dseq}</strong> and a deposit of <strong>{uaktToAKT(message.value.deposit.amount)}AKT</strong>
               </>
             }
             classes={{ primary: classes.listItemPrimaryText }}
