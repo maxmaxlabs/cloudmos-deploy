@@ -11,7 +11,7 @@ import { useWallet } from "./WalletProvider/WalletProviderContext";
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
-    backgroundColor: "#f5f5f5",
+    // backgroundColor: "#f5f5f5",
     paddingTop: "20px",
 
     "& .MuiTextField-root": {

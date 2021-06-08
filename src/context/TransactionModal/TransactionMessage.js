@@ -5,6 +5,7 @@ import VerifiedUserIcon from "@material-ui/icons/VerifiedUser";
 import PublishIcon from "@material-ui/icons/Publish";
 import StorageIcon from "@material-ui/icons/Storage";
 import CancelIcon from "@material-ui/icons/Cancel";
+import { uaktToAKT } from "../../shared/utils/priceUtils";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -71,7 +72,7 @@ const getMessage = (message, classes) => {
             primary="Create Deployment"
             secondary={
               <>
-                New deployment with id <strong>{message.value.id}</strong> and a deposit of <strong>{message.value.deposit}</strong>
+                New deployment with id <strong>{message.value.id.owner}</strong> and a deposit of <strong>{uaktToAKT(message.value.deposit.amount)}AKT</strong>
               </>
             }
             classes={{ primary: classes.listItemPrimaryText }}
