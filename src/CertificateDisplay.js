@@ -1,24 +1,15 @@
-import { useCallback, useEffect, useState } from "react";
-import { makeStyles } from '@material-ui/core/styles';
-import { SigningStargateClient } from "@cosmjs/stargate";
-import { rpcEndpoint, apiEndpoint } from "./shared/constants";
-import { customRegistry, baseFee } from "./shared/utils/blockchainUtils";
-import { usePasswordConfirmationModal } from "./ConfirmPasswordModal/ConfirmPasswordModalContext"
-import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
-import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
-import SystemUpdateAltIcon from '@material-ui/icons/SystemUpdateAlt';
-import AutorenewIcon from '@material-ui/icons/Autorenew';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
-import {
-  Button,
-  IconButton,
-  Card,
-  CardHeader,
-  CardContent,
-  CircularProgress,
-  MenuItem,
-  Menu
-} from '@material-ui/core';
+import { useState } from "react";
+import { makeStyles } from "@material-ui/core/styles";
+import { TransactionMessageData } from "./shared/utils/TransactionMessageData";
+import { usePasswordConfirmationModal } from "./ConfirmPasswordModal/ConfirmPasswordModalContext";
+import { useTransactionModal } from "./context/TransactionModal";
+import VerifiedUserIcon from "@material-ui/icons/VerifiedUser";
+import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
+import AutorenewIcon from "@material-ui/icons/Autorenew";
+import MoreVertIcon from "@material-ui/icons/MoreVert";
+import { Button, IconButton, Card, CardHeader, CardContent, CircularProgress, MenuItem, Menu } from "@material-ui/core";
+import { useCertificate } from "./context/CertificateProvider/CertificateProviderContext";
+import { useWallet } from "./WalletProvider/WalletProviderContext";
 
 var rs = require("jsrsasign");
 
@@ -26,75 +17,52 @@ const useStyles = makeStyles({
   root: {
     minWidth: 275,
     minHeight: 104,
+    height: "100%"
   },
   bullet: {
-    display: 'inline-block',
-    margin: '0 2px',
-    transform: 'scale(0.8)',
+    display: "inline-block",
+    margin: "0 2px",
+    transform: "scale(0.8)"
   },
   title: {
-    fontSize: 14,
+    fontSize: 14
   },
   pos: {
-    marginBottom: 12,
-  },
+    marginBottom: 12
+  }
 });
 
 export function CertificateDisplay(props) {
-  const [validCertificates, setValidCertificates] = useState([]);
-  const [isLoadingCertificates, setIsLoadingCertificates] = useState(false);
+  const { certificate, isLoadingCertificates, loadValidCertificates } = useCertificate();
   const classes = useStyles();
   const { askForPasswordConfirmation } = usePasswordConfirmationModal();
-
-  const { address, selectedWallet } = props;
-
-  const loadValidCertificates = useCallback(async () => {
-    setIsLoadingCertificates(true);
-    const response = await fetch(apiEndpoint + "/akash/cert/v1beta1/certificates/list?filter.state=valid&filter.owner=" + address);
-    const data = await response.json();
-
-    setValidCertificates(data.certificates);
-    setIsLoadingCertificates(false);
-  }, [address]);
-
-  useEffect(() => {
-    loadValidCertificates();
-  }, [address, loadValidCertificates]);
+  const { sendTransaction } = useTransactionModal();
+  const { address, selectedWallet } = useWallet();
 
   async function revokeCertificate(cert) {
     handleClose();
 
-    setIsLoadingCertificates(true);
-    const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, selectedWallet, {
-      registry: customRegistry
-    });
-
-    const revokeCertificateJson = {
-      "typeUrl": "/akash.cert.v1beta1.MsgRevokeCertificate",
-      "value": {
-        "id": {
-          "owner": address,
-          "serial": cert.serial
-        }
-      }
-    };
+    //setIsLoadingCertificates(true);
 
     try {
-      await client.signAndBroadcast(address, [revokeCertificateJson], baseFee, "Test Akashlytics");
+      const message = TransactionMessageData.getRevokeCertificateMsg(address, cert.serial);
+
+      // TODO handle response
+      const response = await sendTransaction([message]);
 
       await loadValidCertificates();
     } finally {
-      setIsLoadingCertificates(false);
+      //setIsLoadingCertificates(false);
     }
   }
 
   function dateToStr(date) {
-    const year = date.getFullYear().toString().substring(2).padStart(2, '0');
-    const month = date.getMonth().toString().padStart(2, '0');
-    const day = date.getDay().toString().padStart(2, '0');
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const secs = date.getSeconds().toString().padStart(2, '0');
+    const year = date.getFullYear().toString().substring(2).padStart(2, "0");
+    const month = date.getMonth().toString().padStart(2, "0");
+    const day = date.getDay().toString().padStart(2, "0");
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+    const secs = date.getSeconds().toString().padStart(2, "0");
 
     return `${year}${month}${day}${hours}${minutes}${secs}Z`;
   }
@@ -105,8 +73,8 @@ export function CertificateDisplay(props) {
       console.log("cancelled");
       return;
     }
-    
-    setIsLoadingCertificates(true);
+
+    // setIsLoadingCertificates(true);
 
     const notBefore = new Date();
     let notAfter = new Date();
@@ -119,7 +87,7 @@ export function CertificateDisplay(props) {
     var kp = rs.KEYUTIL.generateKeypair("EC", "secp256r1");
     var prv = kp.prvKeyObj;
     var pub = kp.pubKeyObj;
-    var prvpem = rs.KEYUTIL.getPEM(prv, "PKCS8PRV");
+    // var prvpem = rs.KEYUTIL.getPEM(prv, "PKCS8PRV");
 
     var encryptedKey = rs.KEYUTIL.getPEM(prv, "PKCS8PRV", password);
 
@@ -128,7 +96,7 @@ export function CertificateDisplay(props) {
     // STEP2. specify certificate parameters
     var cert = new rs.KJUR.asn1.x509.Certificate({
       version: 3,
-      serial: { int: Math.floor((new Date()).getTime() * 1000) },
+      serial: { int: Math.floor(new Date().getTime() * 1000) },
       issuer: { str: "/CN=" + address },
       notbefore: notBeforeStr,
       notafter: notAfterStr,
@@ -139,7 +107,7 @@ export function CertificateDisplay(props) {
         { extname: "keyUsage", critical: true, names: ["keyEncipherment", "dataEncipherment"] },
         {
           extname: "extKeyUsage",
-          array: [{ name: 'clientAuth' }]
+          array: [{ name: "clientAuth" }]
         },
         { extname: "basicConstraints", cA: true, critical: true }
       ],
@@ -152,25 +120,15 @@ export function CertificateDisplay(props) {
     localStorage.setItem(address + ".crt", crtpem);
     localStorage.setItem(address + ".key", encryptedKey);
 
-    const createCertificateMsg = {
-      "typeUrl": "/akash.cert.v1beta1.MsgCreateCertificate",
-      "value": {
-        owner: address,
-        cert: Buffer.from(crtpem).toString("base64"),
-        pubkey: Buffer.from(pubpem).toString("base64")
-      }
-    }
-
-    const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, selectedWallet, {
-      registry: customRegistry
-    });
-
-    await client.signAndBroadcast(address, [createCertificateMsg], baseFee, "Test Akashlytics");
+    try {
+      const message = TransactionMessageData.getCreateCertificateMsg(address, crtpem, pubpem);
+      // TODO handle response
+      const response = await sendTransaction([message]);
+    } catch (error) {}
 
     loadValidCertificates();
   }
 
-  const certificate = validCertificates[0];
   const [anchorEl, setAnchorEl] = useState(null);
 
   function handleMenuClick(ev) {
@@ -184,44 +142,62 @@ export function CertificateDisplay(props) {
   return (
     <>
       <Card className={classes.root} variant="outlined">
-        <CardHeader action={
-          <IconButton aria-label="settings" aria-haspopup="true" onClick={handleMenuClick}>
-            <MoreVertIcon />
-          </IconButton>
-        } title={(
-          <>
-            <><VerifiedUserIcon /> Certificate</>
-          </>
-        )} subheader={certificate && "Serial: " + certificate.serial}>
-        </CardHeader>
+        <CardHeader
+          action={
+            certificate && (
+              <IconButton aria-label="settings" aria-haspopup="true" onClick={handleMenuClick}>
+                <MoreVertIcon />
+              </IconButton>
+            )
+          }
+          title={
+            <>
+              <>
+                <VerifiedUserIcon /> Certificate
+              </>
+            </>
+          }
+          subheader={certificate && "Serial: " + certificate.serial}
+        ></CardHeader>
         <CardContent>
           {isLoadingCertificates && <CircularProgress />}
-          {!isLoadingCertificates && validCertificates.length === 0 && (
+          {!isLoadingCertificates && !certificate && (
             <>
-              <Button variant="contained" color="primary" onClick={() => createCertificate()}>Create Certificate</Button>
+              <Button variant="contained" color="primary" onClick={() => createCertificate()}>
+                Create Certificate
+              </Button>
             </>
           )}
         </CardContent>
-        <Menu
-          id="cert-menu"
-          anchorEl={anchorEl}
-          keepMounted
-          open={Boolean(anchorEl)}
-          onClose={handleClose}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'right',
-          }}
-          transformOrigin={{
-            vertical: 'top',
-            horizontal: 'right',
-          }}
-        >
-          <MenuItem onClick={() => revokeCertificate(certificate)}><DeleteForeverIcon />&nbsp;Revoke</MenuItem>
-          <MenuItem onClick={handleClose}><SystemUpdateAltIcon />&nbsp;Export</MenuItem>
-          <MenuItem onClick={handleClose}><AutorenewIcon />&nbsp;Regenerate</MenuItem>
-        </Menu>
+        {certificate && (
+          <Menu
+            id="cert-menu"
+            anchorEl={anchorEl}
+            keepMounted
+            getContentAnchorEl={null}
+            open={Boolean(anchorEl)}
+            onClose={handleClose}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "right"
+            }}
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "right"
+            }}
+          >
+            <MenuItem onClick={() => revokeCertificate(certificate)}>
+              <DeleteForeverIcon />
+              &nbsp;Revoke
+            </MenuItem>
+            {/* <MenuItem onClick={handleClose}><SystemUpdateAltIcon />&nbsp;Export</MenuItem> */}
+            <MenuItem onClick={handleClose}>
+              <AutorenewIcon />
+              &nbsp;Regenerate
+            </MenuItem>
+          </Menu>
+        )}
       </Card>
     </>
-  )
+  );
 }

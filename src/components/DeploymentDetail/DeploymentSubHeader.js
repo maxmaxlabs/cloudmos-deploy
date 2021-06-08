@@ -2,15 +2,22 @@ import { useState } from "react";
 import { Grid, Menu, makeStyles, Box, Button, IconButton, MenuItem } from "@material-ui/core";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
-import clsx from "clsx";
 import { getAvgCostPerMonth, getTimeLeft, uaktToAKT } from "../../shared/utils/priceUtils";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import isValid from "date-fns/isValid";
 import { StatusPill } from "../../shared/components/StatusPill";
 import { LabelValue } from "../../shared/components/LabelValue";
-import { closeDeployment } from "../../shared/utils/deploymentDetailUtils";
 import CodeIcon from "@material-ui/icons/Code";
-import { RAW_JSON_BIDS, RAW_JSON_DEPLOYMENT, RAW_JSON_LEASES } from "../../shared/constants";
+import { RAW_JSON_DEPLOYMENT, RAW_JSON_LEASES } from "../../shared/constants";
+import { useHistory } from "react-router";
+import { getDeploymentLocalData } from "../../shared/utils/deploymentLocalDataUtils";
+import { Manifest } from "../../shared/utils/deploymentUtils";
+import { useCertificate } from "../../context/CertificateProvider/CertificateProviderContext";
+import { useTransactionModal } from "../../context/TransactionModal";
+import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
+
+const stableStringify = require("json-stable-stringify");
+const yaml = require("js-yaml");
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -33,14 +40,29 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function DeploymentSubHeader({ deployment, block, deploymentCost, address, selectedWallet, updateShownRawJson }) {
+export function DeploymentSubHeader({ deployment, block, deploymentCost, address, updateShownRawJson }) {
   const classes = useStyles();
   const timeLeft = getTimeLeft(deploymentCost, deployment.escrowBalance.amount);
   const [anchorEl, setAnchorEl] = useState(null);
+  const { sendTransaction } = useTransactionModal();
+
+  const { localCert } = useCertificate();
+  const history = useHistory();
 
   const onCloseDeployment = async () => {
     handleMenuClose();
-    await closeDeployment(deployment, address, selectedWallet);
+    // TODO
+    try {
+      const message = TransactionMessageData.getCloseDeploymentMsg(address, deployment.dseq);
+      // TODO handle response
+      const response = await sendTransaction([message]);
+
+      if (response) {
+        history.push("/");
+      }
+    } catch (error) {
+      throw error;
+    }
   };
 
   const onUpdateShownRawJson = (json) => {
@@ -54,6 +76,24 @@ export function DeploymentSubHeader({ deployment, block, deploymentCost, address
 
   const handleMenuClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleUpdateDeploymentClick = async () => {
+    const deploymentData = getDeploymentLocalData(deployment.dseq);
+    const flags = {};
+    const doc = yaml.load(deploymentData.manifest);
+    const mani = Manifest(doc);
+    console.log(mani);
+
+    // TODO replace hard coded provider url
+    const response = await window.electron.queryProvider(
+      "https://provider.ewr1p0.mainnet.akashian.io:8443" + "/deployment/" + deployment.dseq + "/manifest",
+      "PUT",
+      stableStringify(mani),
+      localCert.certPem,
+      localCert.keyPem
+    );
+    console.log(response);
   };
 
   return (
@@ -102,7 +142,7 @@ export function DeploymentSubHeader({ deployment, block, deploymentCost, address
         <Button variant="contained" color="primary" className={classes.actionButton}>
           View manifest
         </Button>
-        <Button variant="contained" color="primary" className={classes.actionButton}>
+        <Button onClick={handleUpdateDeploymentClick} variant="contained" color="primary" className={classes.actionButton}>
           Update deployment
         </Button>
         <IconButton aria-label="settings" aria-haspopup="true" onClick={handleMenuClick} className={classes.actionButton}>
@@ -128,10 +168,6 @@ export function DeploymentSubHeader({ deployment, block, deploymentCost, address
           <MenuItem onClick={() => onUpdateShownRawJson(RAW_JSON_DEPLOYMENT)} classes={{ root: classes.menuItem }}>
             <CodeIcon />
             &nbsp;View deployment JSON
-          </MenuItem>
-          <MenuItem onClick={() => onUpdateShownRawJson(RAW_JSON_BIDS)} classes={{ root: classes.menuItem }}>
-            <CodeIcon />
-            &nbsp;View bids JSON
           </MenuItem>
           <MenuItem onClick={() => onUpdateShownRawJson(RAW_JSON_LEASES)} classes={{ root: classes.menuItem }}>
             <CodeIcon />

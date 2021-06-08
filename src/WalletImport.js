@@ -6,11 +6,12 @@ import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 //import { useHistory } from "react-router-dom";
 import { importWallet } from "./walletHelper";
+import { useWallet } from "./WalletProvider/WalletProviderContext";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
-    backgroundColor: "#f5f5f5",
+    // backgroundColor: "#f5f5f5",
     paddingTop: "20px",
 
     "& .MuiTextField-root": {
@@ -28,11 +29,12 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function WalletImport(props) {
+export default function WalletImport() {
   const [mnemonic, setMnemonic] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const classes = useStyles();
+  const { setSelectedWallet } = useWallet();
 
   //let history = useHistory();
 
@@ -42,7 +44,7 @@ export default function WalletImport(props) {
 
   async function onImportClick() {
     const importedWallet = await importWallet(mnemonic, password);
-    props.onWalletOpen(importedWallet);
+    setSelectedWallet(importedWallet);
   }
 
   return (

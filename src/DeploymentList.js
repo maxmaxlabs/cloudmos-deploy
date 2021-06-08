@@ -1,10 +1,5 @@
 import { useState, useEffect } from "react";
-import { apiEndpoint, rpcEndpoint } from "./shared/constants";
-import { NewDeploymentData } from "./shared/utils/deploymentUtils";
-import { MsgCreateDeployment } from "./ProtoAkashTypes";
-import { SigningStargateClient } from "@cosmjs/stargate";
-import { customRegistry, baseFee } from "./shared/utils/blockchainUtils";
-import DemoDeployYaml from "./demo.deploy.yml";
+import { apiEndpoint } from "./shared/constants";
 import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
 import CloudIcon from "@material-ui/icons/Cloud";
 import AddIcon from "@material-ui/icons/Add";
@@ -28,7 +23,9 @@ import {
 } from "@material-ui/core";
 import { useHistory } from "react-router";
 import { humanFileSize } from "./shared/utils/unitUtils";
-import { deploymentResourceSum } from "./shared/utils/deploymentDetailUtils";
+import { deploymentToDto } from "./shared/utils/deploymentDetailUtils";
+import { useWallet } from "./WalletProvider/WalletProviderContext";
+import { useTransactionModal } from "./context/TransactionModal";
 
 const yaml = require("js-yaml");
 
@@ -45,12 +42,12 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export function DeploymentList(props) {
-  const [isLoadingDeployments, setIsLoadingDeployments] = useState(false);
-
+  const { deployments, setDeployments } = props;
   const classes = useStyles();
   const history = useHistory();
-
-  const { address, selectedWallet, deployments, setDeployments } = props;
+  const [isLoadingDeployments, setIsLoadingDeployments] = useState(false);
+  const { address, selectedWallet } = useWallet();
+  const { sendTransaction } = useTransactionModal();
 
   useEffect(() => {
     loadDeployments(address);
@@ -59,69 +56,20 @@ export function DeploymentList(props) {
   async function loadDeployments(address) {
     setIsLoadingDeployments(true);
     const response = await fetch(apiEndpoint + "/akash/deployment/v1beta1/deployments/list?filters.owner=" + address);
-    const deployments = await response.json();
-
-    console.log("deployments", deployments);
+    let deployments = await response.json();
 
     setDeployments(
-      deployments.deployments.map((d) => ({
-        dseq: d.deployment.deployment_id.dseq,
-        state: d.deployment.state,
-        createdAt: parseInt(d.deployment.created_at),
-        escrowBalance: d.escrow_account.balance,
-        transferred: d.escrow_account.transferred,
-        cpuAmount: deploymentResourceSum(d, (r) => parseInt(r.cpu.units.val) / 1000),
-        memoryAmount: deploymentResourceSum(d, (r) => parseInt(r.memory.quantity.val)),
-        storageAmount: deploymentResourceSum(d, (r) => parseInt(r.storage.quantity.val)),
-        escrowAccount: { ...d.escrow_account },
-        groups: [...d.groups]
-      }))
+      deployments.deployments.map((d) => deploymentToDto(d))
     );
 
     setIsLoadingDeployments(false);
   }
 
-  async function createDeployment() {
-    console.log("not today..");
-    return;
-
+  function createDeployment() {
     history.push("/createDeployment");
-
-    const flags = {};
-    const response = await fetch(DemoDeployYaml);
-    const txt = await response.text();
-    const doc = yaml.load(txt);
-
-    const dd = await NewDeploymentData(doc, flags, address); // TODO Flags
-
-    const msg = {
-      id: dd.deploymentId,
-      groups: dd.groups,
-      version: dd.version,
-      deposit: dd.deposit
-    };
-
-    const txData = {
-      typeUrl: "/akash.deployment.v1beta1.MsgCreateDeployment",
-      value: msg
-    };
-
-    const err = MsgCreateDeployment.verify(msg);
-    // const encoded = MsgCreateDeployment.fromObject(msg);
-    // const decoded = MsgCreateDeployment.toObject(encoded);
-
-    if (err) throw err;
-
-    const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, selectedWallet, {
-      registry: customRegistry
-    });
-
-    await client.signAndBroadcast(address, [txData], baseFee);
-
-    loadDeployments(address);
   }
 
-  async function viewDeployment(deployment) {
+  function viewDeployment(deployment) {
     history.push("/deployment/" + deployment.dseq);
   }
 

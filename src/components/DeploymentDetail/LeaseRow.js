@@ -18,6 +18,7 @@ import { LabelValue } from "../../shared/components/LabelValue";
 import { getAvgCostPerMonth } from "../../shared/utils/priceUtils";
 import { SpecDetail } from "../../shared/components/SpecDetail";
 import LaunchIcon from "@material-ui/icons/Launch";
+import { useCertificate } from "../../context/CertificateProvider/CertificateProviderContext";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -31,9 +32,11 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export function LeaseRow(props) {
-  const { lease, cert } = props;
+  const { lease } = props;
   const [providerInfo, setProviderInfo] = useState(null);
   const [leaseInfoFromProvider, setLeaseInfoFromProvider] = useState(null);
+
+  const { localCert } = useCertificate();
 
   console.log(lease);
 
@@ -46,36 +49,23 @@ export function LeaseRow(props) {
       setProviderInfo(providerInfo);
     }
 
-    if (cert) {
+    if (localCert) {
       loadProviderInfo();
     }
-  }, [lease, cert]);
+  }, [lease, localCert]);
 
   useEffect(() => {
     async function loadLeaseDetailsFromProvider() {
       const leaseStatusPath = `${providerInfo.host_uri}/lease/${lease.dseq}/${lease.gseq}/${lease.oseq}/status`;
-      const response = await window.electron.queryProvider(leaseStatusPath, "GET", null, cert.certPem, cert.keyPem);
+      const response = await window.electron.queryProvider(leaseStatusPath, "GET", null, localCert.certPem, localCert.keyPem);
       console.log("leaseDetail", response);
       setLeaseInfoFromProvider(response);
     }
 
-    if (lease.state === "active" && providerInfo && cert) {
+    if (lease.state === "active" && providerInfo && localCert) {
       loadLeaseDetailsFromProvider();
     }
-  }, [lease, providerInfo, cert]);
-
-  async function sendManifest(dseq) {
-    // const flags = {};
-    // const response = await fetch(DemoDeployYaml);
-    // const txt = await response.text();
-    // const doc = yaml.load(txt);
-    // const mani = Manifest(doc);
-    // const prvKeyPem = localStorage.getItem("DeploymentCertificatePrivateKey");
-    // const certPem = localStorage.getItem("DeploymentCertificate");
-    // var cert = new rs.X509();
-    // cert.readCertPEM(certPem);
-    // //JSON.stringify(mani);
-  }
+  }, [lease, providerInfo, localCert]);
 
   function handleExternalUrlClick(ev, externalUrl) {
     ev.preventDefault();

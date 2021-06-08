@@ -1,17 +1,14 @@
-import { useCallback, useEffect, useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import { apiEndpoint } from "./shared/constants";
+import { makeStyles, Box, Card, CardHeader } from "@material-ui/core";
 import AccountBalanceWalletIcon from "@material-ui/icons/AccountBalanceWallet";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import IconButton from "@material-ui/core/IconButton";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
-
-import Card from "@material-ui/core/Card";
-import CardHeader from "@material-ui/core/CardHeader";
+import { useWallet } from "./WalletProvider/WalletProviderContext";
 
 const useStyles = makeStyles({
   root: {
-    minWidth: 275
+    minWidth: 275,
+    height: "100%"
   },
   bullet: {
     display: "inline-block",
@@ -26,48 +23,34 @@ const useStyles = makeStyles({
   }
 });
 
-export function WalletDisplay(props) {
-  const [balance, setBalance] = useState(null);
+export function WalletDisplay() {
   const classes = useStyles();
 
-  const { address } = props;
+  const { address, balance, refreshBalance } = useWallet();
 
   // function importWallet() {
   //     history.push("/walletImport");
   // }
 
-  const loadBalance = useCallback(async () => {
-    const response = await fetch(apiEndpoint + "/cosmos/bank/v1beta1/balances/" + address);
-    const data = await response.json();
-    const balance = data.balances.length > 0 ? data.balances[0].amount : 0;
-    setBalance(balance);
-  }, [address]);
-
-  useEffect(() => {
-    loadBalance();
-  }, [address, loadBalance]);
-
   return (
-    <>
-      <Card className={classes.root} variant="outlined">
-        <CardHeader
-          action={
-            <IconButton aria-label="settings">
-              <MoreVertIcon />
+    <Card className={classes.root} variant="outlined">
+      <CardHeader
+        action={
+          <IconButton aria-label="settings">
+            <MoreVertIcon />
+          </IconButton>
+        }
+        title={
+          <Box display="flex" alignItems="center">
+            <AccountBalanceWalletIcon />
+            <Box component="span" marginLeft="5px">{balance / 1000000} AKT</Box>
+            <IconButton onClick={() => refreshBalance()} aria-label="refresh">
+              <RefreshIcon />
             </IconButton>
-          }
-          title={
-            <>
-              <AccountBalanceWalletIcon />
-              {balance} uakt
-              <IconButton onClick={() => loadBalance()} aria-label="refresh">
-                <RefreshIcon />
-              </IconButton>
-            </>
-          }
-          subheader={address}
-        ></CardHeader>
-      </Card>
-    </>
+          </Box>
+        }
+        subheader={address}
+      ></CardHeader>
+    </Card>
   );
 }
