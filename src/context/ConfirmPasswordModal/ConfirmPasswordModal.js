@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button, TextField, Dialog, DialogTitle, DialogContent, DialogActions } from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
-import { openWallet } from "../walletHelper";
+import { openWallet } from "../../shared/utils/walletUtils";
 
 export function ConfirmPasswordModal(props) {
   const [password, setPassword] = useState("");

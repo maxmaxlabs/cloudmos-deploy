@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Button,
   TextField,
@@ -23,83 +23,14 @@ import { TabPanel } from "../../shared/components/TabPanel";
 import { baseGas, createFee, customRegistry } from "../../shared/utils/blockchainUtils";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { rpcEndpoint } from "../../shared/constants";
-import { useWallet } from "../../WalletProvider/WalletProviderContext";
+import { useWallet } from "../WalletProvider";
 import clsx from "clsx";
 import { TransactionMessage } from "./TransactionMessage";
 import { uaktToAKT } from "../../shared/utils/priceUtils";
 import { useSnackbar } from "notistack";
+import { useStyles } from "./TransactionModal.styles";
 
 const a11yPrefix = "transaction-tab";
-
-const useStyles = makeStyles((theme) => ({
-  tabContent: {
-    padding: 0,
-    height: 500,
-    overflowY: "hidden",
-    display: "flex",
-    flexDirection: "column"
-  },
-  badge: {
-    right: "-1rem",
-    top: "50%",
-    fontSize: ".5rem",
-    height: ".9rem",
-    fontWeight: "bold"
-  },
-  label: { fontSize: ".9rem", fontWeight: "bold" },
-  tabPanel: { overflowY: "auto", padding: ".5rem" },
-  messages: {
-    maxHeight: 100,
-    overflowY: "auto"
-  },
-  messagesData: {
-    overflowX: "auto",
-    whiteSpace: "pre",
-    overflowWrap: "break-word",
-    fontSize: ".9rem"
-  },
-  fullWidth: {
-    width: "100%"
-  },
-  feeButton: {
-    flexGrow: 1,
-    flexBasis: "33.333333%"
-  },
-  feeButtonLabel: {
-    display: "block",
-    lineHeight: "1rem",
-    padding: ".5rem 0"
-  },
-  feeButtonLabelAmount: {
-    fontSize: ".8rem",
-    color: "grey", // TODO Theme
-    fontWeight: "lighter",
-    paddingTop: 4
-  },
-  textWhite: {
-    color: "#ffffff"
-  },
-  setGasLink: {
-    display: "flex",
-    justifyContent: "flex-end",
-    padding: "2px",
-    paddingBottom: "1rem",
-    fontSize: ".9rem",
-    fontWeight: "bold"
-  },
-  actionButton: {
-    flexGrow: 1,
-    flexBasis: "50%"
-  },
-  snackBarTitle: {
-    fontSize: "1rem",
-    lineHeight: "1rem",
-    fontWeight: "bold"
-  },
-  snackBarSubTitle: {
-    fontSize: ".9rem"
-  }
-}));
 
 export function TransactionModal(props) {
   const { isOpen, onConfirmTransaction, messages } = props;
@@ -191,7 +122,7 @@ export function TransactionModal(props) {
   return (
     <Dialog
       open={props.isOpen}
-      onClose={!isSendingTransaction && props.onClose}
+      onClose={!isSendingTransaction ? props.onClose : null}
       maxWidth="xs"
       fullWidth
       aria-labelledby="transaction-modal"

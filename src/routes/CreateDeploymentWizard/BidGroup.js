@@ -1,4 +1,4 @@
-import { makeStyles, ListSubheader, Radio, List, ListItemText, ListItemIcon, ListItem, CircularProgress } from "@material-ui/core";
+import { makeStyles, ListSubheader, Radio, List, ListItemText, ListItemIcon, ListItem } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -11,7 +11,7 @@ export function BidGroup(props) {
   const classes = useStyles();
 
   const { bids, gseq, selectedBid, handleBidSelected } = props;
-  
+
   return (
     <List className={classes.root} subheader={<ListSubheader component="div">GSEQ: {gseq}</ListSubheader>}>
       {bids.map((bid) => (

@@ -3,8 +3,8 @@ import { makeStyles, Button, List, ListItem, ListItemText, ListItemIcon, Circula
 import { green } from "@material-ui/core/colors";
 import CheckCircleOutlineIcon from "@material-ui/icons/CheckCircleOutline";
 import ErrorOutlineIcon from "@material-ui/icons/ErrorOutline";
-import { useCertificate } from "../context/CertificateProvider/CertificateProviderContext";
-import { useWallet } from "../WalletProvider/WalletProviderContext";
+import { useCertificate } from "../../context/CertificateProvider";
+import { useWallet } from "../../context/WalletProvider";
 import { useHistory } from "react-router";
 
 const useStyles = makeStyles((theme) => ({
@@ -39,7 +39,7 @@ export function PrerequisiteList(props) {
 
   const classes = useStyles();
 
-  function handleNextClick(){
+  function handleNextClick() {
     history.push("/createDeployment/chooseTemplate");
   }
 

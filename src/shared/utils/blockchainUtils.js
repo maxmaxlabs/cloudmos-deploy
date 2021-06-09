@@ -1,5 +1,5 @@
 import { Registry } from "@cosmjs/proto-signing";
-import { MsgCloseDeployment, MsgRevokeCertificate, MsgCreateCertificate, MsgCreateDeployment, MsgCreateLease } from "../../ProtoAkashTypes";
+import { MsgCloseDeployment, MsgRevokeCertificate, MsgCreateCertificate, MsgCreateDeployment, MsgCreateLease } from "../ProtoAkashTypes";
 import { TransactionMessageData } from "./TransactionMessageData";
 
 const registery = new Registry();

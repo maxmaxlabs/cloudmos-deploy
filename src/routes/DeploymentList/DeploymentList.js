@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { apiEndpoint } from "./shared/constants";
+import { apiEndpoint } from "../../shared/constants";
 import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
 import CloudIcon from "@material-ui/icons/Cloud";
 import AddIcon from "@material-ui/icons/Add";
@@ -22,12 +22,9 @@ import {
   ListItemSecondaryAction
 } from "@material-ui/core";
 import { useHistory } from "react-router";
-import { humanFileSize } from "./shared/utils/unitUtils";
-import { deploymentToDto } from "./shared/utils/deploymentDetailUtils";
-import { useWallet } from "./WalletProvider/WalletProviderContext";
-import { useTransactionModal } from "./context/TransactionModal";
-
-const yaml = require("js-yaml");
+import { humanFileSize } from "../../shared/utils/unitUtils";
+import { deploymentToDto } from "../../shared/utils/deploymentDetailUtils";
+import { useWallet } from "../../context/WalletProvider";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -47,7 +44,6 @@ export function DeploymentList(props) {
   const history = useHistory();
   const [isLoadingDeployments, setIsLoadingDeployments] = useState(false);
   const { address, selectedWallet } = useWallet();
-  const { sendTransaction } = useTransactionModal();
 
   useEffect(() => {
     loadDeployments(address);
@@ -58,9 +54,7 @@ export function DeploymentList(props) {
     const response = await fetch(apiEndpoint + "/akash/deployment/v1beta1/deployments/list?filters.owner=" + address);
     let deployments = await response.json();
 
-    setDeployments(
-      deployments.deployments.map((d) => deploymentToDto(d))
-    );
+    setDeployments(deployments.deployments.map((d) => deploymentToDto(d)));
 
     setIsLoadingDeployments(false);
   }

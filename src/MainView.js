@@ -1,15 +1,14 @@
 import { useState } from "react";
-import "./App.css";
 import { MemoryRouter, Route } from "react-router-dom";
 import { makeStyles, Grid } from "@material-ui/core";
-import WalletImport from "./WalletImport";
-import WalletOpen from "./WalletOpen";
-import { CreateDeploymentWizard } from "./CreateDeploymentWizard/CreateDeploymentWizard";
-import { DeploymentList } from "./DeploymentList";
-import { WalletDisplay } from "./WalletDisplay";
-import { CertificateDisplay } from "./CertificateDisplay";
-import { DeploymentDetail } from "./components/DeploymentDetail";
-import { useWallet } from "./WalletProvider/WalletProviderContext";
+import { WalletImport } from "./components/WalletImport";
+import { WalletOpen } from "./components/WalletOpen";
+import { CreateDeploymentWizard } from "./routes/CreateDeploymentWizard";
+import { DeploymentList } from "./routes/DeploymentList";
+import { WalletDisplay } from "./components/WalletDisplay";
+import { CertificateDisplay } from "./components/CertificateDisplay";
+import { DeploymentDetail } from "./routes/DeploymentDetail";
+import { useWallet } from "./context/WalletProvider";
 import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "./shared/components/ErrorFallback";
 

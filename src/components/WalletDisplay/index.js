@@ -1,0 +1,1 @@
+export { WalletDisplay } from "./WalletDisplay";

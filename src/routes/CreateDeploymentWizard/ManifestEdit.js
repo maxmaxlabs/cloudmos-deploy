@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { Box, Typography, Button } from "@material-ui/core";
-import { NewDeploymentData } from "../shared/utils/deploymentUtils";
-import { useWallet } from "../WalletProvider/WalletProviderContext";
+import { NewDeploymentData } from "../../shared/utils/deploymentUtils";
+import { useWallet } from "../../context/WalletProvider";
 import MonacoEditor from "react-monaco-editor";
 import Alert from "@material-ui/lab/Alert";
 import { useHistory } from "react-router";
-import { saveDeploymentManifest } from "../shared/utils/deploymentLocalDataUtils";
-import { TransactionMessageData } from "../shared/utils/TransactionMessageData";
-import { useTransactionModal } from "../context/TransactionModal";
+import { saveDeploymentManifest } from "../../shared/utils/deploymentLocalDataUtils";
+import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
+import { useTransactionModal } from "../../context/TransactionModal";
 
 const yaml = require("js-yaml");
 

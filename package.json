@@ -34,7 +34,7 @@
     "electron": "electron .",
     "electron-dev": "set ELECTRON_START_URL=http://localhost:3000 && electron ."
   },
-  "main": "src/electron-starter.js",
+  "main": "electron/electron-starter.js",
   "homepage": "./",
   "eslintConfig": {
     "extends": [
