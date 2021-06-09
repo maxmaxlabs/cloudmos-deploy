@@ -1,7 +1,5 @@
 import { MsgCloseDeployment, MsgRevokeCertificate, MsgCreateCertificate, MsgCreateDeployment, MsgCreateLease } from "../ProtoAkashTypes";
 
-const msgPrefix = "/akash.deployment.v1beta1";
-
 export class TransactionMessageData {
   static Types = {
     MSG_CLOSE_DEPLOYMENT: "/akash.deployment.v1beta1.MsgCloseDeployment",
