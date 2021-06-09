@@ -1,16 +1,16 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { apiEndpoint } from "../shared/constants";
-import { TransactionMessageData } from "../shared/utils/TransactionMessageData";
+import { apiEndpoint } from "../../shared/constants";
+import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
 import { Button, CircularProgress, Box } from "@material-ui/core";
-import { useWallet } from "../WalletProvider/WalletProviderContext";
+import { useWallet } from "../../context/WalletProvider";
 import { BidGroup } from "./BidGroup";
 import { useHistory } from "react-router";
-import { Manifest } from "../shared/utils/deploymentUtils";
-import { useCertificate } from "../context/CertificateProvider/CertificateProviderContext";
-import { fetchProviderInfo } from "../shared/providerCache";
+import { Manifest } from "../../shared/utils/deploymentUtils";
+import { useCertificate } from "../../context/CertificateProvider";
+import { fetchProviderInfo } from "../../shared/providerCache";
 import Alert from "@material-ui/lab/Alert";
-import { getDeploymentLocalData } from "../shared/utils/deploymentLocalDataUtils";
-import { useTransactionModal } from "../context/TransactionModal";
+import { getDeploymentLocalData } from "../../shared/utils/deploymentLocalDataUtils";
+import { useTransactionModal } from "../../context/TransactionModal";
 
 const yaml = require("js-yaml");
 

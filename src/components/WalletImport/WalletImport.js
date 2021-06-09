@@ -1,12 +1,8 @@
 import { useState } from "react";
-import TextField from "@material-ui/core/TextField";
-import Container from "@material-ui/core/Container";
-import { Button } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import Paper from "@material-ui/core/Paper";
+import { TextField, Container, Paper, makeStyles, Button } from "@material-ui/core";
 //import { useHistory } from "react-router-dom";
-import { importWallet } from "./walletHelper";
-import { useWallet } from "./WalletProvider/WalletProviderContext";
+import { importWallet } from "../../shared/utils/walletUtils";
+import { useWallet } from "../../context/WalletProvider";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -29,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function WalletImport() {
+export function WalletImport() {
   const [mnemonic, setMnemonic] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");

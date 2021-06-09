@@ -1,15 +1,11 @@
 import { useEffect, useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import Stepper from "@material-ui/core/Stepper";
-import Step from "@material-ui/core/Step";
-import StepButton from "@material-ui/core/StepButton";
-import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-import { Card, CardHeader, CardContent, IconButton } from "@material-ui/core";
+import { makeStyles, Stepper, Step, StepButton, Card, CardHeader, CardContent, IconButton } from "@material-ui/core";
 import { TemplateList } from "./TemplateList";
 import { ManifestEdit } from "./ManifestEdit";
 import { CreateLease } from "./CreateLease";
 import { useHistory, useParams } from "react-router";
 import { PrerequisiteList } from "./PrerequisiteList";
+import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -48,7 +44,7 @@ export function CreateDeploymentWizard() {
   }
 
   let activeStep = 0;
-  switch(step){
+  switch (step) {
     case "chooseTemplate":
       activeStep = 1;
       break;
@@ -60,11 +56,11 @@ export function CreateDeploymentWizard() {
       break;
   }
 
-  function handleStep(index){
+  function handleStep(index) {
     console.log("handleStep: " + index);
   }
 
-  function isStepComplete(){
+  function isStepComplete() {
     return false;
   }
 
@@ -98,12 +94,8 @@ export function CreateDeploymentWizard() {
             </Stepper>
             <div>
               {activeStep === 0 && <PrerequisiteList />}
-              {activeStep === 1 && (
-                <TemplateList selectedTemplate={selectedTemplate} setSelectedTemplate={(c) => setSelectedTemplate(c)} />
-              )}
-              {activeStep === 2 && (
-                <ManifestEdit editedManifest={editedManifest} setEditedManifest={setEditedManifest} />
-              )}
+              {activeStep === 1 && <TemplateList selectedTemplate={selectedTemplate} setSelectedTemplate={(c) => setSelectedTemplate(c)} />}
+              {activeStep === 2 && <ManifestEdit editedManifest={editedManifest} setEditedManifest={setEditedManifest} />}
               {activeStep === 3 && <CreateLease dseq={dseq} editedManifest={editedManifest} />}
             </div>
           </div>

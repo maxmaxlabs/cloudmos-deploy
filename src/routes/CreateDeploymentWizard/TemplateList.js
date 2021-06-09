@@ -1,20 +1,13 @@
-import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import ListItemText from '@material-ui/core/ListItemText';
-import Radio from '@material-ui/core/Radio';
-import { IconButton, Button } from '@material-ui/core';
-import GitHubIcon from '@material-ui/icons/GitHub';
-import { useHistory } from 'react-router';
+import React from "react";
+import { IconButton, Button, makeStyles, List, ListItem, ListItemIcon, ListItemSecondaryAction, ListItemText, Radio } from "@material-ui/core";
+import GitHubIcon from "@material-ui/icons/GitHub";
+import { useHistory } from "react-router";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    width: '100%',
-    backgroundColor: theme.palette.background.paper,
-  },
+    width: "100%",
+    backgroundColor: theme.palette.background.paper
+  }
 }));
 
 export function TemplateList(props) {
@@ -24,15 +17,15 @@ export function TemplateList(props) {
   const { selectedTemplate, setSelectedTemplate } = props;
 
   const handleToggle = (value) => {
-    setSelectedTemplate(templates.find(t => t.code === value));
+    setSelectedTemplate(templates.find((t) => t.code === value));
   };
 
   function handleGithubOpen(value) {
     window.electron.openUrl(value.githubUrl);
   }
 
-  function handleNextClick(){
-    history.push("/createDeployment/editManifest")
+  function handleNextClick() {
+    history.push("/createDeployment/editManifest");
   }
 
   return (
@@ -68,9 +61,8 @@ export function TemplateList(props) {
         Continue
       </Button>
     </>
-  )
+  );
 }
-
 
 const templates = [
   {
@@ -258,4 +250,4 @@ deployment:
           profile: akash
           count: 1`
   }
-]
+];

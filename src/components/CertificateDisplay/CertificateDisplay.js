@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { TransactionMessageData } from "./shared/utils/TransactionMessageData";
-import { usePasswordConfirmationModal } from "./ConfirmPasswordModal/ConfirmPasswordModalContext";
-import { useTransactionModal } from "./context/TransactionModal";
+import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
+import { usePasswordConfirmationModal } from "../../context/ConfirmPasswordModal";
+import { useTransactionModal } from "../../context/TransactionModal";
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import AutorenewIcon from "@material-ui/icons/Autorenew";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import { Button, IconButton, Card, CardHeader, CardContent, CircularProgress, MenuItem, Menu } from "@material-ui/core";
-import { useCertificate } from "./context/CertificateProvider/CertificateProviderContext";
-import { useWallet } from "./WalletProvider/WalletProviderContext";
+import { useCertificate } from "../../context/CertificateProvider";
+import { useWallet } from "../../context/WalletProvider";
 
 var rs = require("jsrsasign");
 

@@ -1,4 +1,6 @@
-import { MsgCloseDeployment, MsgRevokeCertificate, MsgCreateCertificate, MsgCreateDeployment, MsgCreateLease } from "../../ProtoAkashTypes";
+import { MsgCloseDeployment, MsgRevokeCertificate, MsgCreateCertificate, MsgCreateDeployment, MsgCreateLease } from "../ProtoAkashTypes";
+
+const msgPrefix = "/akash.deployment.v1beta1";
 
 export class TransactionMessageData {
   static Types = {

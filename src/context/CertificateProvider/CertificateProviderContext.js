@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { apiEndpoint } from "../../shared/constants";
-import { openCert } from "../../walletHelper";
-import { useWallet } from "../../WalletProvider/WalletProviderContext";
+import { openCert } from "../../shared/utils/walletUtils";
+import { useWallet } from "../WalletProvider";
 
 const CertificateProviderContext = React.createContext({});
 
@@ -11,7 +11,7 @@ export const CertificateProvider = ({ children }) => {
   const [localCert, setLocalCert] = useState(null);
   const [isLocalCertMatching, setIsLocalCertMatching] = useState(false);
 
-  const {address} = useWallet();
+  const { address } = useWallet();
 
   const loadValidCertificates = useCallback(async () => {
     setIsLoadingCertificates(true);
@@ -20,7 +20,7 @@ export const CertificateProvider = ({ children }) => {
 
     setValidCertificates(data.certificates);
     setIsLoadingCertificates(false);
-    
+
     return data.certificates[0];
   }, [address]);
 
@@ -32,19 +32,19 @@ export const CertificateProvider = ({ children }) => {
 
   const loadLocalCert = async (address, password) => {
     const cert = await openCert(address, password);
-    
+
     setLocalCert(cert);
-  }
+  };
 
   const certificate = validCertificates[0];
 
   useEffect(() => {
     let isMatching = false;
-    if(certificate && localCert){
+    if (certificate && localCert) {
       isMatching = atob(certificate.certificate.cert) === localCert.certPem;
     }
     setIsLocalCertMatching(isMatching);
-  }, [certificate, localCert])
+  }, [certificate, localCert]);
 
   return (
     <CertificateProviderContext.Provider value={{ loadValidCertificates, certificate, isLoadingCertificates, loadLocalCert, localCert, isLocalCertMatching }}>
@@ -54,7 +54,8 @@ export const CertificateProvider = ({ children }) => {
 };
 
 export const useCertificate = () => {
-  const { loadValidCertificates, certificate, isLoadingCertificates, loadLocalCert, localCert, isLocalCertMatching } = React.useContext(CertificateProviderContext);
+  const { loadValidCertificates, certificate, isLoadingCertificates, loadLocalCert, localCert, isLocalCertMatching } =
+    React.useContext(CertificateProviderContext);
 
   return { loadValidCertificates, certificate, isLoadingCertificates, loadLocalCert, localCert, isLocalCertMatching };
 };

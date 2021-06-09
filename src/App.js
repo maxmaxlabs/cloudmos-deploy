@@ -1,10 +1,9 @@
-import "./App.css";
 import { useRef } from "react";
-import { PasswordConfirmationModalProvider } from "./ConfirmPasswordModal/ConfirmPasswordModalContext";
+import { PasswordConfirmationModalProvider } from "./context/ConfirmPasswordModal";
 import { MainView } from "./MainView";
-import { CertificateProvider } from "./context/CertificateProvider/CertificateProviderContext";
-import { TransactionModalProvider } from "./context/TransactionModal/TransactionModalContext";
-import { WalletProvider } from "./WalletProvider/WalletProviderContext";
+import { CertificateProvider } from "./context/CertificateProvider";
+import { TransactionModalProvider } from "./context/TransactionModal";
+import { WalletProvider } from "./context/WalletProvider";
 import { SnackbarProvider } from "notistack";
 import { IconButton, makeStyles } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";

@@ -1,12 +1,8 @@
 import { useState } from "react";
-import TextField from "@material-ui/core/TextField";
-import Container from "@material-ui/core/Container";
-import { Button, CircularProgress } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import Paper from "@material-ui/core/Paper";
-import { openWallet } from "./walletHelper";
-import { useCertificate } from "./context/CertificateProvider/CertificateProviderContext";
-import { useWallet } from "./WalletProvider/WalletProviderContext";
+import { TextField, Container, Button, CircularProgress, makeStyles, Paper } from "@material-ui/core";
+import { openWallet } from "../../shared/utils/walletUtils";
+import { useCertificate } from "../../context/CertificateProvider";
+import { useWallet } from "../../context/WalletProvider";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -29,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function WalletOpen() {
+export function WalletOpen() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const classes = useStyles();

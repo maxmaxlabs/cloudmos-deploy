@@ -1,16 +1,16 @@
 import { useState, useEffect, useCallback } from "react";
 import { apiEndpoint } from "../../shared/constants";
-import { useParams, useHistory, useLocation } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import CloseIcon from "@material-ui/icons/Close";
-import { Button, CircularProgress, IconButton, Card, CardContent, CardHeader, Typography, List, ListItem, ListItemText, Box } from "@material-ui/core";
+import { Button, CircularProgress, IconButton, Card, CardContent, CardHeader, Typography, Box } from "@material-ui/core";
 import { LeaseRow } from "./LeaseRow";
 import { useStyles } from "./DeploymentDetail.styles";
 import { DeploymentSubHeader } from "./DeploymentSubHeader";
 import { deploymentGroupResourceSum } from "../../shared/utils/deploymentDetailUtils";
 import { RAW_JSON_DEPLOYMENT, RAW_JSON_LEASES } from "../../shared/constants";
 import { syntaxHighlight } from "../../shared/utils/stringUtils";
-import { useWallet } from "../../WalletProvider/WalletProviderContext";
+import { useWallet } from "../../context/WalletProvider";
 import { deploymentToDto } from "../../shared/utils/deploymentDetailUtils";
 
 export function DeploymentDetail(props) {
@@ -53,7 +53,7 @@ export function DeploymentDetail(props) {
 
     setLeases(leases);
     setIsLoadingLeases(false);
-    
+
     if (leases.length === 0) {
       history.push("/createDeployment/acceptBids/" + dseq);
     }

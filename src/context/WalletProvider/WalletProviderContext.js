@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { apiEndpoint } from "../shared/constants";
+import { apiEndpoint } from "../../shared/constants";
 
 const WalletProviderContext = React.createContext({});
 

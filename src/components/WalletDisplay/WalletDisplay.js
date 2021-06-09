@@ -3,7 +3,7 @@ import AccountBalanceWalletIcon from "@material-ui/icons/AccountBalanceWallet";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import IconButton from "@material-ui/core/IconButton";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
-import { useWallet } from "./WalletProvider/WalletProviderContext";
+import { useWallet } from "../../context/WalletProvider";
 
 const useStyles = makeStyles({
   root: {
@@ -43,7 +43,9 @@ export function WalletDisplay() {
         title={
           <Box display="flex" alignItems="center">
             <AccountBalanceWalletIcon />
-            <Box component="span" marginLeft="5px">{balance / 1000000} AKT</Box>
+            <Box component="span" marginLeft="5px">
+              {balance / 1000000} AKT
+            </Box>
             <IconButton onClick={() => refreshBalance()} aria-label="refresh">
               <RefreshIcon />
             </IconButton>

@@ -1,1 +1,1 @@
-export { useTransactionModal } from "./TransactionModalContext";
+export { useTransactionModal, TransactionModalProvider } from "./TransactionModalContext";
