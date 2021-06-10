@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { apiEndpoint, RAW_JSON_DEPLOYMENT, RAW_JSON_LEASES } from "../../shared/constants";
+import { apiEndpoint } from "../../shared/constants";
 import { useParams, useHistory } from "react-router-dom";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import { CircularProgress, Tabs, Tab, IconButton, Card, CardContent, CardHeader, Typography } from "@material-ui/core";
@@ -93,18 +93,6 @@ export function DeploymentDetail(props) {
 
   function handleBackClick() {
     history.push("/");
-  }
-
-  function handleOpenRawJson(json) {
-    if(json === RAW_JSON_DEPLOYMENT){
-      setActiveTab("JSON_DEPLOYMENT");
-    } else if(json === RAW_JSON_LEASES){
-      setActiveTab("JSON_LEASES");
-    }
-  }
-
-  function handleOpenManifestEditor() {
-    setActiveTab("EDIT");
   }
 
   return (
