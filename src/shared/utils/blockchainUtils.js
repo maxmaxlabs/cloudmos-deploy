@@ -1,10 +1,11 @@
 import { Registry } from "@cosmjs/proto-signing";
-import { MsgCloseDeployment, MsgRevokeCertificate, MsgCreateCertificate, MsgCreateDeployment, MsgCreateLease } from "../ProtoAkashTypes";
+import { MsgCloseDeployment, MsgRevokeCertificate, MsgCreateCertificate, MsgCreateDeployment, MsgCreateLease, MsgUpdateDeployment } from "../ProtoAkashTypes";
 import { TransactionMessageData } from "./TransactionMessageData";
 
 const registery = new Registry();
 registery.register(TransactionMessageData.Types.MSG_CLOSE_DEPLOYMENT, MsgCloseDeployment);
 registery.register(TransactionMessageData.Types.MSG_CREATE_DEPLOYMENT, MsgCreateDeployment);
+registery.register(TransactionMessageData.Types.MSG_UPDATE_DEPLOYMENT, MsgUpdateDeployment);
 registery.register(TransactionMessageData.Types.MSG_CREATE_LEASE, MsgCreateLease);
 registery.register(TransactionMessageData.Types.MSG_REVOKE_CERTIFICATE, MsgRevokeCertificate);
 registery.register(TransactionMessageData.Types.MSG_CREATE_CERTIFICATE, MsgCreateCertificate);

@@ -2,16 +2,15 @@ import { useState, useEffect, useCallback } from "react";
 import { apiEndpoint } from "../../shared/constants";
 import { useParams, useHistory } from "react-router-dom";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-import CloseIcon from "@material-ui/icons/Close";
-import { Button, CircularProgress, IconButton, Card, CardContent, CardHeader, Typography, Box } from "@material-ui/core";
+import { CircularProgress, IconButton, Card, CardContent, CardHeader, Typography } from "@material-ui/core";
 import { LeaseRow } from "./LeaseRow";
 import { useStyles } from "./DeploymentDetail.styles";
 import { DeploymentSubHeader } from "./DeploymentSubHeader";
 import { deploymentGroupResourceSum } from "../../shared/utils/deploymentDetailUtils";
-import { RAW_JSON_DEPLOYMENT, RAW_JSON_LEASES } from "../../shared/constants";
-import { syntaxHighlight } from "../../shared/utils/stringUtils";
 import { useWallet } from "../../context/WalletProvider";
 import { deploymentToDto } from "../../shared/utils/deploymentDetailUtils";
+import { DeploymentJsonViewer } from "./DeploymentJsonViewer";
+import { ManifestEditor } from "./ManifestEditor";
 
 export function DeploymentDetail(props) {
   const [leases, setLeases] = useState([]);
@@ -20,6 +19,7 @@ export function DeploymentDetail(props) {
   const [shownRawJson, setShownRawJson] = useState(null);
   const [deployment, setDeployment] = useState(null);
   const [isLoadingDeployment, setIsLoadingDeployment] = useState(false);
+  const [isShowingManifestEditor, setIsShowingManifestEditor] = useState(false);
   const classes = useStyles();
   const history = useHistory();
   const { address } = useWallet();
@@ -85,7 +85,7 @@ export function DeploymentDetail(props) {
         setIsLoadingDeployment(true);
         const response = await fetch(apiEndpoint + "/akash/deployment/v1beta1/deployments/info?id.owner=" + address + "&id.dseq=" + dseq);
         const deployment = await response.json();
-        console.log(deployment);
+        
         setDeployment(deploymentToDto(deployment));
         setIsLoadingDeployment(false);
       }
@@ -96,41 +96,15 @@ export function DeploymentDetail(props) {
     history.push("/");
   }
 
-  const getRawJson = (json) => {
-    let value;
+  function handleOpenRawJson(json) {
+    setShownRawJson(json);
+    setIsShowingManifestEditor(false);
+  }
 
-    switch (json) {
-      case RAW_JSON_DEPLOYMENT:
-        value = deployment;
-        break;
-      case RAW_JSON_LEASES:
-        value = leases;
-        break;
-
-      default:
-        break;
-    }
-
-    return JSON.stringify(value, null, 2);
-  };
-
-  const getRawJsonTitle = (json) => {
-    let title = "";
-
-    switch (json) {
-      case RAW_JSON_DEPLOYMENT:
-        title = "Deployment JSON";
-        break;
-      case RAW_JSON_LEASES:
-        title = "Leases JSON";
-        break;
-
-      default:
-        break;
-    }
-
-    return title;
-  };
+  function handleOpenManifestEditor() {
+    setShownRawJson(null);
+    setIsShowingManifestEditor(true);
+  }
 
   return (
     <>
@@ -156,33 +130,18 @@ export function DeploymentDetail(props) {
                 block={currentBlock}
                 deploymentCost={leases && leases.length > 0 ? leases.reduce((prev, current) => prev + current.price.amount, []) : 0}
                 address={address}
-                updateShownRawJson={(json) => setShownRawJson(json)}
+                updateShownRawJson={(json) => handleOpenRawJson(json)}
+                openManifestEditor={handleOpenManifestEditor}
               />
             )
           }
         />
 
         <CardContent>
-          {shownRawJson ? (
-            <Box>
-              <Box display="flex">
-                <Button variant="contained" color="primary" onClick={() => setShownRawJson(null)} startIcon={<CloseIcon />}>
-                  Close
-                </Button>
-
-                <Typography variant="h6" className={classes.rawJsonTitle}>
-                  {getRawJsonTitle(shownRawJson)}
-                </Typography>
-              </Box>
-
-              <pre className={classes.rawJson}>
-                <code
-                  dangerouslySetInnerHTML={{
-                    __html: syntaxHighlight(getRawJson(shownRawJson))
-                  }}
-                ></code>
-              </pre>
-            </Box>
+          {isShowingManifestEditor && deployment && leases ? (
+            <ManifestEditor deployment={deployment} leases={leases} closeManifestEditor={() => setIsShowingManifestEditor(false)} />
+          ) : shownRawJson ? (
+            <DeploymentJsonViewer deployment={deployment} leases={leases} setShownRawJson={setShownRawJson} shownRawJson={shownRawJson} />
           ) : (
             <>
               {!isLoadingLeases && (
