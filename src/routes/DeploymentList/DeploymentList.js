@@ -19,7 +19,9 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
-  ListItemSecondaryAction
+  ListItemSecondaryAction,
+  Typography,
+  LinearProgress
 } from "@material-ui/core";
 import { useHistory } from "react-router";
 import { humanFileSize } from "../../shared/utils/unitUtils";
@@ -28,13 +30,27 @@ import { useWallet } from "../../context/WalletProvider";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    padding: "5px 10px",
+    padding: "10px",
     "& .MuiListItemText-secondary .MuiSvgIcon-root:not(:first-child)": {
       marginLeft: "5px"
     },
     "& .MuiListItemText-secondary .MuiSvgIcon-root": {
       fontSize: "20px"
     }
+  },
+  titleContainer: {
+    padding: "1rem",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between"
+  },
+  title: {
+    fontSize: "2rem",
+    fontWeight: "bold"
+  },
+  loadingSkeleton: {
+    height: "4px",
+    width: "100%"
   }
 }));
 
@@ -70,45 +86,47 @@ export function DeploymentList(props) {
   const orderedDeployments = [...deployments].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
 
   return (
-    <>
-      <Card className={classes.root} variant="outlined">
-        <CardHeader title="Deployments" />
-        <CardContent>
-          {orderedDeployments.map((deployment) => (
-            <ListItem key={deployment.dseq} button onClick={() => viewDeployment(deployment)}>
-              <ListItemIcon>
-                {deployment.state === "active" && <CloudIcon />}
-                {deployment.state === "closed" && <CancelPresentationIcon />}
-              </ListItemIcon>
-              <ListItemText
-                primary={deployment.dseq}
-                secondary={
-                  <Box component="span" display="flex" alignItems="center">
-                    <SpeedIcon />
-                    {deployment.cpuAmount + "vcpu"}
-                    <MemoryIcon title="Memory" />
-                    {humanFileSize(deployment.memoryAmount)}
-                    <StorageIcon />
-                    {humanFileSize(deployment.storageAmount)}
-                  </Box>
-                }
-              />
-              <ListItemSecondaryAction>
-                <IconButton edge="end" onClick={() => viewDeployment(deployment)}>
-                  <ChevronRightIcon />
-                </IconButton>
-              </ListItemSecondaryAction>
-            </ListItem>
-          ))}
+    <Box className={classes.root}>
+      <Box className={classes.titleContainer}>
+        <Typography variant="h3" className={classes.title}>
+          Deployments
+        </Typography>
 
-          {isLoadingDeployments && <CircularProgress />}
+        <Button variant="contained" size="medium" color="primary" onClick={() => createDeployment()}>
+          <AddIcon />
+          &nbsp;Create Deployment
+        </Button>
+      </Box>
+      <Box>
+        {isLoadingDeployments ? <LinearProgress /> : <Box className={classes.loadingSkeleton} />}
 
-          <Button variant="contained" size="large" color="primary" onClick={() => createDeployment()}>
-            <AddIcon />
-            &nbsp;Create Deployment
-          </Button>
-        </CardContent>
-      </Card>
-    </>
+        {orderedDeployments.map((deployment) => (
+          <ListItem key={deployment.dseq} button onClick={() => viewDeployment(deployment)}>
+            <ListItemIcon>
+              {deployment.state === "active" && <CloudIcon />}
+              {deployment.state === "closed" && <CancelPresentationIcon />}
+            </ListItemIcon>
+            <ListItemText
+              primary={deployment.dseq}
+              secondary={
+                <Box component="span" display="flex" alignItems="center">
+                  <SpeedIcon />
+                  {deployment.cpuAmount + "vcpu"}
+                  <MemoryIcon title="Memory" />
+                  {humanFileSize(deployment.memoryAmount)}
+                  <StorageIcon />
+                  {humanFileSize(deployment.storageAmount)}
+                </Box>
+              }
+            />
+            <ListItemSecondaryAction>
+              <IconButton edge="end" onClick={() => viewDeployment(deployment)}>
+                <ChevronRightIcon />
+              </IconButton>
+            </ListItemSecondaryAction>
+          </ListItem>
+        ))}
+      </Box>
+    </Box>
   );
 }

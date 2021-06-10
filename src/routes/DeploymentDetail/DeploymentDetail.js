@@ -97,7 +97,7 @@ export function DeploymentDetail(props) {
 
   return (
     <>
-      <Card className={classes.root} variant="outlined">
+      <Card className={classes.root}>
         <CardHeader
           classes={{
             title: classes.cardTitle
