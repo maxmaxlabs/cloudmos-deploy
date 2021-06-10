@@ -34,12 +34,12 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function DeploymentSubHeader({ deployment, openManifestEditor, deploymentCost, address, updateShownRawJson }) {
+export function DeploymentSubHeader({ deployment, deploymentCost, address }) {
   const classes = useStyles();
   const timeLeft = getTimeLeft(deploymentCost, deployment.escrowBalance.amount);
   const [anchorEl, setAnchorEl] = useState(null);
   const { sendTransaction } = useTransactionModal();
-  
+
   const history = useHistory();
 
   const onCloseDeployment = async () => {
@@ -56,11 +56,6 @@ export function DeploymentSubHeader({ deployment, openManifestEditor, deployment
     } catch (error) {
       throw error;
     }
-  };
-
-  const onUpdateShownRawJson = (json) => {
-    handleMenuClose();
-    updateShownRawJson(json);
   };
 
   function handleMenuClick(ev) {
@@ -91,11 +86,9 @@ export function DeploymentSubHeader({ deployment, openManifestEditor, deployment
           value={`${uaktToAKT(deployment.escrowBalance.amount)}AKT`}
         />
       </Grid>
-      {deployment.state === "active" && (
-        <Grid item xs={4}>
-          <LabelValue label="Time left:" value={isValid(timeLeft) && formatDistanceToNow(timeLeft)} />
-        </Grid>
-      )}
+      <Grid item xs={4}>
+        {deployment.state === "active" && <LabelValue label="Time left:" value={isValid(timeLeft) && formatDistanceToNow(timeLeft)} />}
+      </Grid>
       <Grid item xs={3}>
         <LabelValue label="DSEQ:" value={deployment.dseq} />
       </Grid>
@@ -114,44 +107,36 @@ export function DeploymentSubHeader({ deployment, openManifestEditor, deployment
         <Button variant="contained" color="primary" className={classes.actionButton}>
           Add funds
         </Button>
-        <Button onClick={() => openManifestEditor()} variant="contained" color="primary" className={classes.actionButton}>
-          View &amp; Edit Manifest
-        </Button>
-        <IconButton aria-label="settings" aria-haspopup="true" onClick={handleMenuClick} className={classes.actionButton}>
-          <MoreVertIcon />
-        </IconButton>
 
-        <Menu
-          id="long-menu"
-          anchorEl={anchorEl}
-          keepMounted
-          getContentAnchorEl={null}
-          open={Boolean(anchorEl)}
-          onClose={handleMenuClose}
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "right"
-          }}
-          transformOrigin={{
-            vertical: "top",
-            horizontal: "right"
-          }}
-        >
-          <MenuItem onClick={() => onUpdateShownRawJson(RAW_JSON_DEPLOYMENT)} classes={{ root: classes.menuItem }}>
-            <CodeIcon />
-            &nbsp;View deployment JSON
-          </MenuItem>
-          <MenuItem onClick={() => onUpdateShownRawJson(RAW_JSON_LEASES)} classes={{ root: classes.menuItem }}>
-            <CodeIcon />
-            &nbsp;View leases JSON
-          </MenuItem>
-          {deployment.state === "active" && (
-            <MenuItem onClick={() => onCloseDeployment()} classes={{ root: classes.menuItem }}>
-              <CancelPresentationIcon />
-              &nbsp;Close
-            </MenuItem>
-          )}
-        </Menu>
+        {deployment.state === "active" && (
+          <>
+            <IconButton aria-label="settings" aria-haspopup="true" onClick={handleMenuClick} className={classes.actionButton}>
+              <MoreVertIcon />
+            </IconButton>
+
+            <Menu
+              id="long-menu"
+              anchorEl={anchorEl}
+              keepMounted
+              getContentAnchorEl={null}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "right"
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "right"
+              }}
+            >
+              <MenuItem onClick={() => onCloseDeployment()} classes={{ root: classes.menuItem }}>
+                <CancelPresentationIcon />
+                &nbsp;Close
+              </MenuItem>
+            </Menu>
+          </>
+        )}
       </Box>
     </Grid>
   );

@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
-import { apiEndpoint } from "../../shared/constants";
+import { apiEndpoint, RAW_JSON_DEPLOYMENT, RAW_JSON_LEASES } from "../../shared/constants";
 import { useParams, useHistory } from "react-router-dom";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-import { CircularProgress, IconButton, Card, CardContent, CardHeader, Typography } from "@material-ui/core";
+import { CircularProgress, Tabs, Tab, IconButton, Card, CardContent, CardHeader, Typography } from "@material-ui/core";
 import { LeaseRow } from "./LeaseRow";
 import { useStyles } from "./DeploymentDetail.styles";
 import { DeploymentSubHeader } from "./DeploymentSubHeader";
@@ -16,10 +16,9 @@ export function DeploymentDetail(props) {
   const [leases, setLeases] = useState([]);
   const [currentBlock, setCurrentBlock] = useState(null);
   const [isLoadingLeases, setIsLoadingLeases] = useState(false);
-  const [shownRawJson, setShownRawJson] = useState(null);
   const [deployment, setDeployment] = useState(null);
   const [isLoadingDeployment, setIsLoadingDeployment] = useState(false);
-  const [isShowingManifestEditor, setIsShowingManifestEditor] = useState(false);
+  const [activeTab, setActiveTab] = useState("DETAILS");
   const classes = useStyles();
   const history = useHistory();
   const { address } = useWallet();
@@ -85,7 +84,7 @@ export function DeploymentDetail(props) {
         setIsLoadingDeployment(true);
         const response = await fetch(apiEndpoint + "/akash/deployment/v1beta1/deployments/info?id.owner=" + address + "&id.dseq=" + dseq);
         const deployment = await response.json();
-        
+
         setDeployment(deploymentToDto(deployment));
         setIsLoadingDeployment(false);
       }
@@ -97,13 +96,15 @@ export function DeploymentDetail(props) {
   }
 
   function handleOpenRawJson(json) {
-    setShownRawJson(json);
-    setIsShowingManifestEditor(false);
+    if(json === RAW_JSON_DEPLOYMENT){
+      setActiveTab("JSON_DEPLOYMENT");
+    } else if(json === RAW_JSON_LEASES){
+      setActiveTab("JSON_LEASES");
+    }
   }
 
   function handleOpenManifestEditor() {
-    setShownRawJson(null);
-    setIsShowingManifestEditor(true);
+    setActiveTab("EDIT");
   }
 
   return (
@@ -130,23 +131,30 @@ export function DeploymentDetail(props) {
                 block={currentBlock}
                 deploymentCost={leases && leases.length > 0 ? leases.reduce((prev, current) => prev + current.price.amount, []) : 0}
                 address={address}
-                updateShownRawJson={(json) => handleOpenRawJson(json)}
-                openManifestEditor={handleOpenManifestEditor}
               />
             )
           }
         />
 
+        <Tabs value={activeTab} onChange={(ev, value) => setActiveTab(value)} indicatorColor="primary" textColor="primary" centered>
+          <Tab value="DETAILS" label="Details" />
+          <Tab value="EDIT" label="View / Edit Manifest" />
+          {/* <Tab label="Logs" /> */}
+          <Tab value="JSON_DEPLOYMENT" label="Deployment JSON" />
+          <Tab value="JSON_LEASES" label="Leases JSON" />
+        </Tabs>
+
         <CardContent>
-          {isShowingManifestEditor && deployment && leases ? (
-            <ManifestEditor deployment={deployment} leases={leases} closeManifestEditor={() => setIsShowingManifestEditor(false)} />
-          ) : shownRawJson ? (
-            <DeploymentJsonViewer deployment={deployment} leases={leases} setShownRawJson={setShownRawJson} shownRawJson={shownRawJson} />
-          ) : (
+          {activeTab === "EDIT" && deployment && leases && (
+            <ManifestEditor deployment={deployment} leases={leases} closeManifestEditor={() => setActiveTab("DETAILS")} />
+          )}
+          {activeTab === "JSON_DEPLOYMENT" && deployment && <DeploymentJsonViewer jsonObj={deployment} title="Deployment JSON" />}
+          {activeTab === "JSON_LEASES" && deployment && <DeploymentJsonViewer jsonObj={leases} title="Leases JSON" />}
+          {activeTab === "DETAILS" && (
             <>
               {!isLoadingLeases && (
                 <>
-                  <Typography variant="h5" gutterBottom className={classes.title}>
+                  <Typography variant="h6" gutterBottom className={classes.title}>
                     Leases
                   </Typography>
                   {leases.map((lease) => (

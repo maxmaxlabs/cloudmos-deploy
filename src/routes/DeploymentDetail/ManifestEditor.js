@@ -8,7 +8,7 @@ import { useTransactionModal } from "../../context/TransactionModal";
 import { useCertificate } from "../../context/CertificateProvider";
 import MonacoEditor from "react-monaco-editor";
 import Alert from "@material-ui/lab/Alert";
-import OpenInNewIcon from "@material-ui/icons/OpenInNew";
+import { useStyles } from "./ManifestEditor.styles";
 import { fetchProviderInfo } from "../../shared/providerCache";
 
 const stableStringify = require("json-stable-stringify");
@@ -18,6 +18,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
   const [parsingError, setParsingError] = useState(null);
   const [editedManifest, setEditedManifest] = useState("");
 
+  const classes = useStyles();
   const { address } = useWallet();
   const { localCert } = useCertificate();
   const { sendTransaction } = useTransactionModal();
@@ -88,17 +89,17 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
 
     const dd = await NewDeploymentData(doc, parseInt(deployment.dseq), address); // TODO Flags
     const mani = Manifest(doc);
-    
+
     try {
       const message = TransactionMessageData.getUpdateDeploymentMsg(dd);
       // TODO handle response
       const response = await sendTransaction([message]);
 
-      if(!response) throw "Failed";
+      if (!response) throw "Failed";
     } catch (error) {
       throw error;
     }
-    
+
     saveDeploymentManifest(dd.deploymentId.dseq, editedManifest, dd.version);
 
     const providers = leases.map((lease) => lease.provider).filter((v, i, s) => s.indexOf(v) === i);
@@ -113,6 +114,10 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
 
   return (
     <>
+      <Typography variant="h6" className={classes.title}>
+        Update Manifest
+      </Typography>
+
       <Box pb={2}>
         <Alert severity="info">
           Akash Groups are translated into Kubernetes Deployments, this means that only a few fields from the Akash SDL are mutable. For example image, command,

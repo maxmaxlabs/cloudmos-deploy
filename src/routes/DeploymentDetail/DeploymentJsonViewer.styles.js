@@ -22,8 +22,8 @@ export const useStyles = makeStyles((theme) => ({
       color: "red"
     }
   },
-  rawJsonTitle: {
-    marginLeft: "1rem",
-    fontWeight: "bold"
+  title: {
+    fontWeight: "bold",
+    marginLeft: ".5rem"
   }
 }));
