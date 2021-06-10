@@ -79,6 +79,25 @@ const getMessage = (message, classes) => {
           />
         </>
       );
+      case TransactionMessageData.Types.MSG_UPDATE_DEPLOYMENT:
+        return (
+          <>
+            <ListItemAvatar>
+              <Avatar classes={{ root: classes.avatarRoot }}>
+                <PublishIcon classes={{ root: classes.avatarIcon }} />
+              </Avatar>
+            </ListItemAvatar>
+            <ListItemText
+              primary="Update Deployment"
+              secondary={
+                <>
+                  Update deployment with dseq <strong>{message.value.id.dseq}</strong>
+                </>
+              }
+              classes={{ primary: classes.listItemPrimaryText }}
+            />
+          </>
+        );
     case TransactionMessageData.Types.MSG_CREATE_LEASE:
       return (
         <>

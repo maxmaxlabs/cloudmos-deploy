@@ -71,12 +71,18 @@ const GroupSpec = new Type("GroupSpec")
 
 export const MsgCreateDeployment = new Type("MsgCreateDeployment")
   .add(new Field("id", 1, "DeploymentID"))
-  //.add(DeploymentID)
   .add(new Field("groups", 2, "GroupSpec", "repeated"))
   .add(GroupSpec)
   .add(new Field("version", 3, "bytes"))
   .add(new Field("deposit", 4, "Coin"))
   .add(Coin);
+
+export const MsgUpdateDeployment = new Type("MsgUpdateDeployment")
+  .add(new Field("id", 1, "DeploymentID"))
+  .add(DeploymentID)
+  .add(new Field("groups", 2, "GroupSpec", "repeated"))
+  .add(GroupSpec)
+  .add(new Field("version", 3, "bytes"));
 
 // Certificates
 
@@ -102,3 +108,4 @@ export const MsgCreateLease = new Type("MsgCreateLease").add(new Field("bid_id",
 
 root.add(MsgCloseDeployment);
 root.add(MsgCreateDeployment);
+root.add(MsgUpdateDeployment);

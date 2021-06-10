@@ -110,7 +110,7 @@ export function LeaseRow(props) {
 
         {leaseInfoFromProvider?.services?.web?.uris?.length > 0 && (
           <>
-            <Typography variant="h4" className={classes.title}>
+            <Typography variant="h5" className={classes.title}>
               Uris
             </Typography>
 

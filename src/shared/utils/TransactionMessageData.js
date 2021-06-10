@@ -1,9 +1,10 @@
-import { MsgCloseDeployment, MsgRevokeCertificate, MsgCreateCertificate, MsgCreateDeployment, MsgCreateLease } from "../ProtoAkashTypes";
+import { MsgCloseDeployment, MsgUpdateDeployment, MsgRevokeCertificate, MsgCreateCertificate, MsgCreateDeployment, MsgCreateLease } from "../ProtoAkashTypes";
 
 export class TransactionMessageData {
   static Types = {
     MSG_CLOSE_DEPLOYMENT: "/akash.deployment.v1beta1.MsgCloseDeployment",
     MSG_CREATE_DEPLOYMENT: "/akash.deployment.v1beta1.MsgCreateDeployment",
+    MSG_UPDATE_DEPLOYMENT: "/akash.deployment.v1beta1.MsgUpdateDeployment",
     MSG_CREATE_LEASE: "/akash.market.v1beta1.MsgCreateLease",
     MSG_REVOKE_CERTIFICATE: "/akash.cert.v1beta1.MsgRevokeCertificate",
     MSG_CREATE_CERTIFICATE: "/akash.cert.v1beta1.MsgCreateCertificate"
@@ -77,6 +78,23 @@ export class TransactionMessageData {
     };
 
     const err = MsgCreateDeployment.verify(txData.value);
+
+    if (err) throw err;
+
+    return txData;
+  }
+
+  static getUpdateDeploymentMsg(deploymentData) {
+    const txData = {
+      typeUrl: TransactionMessageData.Types.MSG_UPDATE_DEPLOYMENT,
+      value: {
+        id: deploymentData.deploymentId,
+        groups: deploymentData.groups,
+        version: deploymentData.version
+      }
+    };
+
+    const err = MsgUpdateDeployment.verify(txData.value);
 
     if (err) throw err;
 

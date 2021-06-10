@@ -288,20 +288,6 @@ async function ManifestVersion(manifest) {
   return base64;
 }
 
-// https://github.com/ovrclk/akash/blob/04e7a7667dd94b5a15fa039e4f7df5c9ad93be4f/x/deployment/client/cli/flags.go#L51
-function DeploymentIDFromFlagsForOwner(flags, owner) {
-  let id = {
-    owner: owner
-  };
-
-  //TODO
-  // if id.DSeq, err = flags.GetUint64("dseq"); err != nil {
-  //     return id, err
-  // }
-
-  return id;
-}
-
 function DepositFromFlags(flags) {
   // let val = flags["deposit"];
 
@@ -315,11 +301,14 @@ function DepositFromFlags(flags) {
   };
 }
 
-export async function NewDeploymentData(yamlJson, flags, fromAddress) {
+export async function NewDeploymentData(yamlJson, dseq, fromAddress) {
   const groups = DeploymentGroups(yamlJson);
   const mani = Manifest(yamlJson);
   const ver = await ManifestVersion(mani);
-  const id = DeploymentIDFromFlagsForOwner(flags, fromAddress); // TODO: handle flags
+  const id = {
+    owner: fromAddress,
+    dseq: dseq
+  };
   const deposit = DepositFromFlags();
 
   if (!id.dseq) {

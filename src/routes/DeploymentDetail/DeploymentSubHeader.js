@@ -10,14 +10,8 @@ import { LabelValue } from "../../shared/components/LabelValue";
 import CodeIcon from "@material-ui/icons/Code";
 import { RAW_JSON_DEPLOYMENT, RAW_JSON_LEASES } from "../../shared/constants";
 import { useHistory } from "react-router";
-import { getDeploymentLocalData } from "../../shared/utils/deploymentLocalDataUtils";
-import { Manifest } from "../../shared/utils/deploymentUtils";
-import { useCertificate } from "../../context/CertificateProvider";
 import { useTransactionModal } from "../../context/TransactionModal";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
-
-const stableStringify = require("json-stable-stringify");
-const yaml = require("js-yaml");
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -40,13 +34,12 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function DeploymentSubHeader({ deployment, block, deploymentCost, address, updateShownRawJson }) {
+export function DeploymentSubHeader({ deployment, deploymentCost, address }) {
   const classes = useStyles();
   const timeLeft = getTimeLeft(deploymentCost, deployment.escrowBalance.amount);
   const [anchorEl, setAnchorEl] = useState(null);
   const { sendTransaction } = useTransactionModal();
 
-  const { localCert } = useCertificate();
   const history = useHistory();
 
   const onCloseDeployment = async () => {
@@ -65,35 +58,12 @@ export function DeploymentSubHeader({ deployment, block, deploymentCost, address
     }
   };
 
-  const onUpdateShownRawJson = (json) => {
-    handleMenuClose();
-    updateShownRawJson(json);
-  };
-
   function handleMenuClick(ev) {
     setAnchorEl(ev.currentTarget);
   }
 
   const handleMenuClose = () => {
     setAnchorEl(null);
-  };
-
-  const handleUpdateDeploymentClick = async () => {
-    const deploymentData = getDeploymentLocalData(deployment.dseq);
-    const flags = {};
-    const doc = yaml.load(deploymentData.manifest);
-    const mani = Manifest(doc);
-    console.log(mani);
-
-    // TODO replace hard coded provider url
-    const response = await window.electron.queryProvider(
-      "https://provider.ewr1p0.mainnet.akashian.io:8443" + "/deployment/" + deployment.dseq + "/manifest",
-      "PUT",
-      stableStringify(mani),
-      localCert.certPem,
-      localCert.keyPem
-    );
-    console.log(response);
   };
 
   return (
@@ -116,11 +86,9 @@ export function DeploymentSubHeader({ deployment, block, deploymentCost, address
           value={`${uaktToAKT(deployment.escrowBalance.amount)}AKT`}
         />
       </Grid>
-      {deployment.state === "active" && (
-        <Grid item xs={4}>
-          <LabelValue label="Time left:" value={isValid(timeLeft) && formatDistanceToNow(timeLeft)} />
-        </Grid>
-      )}
+      <Grid item xs={4}>
+        {deployment.state === "active" && <LabelValue label="Time left:" value={isValid(timeLeft) && formatDistanceToNow(timeLeft)} />}
+      </Grid>
       <Grid item xs={3}>
         <LabelValue label="DSEQ:" value={deployment.dseq} />
       </Grid>
@@ -139,47 +107,36 @@ export function DeploymentSubHeader({ deployment, block, deploymentCost, address
         <Button variant="contained" color="primary" className={classes.actionButton}>
           Add funds
         </Button>
-        <Button variant="contained" color="primary" className={classes.actionButton}>
-          View manifest
-        </Button>
-        <Button onClick={handleUpdateDeploymentClick} variant="contained" color="primary" className={classes.actionButton}>
-          Update deployment
-        </Button>
-        <IconButton aria-label="settings" aria-haspopup="true" onClick={handleMenuClick} className={classes.actionButton}>
-          <MoreVertIcon />
-        </IconButton>
 
-        <Menu
-          id="long-menu"
-          anchorEl={anchorEl}
-          keepMounted
-          getContentAnchorEl={null}
-          open={Boolean(anchorEl)}
-          onClose={handleMenuClose}
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "right"
-          }}
-          transformOrigin={{
-            vertical: "top",
-            horizontal: "right"
-          }}
-        >
-          <MenuItem onClick={() => onUpdateShownRawJson(RAW_JSON_DEPLOYMENT)} classes={{ root: classes.menuItem }}>
-            <CodeIcon />
-            &nbsp;View deployment JSON
-          </MenuItem>
-          <MenuItem onClick={() => onUpdateShownRawJson(RAW_JSON_LEASES)} classes={{ root: classes.menuItem }}>
-            <CodeIcon />
-            &nbsp;View leases JSON
-          </MenuItem>
-          {deployment.state === "active" && (
-            <MenuItem onClick={() => onCloseDeployment()} classes={{ root: classes.menuItem }}>
-              <CancelPresentationIcon />
-              &nbsp;Close
-            </MenuItem>
-          )}
-        </Menu>
+        {deployment.state === "active" && (
+          <>
+            <IconButton aria-label="settings" aria-haspopup="true" onClick={handleMenuClick} className={classes.actionButton}>
+              <MoreVertIcon />
+            </IconButton>
+
+            <Menu
+              id="long-menu"
+              anchorEl={anchorEl}
+              keepMounted
+              getContentAnchorEl={null}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "right"
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "right"
+              }}
+            >
+              <MenuItem onClick={() => onCloseDeployment()} classes={{ root: classes.menuItem }}>
+                <CancelPresentationIcon />
+                &nbsp;Close
+              </MenuItem>
+            </Menu>
+          </>
+        )}
       </Box>
     </Grid>
   );

@@ -36,6 +36,7 @@ export function ManifestEdit(props) {
 
   const options = {
     selectOnLineNumbers: true,
+    scrollBeyondLastLine: false,
     minimap: {
       enabled: false
     }
@@ -48,10 +49,9 @@ export function ManifestEdit(props) {
   }
 
   async function handleCreateClick() {
-    const flags = {};
     const doc = yaml.load(editedManifest);
 
-    const dd = await NewDeploymentData(doc, flags, address); // TODO Flags
+    const dd = await NewDeploymentData(doc, null, address);
 
     try {
       const message = TransactionMessageData.getCreateDeploymentMsg(dd);
