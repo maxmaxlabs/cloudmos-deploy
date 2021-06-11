@@ -53,7 +53,7 @@ export function DeploymentDetail(props) {
     setLeases(leases);
     setIsLoadingLeases(false);
 
-    if (leases.length === 0) {
+    if (deployment.state === "active" && leases.length === 0) {
       history.push("/createDeployment/acceptBids/" + dseq);
     }
   }, [deployment, address]);
@@ -148,6 +148,7 @@ export function DeploymentDetail(props) {
                   {leases.map((lease) => (
                     <LeaseRow key={lease.id} cert={props.cert} lease={lease} deployment={deployment} />
                   ))}
+                  {leases.length === 0 && <>This deployment doesn't have any leases</>}
                 </>
               )}
 
