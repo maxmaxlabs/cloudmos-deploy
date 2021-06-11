@@ -25,7 +25,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
 
   useEffect(() => {
     const deploymentData = getDeploymentLocalData(deployment.dseq);
-    setEditedManifest(deploymentData.manifest);
+    setEditedManifest(deploymentData?.manifest);
   }, [deployment]);
 
   function handleTextChange(value) {
