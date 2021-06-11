@@ -14,7 +14,7 @@ const yaml = require("js-yaml");
 export function ManifestEdit(props) {
   const [parsingError, setParsingError] = useState(null);
   const { sendTransaction } = useTransactionModal();
-  const { address, selectedWallet } = useWallet();
+  const { address } = useWallet();
   const history = useHistory();
 
   const { editedManifest, setEditedManifest } = props;
@@ -66,6 +66,10 @@ export function ManifestEdit(props) {
     history.push("/createDeployment/acceptBids/" + dd.deploymentId.dseq);
   }
 
+  function handleChangeTemplate() {
+    history.push("/createDeployment/chooseTemplate");
+  }
+
   return (
     <>
       <Box pb={2}>
@@ -81,7 +85,7 @@ export function ManifestEdit(props) {
       {parsingError && <Alert severity="warning">{parsingError}</Alert>}
 
       <Box pt={2}>
-        <Button onClick={() => props.handleBack()}>Back</Button>
+        <Button onClick={handleChangeTemplate}>Change Template</Button>&nbsp;
         <Button variant="contained" color="primary" disabled={!!parsingError} onClick={handleCreateClick}>
           Create Deployment
         </Button>
