@@ -33,11 +33,11 @@ const useStyles = makeStyles({
 });
 
 export function CertificateDisplay(props) {
-  const { certificate, isLoadingCertificates, loadValidCertificates } = useCertificate();
+  const { certificate, isLoadingCertificates, loadValidCertificates, loadLocalCert } = useCertificate();
   const classes = useStyles();
   const { askForPasswordConfirmation } = usePasswordConfirmationModal();
   const { sendTransaction } = useTransactionModal();
-  const { address, selectedWallet } = useWallet();
+  const { address } = useWallet();
 
   async function revokeCertificate(cert) {
     handleClose();
@@ -50,7 +50,12 @@ export function CertificateDisplay(props) {
       // TODO handle response
       const response = await sendTransaction([message]);
 
-      await loadValidCertificates();
+      if (response) {
+        localStorage.removeItem(address + ".crt");
+        localStorage.removeItem(address + ".key");
+
+        await loadValidCertificates();
+      }
     } finally {
       //setIsLoadingCertificates(false);
     }
@@ -117,16 +122,21 @@ export function CertificateDisplay(props) {
 
     const crtpem = cert.getPEM();
 
-    localStorage.setItem(address + ".crt", crtpem);
-    localStorage.setItem(address + ".key", encryptedKey);
-
     try {
       const message = TransactionMessageData.getCreateCertificateMsg(address, crtpem, pubpem);
       // TODO handle response
       const response = await sendTransaction([message]);
-    } catch (error) {}
 
-    loadValidCertificates();
+      if (response) {
+        localStorage.setItem(address + ".crt", crtpem);
+        localStorage.setItem(address + ".key", encryptedKey);
+
+        loadValidCertificates();
+        loadLocalCert(address, password);
+      }
+    } catch (error) {
+      throw error;
+    }
   }
 
   const [anchorEl, setAnchorEl] = useState(null);
