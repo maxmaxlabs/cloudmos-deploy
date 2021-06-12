@@ -91,6 +91,8 @@ export function CreateLease(props) {
         .map((bid) => TransactionMessageData.getCreateLeaseMsg(bid));
       // TODO handle response
       const response = await sendTransaction(messages);
+
+      if(!response) throw 'Rejected transaction';
     } catch (error) {
       throw error;
     }

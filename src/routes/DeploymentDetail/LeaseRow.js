@@ -73,6 +73,8 @@ export function LeaseRow(props) {
     window.electron.openUrl("http://" + externalUrl);
   }
 
+  const servicesNames = leaseInfoFromProvider ? Object.keys(leaseInfoFromProvider.services) : [];
+
   return (
     <Card className={classes.root}>
       <CardHeader
@@ -108,28 +110,37 @@ export function LeaseRow(props) {
 
         <SpecDetail cpuAmount={lease.cpuAmount} memoryAmount={lease.memoryAmount} storageAmount={lease.storageAmount} />
 
-        {leaseInfoFromProvider?.services?.web?.uris?.length > 0 && (
-          <>
-            <Typography variant="h5" className={classes.title}>
-              Uris
-            </Typography>
-
-            <List dense>
-              {leaseInfoFromProvider.services.web.uris.map((uri) => {
-                return (
-                  <ListItem key={uri}>
-                    <ListItemText primary={uri} />
-                    <ListItemSecondaryAction>
-                      <IconButton edge="end" aria-label="uri" onClick={(ev) => handleExternalUrlClick(ev, uri)}>
-                        <LaunchIcon />
-                      </IconButton>
-                    </ListItemSecondaryAction>
-                  </ListItem>
-                );
-              })}
-            </List>
-          </>
-        )}
+        {leaseInfoFromProvider &&
+          servicesNames
+            .map((n) => leaseInfoFromProvider.services[n])
+            .map((service) => (
+              <Box mb={2}>
+                <Typography variant="h6" className={classes.title}>
+                  Group "{service.name}"
+                </Typography>
+                Available: {service.available}
+                <br />
+                Ready Replicas: {service.available}
+                <br />
+                Total: {service.available}
+                {service.uris?.length > 0 && (
+                  <List dense>
+                    {service.uris.map((uri) => {
+                      return (
+                        <ListItem key={uri}>
+                          <ListItemText primary={uri} />
+                          <ListItemSecondaryAction>
+                            <IconButton edge="end" aria-label="uri" onClick={(ev) => handleExternalUrlClick(ev, uri)}>
+                              <LaunchIcon />
+                            </IconButton>
+                          </ListItemSecondaryAction>
+                        </ListItem>
+                      );
+                    })}
+                  </List>
+                )}
+              </Box>
+            ))}
       </CardContent>
     </Card>
   );

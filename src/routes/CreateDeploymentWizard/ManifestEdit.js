@@ -57,13 +57,15 @@ export function ManifestEdit(props) {
       const message = TransactionMessageData.getCreateDeploymentMsg(dd);
       // TODO handle response
       const response = await sendTransaction([message]);
+
+      if (response) {
+        saveDeploymentManifest(dd.deploymentId.dseq, editedManifest, dd.version);
+
+        history.push("/createDeployment/acceptBids/" + dd.deploymentId.dseq);
+      }
     } catch (error) {
       throw error;
     }
-
-    saveDeploymentManifest(dd.deploymentId.dseq, editedManifest, dd.version);
-
-    history.push("/createDeployment/acceptBids/" + dd.deploymentId.dseq);
   }
 
   function handleChangeTemplate() {

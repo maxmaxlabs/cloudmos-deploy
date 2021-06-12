@@ -11,7 +11,6 @@ import Alert from "@material-ui/lab/Alert";
 import { useStyles } from "./ManifestEditor.styles";
 import { fetchProviderInfo } from "../../shared/providerCache";
 
-const stableStringify = require("json-stable-stringify");
 const yaml = require("js-yaml");
 
 export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
@@ -65,18 +64,20 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
 
   async function sendManifest(providerInfo, mani) {
     console.log("Sending manifest to " + providerInfo.address);
+    const jsonStr = JSON.stringify(mani, (key, value) => {
+      if (key === "storage" || key === "memory") {
+        let newValue = { ...value };
+        newValue.size = newValue.quantity;
+        delete newValue.quantity;
+        return newValue;
+      }
+      return value;
+    });
+    
     const response = await window.electron.queryProvider(
       providerInfo.host_uri + "/deployment/" + deployment.dseq + "/manifest",
       "PUT",
-      JSON.stringify(mani, (key, value) => {
-        if (key === "storage" || key === "memory") {
-          let newValue = { ...value };
-          newValue.size = newValue.quantity;
-          delete newValue.quantity;
-          return newValue;
-        }
-        return value;
-      }),
+      jsonStr,
       localCert.certPem,
       localCert.keyPem
     );
