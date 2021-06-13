@@ -12,6 +12,7 @@ import { useWallet } from "./context/WalletProvider";
 import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "./shared/components/ErrorFallback";
 import { LeftNav } from "./components/LeftNav";
+import { useDeploymentList } from "./queries";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -31,8 +32,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export function MainView() {
-  const [deployments, setDeployments] = useState([]);
   const { address, selectedWallet } = useWallet();
+  const { data: deployments, isLoading: isLoadingDeployments } = useDeploymentList(address);
   const classes = useStyles();
 
   const walletExists = localStorage.getItem("Wallet") !== null;
@@ -68,7 +69,7 @@ export function MainView() {
                     <DeploymentDetail deployments={deployments} />
                   </Route>
                   <Route exact path="/">
-                    <DeploymentList deployments={deployments} setDeployments={setDeployments} />
+                    <DeploymentList deployments={deployments} isLoadingDeployments={isLoadingDeployments} />
                   </Route>
                 </ErrorBoundary>
               </Box>

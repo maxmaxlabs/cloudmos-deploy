@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { apiEndpoint } from "../../shared/constants";
 import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
 import CloudIcon from "@material-ui/icons/Cloud";
 import AddIcon from "@material-ui/icons/Add";
@@ -9,8 +10,12 @@ import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import {
   makeStyles,
   Button,
+  CircularProgress,
   IconButton,
   Box,
+  Card,
+  CardHeader,
+  CardContent,
   ListItem,
   ListItemText,
   ListItemIcon,
@@ -20,6 +25,8 @@ import {
 } from "@material-ui/core";
 import { useHistory } from "react-router";
 import { humanFileSize } from "../../shared/utils/unitUtils";
+import { deploymentToDto } from "../../shared/utils/deploymentDetailUtils";
+import { useWallet } from "../../context/WalletProvider";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -47,10 +54,26 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function DeploymentList({ deployments, isLoadingDeployments }) {
+export function DeploymentList(props) {
+  const { deployments, setDeployments } = props;
   const classes = useStyles();
   const history = useHistory();
-  const orderedDeployments = deployments ? [...deployments].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)) : [];
+  const [isLoadingDeployments, setIsLoadingDeployments] = useState(false);
+  const { address, selectedWallet } = useWallet();
+
+  useEffect(() => {
+    loadDeployments(address);
+  }, [address]);
+
+  async function loadDeployments(address) {
+    setIsLoadingDeployments(true);
+    const response = await fetch(apiEndpoint + "/akash/deployment/v1beta1/deployments/list?filters.owner=" + address);
+    let deployments = await response.json();
+
+    setDeployments(deployments.deployments.map((d) => deploymentToDto(d)));
+
+    setIsLoadingDeployments(false);
+  }
 
   function createDeployment() {
     history.push("/createDeployment");
@@ -59,6 +82,8 @@ export function DeploymentList({ deployments, isLoadingDeployments }) {
   function viewDeployment(deployment) {
     history.push("/deployment/" + deployment.dseq);
   }
+
+  const orderedDeployments = [...deployments].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
 
   return (
     <Box className={classes.root}>
