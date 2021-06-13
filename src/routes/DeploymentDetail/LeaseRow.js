@@ -113,8 +113,8 @@ export function LeaseRow(props) {
         {leaseInfoFromProvider &&
           servicesNames
             .map((n) => leaseInfoFromProvider.services[n])
-            .map((service) => (
-              <Box mb={2}>
+            .map((service, i) => (
+              <Box mb={2} key={`${service.name}_${i}`}>
                 <Typography variant="h6" className={classes.title}>
                   Group "{service.name}"
                 </Typography>

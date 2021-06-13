@@ -2,7 +2,7 @@ import { List, ListItem, ListItemText, makeStyles, ListItemIcon } from "@materia
 import DashboardIcon from "@material-ui/icons/Dashboard";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import SettingsIcon from "@material-ui/icons/Settings";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { UrlService } from "../../shared/utils/urlUtils";
 
 const drawerWidth = 200;
@@ -21,17 +21,18 @@ const useStyles = makeStyles((theme) => ({
 
 export const LeftNav = () => {
   const classes = useStyles();
+  const location = useLocation();
 
   const routes = [
     { title: "Dashboard", icon: <DashboardIcon />, url: UrlService.dashboard() },
     { title: "Deployments", icon: <CloudUploadIcon />, url: UrlService.deploymentList() },
-    { title: "Settings", icon: <SettingsIcon />, url: "/" }
+    { title: "Settings", icon: <SettingsIcon />, url: UrlService.settings() }
   ];
 
   return (
     <List className={classes.root}>
       {routes.map((route) => (
-        <ListItem button key={route.title} component={Link} to={route.url}>
+        <ListItem button key={route.title} component={Link} to={route.url} selected={location.pathname === route.url}>
           <ListItemIcon>{route.icon}</ListItemIcon>
           <ListItemText primary={route.title} />
         </ListItem>
