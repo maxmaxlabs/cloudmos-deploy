@@ -35,9 +35,19 @@ function ParseServiceProtocol(input) {
 }
 
 function parseSizeStr(str) {
-  const suffixPos = str.indexOf("Mi"); // Handle other suffix
+  const suffixes = {
+    Mi: 1024 * 1024,
+    Gi: 1024 * 1024 * 1024
+  }; // Handle other suffix
+
+  if (!Object.keys(suffixes).some((s) => str.endsWith(s))) {
+    throw "Invalid suffix: " + str;
+  }
+
+  const suffixPos = str.length - 2;
+  const suffix = str.substring(suffixPos, suffixPos + 2);
   const numberStr = str.substring(0, suffixPos);
-  const result = parseInt(numberStr) * 1024 * 1024;
+  const result = parseInt(numberStr) * suffixes[suffix];
   return result.toString();
 }
 
@@ -110,17 +120,17 @@ export function Manifest(yamlJson) {
           expose.to.forEach((to) => {
             msvc.Expose.push({
               Port: expose.port,
-              ExternalPort: expose.as,
+              ExternalPort: expose.as || 0,
               Proto: proto,
               Service: to.service || "",
-              Global: to.global,
-              Hosts: expose.accept?.items || null
+              Global: !!to.global, // TODO: Test type (is "false" a string)
+              Hosts: expose.accept || null
             });
           });
         } else {
           msvc.expose.push({
             Port: expose.port,
-            ExternalPort: expose.as,
+            ExternalPort: expose.as || 0,
             Proto: proto,
             Service: "",
             Global: false,
@@ -188,16 +198,18 @@ function DeploymentGroups(yamlJson) {
         group = {
           name: placementName,
           requirements: {
-            attributes: Object.keys(infra.attributes).map((key) => ({ key: key, value: infra.attributes[key] })),
+            attributes: infra.attributes && Object.keys(infra.attributes).map((key) => ({ key: key, value: infra.attributes[key] })),
             signed_by: {
-              all_of: infra.signedBy.allOf,
-              any_of: infra.signedBy.anyOf
+              all_of: infra.signedBy?.allOf,
+              any_of: infra.signedBy?.anyOf
             }
           },
           resources: []
         };
 
-        group.requirements.attributes = group.requirements.attributes.sort((a, b) => a.key < b.key);
+        if (group.requirements.attributes) {
+          group.requirements.attributes = group.requirements.attributes.sort((a, b) => a.key < b.key);
+        }
 
         groups[group.name] = group;
       }
@@ -216,11 +228,11 @@ function DeploymentGroups(yamlJson) {
 
             let v = {
               port: expose.port,
-              externalPort: expose.as,
+              externalPort: expose.as || 0,
               proto: proto,
               service: to.service || null,
-              global: to.global,
-              hosts: expose.accept?.items || null
+              global: !!to.global,
+              hosts: expose.accept || null
             };
 
             // TODO Enum
@@ -251,7 +263,7 @@ function DeploymentGroups(yamlJson) {
 }
 
 // https://github.com/cosmos/cosmos-sdk/blob/9fd866e3820b3510010ae172b682d71594cd8c14/types/utils.go#L29
-function SortJSON(jsonStr) {
+export function SortJSON(jsonStr) {
   return stableStringify(JSON.parse(jsonStr));
 }
 
