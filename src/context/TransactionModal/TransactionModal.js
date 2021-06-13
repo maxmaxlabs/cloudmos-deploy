@@ -22,18 +22,19 @@ import { a11yProps } from "../../shared/utils/a11yUtils";
 import { TabPanel } from "../../shared/components/TabPanel";
 import { baseGas, createFee, customRegistry } from "../../shared/utils/blockchainUtils";
 import { SigningStargateClient } from "@cosmjs/stargate";
-import { rpcEndpoint } from "../../shared/constants";
 import { useWallet } from "../WalletProvider";
 import clsx from "clsx";
 import { TransactionMessage } from "./TransactionMessage";
 import { uaktToAKT } from "../../shared/utils/priceUtils";
 import { useSnackbar } from "notistack";
 import { useStyles } from "./TransactionModal.styles";
+import { useSettings } from "../SettingsProvider";
 
 const a11yPrefix = "transaction-tab";
 
 export function TransactionModal(props) {
   const { isOpen, onConfirmTransaction, messages } = props;
+  const { settings } = useSettings();
   const { address, selectedWallet, refreshBalance } = useWallet();
   const [isSendingTransaction, setIsSendingTransaction] = useState(false);
   const [error, setError] = useState("");
@@ -66,7 +67,7 @@ export function TransactionModal(props) {
     );
 
     try {
-      const client = await SigningStargateClient.connectWithSigner(rpcEndpoint, selectedWallet, {
+      const client = await SigningStargateClient.connectWithSigner(settings.rpcEndpoint, selectedWallet, {
         registry: customRegistry
       });
 

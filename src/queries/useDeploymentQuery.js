@@ -3,16 +3,18 @@ import { QueryKeys } from "./queryKeys";
 import axios from "axios";
 import { ApiUrlService } from "../shared/utils/apiUtils";
 import { deploymentToDto } from "../shared/utils/deploymentDetailUtils";
+import { useSettings } from "../context/SettingsProvider";
 
-async function getDeploymentList(address) {
+async function getDeploymentList(apiEndpoint, address) {
   if (!address) throw new Error("address must be defined.");
 
-  const response = await axios.get(ApiUrlService.deploymentList(address));
+  const response = await axios.get(ApiUrlService.deploymentList(apiEndpoint, address));
   let deployments = response.data;
 
   return deployments.deployments.map((d) => deploymentToDto(d));
 }
 
 export function useDeploymentList(address, options) {
-  return useQuery(QueryKeys.getDeploymentListKey(address), () => getDeploymentList(address), options);
+  const { settings } = useSettings();
+  return useQuery(QueryKeys.getDeploymentListKey(address), () => getDeploymentList(settings.apiEndpoint, address), options);
 }

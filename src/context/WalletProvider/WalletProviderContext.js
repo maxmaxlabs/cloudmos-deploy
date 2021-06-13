@@ -1,21 +1,22 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { apiEndpoint } from "../../shared/constants";
+import { useSettings } from "../SettingsProvider";
 
 const WalletProviderContext = React.createContext({});
 
 export const WalletProvider = ({ children }) => {
+  const { settings } = useSettings();
   const [selectedWallet, setSelectedWallet] = useState(null);
   const [address, setAddress] = useState(null);
   const [balance, setBalance] = useState(null);
 
   const refreshBalance = useCallback(async () => {
-    const response = await fetch(apiEndpoint + "/cosmos/bank/v1beta1/balances/" + address);
+    const response = await fetch(settings.apiEndpoint + "/cosmos/bank/v1beta1/balances/" + address);
     const data = await response.json();
     const balance = data.balances.length > 0 ? data.balances[0].amount : 0;
     setBalance(balance);
 
     return balance;
-  }, [address])
+  }, [address]);
 
   useEffect(() => {
     async function getAddress() {
@@ -34,9 +35,7 @@ export const WalletProvider = ({ children }) => {
   }, [address, refreshBalance]);
 
   return (
-    <WalletProviderContext.Provider value={{ balance, setSelectedWallet, refreshBalance, selectedWallet, address }}>
-      {children}
-    </WalletProviderContext.Provider>
+    <WalletProviderContext.Provider value={{ balance, setSelectedWallet, refreshBalance, selectedWallet, address }}>{children}</WalletProviderContext.Provider>
   );
 };
 

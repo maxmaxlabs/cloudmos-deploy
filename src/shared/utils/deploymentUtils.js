@@ -1,11 +1,10 @@
-import { apiEndpoint } from "../constants";
-
 const stableStringify = require("json-stable-stringify");
-async function getCurrentHeight() {
+
+async function getCurrentHeight(apiEndpoint) {
   const response = await fetch(apiEndpoint + "/blocks/latest");
   const data = await response.json();
 
-  const height = parseInt(data.block.header.height); // TODO parseInt?
+  const height = parseInt(data.block.header.height);
   return height;
 }
 
@@ -313,7 +312,7 @@ function DepositFromFlags(flags) {
   };
 }
 
-export async function NewDeploymentData(yamlJson, dseq, fromAddress) {
+export async function NewDeploymentData(apiEndpoint, yamlJson, dseq, fromAddress) {
   const groups = DeploymentGroups(yamlJson);
   const mani = Manifest(yamlJson);
   const ver = await ManifestVersion(mani);
@@ -324,7 +323,7 @@ export async function NewDeploymentData(yamlJson, dseq, fromAddress) {
   const deposit = DepositFromFlags();
 
   if (!id.dseq) {
-    id.dseq = await getCurrentHeight();
+    id.dseq = await getCurrentHeight(apiEndpoint);
   }
 
   return {

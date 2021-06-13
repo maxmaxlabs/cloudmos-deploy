@@ -50,7 +50,7 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address }) {
       const response = await sendTransaction([message]);
 
       if (response) {
-        history.push(UrlService.deploymentList());
+        history.push(`${UrlService.deploymentList()}?refetch=true`);
       }
     } catch (error) {
       throw error;

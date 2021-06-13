@@ -21,7 +21,7 @@ import { useHistory } from "react-router";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    padding: "10px",
+    padding: "1rem",
     "& .MuiListItemText-secondary .MuiSvgIcon-root:not(:first-child)": {
       marginLeft: "5px"
     },

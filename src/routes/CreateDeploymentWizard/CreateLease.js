@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { apiEndpoint } from "../../shared/constants";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
 import { Button, CircularProgress, Box } from "@material-ui/core";
 import { useWallet } from "../../context/WalletProvider";
@@ -12,10 +11,12 @@ import Alert from "@material-ui/lab/Alert";
 import { getDeploymentLocalData } from "../../shared/utils/deploymentLocalDataUtils";
 import { useTransactionModal } from "../../context/TransactionModal";
 import { UrlService } from "../../shared/utils/urlUtils";
+import { useSettings } from "../../context/SettingsProvider";
 
 const yaml = require("js-yaml");
 
 export function CreateLease(props) {
+  const { settings } = useSettings();
   const [bids, setBids] = useState([]);
   const [isLoadingBids, setIsLoadingBids] = useState(false);
   const [selectedBids, setSelectedBids] = useState({});
@@ -33,7 +34,7 @@ export function CreateLease(props) {
   const loadBids = useCallback(async () => {
     setIsLoadingBids(true);
 
-    const response = await fetch(apiEndpoint + "/akash/market/v1beta1/bids/list?filters.owner=" + address + "&filters.dseq=" + dseq);
+    const response = await fetch(settings.apiEndpoint + "/akash/market/v1beta1/bids/list?filters.owner=" + address + "&filters.dseq=" + dseq);
     const data = await response.json();
     const bids = data.bids.map((b) => ({
       id: b.bid.bid_id.provider + b.bid.bid_id.dseq + b.bid.bid_id.gseq + b.bid.bid_id.oseq,
@@ -93,7 +94,7 @@ export function CreateLease(props) {
       // TODO handle response
       const response = await sendTransaction(messages);
 
-      if(!response) throw 'Rejected transaction';
+      if (!response) throw "Rejected transaction";
     } catch (error) {
       throw error;
     }
@@ -101,7 +102,7 @@ export function CreateLease(props) {
     const deploymentData = getDeploymentLocalData(dseq);
     if (deploymentData && deploymentData.manifest) {
       console.log("Querying provider info");
-      const providerInfo = await fetchProviderInfo(selectedBids[Object.keys(selectedBids)[0]].provider);
+      const providerInfo = await fetchProviderInfo(settings.apiEndpoint, selectedBids[Object.keys(selectedBids)[0]].provider);
       console.log("Sending manifest");
       await sendManifest(providerInfo, deploymentData.manifest);
     }
