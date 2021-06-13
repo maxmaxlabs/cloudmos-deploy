@@ -1,7 +1,9 @@
-import { apiEndpoint } from "../constants";
-
 export class UrlService {
-  static deploymentList(address) {
-    return apiEndpoint + "/akash/deployment/v1beta1/deployments/list?filters.owner=" + address;
-  }
+  static dashboard = () => "/";
+  static deploymentList = () => "/deployments";
+
+  static createDeployment = () => "/createDeployment";
+  static createDeploymentStepTemplate = () => "/createDeployment/chooseTemplate";
+  static createDeploymentStepManifest = () => "/createDeployment/editManifest";
+  static createDeploymentStepBids = () => "/createDeployment/acceptBids";
 }

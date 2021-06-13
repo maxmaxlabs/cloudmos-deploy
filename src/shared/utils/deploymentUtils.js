@@ -41,7 +41,7 @@ function parseSizeStr(str) {
   }; // Handle other suffix
 
   if (!Object.keys(suffixes).some((s) => str.endsWith(s))) {
-    throw "Invalid suffix: " + str;
+    throw new Error("Invalid suffix: " + str);
   }
 
   const suffixPos = str.length - 2;

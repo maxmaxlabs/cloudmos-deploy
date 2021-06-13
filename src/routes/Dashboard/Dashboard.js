@@ -1,6 +1,3 @@
-import { useState, useEffect } from "react";
-import { apiEndpoint } from "../../shared/constants";
-import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
 import CloudIcon from "@material-ui/icons/Cloud";
 import AddIcon from "@material-ui/icons/Add";
 import MemoryIcon from "@material-ui/icons/Memory";
@@ -9,24 +6,18 @@ import SpeedIcon from "@material-ui/icons/Speed";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import {
   makeStyles,
-  Button,
-  CircularProgress,
   IconButton,
   Box,
-  Card,
-  CardHeader,
-  CardContent,
   ListItem,
   ListItemText,
   ListItemIcon,
   ListItemSecondaryAction,
   Typography,
-  LinearProgress
+  LinearProgress,
+  Button
 } from "@material-ui/core";
-import { useHistory } from "react-router";
 import { humanFileSize } from "../../shared/utils/unitUtils";
-import { deploymentToDto } from "../../shared/utils/deploymentDetailUtils";
-import { useWallet } from "../../context/WalletProvider";
+import { useHistory } from "react-router";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -51,29 +42,16 @@ const useStyles = makeStyles((theme) => ({
   loadingSkeleton: {
     height: "4px",
     width: "100%"
+  },
+  noActiveDeployments: {
+    marginBottom: "1rem"
   }
 }));
 
-export function DeploymentList(props) {
-  const { deployments, setDeployments } = props;
-  const classes = useStyles();
+export function Dashboard({ deployments, isLoadingDeployments }) {
   const history = useHistory();
-  const [isLoadingDeployments, setIsLoadingDeployments] = useState(false);
-  const { address, selectedWallet } = useWallet();
-
-  useEffect(() => {
-    loadDeployments(address);
-  }, [address]);
-
-  async function loadDeployments(address) {
-    setIsLoadingDeployments(true);
-    const response = await fetch(apiEndpoint + "/akash/deployment/v1beta1/deployments/list?filters.owner=" + address);
-    let deployments = await response.json();
-
-    setDeployments(deployments.deployments.map((d) => deploymentToDto(d)));
-
-    setIsLoadingDeployments(false);
-  }
+  const classes = useStyles();
+  const orderedDeployments = deployments ? [...deployments].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)).filter((d) => d.state === "active") : [];
 
   function createDeployment() {
     history.push("/createDeployment");
@@ -83,49 +61,51 @@ export function DeploymentList(props) {
     history.push("/deployment/" + deployment.dseq);
   }
 
-  const orderedDeployments = [...deployments].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
-
   return (
     <Box className={classes.root}>
       <Box className={classes.titleContainer}>
         <Typography variant="h3" className={classes.title}>
-          Deployments
+          Active Deployments
         </Typography>
-
-        <Button variant="contained" size="medium" color="primary" onClick={() => createDeployment()}>
-          <AddIcon />
-          &nbsp;Create Deployment
-        </Button>
       </Box>
       <Box>
         {isLoadingDeployments ? <LinearProgress /> : <Box className={classes.loadingSkeleton} />}
 
-        {orderedDeployments.map((deployment) => (
-          <ListItem key={deployment.dseq} button onClick={() => viewDeployment(deployment)}>
-            <ListItemIcon>
-              {deployment.state === "active" && <CloudIcon />}
-              {deployment.state === "closed" && <CancelPresentationIcon />}
-            </ListItemIcon>
-            <ListItemText
-              primary={deployment.dseq}
-              secondary={
-                <Box component="span" display="flex" alignItems="center">
-                  <SpeedIcon />
-                  {deployment.cpuAmount + "vcpu"}
-                  <MemoryIcon title="Memory" />
-                  {humanFileSize(deployment.memoryAmount)}
-                  <StorageIcon />
-                  {humanFileSize(deployment.storageAmount)}
-                </Box>
-              }
-            />
-            <ListItemSecondaryAction>
-              <IconButton edge="end" onClick={() => viewDeployment(deployment)}>
-                <ChevronRightIcon />
-              </IconButton>
-            </ListItemSecondaryAction>
-          </ListItem>
-        ))}
+        {orderedDeployments.length > 0 ? (
+          orderedDeployments.map((deployment) => (
+            <ListItem key={deployment.dseq} button onClick={() => viewDeployment(deployment)}>
+              <ListItemIcon>{deployment.state === "active" && <CloudIcon />}</ListItemIcon>
+              <ListItemText
+                primary={deployment.dseq}
+                secondary={
+                  <Box component="span" display="flex" alignItems="center">
+                    <SpeedIcon />
+                    {deployment.cpuAmount + "vcpu"}
+                    <MemoryIcon title="Memory" />
+                    {humanFileSize(deployment.memoryAmount)}
+                    <StorageIcon />
+                    {humanFileSize(deployment.storageAmount)}
+                  </Box>
+                }
+              />
+              <ListItemSecondaryAction>
+                <IconButton edge="end" onClick={() => viewDeployment(deployment)}>
+                  <ChevronRightIcon />
+                </IconButton>
+              </ListItemSecondaryAction>
+            </ListItem>
+          ))
+        ) : (
+          <Box textAlign="center" padding="4rem">
+            <Typography variant="h5" className={classes.noActiveDeployments}>
+              No active deployments
+            </Typography>
+            <Button variant="contained" size="medium" color="primary" onClick={() => createDeployment()}>
+              <AddIcon />
+              &nbsp;Create Deployment
+            </Button>
+          </Box>
+        )}
       </Box>
     </Box>
   );

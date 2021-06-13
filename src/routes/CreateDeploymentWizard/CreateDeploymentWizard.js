@@ -6,6 +6,7 @@ import { CreateLease } from "./CreateLease";
 import { useHistory, useParams } from "react-router";
 import { PrerequisiteList } from "./PrerequisiteList";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import { UrlService } from "../../shared/utils/urlUtils";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -40,24 +41,43 @@ export function CreateDeploymentWizard() {
   }, [selectedTemplate]);
 
   function handleBackClick() {
-    history.push("/");
+    history.push(UrlService.deploymentList());
   }
 
-  let activeStep = 0;
-  switch (step) {
-    case "chooseTemplate":
-      activeStep = 1;
-      break;
-    case "editManifest":
-      activeStep = 2;
-      break;
-    case "acceptBids":
-      activeStep = 3;
-      break;
+  let activeStep = getStepIndexByParam(step);
+
+  function getStepIndexByParam(step) {
+    switch (step) {
+      case "chooseTemplate":
+        return 1;
+      case "editManifest":
+        return 2;
+      case "acceptBids":
+        return 3;
+      default:
+        return 0;
+    }
+  }
+
+  function getStepRouteByIndex(step) {
+    switch (step) {
+      case 0:
+        return UrlService.createDeployment();
+      case 1:
+        return UrlService.createDeploymentStepTemplate();
+      case 2:
+        return UrlService.createDeploymentStepManifest();
+      case 4:
+        return UrlService.createDeploymentStepBids();
+      default:
+        return UrlService.createDeployment();
+    }
   }
 
   function handleStep(index) {
     console.log("handleStep: " + index);
+    const route = getStepRouteByIndex(index);
+    history.push(route);
   }
 
   function isStepComplete() {

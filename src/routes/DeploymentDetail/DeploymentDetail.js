@@ -11,6 +11,7 @@ import { useWallet } from "../../context/WalletProvider";
 import { deploymentToDto } from "../../shared/utils/deploymentDetailUtils";
 import { DeploymentJsonViewer } from "./DeploymentJsonViewer";
 import { ManifestEditor } from "./ManifestEditor";
+import { UrlService } from "../../shared/utils/urlUtils";
 
 export function DeploymentDetail(props) {
   const [leases, setLeases] = useState([]);
@@ -92,7 +93,7 @@ export function DeploymentDetail(props) {
   }, []);
 
   function handleBackClick() {
-    history.push("/");
+    history.push(UrlService.deploymentList());
   }
 
   return (

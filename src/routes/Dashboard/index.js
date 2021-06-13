@@ -1,1 +1,1 @@
-export { DeploymentList } from "./Dashbaord";
+export { Dashboard } from "./Dashbaord";

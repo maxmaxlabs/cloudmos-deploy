@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { TextField, Container, Paper, makeStyles, Button } from "@material-ui/core";
-//import { useHistory } from "react-router-dom";
 import { importWallet } from "../../shared/utils/walletUtils";
 import { useWallet } from "../../context/WalletProvider";
 
@@ -31,12 +30,6 @@ export function WalletImport() {
   const [password, setPassword] = useState("");
   const classes = useStyles();
   const { setSelectedWallet } = useWallet();
-
-  //let history = useHistory();
-
-  // function onCancelClick() {
-  //   history.push("/");
-  // }
 
   async function onImportClick() {
     const importedWallet = await importWallet(mnemonic, password);

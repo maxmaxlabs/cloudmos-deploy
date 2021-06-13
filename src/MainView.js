@@ -13,11 +13,11 @@ import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "./shared/components/ErrorFallback";
 import { LeftNav } from "./components/LeftNav";
 import { useDeploymentList } from "./queries";
+import { Dashboard } from "./routes/Dashboard/Dashboard";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
-    // backgroundColor: "#f5f5f5",
     padding: "20px"
   },
   paper: {
@@ -68,8 +68,11 @@ export function MainView() {
                   <Route path="/deployment/:dseq">
                     <DeploymentDetail deployments={deployments} />
                   </Route>
-                  <Route exact path="/">
+                  <Route exact path="/deployments">
                     <DeploymentList deployments={deployments} isLoadingDeployments={isLoadingDeployments} />
+                  </Route>
+                  <Route exact path="/">
+                    <Dashboard deployments={deployments} isLoadingDeployments={isLoadingDeployments} />
                   </Route>
                 </ErrorBoundary>
               </Box>

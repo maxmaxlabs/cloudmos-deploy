@@ -3,6 +3,7 @@ import DashboardIcon from "@material-ui/icons/Dashboard";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import SettingsIcon from "@material-ui/icons/Settings";
 import { Link } from "react-router-dom";
+import { UrlService } from "../../shared/utils/urlUtils";
 
 const drawerWidth = 200;
 
@@ -22,8 +23,8 @@ export const LeftNav = () => {
   const classes = useStyles();
 
   const routes = [
-    { title: "Dashboard", icon: <DashboardIcon />, url: "/" },
-    { title: "Deployments", icon: <CloudUploadIcon />, url: "/" },
+    { title: "Dashboard", icon: <DashboardIcon />, url: UrlService.dashboard() },
+    { title: "Deployments", icon: <CloudUploadIcon />, url: UrlService.deploymentList() },
     { title: "Settings", icon: <SettingsIcon />, url: "/" }
   ];
 

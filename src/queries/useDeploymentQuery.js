@@ -1,13 +1,13 @@
 import { useQuery } from "react-query";
 import { QueryKeys } from "./queryKeys";
 import axios from "axios";
-import { UrlService } from "../shared/utils/urlUtils";
+import { ApiUrlService } from "../shared/utils/apiUtils";
 import { deploymentToDto } from "../shared/utils/deploymentDetailUtils";
 
 async function getDeploymentList(address) {
   if (!address) throw new Error("address must be defined.");
 
-  const response = await axios.get(UrlService.deploymentList(address));
+  const response = await axios.get(ApiUrlService.deploymentList(address));
   let deployments = response.data;
 
   return deployments.deployments.map((d) => deploymentToDto(d));

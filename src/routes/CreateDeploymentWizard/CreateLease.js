@@ -11,6 +11,7 @@ import { fetchProviderInfo } from "../../shared/providerCache";
 import Alert from "@material-ui/lab/Alert";
 import { getDeploymentLocalData } from "../../shared/utils/deploymentLocalDataUtils";
 import { useTransactionModal } from "../../context/TransactionModal";
+import { UrlService } from "../../shared/utils/urlUtils";
 
 const yaml = require("js-yaml");
 
@@ -117,7 +118,7 @@ export function CreateLease(props) {
       throw error;
     }
 
-    history.push("/");
+    history.push(UrlService.deploymentList());
   }
 
   const groupedBids = bids.reduce((a, b) => {
