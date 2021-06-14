@@ -10,7 +10,7 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "column",
     textAlign: "center",
     maxWidth: 300,
-    maring: "0 auto"
+    margin: "0 auto"
   },
   heading: {
     marginBottom: "2rem"

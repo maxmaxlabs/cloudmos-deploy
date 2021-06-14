@@ -1,0 +1,1 @@
+export { useDeploymentList } from "./useDeploymentQuery";

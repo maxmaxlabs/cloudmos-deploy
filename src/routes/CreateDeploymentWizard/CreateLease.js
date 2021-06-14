@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { apiEndpoint } from "../../shared/constants";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
-import { Button, CircularProgress, Box } from "@material-ui/core";
+import { Button, CircularProgress, Box, Typography, LinearProgress } from "@material-ui/core";
 import { useWallet } from "../../context/WalletProvider";
 import { BidGroup } from "./BidGroup";
 import { useHistory } from "react-router";
@@ -11,12 +10,16 @@ import { fetchProviderInfo } from "../../shared/providerCache";
 import Alert from "@material-ui/lab/Alert";
 import { getDeploymentLocalData } from "../../shared/utils/deploymentLocalDataUtils";
 import { useTransactionModal } from "../../context/TransactionModal";
+import { UrlService } from "../../shared/utils/urlUtils";
+import { useSettings } from "../../context/SettingsProvider";
 
 const yaml = require("js-yaml");
 
 export function CreateLease(props) {
+  const { settings } = useSettings();
   const [bids, setBids] = useState([]);
   const [isLoadingBids, setIsLoadingBids] = useState(false);
+  const [isSendingManifest, setIsSendingManifest] = useState(false);
   const [selectedBids, setSelectedBids] = useState({});
   const { sendTransaction } = useTransactionModal();
   const { address } = useWallet();
@@ -32,7 +35,7 @@ export function CreateLease(props) {
   const loadBids = useCallback(async () => {
     setIsLoadingBids(true);
 
-    const response = await fetch(apiEndpoint + "/akash/market/v1beta1/bids/list?filters.owner=" + address + "&filters.dseq=" + dseq);
+    const response = await fetch(settings.apiEndpoint + "/akash/market/v1beta1/bids/list?filters.owner=" + address + "&filters.dseq=" + dseq);
     const data = await response.json();
     const bids = data.bids.map((b) => ({
       id: b.bid.bid_id.provider + b.bid.bid_id.dseq + b.bid.bid_id.gseq + b.bid.bid_id.oseq,
@@ -89,21 +92,24 @@ export function CreateLease(props) {
       const messages = Object.keys(selectedBids)
         .map((gseq) => selectedBids[gseq])
         .map((bid) => TransactionMessageData.getCreateLeaseMsg(bid));
-      // TODO handle response
       const response = await sendTransaction(messages);
 
-      if(!response) throw 'Rejected transaction';
+      if (!response) throw "Rejected transaction";
     } catch (error) {
       throw error;
     }
 
+    setIsSendingManifest(true);
+
     const deploymentData = getDeploymentLocalData(dseq);
     if (deploymentData && deploymentData.manifest) {
       console.log("Querying provider info");
-      const providerInfo = await fetchProviderInfo(selectedBids[Object.keys(selectedBids)[0]].provider);
+      const providerInfo = await fetchProviderInfo(settings.apiEndpoint, selectedBids[Object.keys(selectedBids)[0]].provider);
       console.log("Sending manifest");
       await sendManifest(providerInfo, deploymentData.manifest);
     }
+
+    setIsSendingManifest(false);
 
     history.push("/deployment/" + dseq);
   }
@@ -117,7 +123,7 @@ export function CreateLease(props) {
       throw error;
     }
 
-    history.push("/");
+    history.push(UrlService.deploymentList());
   }
 
   const groupedBids = bids.reduce((a, b) => {
@@ -131,7 +137,16 @@ export function CreateLease(props) {
 
   return (
     <>
-      {(isLoadingBids || bids.length === 0) && <CircularProgress />}
+      {isSendingManifest && <LinearProgress />}
+
+      {(isLoadingBids || bids.length === 0) && (
+        <>
+          <CircularProgress />
+          <Box paddingTop="1rem">
+            <Typography variant="body1">Waiting for bids...</Typography>
+          </Box>
+        </>
+      )}
       {dseqList.map((gseq) => (
         <BidGroup key={gseq} gseq={gseq} bids={groupedBids[gseq]} handleBidSelected={handleBidSelected} selectedBid={selectedBids[gseq]} />
       ))}

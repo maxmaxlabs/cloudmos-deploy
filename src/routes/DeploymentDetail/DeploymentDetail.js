@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from "react";
-import { apiEndpoint } from "../../shared/constants";
 import { useParams, useHistory } from "react-router-dom";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import { CircularProgress, Tabs, Tab, IconButton, Card, CardContent, CardHeader, Typography } from "@material-ui/core";
@@ -11,8 +10,11 @@ import { useWallet } from "../../context/WalletProvider";
 import { deploymentToDto } from "../../shared/utils/deploymentDetailUtils";
 import { DeploymentJsonViewer } from "./DeploymentJsonViewer";
 import { ManifestEditor } from "./ManifestEditor";
+import { UrlService } from "../../shared/utils/urlUtils";
+import { useSettings } from "../../context/SettingsProvider";
 
 export function DeploymentDetail(props) {
+  const { settings } = useSettings();
   const [leases, setLeases] = useState([]);
   const [currentBlock, setCurrentBlock] = useState(null);
   const [isLoadingLeases, setIsLoadingLeases] = useState(false);
@@ -26,7 +28,7 @@ export function DeploymentDetail(props) {
 
   const loadLeases = useCallback(async () => {
     setIsLoadingLeases(true);
-    const response = await fetch(apiEndpoint + "/akash/market/v1beta1/leases/list?filters.owner=" + address + "&filters.dseq=" + deployment.dseq);
+    const response = await fetch(settings.apiEndpoint + "/akash/market/v1beta1/leases/list?filters.owner=" + address + "&filters.dseq=" + deployment.dseq);
     const data = await response.json();
 
     console.log("leases", data);
@@ -60,7 +62,7 @@ export function DeploymentDetail(props) {
 
   const loadBlock = useCallback(async () => {
     // setIsLoadingLeases(true);
-    const response = await fetch(`${apiEndpoint}/blocks/${deployment.createdAt}`);
+    const response = await fetch(`${settings.apiEndpoint}/blocks/${deployment.createdAt}`);
     const data = await response.json();
 
     setCurrentBlock(data);
@@ -82,7 +84,7 @@ export function DeploymentDetail(props) {
         setDeployment(deploymentFromList);
       } else {
         setIsLoadingDeployment(true);
-        const response = await fetch(apiEndpoint + "/akash/deployment/v1beta1/deployments/info?id.owner=" + address + "&id.dseq=" + dseq);
+        const response = await fetch(settings.apiEndpoint + "/akash/deployment/v1beta1/deployments/info?id.owner=" + address + "&id.dseq=" + dseq);
         const deployment = await response.json();
 
         setDeployment(deploymentToDto(deployment));
@@ -92,12 +94,12 @@ export function DeploymentDetail(props) {
   }, []);
 
   function handleBackClick() {
-    history.push("/");
+    history.push(UrlService.deploymentList());
   }
 
   return (
     <>
-      <Card className={classes.root} variant="outlined">
+      <Card className={classes.root}>
         <CardHeader
           classes={{
             title: classes.cardTitle

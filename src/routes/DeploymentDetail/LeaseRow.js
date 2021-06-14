@@ -19,6 +19,7 @@ import { getAvgCostPerMonth } from "../../shared/utils/priceUtils";
 import { SpecDetail } from "../../shared/components/SpecDetail";
 import LaunchIcon from "@material-ui/icons/Launch";
 import { useCertificate } from "../../context/CertificateProvider";
+import { useSettings } from "../../context/SettingsProvider";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -32,6 +33,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export function LeaseRow(props) {
+  const { settings } = useSettings();
   const { lease } = props;
   const [providerInfo, setProviderInfo] = useState(null);
   const [leaseInfoFromProvider, setLeaseInfoFromProvider] = useState(null);
@@ -44,7 +46,7 @@ export function LeaseRow(props) {
 
   useEffect(() => {
     async function loadProviderInfo() {
-      const providerInfo = await fetchProviderInfo(lease.provider);
+      const providerInfo = await fetchProviderInfo(settings.apiEndpoint, lease.provider);
       console.log("providerInfo", providerInfo);
       setProviderInfo(providerInfo);
     }
@@ -113,8 +115,8 @@ export function LeaseRow(props) {
         {leaseInfoFromProvider &&
           servicesNames
             .map((n) => leaseInfoFromProvider.services[n])
-            .map((service) => (
-              <Box mb={2}>
+            .map((service, i) => (
+              <Box mb={2} key={`${service.name}_${i}`}>
                 <Typography variant="h6" className={classes.title}>
                   Group "{service.name}"
                 </Typography>

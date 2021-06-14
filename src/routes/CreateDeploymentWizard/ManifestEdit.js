@@ -8,10 +8,12 @@ import { useHistory } from "react-router";
 import { saveDeploymentManifest } from "../../shared/utils/deploymentLocalDataUtils";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
 import { useTransactionModal } from "../../context/TransactionModal";
+import { useSettings } from "../../context/SettingsProvider";
 
 const yaml = require("js-yaml");
 
 export function ManifestEdit(props) {
+  const { settings } = useSettings();
   const [parsingError, setParsingError] = useState(null);
   const { sendTransaction } = useTransactionModal();
   const { address } = useWallet();
@@ -51,7 +53,7 @@ export function ManifestEdit(props) {
   async function handleCreateClick() {
     const doc = yaml.load(editedManifest);
 
-    const dd = await NewDeploymentData(doc, null, address);
+    const dd = await NewDeploymentData(settings.apiEndpoint, doc, null, address);
 
     try {
       const message = TransactionMessageData.getCreateDeploymentMsg(dd);

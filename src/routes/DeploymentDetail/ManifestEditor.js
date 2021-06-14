@@ -10,13 +10,14 @@ import MonacoEditor from "react-monaco-editor";
 import Alert from "@material-ui/lab/Alert";
 import { useStyles } from "./ManifestEditor.styles";
 import { fetchProviderInfo } from "../../shared/providerCache";
+import { useSettings } from "../../context/SettingsProvider";
 
 const yaml = require("js-yaml");
 
 export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
   const [parsingError, setParsingError] = useState(null);
   const [editedManifest, setEditedManifest] = useState("");
-
+  const { settings } = useSettings();
   const classes = useStyles();
   const { address } = useWallet();
   const { localCert } = useCertificate();
@@ -73,7 +74,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
       }
       return value;
     });
-    
+
     const response = await window.electron.queryProvider(
       providerInfo.host_uri + "/deployment/" + deployment.dseq + "/manifest",
       "PUT",
@@ -88,7 +89,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
   async function handleUpdateClick() {
     const doc = yaml.load(editedManifest);
 
-    const dd = await NewDeploymentData(doc, parseInt(deployment.dseq), address); // TODO Flags
+    const dd = await NewDeploymentData(settings.apiEndpoint, doc, parseInt(deployment.dseq), address); // TODO Flags
     const mani = Manifest(doc);
 
     try {
@@ -106,7 +107,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
     const providers = leases.map((lease) => lease.provider).filter((v, i, s) => s.indexOf(v) === i);
 
     for (const provider of providers) {
-      const providerInfo = await fetchProviderInfo(provider);
+      const providerInfo = await fetchProviderInfo(settings.apiEndpoint, provider);
       const response = await sendManifest(providerInfo, mani);
     }
 

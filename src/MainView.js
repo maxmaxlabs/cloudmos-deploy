@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { MemoryRouter, Route } from "react-router-dom";
-import { makeStyles, Grid } from "@material-ui/core";
+import { useEffect } from "react";
+import { Route, useHistory } from "react-router-dom";
+import { makeStyles, Grid, Paper, Box } from "@material-ui/core";
 import { WalletImport } from "./components/WalletImport";
 import { WalletOpen } from "./components/WalletOpen";
 import { CreateDeploymentWizard } from "./routes/CreateDeploymentWizard";
@@ -11,24 +11,44 @@ import { DeploymentDetail } from "./routes/DeploymentDetail";
 import { useWallet } from "./context/WalletProvider";
 import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "./shared/components/ErrorFallback";
+import { LeftNav } from "./components/LeftNav";
+import { useDeploymentList } from "./queries";
+import { Dashboard } from "./routes/Dashboard";
+import { Settings } from "./routes/Settings";
+import { useQueryParams } from "./hooks/useQueryParams";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
-    // backgroundColor: "#f5f5f5",
     padding: "20px"
   },
   paper: {
     padding: theme.spacing(2),
     textAlign: "center",
     color: theme.palette.text.secondary
+  },
+  viewContainer: {
+    display: "flex",
+    width: "100%",
+    minHeight: 300
   }
 }));
 
 export function MainView() {
-  const [deployments, setDeployments] = useState([]);
+  const history = useHistory();
+  const params = useQueryParams();
   const { address, selectedWallet } = useWallet();
+  const { data: deployments, isLoading: isLoadingDeployments, refetch } = useDeploymentList(address);
   const classes = useStyles();
+
+  useEffect(() => {
+    // using query params to tell react-query to refetch manually
+    if (params.get("refetch") === "true") {
+      refetch();
+
+      history.replace(history.location.pathname);
+    }
+  }, [params, history, refetch]);
 
   const walletExists = localStorage.getItem("Wallet") !== null;
 
@@ -50,19 +70,29 @@ export function MainView() {
         </ErrorBoundary>
 
         <Grid item xs={12}>
-          <ErrorBoundary FallbackComponent={ErrorFallback}>
-            <MemoryRouter initialEntries={["/"]} initialIndex={1}>
-              <Route exact path="/createDeployment/:step?/:dseq?">
-                <CreateDeploymentWizard />
-              </Route>
-              <Route path="/deployment/:dseq">
-                <DeploymentDetail deployments={deployments} />
-              </Route>
-              <Route exact path="/">
-                <DeploymentList deployments={deployments} setDeployments={setDeployments} />
-              </Route>
-            </MemoryRouter>
-          </ErrorBoundary>
+          <Paper className={classes.viewContainer}>
+            <LeftNav />
+
+            <Box flexGrow={1}>
+              <ErrorBoundary FallbackComponent={ErrorFallback}>
+                <Route exact path="/createDeployment/:step?/:dseq?">
+                  <CreateDeploymentWizard />
+                </Route>
+                <Route path="/deployment/:dseq">
+                  <DeploymentDetail deployments={deployments} />
+                </Route>
+                <Route exact path="/deployments">
+                  <DeploymentList deployments={deployments} isLoadingDeployments={isLoadingDeployments} />
+                </Route>
+                <Route exact path="/settings">
+                  <Settings />
+                </Route>
+                <Route exact path="/">
+                  <Dashboard deployments={deployments} isLoadingDeployments={isLoadingDeployments} />
+                </Route>
+              </ErrorBoundary>
+            </Box>
+          </Paper>
         </Grid>
       </Grid>
     </div>

@@ -7,11 +7,10 @@ import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import isValid from "date-fns/isValid";
 import { StatusPill } from "../../shared/components/StatusPill";
 import { LabelValue } from "../../shared/components/LabelValue";
-import CodeIcon from "@material-ui/icons/Code";
-import { RAW_JSON_DEPLOYMENT, RAW_JSON_LEASES } from "../../shared/constants";
 import { useHistory } from "react-router";
 import { useTransactionModal } from "../../context/TransactionModal";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
+import { UrlService } from "../../shared/utils/urlUtils";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -51,7 +50,7 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address }) {
       const response = await sendTransaction([message]);
 
       if (response) {
-        history.push("/");
+        history.push(`${UrlService.deploymentList()}?refetch=true`);
       }
     } catch (error) {
       throw error;
