@@ -41,12 +41,13 @@ export function MainView() {
   const classes = useStyles();
 
   useEffect(() => {
+    // using query params to tell react-query to refetch manually
     if (params.get("refetch") === "true") {
       refetch();
 
       history.replace(history.location.pathname);
     }
-  }, [params]);
+  }, [params, history, refetch]);
 
   const walletExists = localStorage.getItem("Wallet") !== null;
 

@@ -11,20 +11,30 @@ const theme = createMuiTheme({
   palette: {
     background: {
       default: "#282c34"
-    },
+    }
     // type: "dark"
   },
   overrides: {
     MuiCssBaseline: {
-      '@global': {
+      "@global": {
         html: {
-          WebkitFontSmoothing: 'auto',
-        },
-      },
+          WebkitFontSmoothing: "auto"
+        }
+      }
     },
-  },
+    MuiInputBase: {
+      input: { padding: "10px 14px" }
+    },
+    MuiOutlinedInput: {
+      input: { padding: "10px 14px" }
+    },
+    MuiInputLabel: {
+      outlined: {
+        transform: "translate(14px, 12px) scale(1)"
+      }
+    }
+  }
 });
-
 
 ReactDOM.render(
   <React.StrictMode>
