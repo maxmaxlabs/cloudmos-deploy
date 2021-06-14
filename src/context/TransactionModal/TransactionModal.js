@@ -47,14 +47,14 @@ export function TransactionModal(props) {
   const lowFee = createFee("low", baseGas, messages.length);
   const avgFee = createFee("avg", baseGas, messages.length);
   const highFee = createFee("high", baseGas, messages.length);
-  const { enqueueSnackbar } = useSnackbar();
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   async function handleSubmit(ev) {
     ev.preventDefault();
     setError("");
     setIsSendingTransaction(true);
 
-    enqueueSnackbar(
+    let pendingSnackbarKey = enqueueSnackbar(
       <div>
         <Typography variant="h5" className={classes.snackBarTitle}>
           Tx is pending...
@@ -95,19 +95,51 @@ export function TransactionModal(props) {
     } catch (err) {
       console.error(err);
 
+      let errorMsg = "An error has occured";
+
+      try {
+        const reg = /Broadcasting transaction failed with code (.+?) \(codespace: (.+?)\)/i;
+        const match = err.message.match(reg);
+
+        if (match) {
+          const code = parseInt(match[1]);
+          const codeSpace = match[2];
+
+          if (codeSpace === "sdk") {
+            const errorMessages = {
+              5: "Insufficient funds",
+              9: "Unknown address",
+              11: "Out of gas",
+              12: "Memo too large",
+              13: "Insufficient fee",
+              19: "Tx already in mempool",
+              25: "Invalid gas adjustment"
+            };
+
+            if (code in errorMessages) {
+              errorMsg = errorMessages[code];
+            }
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+
       enqueueSnackbar(
         <div>
           <Typography variant="h5" className={classes.snackBarTitle}>
             Tx has failed...
           </Typography>
           <Typography variant="body1" className={classes.snackBarSubTitle}>
-            An error has occured
+            {errorMsg}
           </Typography>
         </div>,
         { variant: "error" }
       );
 
-      onConfirmTransaction();
+      setIsSendingTransaction(false);
+    } finally {
+      closeSnackbar(pendingSnackbarKey);
     }
   }
 
