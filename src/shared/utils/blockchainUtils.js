@@ -14,9 +14,9 @@ export const customRegistry = registery;
 
 export const baseGas = "500000";
 export const fees = {
-  low: 1400,
-  avg: 3500,
-  high: 5600
+  low: 2000,
+  avg: 4000,
+  high: 6000
 };
 
 /**

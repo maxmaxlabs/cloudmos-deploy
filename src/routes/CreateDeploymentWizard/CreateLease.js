@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
-import { Button, CircularProgress, Box } from "@material-ui/core";
+import { Button, CircularProgress, Box, Typography, LinearProgress } from "@material-ui/core";
 import { useWallet } from "../../context/WalletProvider";
 import { BidGroup } from "./BidGroup";
 import { useHistory } from "react-router";
@@ -19,6 +19,7 @@ export function CreateLease(props) {
   const { settings } = useSettings();
   const [bids, setBids] = useState([]);
   const [isLoadingBids, setIsLoadingBids] = useState(false);
+  const [isSendingManifest, setIsSendingManifest] = useState(false);
   const [selectedBids, setSelectedBids] = useState({});
   const { sendTransaction } = useTransactionModal();
   const { address } = useWallet();
@@ -91,13 +92,14 @@ export function CreateLease(props) {
       const messages = Object.keys(selectedBids)
         .map((gseq) => selectedBids[gseq])
         .map((bid) => TransactionMessageData.getCreateLeaseMsg(bid));
-      // TODO handle response
       const response = await sendTransaction(messages);
 
       if (!response) throw "Rejected transaction";
     } catch (error) {
       throw error;
     }
+
+    setIsSendingManifest(true);
 
     const deploymentData = getDeploymentLocalData(dseq);
     if (deploymentData && deploymentData.manifest) {
@@ -106,6 +108,8 @@ export function CreateLease(props) {
       console.log("Sending manifest");
       await sendManifest(providerInfo, deploymentData.manifest);
     }
+
+    setIsSendingManifest(false);
 
     history.push("/deployment/" + dseq);
   }
@@ -133,7 +137,16 @@ export function CreateLease(props) {
 
   return (
     <>
-      {(isLoadingBids || bids.length === 0) && <CircularProgress />}
+      {isSendingManifest && <LinearProgress />}
+
+      {(isLoadingBids || bids.length === 0) && (
+        <>
+          <CircularProgress />
+          <Box paddingTop="1rem">
+            <Typography variant="body1">Waiting for bids...</Typography>
+          </Box>
+        </>
+      )}
       {dseqList.map((gseq) => (
         <BidGroup key={gseq} gseq={gseq} bids={groupedBids[gseq]} handleBidSelected={handleBidSelected} selectedBid={selectedBids[gseq]} />
       ))}

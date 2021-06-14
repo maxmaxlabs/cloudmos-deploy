@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
     }
   },
   titleContainer: {
-    padding: "1rem",
+    paddingBottom: "1rem",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between"
@@ -74,7 +74,9 @@ export function Dashboard({ deployments, isLoadingDeployments }) {
         {orderedDeployments.length > 0 ? (
           orderedDeployments.map((deployment) => (
             <ListItem key={deployment.dseq} button onClick={() => viewDeployment(deployment)}>
-              <ListItemIcon>{deployment.state === "active" && <CloudIcon />}</ListItemIcon>
+              <ListItemIcon>
+                <CloudIcon color="primary" />
+              </ListItemIcon>
               <ListItemText
                 primary={deployment.dseq}
                 secondary={

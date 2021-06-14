@@ -39,7 +39,7 @@ export function TransactionModal(props) {
   const [isSendingTransaction, setIsSendingTransaction] = useState(false);
   const [error, setError] = useState("");
   const [tabIndex, setTabIndex] = useState(0);
-  const [memo, setMemo] = useState("Akashlytics tx");
+  const [memo, setMemo] = useState("");
   const [gas, setGas] = useState(baseGas);
   const [isSettingGas, setIsSettingGas] = useState(false);
   const [currentFee, setCurrentFee] = useState("avg");
@@ -72,7 +72,7 @@ export function TransactionModal(props) {
       });
 
       const fee = createFee(currentFee, gas, messages.length);
-      const response = await client.signAndBroadcast(address, messages, fee, memo);
+      const response = await client.signAndBroadcast(address, messages, fee, `Akashlytics tx: ${memo}`);
 
       console.log(response);
 

@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
 import CloudIcon from "@material-ui/icons/Cloud";
 import AddIcon from "@material-ui/icons/Add";
@@ -18,7 +17,7 @@ import {
   Typography,
   LinearProgress
 } from "@material-ui/core";
-import { useHistory, useParams } from "react-router";
+import { useHistory } from "react-router";
 import { humanFileSize } from "../../shared/utils/unitUtils";
 
 const useStyles = makeStyles((theme) => ({
@@ -32,7 +31,7 @@ const useStyles = makeStyles((theme) => ({
     }
   },
   titleContainer: {
-    padding: "1rem",
+    paddingBottom: "1rem",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between"
@@ -78,7 +77,7 @@ export function DeploymentList({ deployments, isLoadingDeployments }) {
         {orderedDeployments.map((deployment) => (
           <ListItem key={deployment.dseq} button onClick={() => viewDeployment(deployment)}>
             <ListItemIcon>
-              {deployment.state === "active" && <CloudIcon />}
+              {deployment.state === "active" && <CloudIcon color="primary" />}
               {deployment.state === "closed" && <CancelPresentationIcon />}
             </ListItemIcon>
             <ListItemText

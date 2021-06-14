@@ -29,7 +29,8 @@ const useStyles = makeStyles((theme) => ({
   },
   viewContainer: {
     display: "flex",
-    width: "100%"
+    width: "100%",
+    minHeight: 300
   }
 }));
 

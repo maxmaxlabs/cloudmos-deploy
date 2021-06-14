@@ -40,6 +40,7 @@ export function Settings(props) {
 
   const onSubmit = (data) => {
     setSettings(data);
+    setIsEditing(false);
   };
 
   return (
@@ -50,14 +51,7 @@ export function Settings(props) {
         </Typography>
       </Box>
 
-      <form
-        className={classes.form}
-        onSubmit={handleSubmit((data) => {
-          debugger;
-          onSubmit(data);
-        })}
-        ref={formRef}
-      >
+      <form className={classes.form} onSubmit={handleSubmit(onSubmit)} ref={formRef}>
         <div className={classes.fieldRow}>
           <FormLabel className={classes.formLabel}>Api Endpoint:</FormLabel>
 
