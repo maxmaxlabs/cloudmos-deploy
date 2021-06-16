@@ -68,7 +68,8 @@ export function TransactionModal(props) {
 
     try {
       const client = await SigningStargateClient.connectWithSigner(settings.rpcEndpoint, selectedWallet, {
-        registry: customRegistry
+        registry: customRegistry,
+        broadcastTimeoutMs: 300_000 // 5min
       });
 
       const fee = createFee(currentFee, gas, messages.length);
@@ -101,32 +102,36 @@ export function TransactionModal(props) {
 
       let errorMsg = "An error has occured";
 
-      try {
-        const reg = /Broadcasting transaction failed with code (.+?) \(codespace: (.+?)\)/i;
-        const match = err.message.match(reg);
+      if (err.message.includes("was submitted but was not yet found on the chain")) {
+        errorMsg = "Transaction timeout";
+      } else {
+        try {
+          const reg = /Broadcasting transaction failed with code (.+?) \(codespace: (.+?)\)/i;
+          const match = err.message.match(reg);
 
-        if (match) {
-          const code = parseInt(match[1]);
-          const codeSpace = match[2];
+          if (match) {
+            const code = parseInt(match[1]);
+            const codeSpace = match[2];
 
-          if (codeSpace === "sdk") {
-            const errorMessages = {
-              5: "Insufficient funds",
-              9: "Unknown address",
-              11: "Out of gas",
-              12: "Memo too large",
-              13: "Insufficient fee",
-              19: "Tx already in mempool",
-              25: "Invalid gas adjustment"
-            };
+            if (codeSpace === "sdk") {
+              const errorMessages = {
+                5: "Insufficient funds",
+                9: "Unknown address",
+                11: "Out of gas",
+                12: "Memo too large",
+                13: "Insufficient fee",
+                19: "Tx already in mempool",
+                25: "Invalid gas adjustment"
+              };
 
-            if (code in errorMessages) {
-              errorMsg = errorMessages[code];
+              if (code in errorMessages) {
+                errorMsg = errorMessages[code];
+              }
             }
           }
+        } catch (err) {
+          console.error(err);
         }
-      } catch (err) {
-        console.error(err);
       }
 
       enqueueSnackbar(
