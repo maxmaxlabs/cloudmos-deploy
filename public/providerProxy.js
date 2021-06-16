@@ -5,7 +5,11 @@ const { nanoid } = require("nanoid");
 let child = null;
 function spawnProxy() {
   const spawn = require("child_process").spawn;
-  const command = path.resolve("./tools/akashlytics-provider-proxy.exe");
+
+  const dir = __dirname.replace("asar", "asar.unpacked");
+  const command = path.join(dir, "./tools/akashlytics-provider-proxy.exe");
+
+  console.log(command);
   const parameters = [];
 
   child = spawn(command, parameters, {

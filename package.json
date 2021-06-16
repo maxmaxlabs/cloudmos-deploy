@@ -2,6 +2,12 @@
   "name": "akashlytics-deploy-tool",
   "version": "0.1.0",
   "private": true,
+  "description": "Akashlytics deploy tool.",
+  "author": {
+    "name": "Akashlytics",
+    "email": "admin@akashlytics.com",
+    "url": "https://www.akashlytics.com/"
+  },
   "dependencies": {
     "@cosmjs/proto-signing": "^0.25.4",
     "@cosmjs/stargate": "^0.25.4",
@@ -27,7 +33,8 @@
     "react-query": "^3.17.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
-    "web-vitals": "^1.1.2"
+    "web-vitals": "^1.1.2",
+    "winston": "^3.3.3"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -35,9 +42,11 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "electron": "electron .",
-    "electron-dev": "set ELECTRON_START_URL=http://localhost:3000 && electron ."
+    "electron-dev": "set ELECTRON_START_URL=http://localhost:3000 && electron .",
+    "dist": "electron-builder",
+    "postinstall": "electron-builder install-app-deps"
   },
-  "main": "electron/electron-starter.js",
+  "main": "public/electron.js",
   "homepage": "./",
   "eslintConfig": {
     "extends": [
@@ -63,6 +72,20 @@
     ]
   },
   "devDependencies": {
-    "electron": "^12.0.7"
+    "electron": "^12.0.7",
+    "electron-builder": "^22.11.7",
+    "electron-squirrel-startup": "^1.0.0"
+  },
+  "build": {
+    "productName": "Akashlytics Deploy Tool",
+    "appId": "akashlytics.deploy",
+    "win": {
+      "target": "NSIS",
+      "icon": "/public/appIcon.png"
+    },
+    "asar": {
+      "smartUnpack": true
+    },
+    "asarUnpack": "**/akashlytics-provider-proxy.exe"
   }
 }
