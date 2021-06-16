@@ -83,6 +83,10 @@
       "target": "NSIS",
       "icon": "/public/appIcon.png"
     },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
     "asar": {
       "smartUnpack": true
     },
