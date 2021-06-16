@@ -119,11 +119,13 @@ export function CreateLease(props) {
       const message = TransactionMessageData.getCloseDeploymentMsg(address, dseq);
       // TODO handle response
       const response = await sendTransaction([message]);
+
+      if (response) {
+        history.push(UrlService.deploymentList());
+      }
     } catch (error) {
       throw error;
     }
-
-    history.push(UrlService.deploymentList());
   }
 
   const groupedBids = bids.reduce((a, b) => {

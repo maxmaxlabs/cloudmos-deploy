@@ -76,6 +76,10 @@ export function TransactionModal(props) {
 
       console.log(response);
 
+      if (response.code !== 0) {
+        throw new Error("Code " + response.code + " : " + response.rawLog);
+      }
+
       enqueueSnackbar(
         <div>
           <Typography variant="h5" className={classes.snackBarTitle}>
