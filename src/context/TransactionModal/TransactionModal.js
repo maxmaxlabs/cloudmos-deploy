@@ -161,6 +161,8 @@ export function TransactionModal(props) {
     setIsSettingGas(!isSettingGas);
   };
 
+  const isGasValid = gas && parseInt(gas) > 0;
+
   return (
     <Dialog
       open={props.isOpen}
@@ -206,6 +208,9 @@ export function TransactionModal(props) {
               onChange={(ev) => setMemo(ev.target.value)}
               type="text"
               variant="outlined"
+              inputProps={{
+                maxLength: 256
+              }}
               classes={{ root: classes.fullWidth }}
             />
           </Box>
@@ -257,9 +262,15 @@ export function TransactionModal(props) {
               <TextField
                 label="Gas"
                 value={gas}
-                onChange={(ev) => setGas((ev.target.value || baseGas).toString())}
+                defaultValue={baseGas}
+                onChange={(ev) => setGas(ev.target.value)}
                 type="number"
                 variant="outlined"
+                error={!isGasValid}
+                inputProps={{
+                  step: 1,
+                  min: 1
+                }}
                 classes={{ root: classes.fullWidth }}
               />
             )}
@@ -280,7 +291,7 @@ export function TransactionModal(props) {
         >
           Reject
         </Button>
-        <Button variant="contained" color="primary" onClick={handleSubmit} disabled={isSendingTransaction} classes={{ root: classes.actionButton }}>
+        <Button variant="contained" color="primary" onClick={handleSubmit} disabled={isSendingTransaction || !isGasValid} classes={{ root: classes.actionButton }}>
           {isSendingTransaction ? <CircularProgress size="24px" color="primary" /> : "Approve"}
         </Button>
       </DialogActions>
