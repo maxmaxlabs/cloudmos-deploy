@@ -122,7 +122,7 @@ export function Manifest(yamlJson) {
               ExternalPort: expose.as || 0,
               Proto: proto,
               Service: to.service || "",
-              Global: !!to.global, // TODO: Test type (is "false" a string)
+              Global: !!to.global,
               Hosts: expose.accept || null
             });
           });

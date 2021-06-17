@@ -47,14 +47,14 @@ export function TransactionModal(props) {
   const lowFee = createFee("low", baseGas, messages.length);
   const avgFee = createFee("avg", baseGas, messages.length);
   const highFee = createFee("high", baseGas, messages.length);
-  const { enqueueSnackbar } = useSnackbar();
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   async function handleSubmit(ev) {
     ev.preventDefault();
     setError("");
     setIsSendingTransaction(true);
 
-    enqueueSnackbar(
+    let pendingSnackbarKey = enqueueSnackbar(
       <div>
         <Typography variant="h5" className={classes.snackBarTitle}>
           Tx is pending...
@@ -68,13 +68,18 @@ export function TransactionModal(props) {
 
     try {
       const client = await SigningStargateClient.connectWithSigner(settings.rpcEndpoint, selectedWallet, {
-        registry: customRegistry
+        registry: customRegistry,
+        broadcastTimeoutMs: 300_000 // 5min
       });
 
       const fee = createFee(currentFee, gas, messages.length);
       const response = await client.signAndBroadcast(address, messages, fee, `Akashlytics tx: ${memo}`);
 
       console.log(response);
+
+      if (response.code !== 0) {
+        throw new Error("Code " + response.code + " : " + response.rawLog);
+      }
 
       enqueueSnackbar(
         <div>
@@ -95,19 +100,55 @@ export function TransactionModal(props) {
     } catch (err) {
       console.error(err);
 
+      let errorMsg = "An error has occured";
+
+      if (err.message.includes("was submitted but was not yet found on the chain")) {
+        errorMsg = "Transaction timeout";
+      } else {
+        try {
+          const reg = /Broadcasting transaction failed with code (.+?) \(codespace: (.+?)\)/i;
+          const match = err.message.match(reg);
+
+          if (match) {
+            const code = parseInt(match[1]);
+            const codeSpace = match[2];
+
+            if (codeSpace === "sdk") {
+              const errorMessages = {
+                5: "Insufficient funds",
+                9: "Unknown address",
+                11: "Out of gas",
+                12: "Memo too large",
+                13: "Insufficient fee",
+                19: "Tx already in mempool",
+                25: "Invalid gas adjustment"
+              };
+
+              if (code in errorMessages) {
+                errorMsg = errorMessages[code];
+              }
+            }
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
       enqueueSnackbar(
         <div>
           <Typography variant="h5" className={classes.snackBarTitle}>
             Tx has failed...
           </Typography>
           <Typography variant="body1" className={classes.snackBarSubTitle}>
-            An error has occured
+            {errorMsg}
           </Typography>
         </div>,
         { variant: "error" }
       );
 
-      onConfirmTransaction();
+      setIsSendingTransaction(false);
+    } finally {
+      closeSnackbar(pendingSnackbarKey);
     }
   }
 
@@ -119,6 +160,8 @@ export function TransactionModal(props) {
     event.preventDefault();
     setIsSettingGas(!isSettingGas);
   };
+
+  const isGasValid = gas && parseInt(gas) > 0;
 
   return (
     <Dialog
@@ -165,6 +208,9 @@ export function TransactionModal(props) {
               onChange={(ev) => setMemo(ev.target.value)}
               type="text"
               variant="outlined"
+              inputProps={{
+                maxLength: 256
+              }}
               classes={{ root: classes.fullWidth }}
             />
           </Box>
@@ -216,9 +262,15 @@ export function TransactionModal(props) {
               <TextField
                 label="Gas"
                 value={gas}
-                onChange={(ev) => setGas((ev.target.value || baseGas).toString())}
+                defaultValue={baseGas}
+                onChange={(ev) => setGas(ev.target.value)}
                 type="number"
                 variant="outlined"
+                error={!isGasValid}
+                inputProps={{
+                  step: 1,
+                  min: 1
+                }}
                 classes={{ root: classes.fullWidth }}
               />
             )}
@@ -239,7 +291,7 @@ export function TransactionModal(props) {
         >
           Reject
         </Button>
-        <Button variant="contained" color="primary" onClick={handleSubmit} disabled={isSendingTransaction} classes={{ root: classes.actionButton }}>
+        <Button variant="contained" color="primary" onClick={handleSubmit} disabled={isSendingTransaction || !isGasValid} classes={{ root: classes.actionButton }}>
           {isSendingTransaction ? <CircularProgress size="24px" color="primary" /> : "Approve"}
         </Button>
       </DialogActions>
