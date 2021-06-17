@@ -31,7 +31,7 @@ export function PrerequisiteList(props) {
       const certificate = await loadValidCertificates();
       setIsCertificateValidated(certificate?.certificate?.state === "valid");
 
-      setIsLocalCertificateValidated(localCert && isLocalCertMatching);
+      setIsLocalCertificateValidated(!!(localCert && isLocalCertMatching));
     }
 
     loadPrerequisites();

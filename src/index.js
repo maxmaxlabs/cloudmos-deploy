@@ -11,7 +11,7 @@ const theme = createMuiTheme({
   palette: {
     background: {
       default: "#282c34"
-    }
+    },
     // type: "dark"
   },
   overrides: {
