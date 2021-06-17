@@ -126,7 +126,7 @@ export function DeploymentDetail(props) {
           }
         />
 
-        <Tabs value={activeTab} onChange={(ev, value) => setActiveTab(value)} indicatorColor="primary" textColor="primary" centered>
+        <Tabs value={activeTab} onChange={(ev, value) => setActiveTab(value)} indicatorColor="primary" textColor="primary">
           <Tab value="DETAILS" label="Details" />
           <Tab value="EDIT" label="View / Edit Manifest" />
           {/* <Tab label="Logs" /> */}

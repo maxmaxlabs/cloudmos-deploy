@@ -17,7 +17,9 @@ const useStyles = makeStyles({
   root: {
     minWidth: 275,
     minHeight: 104,
-    height: "100%"
+    height: "100%",
+    borderRadius: 0,
+    border: "none"
   },
   bullet: {
     display: "inline-block",
@@ -201,10 +203,10 @@ export function CertificateDisplay(props) {
               &nbsp;Revoke
             </MenuItem>
             {/* <MenuItem onClick={handleClose}><SystemUpdateAltIcon />&nbsp;Export</MenuItem> */}
-            <MenuItem onClick={handleClose}>
+            {/* <MenuItem onClick={handleClose}>
               <AutorenewIcon />
               &nbsp;Regenerate
-            </MenuItem>
+            </MenuItem> */}
           </Menu>
         )}
       </Card>

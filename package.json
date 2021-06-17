@@ -81,7 +81,7 @@
     "appId": "akashlytics.deploy",
     "win": {
       "target": "NSIS",
-      "icon": "/public/appIcon.png"
+      "icon": "/public/logo.png"
     },
     "nsis": {
       "oneClick": false,

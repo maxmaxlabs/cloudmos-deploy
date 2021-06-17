@@ -6,7 +6,7 @@ import { deploymentToDto } from "../shared/utils/deploymentDetailUtils";
 import { useSettings } from "../context/SettingsProvider";
 
 async function getDeploymentList(apiEndpoint, address) {
-  if (!address) throw new Error("address must be defined.");
+  if (!address) return [];
 
   const response = await axios.get(ApiUrlService.deploymentList(apiEndpoint, address));
   let deployments = response.data;

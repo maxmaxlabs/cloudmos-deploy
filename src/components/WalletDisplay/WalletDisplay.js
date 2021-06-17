@@ -8,7 +8,9 @@ import { useWallet } from "../../context/WalletProvider";
 const useStyles = makeStyles({
   root: {
     minWidth: 275,
-    height: "100%"
+    height: "100%",
+    borderRadius: 0,
+    border: "none"
   },
   bullet: {
     display: "inline-block",
@@ -35,11 +37,11 @@ export function WalletDisplay() {
   return (
     <Card className={classes.root} variant="outlined">
       <CardHeader
-        action={
-          <IconButton aria-label="settings">
-            <MoreVertIcon />
-          </IconButton>
-        }
+        // action={
+        //   <IconButton aria-label="settings">
+        //     <MoreVertIcon />
+        //   </IconButton>
+        // }
         title={
           <Box display="flex" alignItems="center">
             <AccountBalanceWalletIcon />

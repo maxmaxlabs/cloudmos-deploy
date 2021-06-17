@@ -18,19 +18,18 @@ import { Settings } from "./routes/Settings";
 import { useQueryParams } from "./hooks/useQueryParams";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    flexGrow: 1,
-    padding: "20px"
-  },
+  root: {},
   paper: {
     padding: theme.spacing(2),
     textAlign: "center",
-    color: theme.palette.text.secondary
+    color: theme.palette.text.secondary,
+    borderRadius: 0
   },
   viewContainer: {
     display: "flex",
     width: "100%",
-    minHeight: 300
+    minHeight: 300,
+    borderRadius: 0
   }
 }));
 
@@ -58,7 +57,7 @@ export function MainView() {
 
   return (
     <div className={classes.root}>
-      <Grid container pt={2} spacing={1}>
+      <Grid container pt={2}>
         <ErrorBoundary FallbackComponent={ErrorFallback}>
           <Grid item xs={6}>
             <WalletDisplay />
@@ -70,7 +69,7 @@ export function MainView() {
         </ErrorBoundary>
 
         <Grid item xs={12}>
-          <Paper className={classes.viewContainer}>
+          <Paper className={classes.viewContainer} variant="outlined">
             <LeftNav />
 
             <Box flexGrow={1}>

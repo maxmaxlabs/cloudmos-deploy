@@ -19,7 +19,9 @@ function createWindow() {
     const mainWindow = new BrowserWindow({
       width: 1024,
       height: 768,
-      icon: path.join(__dirname, "appIcon.png"),
+      minWidth: 860,
+      minHeight: 500,
+      icon: path.join(__dirname, "logo.png"),
       webPreferences: {
         preload: path.join(__dirname, "preload.js"),
         webSecurity: false
