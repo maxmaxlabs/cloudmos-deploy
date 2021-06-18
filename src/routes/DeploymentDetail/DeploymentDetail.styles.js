@@ -16,6 +16,7 @@ export const useStyles = makeStyles((theme) => ({
   },
   title: {
     fontWeight: "bold",
-    marginLeft: ".5rem"
+    marginLeft: ".5rem",
+    fontSize: "2rem"
   }
 }));

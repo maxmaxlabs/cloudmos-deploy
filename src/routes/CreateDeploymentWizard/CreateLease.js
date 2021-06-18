@@ -150,12 +150,19 @@ export function CreateLease(props) {
         </Box>
       )}
       {dseqList.map((gseq) => (
-        <BidGroup key={gseq} gseq={gseq} bids={groupedBids[gseq]} handleBidSelected={handleBidSelected} selectedBid={selectedBids[gseq]} />
+        <BidGroup
+          key={gseq}
+          gseq={gseq}
+          bids={groupedBids[gseq]}
+          handleBidSelected={handleBidSelected}
+          selectedBid={selectedBids[gseq]}
+          disabled={isSendingManifest}
+        />
       ))}
 
       {!isLoadingBids && !allClosed && (
         <Box mt={1}>
-          <Button variant="contained" color="primary" onClick={handleNext} disabled={dseqList.some((gseq) => !selectedBids[gseq])}>
+          <Button variant="contained" color="primary" onClick={handleNext} disabled={dseqList.some((gseq) => !selectedBids[gseq]) || isSendingManifest}>
             Accept Bid{dseqList.length > 1 ? "s" : ""}
           </Button>
         </Box>

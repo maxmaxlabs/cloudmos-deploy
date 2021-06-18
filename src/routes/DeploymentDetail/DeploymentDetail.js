@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useHistory } from "react-router-dom";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-import { CircularProgress, Tabs, Tab, IconButton, Card, CardContent, CardHeader, Typography } from "@material-ui/core";
+import { CircularProgress, Tabs, Tab, IconButton, Card, CardContent, CardHeader, Typography, Box } from "@material-ui/core";
 import { LeaseRow } from "./LeaseRow";
 import { useStyles } from "./DeploymentDetail.styles";
 import { DeploymentSubHeader } from "./DeploymentSubHeader";
@@ -108,7 +108,7 @@ export function DeploymentDetail(props) {
             <IconButton aria-label="back" onClick={handleBackClick}>
               <ChevronLeftIcon />
             </IconButton>
-            <Typography variant="h4" className={classes.title}>
+            <Typography variant="h3" className={classes.title}>
               Deployment detail
             </Typography>
           </>
@@ -153,7 +153,11 @@ export function DeploymentDetail(props) {
               </>
             )}
 
-            {(isLoadingLeases || isLoadingDeployment) && <CircularProgress />}
+            {(isLoadingLeases || isLoadingDeployment) && (
+              <Box textAlign="center" padding="2rem">
+                <CircularProgress />
+              </Box>
+            )}
           </>
         )}
       </CardContent>
