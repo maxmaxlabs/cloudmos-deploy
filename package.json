@@ -77,7 +77,7 @@
     "electron-squirrel-startup": "^1.0.0"
   },
   "build": {
-    "productName": "Akashlytics Deploy Tool",
+    "productName": "Akashlytics Deploy",
     "appId": "akashlytics.deploy",
     "win": {
       "target": "NSIS",

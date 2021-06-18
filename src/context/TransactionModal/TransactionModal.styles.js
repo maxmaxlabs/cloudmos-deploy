@@ -59,13 +59,5 @@ export const useStyles = makeStyles((theme) => ({
   actionButton: {
     flexGrow: 1,
     flexBasis: "50%"
-  },
-  snackBarTitle: {
-    fontSize: "1rem",
-    lineHeight: "1rem",
-    fontWeight: "bold"
-  },
-  snackBarSubTitle: {
-    fontSize: ".9rem"
   }
 }));

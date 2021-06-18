@@ -1,5 +1,7 @@
+import { useSnackbar } from "notistack";
 import React, { useState, useCallback, useEffect } from "react";
 import { useSettings } from "../SettingsProvider";
+import { Snackbar } from "../../shared/components/Snackbar";
 
 const WalletProviderContext = React.createContext({});
 
@@ -8,15 +10,23 @@ export const WalletProvider = ({ children }) => {
   const [selectedWallet, setSelectedWallet] = useState(null);
   const [address, setAddress] = useState(null);
   const [balance, setBalance] = useState(null);
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
-  const refreshBalance = useCallback(async () => {
-    const response = await fetch(settings.apiEndpoint + "/cosmos/bank/v1beta1/balances/" + address);
-    const data = await response.json();
-    const balance = data.balances.length > 0 ? data.balances[0].amount : 0;
-    setBalance(balance);
+  const refreshBalance = useCallback(
+    async (showSnackbar) => {
+      const response = await fetch(settings.apiEndpoint + "/cosmos/bank/v1beta1/balances/" + address);
+      const data = await response.json();
+      const balance = data.balances.length > 0 ? data.balances[0].amount : 0;
+      setBalance(balance);
 
-    return balance;
-  }, [address]);
+      if (showSnackbar) {
+        enqueueSnackbar(<Snackbar title="Price refreshed!" />, { variant: "success" });
+      }
+
+      return balance;
+    },
+    [address]
+  );
 
   useEffect(() => {
     async function getAddress() {

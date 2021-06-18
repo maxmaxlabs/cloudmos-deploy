@@ -48,7 +48,7 @@ export function WalletDisplay() {
             <Box component="span" marginLeft="5px">
               {balance / 1000000} AKT
             </Box>
-            <IconButton onClick={() => refreshBalance()} aria-label="refresh">
+            <IconButton onClick={() => refreshBalance(true)} aria-label="refresh">
               <RefreshIcon />
             </IconButton>
           </Box>
