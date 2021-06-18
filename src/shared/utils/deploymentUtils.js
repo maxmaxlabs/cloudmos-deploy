@@ -34,20 +34,35 @@ function ParseServiceProtocol(input) {
 }
 
 function parseSizeStr(str) {
-  const suffixes = {
-    Mi: 1024 * 1024,
-    Gi: 1024 * 1024 * 1024
-  }; // Handle other suffix
+  try {
+    const suffixes = {
+      Ki: 1024,
+      Mi: 1024 * 1024,
+      Gi: 1024 * 1024 * 1024,
+      Ti: 1024 * 1024 * 1024 * 1024,
+      Pi: 1024 * 1024 * 1024 * 1024 * 1024,
+      Ei: 1024 * 1024 * 1024 * 1024 * 1024 * 1024,
+      K: 1000,
+      M: 1000 * 1000,
+      G: 1000 * 1000 * 1000,
+      T: 1000 * 1000 * 1000 * 1000,
+      P: 1000 * 1000 * 1000 * 1000 * 1000,
+      E: 1000 * 1000 * 1000 * 1000 * 1000 * 1000
+    };
 
-  if (!Object.keys(suffixes).some((s) => str.endsWith(s))) {
-    throw new Error("Invalid suffix: " + str);
+    const suffix = Object.keys(suffixes).find((s) => str.toLowerCase().endsWith(s.toLowerCase()));
+
+    if (suffix) {
+      const suffixPos = str.length - suffix.length;
+      const numberStr = str.substring(0, suffixPos);
+      return (parseFloat(numberStr) * suffixes[suffix]).toString();
+    } else {
+      return parseFloat(str);
+    }
+  } catch (err) {
+    console.error(err);
+    throw "Error while parsing size: " + str;
   }
-
-  const suffixPos = str.length - 2;
-  const suffix = str.substring(suffixPos, suffixPos + 2);
-  const numberStr = str.substring(0, suffixPos);
-  const result = parseInt(numberStr) * suffixes[suffix];
-  return result.toString();
 }
 
 // Port of: func (sdl *v2ComputeResources) toResourceUnits() types.ResourceUnits
