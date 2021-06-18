@@ -1,8 +1,8 @@
 {
-  "name": "akashlytics-deploy-tool",
+  "name": "akashlytics-deploy",
   "version": "0.1.0",
   "private": true,
-  "description": "Akashlytics deploy tool.",
+  "description": "Akashlytics deploy.",
   "author": {
     "name": "Akashlytics",
     "email": "admin@akashlytics.com",

@@ -142,7 +142,9 @@ export function TransactionModal(props) {
       aria-labelledby="transaction-modal"
       aria-describedby="transaction modal description"
     >
-      <DialogTitle id="transaction-modal">Akash Transaction</DialogTitle>
+      <DialogTitle id="transaction-modal">
+        <span className={classes.title}>Akash Transaction</span>
+      </DialogTitle>
       <DialogContent dividers classes={{ root: classes.tabContent }}>
         <AppBar position="static" color="default">
           <Tabs

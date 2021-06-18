@@ -142,12 +142,12 @@ export function CreateLease(props) {
       {isSendingManifest && <LinearProgress />}
 
       {(isLoadingBids || bids.length === 0) && (
-        <>
+        <Box textAlign="center">
           <CircularProgress />
           <Box paddingTop="1rem">
             <Typography variant="body1">Waiting for bids...</Typography>
           </Box>
-        </>
+        </Box>
       )}
       {dseqList.map((gseq) => (
         <BidGroup key={gseq} gseq={gseq} bids={groupedBids[gseq]} handleBidSelected={handleBidSelected} selectedBid={selectedBids[gseq]} />

@@ -19,8 +19,8 @@ function createWindow() {
     const mainWindow = new BrowserWindow({
       width: 1024,
       height: 768,
-      minWidth: 860,
-      minHeight: 500,
+      minWidth: 991,
+      minHeight: 743,
       icon: path.join(__dirname, "logo.png"),
       webPreferences: {
         preload: path.join(__dirname, "preload.js"),

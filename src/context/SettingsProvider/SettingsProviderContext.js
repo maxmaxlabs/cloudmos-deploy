@@ -29,7 +29,5 @@ export const SettingsProvider = ({ children }) => {
 };
 
 export const useSettings = () => {
-  const { settings, setSettings } = React.useContext(SettingsProviderContext);
-
-  return { settings, setSettings };
+  return { ...React.useContext(SettingsProviderContext) };
 };

@@ -2,6 +2,8 @@ import { makeStyles } from "@material-ui/core";
 
 export const useStyles = makeStyles((theme) => ({
   root: {
+    borderRadius: 0,
+    border: "none",
     "& .MuiListItemText-secondary .MuiSvgIcon-root:not(:first-child)": {
       marginLeft: "5px"
     },

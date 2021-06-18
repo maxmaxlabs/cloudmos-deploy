@@ -10,14 +10,18 @@ export const WalletProvider = ({ children }) => {
   const [selectedWallet, setSelectedWallet] = useState(null);
   const [address, setAddress] = useState(null);
   const [balance, setBalance] = useState(null);
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const [isRefreshingBalance, setIsRefreshingBalance] = useState(false);
+  const { enqueueSnackbar } = useSnackbar();
 
   const refreshBalance = useCallback(
     async (showSnackbar) => {
+      setIsRefreshingBalance(true);
+
       const response = await fetch(settings.apiEndpoint + "/cosmos/bank/v1beta1/balances/" + address);
       const data = await response.json();
       const balance = data.balances.length > 0 ? data.balances[0].amount : 0;
       setBalance(balance);
+      setIsRefreshingBalance(false);
 
       if (showSnackbar) {
         enqueueSnackbar(<Snackbar title="Price refreshed!" />, { variant: "success" });
@@ -45,12 +49,12 @@ export const WalletProvider = ({ children }) => {
   }, [address, refreshBalance]);
 
   return (
-    <WalletProviderContext.Provider value={{ balance, setSelectedWallet, refreshBalance, selectedWallet, address }}>{children}</WalletProviderContext.Provider>
+    <WalletProviderContext.Provider value={{ balance, setSelectedWallet, refreshBalance, selectedWallet, address, isRefreshingBalance }}>
+      {children}
+    </WalletProviderContext.Provider>
   );
 };
 
 export const useWallet = () => {
-  const { balance, setSelectedWallet, refreshBalance, selectedWallet, address } = React.useContext(WalletProviderContext);
-
-  return { balance, setSelectedWallet, refreshBalance, selectedWallet, address };
+  return { ...React.useContext(WalletProviderContext) };
 };

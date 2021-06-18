@@ -72,7 +72,18 @@ export function PrerequisiteList(props) {
             {isLocalCertificateValidated === true && <CheckCircleOutlineIcon fontSize="large" style={{ color: green[500] }} />}
             {isLocalCertificateValidated === false && <ErrorOutlineIcon fontSize="large" color="secondary" />}
           </ListItemIcon>
-          <ListItemText primary="Valid local certificate" secondary="A local certificate must match the on-chain certificate" />
+          <ListItemText
+            primary="Valid local certificate"
+            secondary={
+              <>
+                A local certificate must match the on-chain certificate.
+                <br />
+                {isCertificateValidated &&
+                  isLocalCertificateValidated === false &&
+                  "If you have a valid certificate on the blockchain but not a valid local certificate, you need to revoke your blockchain certificate and create a new one with the tool."}
+              </>
+            }
+          />
         </ListItem>
       </List>
 

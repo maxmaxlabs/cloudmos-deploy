@@ -98,67 +98,65 @@ export function DeploymentDetail(props) {
   }
 
   return (
-    <>
-      <Card className={classes.root}>
-        <CardHeader
-          classes={{
-            title: classes.cardTitle
-          }}
-          title={
-            <>
-              <IconButton aria-label="back" onClick={handleBackClick}>
-                <ChevronLeftIcon />
-              </IconButton>
-              <Typography variant="h4" className={classes.title}>
-                Deployment detail
-              </Typography>
-            </>
-          }
-          subheader={
-            deployment && (
-              <DeploymentSubHeader
-                deployment={deployment}
-                block={currentBlock}
-                deploymentCost={leases && leases.length > 0 ? leases.reduce((prev, current) => prev + current.price.amount, []) : 0}
-                address={address}
-              />
-            )
-          }
-        />
+    <Card variant="outlined" className={classes.root}>
+      <CardHeader
+        classes={{
+          title: classes.cardTitle
+        }}
+        title={
+          <>
+            <IconButton aria-label="back" onClick={handleBackClick}>
+              <ChevronLeftIcon />
+            </IconButton>
+            <Typography variant="h4" className={classes.title}>
+              Deployment detail
+            </Typography>
+          </>
+        }
+        subheader={
+          deployment && (
+            <DeploymentSubHeader
+              deployment={deployment}
+              block={currentBlock}
+              deploymentCost={leases && leases.length > 0 ? leases.reduce((prev, current) => prev + current.price.amount, []) : 0}
+              address={address}
+            />
+          )
+        }
+      />
 
-        <Tabs value={activeTab} onChange={(ev, value) => setActiveTab(value)} indicatorColor="primary" textColor="primary">
-          <Tab value="DETAILS" label="Details" />
-          <Tab value="EDIT" label="View / Edit Manifest" />
-          {/* <Tab label="Logs" /> */}
-          <Tab value="JSON_DEPLOYMENT" label="Deployment JSON" />
-          <Tab value="JSON_LEASES" label="Leases JSON" />
-        </Tabs>
+      <Tabs value={activeTab} onChange={(ev, value) => setActiveTab(value)} indicatorColor="primary" textColor="primary">
+        <Tab value="DETAILS" label="Details" />
+        <Tab value="EDIT" label="View / Edit Manifest" />
+        {/* <Tab label="Logs" /> */}
+        <Tab value="JSON_DEPLOYMENT" label="Deployment JSON" />
+        <Tab value="JSON_LEASES" label="Leases JSON" />
+      </Tabs>
 
-        <CardContent>
-          {activeTab === "EDIT" && deployment && leases && (
-            <ManifestEditor deployment={deployment} leases={leases} closeManifestEditor={() => setActiveTab("DETAILS")} />
-          )}
-          {activeTab === "JSON_DEPLOYMENT" && deployment && <DeploymentJsonViewer jsonObj={deployment} title="Deployment JSON" />}
-          {activeTab === "JSON_LEASES" && deployment && <DeploymentJsonViewer jsonObj={leases} title="Leases JSON" />}
-          {activeTab === "DETAILS" && (
-            <>
-              {!isLoadingLeases && (
-                <>
-                  <Typography variant="h6" gutterBottom className={classes.title}>
-                    Leases
-                  </Typography>
-                  {leases.map((lease) => (
-                    <LeaseRow key={lease.id} cert={props.cert} lease={lease} deployment={deployment} />
-                  ))}
-                  {leases.length === 0 && <>This deployment doesn't have any leases</>}
-                </>
-              )}
+      <CardContent>
+        {activeTab === "EDIT" && deployment && leases && (
+          <ManifestEditor deployment={deployment} leases={leases} closeManifestEditor={() => setActiveTab("DETAILS")} />
+        )}
+        {activeTab === "JSON_DEPLOYMENT" && deployment && <DeploymentJsonViewer jsonObj={deployment} title="Deployment JSON" />}
+        {activeTab === "JSON_LEASES" && deployment && <DeploymentJsonViewer jsonObj={leases} title="Leases JSON" />}
+        {activeTab === "DETAILS" && (
+          <>
+            {!isLoadingLeases && (
+              <>
+                <Typography variant="h6" gutterBottom className={classes.title}>
+                  Leases
+                </Typography>
+                {leases.map((lease) => (
+                  <LeaseRow key={lease.id} cert={props.cert} lease={lease} deployment={deployment} />
+                ))}
+                {leases.length === 0 && <>This deployment doesn't have any leases</>}
+              </>
+            )}
 
-              {(isLoadingLeases || isLoadingDeployment) && <CircularProgress />}
-            </>
-          )}
-        </CardContent>
-      </Card>
-    </>
+            {(isLoadingLeases || isLoadingDeployment) && <CircularProgress />}
+          </>
+        )}
+      </CardContent>
+    </Card>
   );
 }

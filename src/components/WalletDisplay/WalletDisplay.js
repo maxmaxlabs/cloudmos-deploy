@@ -1,8 +1,7 @@
-import { makeStyles, Box, Card, CardHeader } from "@material-ui/core";
+import { makeStyles, Box, Card, CardHeader, CircularProgress } from "@material-ui/core";
 import AccountBalanceWalletIcon from "@material-ui/icons/AccountBalanceWallet";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import IconButton from "@material-ui/core/IconButton";
-import MoreVertIcon from "@material-ui/icons/MoreVert";
 import { useWallet } from "../../context/WalletProvider";
 
 const useStyles = makeStyles({
@@ -10,7 +9,8 @@ const useStyles = makeStyles({
     minWidth: 275,
     height: "100%",
     borderRadius: 0,
-    border: "none"
+    border: "none",
+    minHeight: 110
   },
   bullet: {
     display: "inline-block",
@@ -28,7 +28,7 @@ const useStyles = makeStyles({
 export function WalletDisplay() {
   const classes = useStyles();
 
-  const { address, balance, refreshBalance } = useWallet();
+  const { address, balance, refreshBalance, isRefreshingBalance } = useWallet();
 
   // function importWallet() {
   //     history.push("/walletImport");
@@ -48,9 +48,11 @@ export function WalletDisplay() {
             <Box component="span" marginLeft="5px">
               {balance / 1000000} AKT
             </Box>
-            <IconButton onClick={() => refreshBalance(true)} aria-label="refresh">
-              <RefreshIcon />
-            </IconButton>
+            <Box marginLeft="1rem">
+              <IconButton onClick={() => refreshBalance(true)} aria-label="refresh" disabled={isRefreshingBalance}>
+                {isRefreshingBalance ? <CircularProgress size="1.5rem" /> : <RefreshIcon />}
+              </IconButton>
+            </Box>
           </Box>
         }
         subheader={address}
