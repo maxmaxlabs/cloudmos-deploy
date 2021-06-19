@@ -16,7 +16,6 @@
     "eject": "react-scripts eject",
     "electron": "electron .",
     "electron-dev": "set ELECTRON_START_URL=http://localhost:3000 && electron .",
-    "postinstall": "electron-builder install-app-deps",
     "build": "react-scripts build",
     "dist": "electron-builder --windows",
     "release": "electron-builder --windows --publish always"
