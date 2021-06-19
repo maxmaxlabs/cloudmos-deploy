@@ -234,7 +234,6 @@ export function TransactionModal(props) {
               <TextField
                 label="Gas"
                 value={gas}
-                defaultValue={baseGas}
                 onChange={(ev) => setGas(ev.target.value)}
                 type="number"
                 variant="outlined"

@@ -1,6 +1,6 @@
 {
   "name": "akashlytics-deploy",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "Akashlytics deploy.",
   "author": {
@@ -54,18 +54,6 @@
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
-    },
-    "mac": {
-      "category": "public.app-category.developer-tools"
-    },
-    "dmg": {
-      "icon": false
-    },
-    "linux": {
-      "target": [
-        "AppImage"
-      ],
-      "category": "Office"
     },
     "asar": {
       "smartUnpack": true

@@ -5,8 +5,12 @@ const winston = require("winston");
 const url = require("url");
 const autoUpdater = require("electron-updater");
 
+let startUrl = process.env.ELECTRON_START_URL;
+
 app.on("ready", () => {
-	autoUpdater.checkForUpdatesAndNotify();
+  if (!startUrl) {
+    autoUpdater.checkForUpdatesAndNotify();
+  }
 });
 
 const logger = winston.createLogger({
@@ -36,8 +40,6 @@ function createWindow() {
     //mainWindow.removeMenu();
 
     logger.info("Created Browser Window");
-
-    let startUrl = process.env.ELECTRON_START_URL;
 
     if (process.env.ELECTRON_START_URL) {
       mainWindow.webContents.openDevTools();

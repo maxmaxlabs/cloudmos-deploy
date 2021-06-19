@@ -24,7 +24,7 @@ export const WalletProvider = ({ children }) => {
       setIsRefreshingBalance(false);
 
       if (showSnackbar) {
-        enqueueSnackbar(<Snackbar title="Price refreshed!" />, { variant: "success" });
+        enqueueSnackbar(<Snackbar title="Balance refreshed!" />, { variant: "success" });
       }
 
       return balance;
