@@ -1,24 +1,26 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
-import { Button, CircularProgress, Box, Typography, LinearProgress } from "@material-ui/core";
+import { Button, CircularProgress, Box, Typography, LinearProgress, Menu, MenuItem, IconButton } from "@material-ui/core";
 import { useWallet } from "../../context/WalletProvider";
 import { BidGroup } from "./BidGroup";
 import { useHistory } from "react-router";
 import { Manifest } from "../../shared/utils/deploymentUtils";
 import { useCertificate } from "../../context/CertificateProvider";
 import { fetchProviderInfo } from "../../shared/providerCache";
-import Alert from "@material-ui/lab/Alert";
 import { getDeploymentLocalData } from "../../shared/utils/deploymentLocalDataUtils";
 import { useTransactionModal } from "../../context/TransactionModal";
 import { UrlService } from "../../shared/utils/urlUtils";
 import { useSettings } from "../../context/SettingsProvider";
+import { useBidList } from "../../queries/useBidQuery";
+import MoreVertIcon from "@material-ui/icons/MoreVert";
+import Alert from "@material-ui/lab/Alert";
 
 const yaml = require("js-yaml");
 
-export function CreateLease(props) {
+export function CreateLease({ dseq }) {
   const { settings } = useSettings();
-  const [bids, setBids] = useState([]);
-  const [isLoadingBids, setIsLoadingBids] = useState(false);
+  //const [bids, setBids] = useState([]);
+  //const [isLoadingBids, setIsLoadingBids] = useState(false);
   const [isSendingManifest, setIsSendingManifest] = useState(false);
   const [selectedBids, setSelectedBids] = useState({});
   const { sendTransaction } = useTransactionModal();
@@ -26,63 +28,44 @@ export function CreateLease(props) {
   const { localCert } = useCertificate();
   const history = useHistory();
 
-  const { dseq } = props;
-
-  useEffect(() => {
-    loadBids();
-  }, [address, dseq]);
-
-  const loadBids = useCallback(async () => {
-    setIsLoadingBids(true);
-
-    const response = await fetch(settings.apiEndpoint + "/akash/market/v1beta1/bids/list?filters.owner=" + address + "&filters.dseq=" + dseq);
-    const data = await response.json();
-    const bids = data.bids.map((b) => ({
-      id: b.bid.bid_id.provider + b.bid.bid_id.dseq + b.bid.bid_id.gseq + b.bid.bid_id.oseq,
-      owner: b.bid.bid_id.owner,
-      provider: b.bid.bid_id.provider,
-      dseq: b.bid.bid_id.dseq,
-      gseq: b.bid.bid_id.gseq,
-      oseq: b.bid.bid_id.oseq,
-      price: b.bid.price,
-      state: b.bid.state
-    }));
-
-    setBids(bids);
-    setIsLoadingBids(false);
-
-    if (bids.length === 0) {
-      setTimeout(() => {
-        loadBids();
-      }, 7000);
-    }
-  }, [address, dseq]);
+  const {
+    data: bids,
+    isLoading: isLoadingBids,
+    refetch
+  } = useBidList(address, dseq, {
+    initialData: [],
+    initialStale: true,
+    refetchInterval: 7000
+  });
 
   const handleBidSelected = (bid) => {
     setSelectedBids({ ...selectedBids, [bid.gseq]: bid });
   };
 
   async function sendManifest(providerInfo, manifestStr) {
-    const flags = {};
-    const doc = yaml.load(manifestStr);
-    const mani = Manifest(doc);
+    try {
+      const doc = yaml.load(manifestStr);
+      const mani = Manifest(doc);
 
-    const response = await window.electron.queryProvider(
-      providerInfo.host_uri + "/deployment/" + dseq + "/manifest",
-      "PUT",
-      JSON.stringify(mani, (key, value) => {
-        if (key === "storage" || key === "memory") {
-          let newValue = { ...value };
-          newValue.size = newValue.quantity;
-          delete newValue.quantity;
-          return newValue;
-        }
-        return value;
-      }),
-      localCert.certPem,
-      localCert.keyPem
-    );
-    console.log(response);
+      const response = await window.electron.queryProvider(
+        providerInfo.host_uri + "/deployment/" + dseq + "/manifest",
+        "PUT",
+        JSON.stringify(mani, (key, value) => {
+          if (key === "storage" || key === "memory") {
+            let newValue = { ...value };
+            newValue.size = newValue.quantity;
+            delete newValue.quantity;
+            return newValue;
+          }
+          return value;
+        }),
+        localCert.certPem,
+        localCert.keyPem
+      );
+      console.log(response);
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   async function handleNext() {
@@ -111,7 +94,7 @@ export function CreateLease(props) {
 
     setIsSendingManifest(false);
 
-    history.push("/deployment/" + dseq);
+    history.push(UrlService.deploymentDetails(dseq));
   }
 
   async function handleCloseDeployment() {
@@ -121,12 +104,22 @@ export function CreateLease(props) {
       const response = await sendTransaction([message]);
 
       if (response) {
-        history.push(UrlService.deploymentList());
+        history.push(UrlService.deploymentList(true));
       }
     } catch (error) {
       throw error;
     }
   }
+
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  function handleMenuClick(ev) {
+    setAnchorEl(ev.currentTarget);
+  }
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
 
   const groupedBids = bids.reduce((a, b) => {
     a[b.gseq] = [...(a[b.gseq] || []), b];
@@ -135,7 +128,7 @@ export function CreateLease(props) {
 
   const dseqList = Object.keys(groupedBids);
 
-  const allClosed = bids.every((bid) => bid.state === "closed");
+  const allClosed = bids.length > 0 && bids.every((bid) => bid.state === "closed");
 
   return (
     <>
@@ -160,26 +153,50 @@ export function CreateLease(props) {
         />
       ))}
 
-      {!isLoadingBids && !allClosed && (
+      {!isLoadingBids && bids.length > 0 && !allClosed && (
         <Box mt={1}>
           <Button variant="contained" color="primary" onClick={handleNext} disabled={dseqList.some((gseq) => !selectedBids[gseq]) || isSendingManifest}>
             Accept Bid{dseqList.length > 1 ? "s" : ""}
           </Button>
+
+          <IconButton aria-label="settings" aria-haspopup="true" onClick={handleMenuClick}>
+            <MoreVertIcon />
+          </IconButton>
+          <Menu
+            id="bid-actions-menu"
+            anchorEl={anchorEl}
+            keepMounted
+            getContentAnchorEl={null}
+            open={Boolean(anchorEl)}
+            onClose={handleMenuClose}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "right"
+            }}
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "right"
+            }}
+          >
+            <MenuItem onClick={() => handleCloseDeployment()}>Close Deployment</MenuItem>
+          </Menu>
         </Box>
       )}
-      {!isLoadingBids && bids.length > 0 && allClosed && (
-        <>
+      <>
+        {!isLoadingBids && allClosed && (
           <Alert severity="info">
             All bids for this deployment are closed. This can happen if no bids are accepted for more than 5 minutes after the deployment creation. You can
             close this deployment and create a new one.
           </Alert>
+        )}
+        {!isLoadingBids && (allClosed || bids.length === 0) && (
           <Box mt={1}>
-            <Button variant="contained" color="primary" onClick={handleCloseDeployment}>
+            <Button variant="contained" color={allClosed ? "primary" : "secondary"} onClick={handleCloseDeployment}>
               Close Deployment
             </Button>
           </Box>
-        </>
-      )}
+        )}
+      </>
     </>
   );
 }

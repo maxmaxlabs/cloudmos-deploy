@@ -11,6 +11,7 @@ import Alert from "@material-ui/lab/Alert";
 import { useStyles } from "./ManifestEditor.styles";
 import { fetchProviderInfo } from "../../shared/providerCache";
 import { useSettings } from "../../context/SettingsProvider";
+import { useSnackbar } from "notistack";
 
 const yaml = require("js-yaml");
 
@@ -22,6 +23,8 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
   const { address } = useWallet();
   const { localCert } = useCertificate();
   const { sendTransaction } = useTransactionModal();
+
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   useEffect(() => {
     const deploymentData = getDeploymentLocalData(deployment.dseq);
@@ -64,26 +67,41 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
   };
 
   async function sendManifest(providerInfo, mani) {
-    console.log("Sending manifest to " + providerInfo.address);
-    const jsonStr = JSON.stringify(mani, (key, value) => {
-      if (key === "storage" || key === "memory") {
-        let newValue = { ...value };
-        newValue.size = newValue.quantity;
-        delete newValue.quantity;
-        return newValue;
-      }
-      return value;
-    });
+    try {
+      console.log("Sending manifest to " + providerInfo.address);
+      const jsonStr = JSON.stringify(mani, (key, value) => {
+        if (key === "storage" || key === "memory") {
+          let newValue = { ...value };
+          newValue.size = newValue.quantity;
+          delete newValue.quantity;
+          return newValue;
+        }
+        return value;
+      });
 
-    const response = await window.electron.queryProvider(
-      providerInfo.host_uri + "/deployment/" + deployment.dseq + "/manifest",
-      "PUT",
-      jsonStr,
-      localCert.certPem,
-      localCert.keyPem
-    );
+      const response = await window.electron.queryProvider(
+        providerInfo.host_uri + "/deployment/" + deployment.dseq + "/manifest",
+        "PUT",
+        jsonStr,
+        localCert.certPem,
+        localCert.keyPem
+      );
 
-    return response;
+      return response;
+    } catch (err) {
+      enqueueSnackbar(
+        <div>
+          <Typography variant="h5" className={classes.snackBarTitle}>
+            Error while sending manifest to provider
+          </Typography>
+          {/* <Typography variant="body1" className={classes.snackBarSubTitle}>
+            {err}
+          </Typography> */}
+        </div>,
+        { variant: "error" }
+      );
+      throw err;
+    }
   }
 
   async function handleUpdateClick() {
