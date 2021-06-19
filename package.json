@@ -18,8 +18,8 @@
     "electron-dev": "set ELECTRON_START_URL=http://localhost:3000 && electron .",
     "postinstall": "electron-builder install-app-deps",
     "build": "react-scripts build",
-    "dist": "electron-builder --mac --windows --linux",
-    "release": "electron-builder --mac --windows --linux --publish always"
+    "dist": "electron-builder --windows",
+    "release": "electron-builder --windows --publish always"
   },
   "eslintConfig": {
     "extends": [
@@ -45,7 +45,7 @@
     ]
   },
   "build": {
-    "productName": "Akashleploy",
+    "productName": "Akashlytics deploy",
     "appId": "com.akashlytics.deploy",
     "win": {
       "target": "NSIS",
@@ -81,6 +81,7 @@
     "axios": "^0.21.1",
     "clsx": "^1.1.1",
     "date-fns": "^2.22.1",
+    "electron-updater": "^4.3.9",
     "json-stable-stringify": "^1.0.1",
     "jsrsasign": "^10.2.0",
     "nanoid": "^3.1.23",

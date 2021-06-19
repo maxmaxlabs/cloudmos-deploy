@@ -3,6 +3,11 @@ const { app, BrowserWindow } = require("electron");
 const path = require("path");
 const winston = require("winston");
 const url = require("url");
+const autoUpdater = require("electron-updater");
+
+app.on("ready", () => {
+	autoUpdater.checkForUpdatesAndNotify();
+});
 
 const logger = winston.createLogger({
   level: "info",
