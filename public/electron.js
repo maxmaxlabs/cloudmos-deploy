@@ -3,14 +3,12 @@ const { app, BrowserWindow } = require("electron");
 const path = require("path");
 const winston = require("winston");
 const url = require("url");
-const autoUpdater = require("electron-updater");
+const { autoUpdater } = require("electron-updater");
 
 let startUrl = process.env.ELECTRON_START_URL;
 
 app.on("ready", () => {
-  if (!startUrl) {
-    autoUpdater.checkForUpdatesAndNotify();
-  }
+  autoUpdater.checkForUpdatesAndNotify();
 });
 
 const logger = winston.createLogger({

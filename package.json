@@ -1,6 +1,6 @@
 {
   "name": "akashlytics-deploy",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "description": "Akashlytics deploy.",
   "author": {
@@ -17,7 +17,7 @@
     "electron": "electron .",
     "electron-dev": "set ELECTRON_START_URL=http://localhost:3000 && electron .",
     "build": "react-scripts build",
-    "dist": "electron-builder --windows",
+    "dist": "react-scripts build && electron-builder --windows",
     "release": "electron-builder --windows --publish always"
   },
   "eslintConfig": {
