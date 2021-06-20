@@ -20,7 +20,7 @@
     "eject": "react-scripts eject",
     "electron": "electron .",
     "electron-dev": "set ELECTRON_START_URL=http://localhost:3000 && electron .",
-    "build": "react-scripts build && electron-builder --windows",
+    "build": "set \"GENERATE_SOURCEMAP=false\" && react-scripts build && electron-builder --windows",
     "release": "electron-builder --windows --publish always"
   },
   "eslintConfig": {

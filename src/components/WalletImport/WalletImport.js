@@ -7,8 +7,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
     // backgroundColor: "#f5f5f5",
-    paddingTop: "20px",
-
+    padding: "4rem 0",
     "& .MuiTextField-root": {
       marginBottom: "20px"
     },
@@ -39,7 +38,7 @@ export function WalletImport() {
   return (
     <div className={classes.root}>
       <Container maxWidth="sm" pt={2}>
-        <Paper className={classes.paper}>
+        <Paper className={classes.paper} elevation={5}>
           <h1>Import an existing wallet</h1>
           <br />
           <form noValidate autoComplete="false">

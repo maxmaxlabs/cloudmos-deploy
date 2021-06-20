@@ -17,8 +17,6 @@ import { Dashboard } from "./routes/Dashboard";
 import { Settings } from "./routes/Settings";
 import { useQueryParams } from "./hooks/useQueryParams";
 
-const ipcApi = window.electron.api;
-
 const useStyles = makeStyles((theme) => ({
   root: {},
   paper: {
@@ -39,29 +37,8 @@ export function MainView() {
   const history = useHistory();
   const params = useQueryParams();
   const { address, selectedWallet } = useWallet();
-  const { data: deployments, isLoading: isLoadingDeployments, refetch } = useDeploymentList(address);
+  const { data: deployments, isLoading: isLoadingDeployments, isFetching: isFetchingDeployments, refetch } = useDeploymentList(address);
   const classes = useStyles();
-
-  useEffect(() => {
-    ipcApi.send("app_version");
-    ipcApi.receive("app_version", (arg) => {
-      console.log("App version:", arg.version);
-    });
-
-    // ipcApi.receive("update_available", () => {
-    //   ipcApi.removeAllListeners("update_available");
-    //   console.log("A new update is available. Downloading now...");
-    //   // TODO show a toast for update
-    // });
-
-    // ipcApi.receive("update_downloaded", () => {
-    //   ipcApi.removeAllListeners("update_downloaded");
-    //   console.log("Update Downloaded. It will be installed on restart. Restart now?");
-    //   // TODO Handle click button to send restart
-
-    //   // ipcRenderer.send('restart_app');
-    // });
-  }, []);
 
   useEffect(() => {
     // using query params to tell react-query to refetch manually
@@ -104,13 +81,13 @@ export function MainView() {
                   <DeploymentDetail deployments={deployments} />
                 </Route>
                 <Route exact path="/deployments">
-                  <DeploymentList deployments={deployments} isLoadingDeployments={isLoadingDeployments} />
+                  <DeploymentList deployments={deployments} isLoadingDeployments={isFetchingDeployments} />
                 </Route>
                 <Route exact path="/settings">
                   <Settings />
                 </Route>
                 <Route exact path="/">
-                  <Dashboard deployments={deployments} isLoadingDeployments={isLoadingDeployments} />
+                  <Dashboard deployments={deployments} isLoadingDeployments={isFetchingDeployments} />
                 </Route>
               </ErrorBoundary>
             </Box>
