@@ -44,8 +44,6 @@ export function CertificateDisplay(props) {
   async function revokeCertificate(cert) {
     handleClose();
 
-    //setIsLoadingCertificates(true);
-
     try {
       const message = TransactionMessageData.getRevokeCertificateMsg(address, cert.serial);
 
@@ -58,8 +56,8 @@ export function CertificateDisplay(props) {
 
         await loadValidCertificates();
       }
-    } finally {
-      //setIsLoadingCertificates(false);
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -80,8 +78,6 @@ export function CertificateDisplay(props) {
       console.log("cancelled");
       return;
     }
-
-    // setIsLoadingCertificates(true);
 
     const notBefore = new Date();
     let notAfter = new Date();
@@ -126,7 +122,6 @@ export function CertificateDisplay(props) {
 
     try {
       const message = TransactionMessageData.getCreateCertificateMsg(address, crtpem, pubpem);
-      // TODO handle response
       const response = await sendTransaction([message]);
 
       if (response) {
@@ -174,9 +169,11 @@ export function CertificateDisplay(props) {
                 </IconButton>
               </Box>
               {!isLoadingCertificates && !certificate && (
-                <Button variant="contained" color="primary" size="small" onClick={() => createCertificate()}>
-                  Create Certificate
-                </Button>
+                <Box marginLeft="1rem">
+                  <Button variant="contained" color="primary" size="small" onClick={() => createCertificate()}>
+                    Create Certificate
+                  </Button>
+                </Box>
               )}
             </Box>
           }

@@ -1,5 +1,5 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 const winston = require("winston");
 const url = require("url");
@@ -52,6 +52,22 @@ function createWindow() {
     logger.info(`Start url: ${startUrl}`);
 
     mainWindow.loadURL(startUrl);
+
+    ipcMain.on("app_version", (event) => {
+      const version = app.getVersion();
+      event.reply("app_version", { version });
+    });
+
+    autoUpdater.on("update-available", () => {
+      mainWindow.webContents.send("update_available");
+    });
+    autoUpdater.on("update-downloaded", () => {
+      mainWindow.webContents.send("update_downloaded");
+    });
+
+    ipcMain.on("restart_app", () => {
+      autoUpdater.quitAndInstall();
+    });
   } catch (error) {
     logger.error(error);
   }

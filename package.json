@@ -2,6 +2,10 @@
   "name": "akashlytics-deploy",
   "version": "0.1.2",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Akashlytics/akashlytics-deploy-tool.git"
+  },
   "description": "Akashlytics deploy.",
   "author": {
     "name": "Akashlytics",
@@ -16,8 +20,7 @@
     "eject": "react-scripts eject",
     "electron": "electron .",
     "electron-dev": "set ELECTRON_START_URL=http://localhost:3000 && electron .",
-    "build": "react-scripts build",
-    "dist": "react-scripts build && electron-builder --windows",
+    "build": "react-scripts build && electron-builder --windows",
     "release": "electron-builder --windows --publish always"
   },
   "eslintConfig": {
@@ -42,22 +45,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "build": {
-    "productName": "Akashlytics deploy",
-    "appId": "com.akashlytics.deploy",
-    "win": {
-      "target": "NSIS",
-      "icon": "/public/logo.png"
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true
-    },
-    "asar": {
-      "smartUnpack": true
-    },
-    "asarUnpack": "**/akashlytics-provider-proxy.exe"
   },
   "dependencies": {
     "@cosmjs/proto-signing": "^0.25.4",

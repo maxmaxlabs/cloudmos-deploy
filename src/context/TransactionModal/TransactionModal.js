@@ -63,7 +63,7 @@ export function TransactionModal(props) {
       });
 
       const fee = createFee(currentFee, gas, messages.length);
-      const response = await client.signAndBroadcast(address, messages, fee, `Akashlytics tx: ${memo}`);
+      const response = await client.signAndBroadcast(address, messages, fee, memo);
 
       console.log(response);
 
