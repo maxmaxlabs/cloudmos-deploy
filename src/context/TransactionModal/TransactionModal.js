@@ -190,6 +190,7 @@ export function TransactionModal(props) {
           <Box>
             <ButtonGroup size="large" color="primary" aria-label="large outlined primary button group" classes={{ root: classes.fullWidth }}>
               <Button
+                disabled={isSendingTransaction}
                 classes={{ root: classes.feeButton, label: classes.feeButtonLabel }}
                 variant={currentFee === "low" ? "contained" : "outlined"}
                 onClick={() => setCurrentFee("low")}
@@ -201,6 +202,7 @@ export function TransactionModal(props) {
                 </div>
               </Button>
               <Button
+                disabled={isSendingTransaction}
                 classes={{ root: classes.feeButton, label: classes.feeButtonLabel }}
                 variant={currentFee === "avg" ? "contained" : "outlined"}
                 onClick={() => setCurrentFee("avg")}
@@ -212,6 +214,7 @@ export function TransactionModal(props) {
                 </div>
               </Button>
               <Button
+                disabled={isSendingTransaction}
                 classes={{ root: classes.feeButton, label: classes.feeButtonLabel }}
                 variant={currentFee === "high" ? "contained" : "outlined"}
                 onClick={() => setCurrentFee("high")}
@@ -225,12 +228,14 @@ export function TransactionModal(props) {
             </ButtonGroup>
           </Box>
           <Box>
-            <Typography className={classes.setGasLink}>
-              <Link href="#" onClick={onSetGasClick}>
-                Set gas
-              </Link>
-            </Typography>
-            {isSettingGas && (
+            {!isSendingTransaction && (
+              <Typography className={classes.setGasLink}>
+                <Link href="#" onClick={onSetGasClick}>
+                  Set gas
+                </Link>
+              </Typography>
+            )}
+            {!isSendingTransaction && isSettingGas && (
               <TextField
                 label="Gas"
                 value={gas}
