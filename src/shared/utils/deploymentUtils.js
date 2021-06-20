@@ -352,3 +352,27 @@ export async function NewDeploymentData(apiEndpoint, yamlJson, dseq, fromAddress
     deposit: deposit
   };
 }
+
+export async function sendManifestToProvider(providerInfo, manifestStr, dseq, localCert) {
+  console.log("Sending manifest to " + providerInfo.address);
+
+  const jsonStr = JSON.stringify(manifestStr, (key, value) => {
+    if (key === "storage" || key === "memory") {
+      let newValue = { ...value };
+      newValue.size = newValue.quantity;
+      delete newValue.quantity;
+      return newValue;
+    }
+    return value;
+  });
+
+  const response = await window.electron.queryProvider(
+    providerInfo.host_uri + "/deployment/" + dseq + "/manifest",
+    "PUT",
+    jsonStr,
+    localCert.certPem,
+    localCert.keyPem
+  );
+
+  return response;
+}

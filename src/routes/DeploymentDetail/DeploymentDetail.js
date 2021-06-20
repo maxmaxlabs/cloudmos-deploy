@@ -159,7 +159,7 @@ export function DeploymentDetail(props) {
               Leases
             </Typography>
             {leases.map((lease) => (
-              <LeaseRow key={lease.id} cert={props.cert} lease={lease} deployment={deployment} />
+              <LeaseRow key={lease.id} cert={props.cert} lease={lease} deployment={deployment} setActiveTab={setActiveTab} />
             ))}
             {leases.length === 0 && !isLoadingLeases && <>This deployment doesn't have any leases</>}
 

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Button, Box, Typography } from "@material-ui/core";
 import { getDeploymentLocalData, saveDeploymentManifest } from "../../shared/utils/deploymentLocalDataUtils";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
-import { NewDeploymentData, Manifest } from "../../shared/utils/deploymentUtils";
+import { NewDeploymentData, Manifest, sendManifestToProvider } from "../../shared/utils/deploymentUtils";
 import { useWallet } from "../../context/WalletProvider";
 import { useTransactionModal } from "../../context/TransactionModal";
 import { useCertificate } from "../../context/CertificateProvider";
@@ -24,7 +24,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
   const { localCert } = useCertificate();
   const { sendTransaction } = useTransactionModal();
 
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
     const deploymentData = getDeploymentLocalData(deployment.dseq);
@@ -68,38 +68,11 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
 
   async function sendManifest(providerInfo, mani) {
     try {
-      console.log("Sending manifest to " + providerInfo.address);
-      const jsonStr = JSON.stringify(mani, (key, value) => {
-        if (key === "storage" || key === "memory") {
-          let newValue = { ...value };
-          newValue.size = newValue.quantity;
-          delete newValue.quantity;
-          return newValue;
-        }
-        return value;
-      });
-
-      const response = await window.electron.queryProvider(
-        providerInfo.host_uri + "/deployment/" + deployment.dseq + "/manifest",
-        "PUT",
-        jsonStr,
-        localCert.certPem,
-        localCert.keyPem
-      );
+      const response = await sendManifestToProvider(providerInfo, mani, deployment.dseq, localCert);
 
       return response;
     } catch (err) {
-      enqueueSnackbar(
-        <div>
-          <Typography variant="h5" className={classes.snackBarTitle}>
-            Error while sending manifest to provider
-          </Typography>
-          {/* <Typography variant="body1" className={classes.snackBarSubTitle}>
-            {err}
-          </Typography> */}
-        </div>,
-        { variant: "error" }
-      );
+      enqueueSnackbar("Error while sending manifest to provider", { variant: "error" });
       throw err;
     }
   }
@@ -115,7 +88,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
       // TODO handle response
       const response = await sendTransaction([message]);
 
-      if (!response) throw "Failed";
+      if (!response) throw "Rejected";
     } catch (error) {
       throw error;
     }

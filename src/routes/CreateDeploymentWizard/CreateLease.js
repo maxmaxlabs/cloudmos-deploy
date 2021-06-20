@@ -4,7 +4,7 @@ import { Button, CircularProgress, Box, Typography, LinearProgress, Menu, MenuIt
 import { useWallet } from "../../context/WalletProvider";
 import { BidGroup } from "./BidGroup";
 import { useHistory } from "react-router";
-import { Manifest } from "../../shared/utils/deploymentUtils";
+import { sendManifestToProvider } from "../../shared/utils/deploymentUtils";
 import { useCertificate } from "../../context/CertificateProvider";
 import { fetchProviderInfo } from "../../shared/providerCache";
 import { getDeploymentLocalData } from "../../shared/utils/deploymentLocalDataUtils";
@@ -12,27 +12,21 @@ import { useTransactionModal } from "../../context/TransactionModal";
 import { UrlService } from "../../shared/utils/urlUtils";
 import { useSettings } from "../../context/SettingsProvider";
 import { useBidList } from "../../queries/useBidQuery";
+import { useSnackbar } from "notistack";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import Alert from "@material-ui/lab/Alert";
 
-const yaml = require("js-yaml");
-
 export function CreateLease({ dseq }) {
   const { settings } = useSettings();
-  //const [bids, setBids] = useState([]);
-  //const [isLoadingBids, setIsLoadingBids] = useState(false);
   const [isSendingManifest, setIsSendingManifest] = useState(false);
   const [selectedBids, setSelectedBids] = useState({});
   const { sendTransaction } = useTransactionModal();
   const { address } = useWallet();
   const { localCert } = useCertificate();
+  const { enqueueSnackbar } = useSnackbar();
   const history = useHistory();
 
-  const {
-    data: bids,
-    isLoading: isLoadingBids,
-    refetch
-  } = useBidList(address, dseq, {
+  const { data: bids, isLoading: isLoadingBids } = useBidList(address, dseq, {
     initialData: [],
     initialStale: true,
     refetchInterval: 7000
@@ -44,27 +38,12 @@ export function CreateLease({ dseq }) {
 
   async function sendManifest(providerInfo, manifestStr) {
     try {
-      const doc = yaml.load(manifestStr);
-      const mani = Manifest(doc);
+      const response = await sendManifestToProvider(providerInfo, manifestStr, dseq, localCert);
 
-      const response = await window.electron.queryProvider(
-        providerInfo.host_uri + "/deployment/" + dseq + "/manifest",
-        "PUT",
-        JSON.stringify(mani, (key, value) => {
-          if (key === "storage" || key === "memory") {
-            let newValue = { ...value };
-            newValue.size = newValue.quantity;
-            delete newValue.quantity;
-            return newValue;
-          }
-          return value;
-        }),
-        localCert.certPem,
-        localCert.keyPem
-      );
-      console.log(response);
+      return response;
     } catch (err) {
-      console.error(err);
+      enqueueSnackbar("Error while sending manifest to provider", { variant: "error" });
+      throw err;
     }
   }
 
@@ -86,10 +65,14 @@ export function CreateLease({ dseq }) {
 
     const deploymentData = getDeploymentLocalData(dseq);
     if (deploymentData && deploymentData.manifest) {
-      console.log("Querying provider info");
-      const providerInfo = await fetchProviderInfo(settings.apiEndpoint, selectedBids[Object.keys(selectedBids)[0]].provider);
-      console.log("Sending manifest");
-      await sendManifest(providerInfo, deploymentData.manifest);
+      try {
+        console.log("Querying provider info");
+        const providerInfo = await fetchProviderInfo(settings.apiEndpoint, selectedBids[Object.keys(selectedBids)[0]].provider);
+
+        await sendManifest(providerInfo, deploymentData.manifest);
+      } catch (err) {
+        console.error(err);
+      }
     }
 
     setIsSendingManifest(false);
