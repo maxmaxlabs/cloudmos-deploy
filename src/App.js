@@ -10,6 +10,7 @@ import CloseIcon from "@material-ui/icons/Close";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { SettingsProvider } from "./context/SettingsProvider";
 import { MemoryRouter } from "react-router-dom";
+import { BetaBanner } from "./components/BetaBanner";
 
 const useStyles = makeStyles((theme) => ({
   snackbarClose: {
@@ -46,6 +47,7 @@ function App() {
               <TransactionModalProvider>
                 <PasswordConfirmationModalProvider>
                   <CertificateProvider>
+                    <BetaBanner />
                     <MainView />
                   </CertificateProvider>
                 </PasswordConfirmationModalProvider>

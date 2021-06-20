@@ -3,13 +3,13 @@ const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 const winston = require("winston");
 const url = require("url");
-const { autoUpdater } = require("electron-updater");
+// const { autoUpdater } = require("electron-updater");
 
 let startUrl = process.env.ELECTRON_START_URL;
 
-app.on("ready", () => {
-  autoUpdater.checkForUpdatesAndNotify();
-});
+// app.on("ready", () => {
+//   autoUpdater.checkForUpdatesAndNotify();
+// });
 
 const logger = winston.createLogger({
   level: "info",
@@ -58,16 +58,16 @@ function createWindow() {
       event.reply("app_version", { version });
     });
 
-    autoUpdater.on("update-available", () => {
-      mainWindow.webContents.send("update_available");
-    });
-    autoUpdater.on("update-downloaded", () => {
-      mainWindow.webContents.send("update_downloaded");
-    });
+    // autoUpdater.on("update-available", () => {
+    //   mainWindow.webContents.send("update_available");
+    // });
+    // autoUpdater.on("update-downloaded", () => {
+    //   mainWindow.webContents.send("update_downloaded");
+    // });
 
-    ipcMain.on("restart_app", () => {
-      autoUpdater.quitAndInstall();
-    });
+    // ipcMain.on("restart_app", () => {
+    //   autoUpdater.quitAndInstall();
+    // });
   } catch (error) {
     logger.error(error);
   }

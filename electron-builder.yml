@@ -12,3 +12,4 @@ asarUnpack: "**/akashlytics-provider-proxy.exe"
 publish:
   provider: github
   token: GH_TOKEN
+  private: true

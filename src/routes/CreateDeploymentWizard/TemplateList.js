@@ -86,7 +86,7 @@ services:
       - port: 80
         as: 80
         accept:
-          - akashhw.tombeynon.co.uk
+          - www.yourwebsite.com
         to:
           - global: true
 

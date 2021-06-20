@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Route, useHistory } from "react-router-dom";
-import { makeStyles, Grid, Paper, Box, AppBar, Toolbar, Chip, Typography, IconButton } from "@material-ui/core";
+import { makeStyles, Grid, Paper, Box } from "@material-ui/core";
 import { WalletImport } from "./components/WalletImport";
 import { WalletOpen } from "./components/WalletOpen";
 import { CreateDeploymentWizard } from "./routes/CreateDeploymentWizard";
@@ -16,19 +16,11 @@ import { useDeploymentList } from "./queries";
 import { Dashboard } from "./routes/Dashboard";
 import { Settings } from "./routes/Settings";
 import { useQueryParams } from "./hooks/useQueryParams";
-import CloseIcon from "@material-ui/icons/Close";
 
 const ipcApi = window.electron.api;
 
 const useStyles = makeStyles((theme) => ({
   root: {},
-  grow: { flexGrow: 1 },
-  betaChip: {
-    fontWeight: "bold"
-  },
-  betaText: {
-    padding: "0 1rem"
-  },
   paper: {
     padding: theme.spacing(2),
     textAlign: "center",
@@ -48,7 +40,6 @@ export function MainView() {
   const params = useQueryParams();
   const { address, selectedWallet } = useWallet();
   const { data: deployments, isLoading: isLoadingDeployments, refetch } = useDeploymentList(address);
-  const [isBetaBarVisible, setIsBetaBarVisible] = useState(true);
   const classes = useStyles();
 
   useEffect(() => {
@@ -57,19 +48,19 @@ export function MainView() {
       console.log("App version:", arg.version);
     });
 
-    ipcApi.receive("update_available", () => {
-      ipcApi.removeAllListeners("update_available");
-      console.log("A new update is available. Downloading now...");
-      // TODO show a toast for update
-    });
+    // ipcApi.receive("update_available", () => {
+    //   ipcApi.removeAllListeners("update_available");
+    //   console.log("A new update is available. Downloading now...");
+    //   // TODO show a toast for update
+    // });
 
-    ipcApi.receive("update_downloaded", () => {
-      ipcApi.removeAllListeners("update_downloaded");
-      console.log("Update Downloaded. It will be installed on restart. Restart now?");
-      // TODO Handle click button to send restart
+    // ipcApi.receive("update_downloaded", () => {
+    //   ipcApi.removeAllListeners("update_downloaded");
+    //   console.log("Update Downloaded. It will be installed on restart. Restart now?");
+    //   // TODO Handle click button to send restart
 
-      // ipcRenderer.send('restart_app');
-    });
+    //   // ipcRenderer.send('restart_app');
+    // });
   }, []);
 
   useEffect(() => {
@@ -89,25 +80,6 @@ export function MainView() {
 
   return (
     <div className={classes.root}>
-      {isBetaBarVisible && (
-        <AppBar position="static">
-          <Toolbar>
-            <Chip label="BETA" color="secondary" className={classes.betaChip} />
-            <div className={classes.betaText}>
-              <Typography variant="body1">
-                Akashlytics Deploy is currently in BETA. We strongly suggest you start with a new wallet and a small amount of AKT until we further stabilize
-                the product. Enjoy!
-              </Typography>
-            </div>
-
-            <div className={classes.grow} />
-            <IconButton aria-label="Close beta app bar" color="inherit" onClick={() => setIsBetaBarVisible(false)}>
-              <CloseIcon />
-            </IconButton>
-          </Toolbar>
-        </AppBar>
-      )}
-
       <Grid container pt={2}>
         <ErrorBoundary FallbackComponent={ErrorFallback}>
           <Grid item xs={6}>

@@ -8,7 +8,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
     // backgroundColor: "#f5f5f5",
-    paddingTop: "20px",
+    padding: "4rem 0",
 
     "& .MuiTextField-root": {
       marginBottom: "20px"
@@ -54,8 +54,8 @@ export function WalletOpen() {
   return (
     <div className={classes.root}>
       <Container maxWidth="sm" pt={2}>
-        <Paper className={classes.paper}>
-          <h1>Opening your wallet</h1>
+        <Paper className={classes.paper} elevation={5}>
+          <h1>Open your wallet</h1>
           <br />
           <form noValidate autoComplete={"false"} onSubmit={onOpenClick}>
             <TextField
