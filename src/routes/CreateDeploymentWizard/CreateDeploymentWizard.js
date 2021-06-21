@@ -118,7 +118,7 @@ export function CreateDeploymentWizard() {
           <div>
             {activeStep === 0 && <PrerequisiteList />}
             {activeStep === 1 && <TemplateList selectedTemplate={selectedTemplate} setSelectedTemplate={(c) => setSelectedTemplate(c)} />}
-            {activeStep === 2 && <ManifestEdit editedManifest={editedManifest} setEditedManifest={setEditedManifest} />}
+            {activeStep === 2 && <ManifestEdit selectedTemplate={selectedTemplate} editedManifest={editedManifest} setEditedManifest={setEditedManifest} />}
             {activeStep === 3 && <CreateLease dseq={dseq} editedManifest={editedManifest} />}
           </div>
         </div>

@@ -1,5 +1,41 @@
 const stableStringify = require("json-stable-stringify");
 
+const specSuffixes = {
+  Ki: 1024,
+  Mi: 1024 * 1024,
+  Gi: 1024 * 1024 * 1024,
+  Ti: 1024 * 1024 * 1024 * 1024,
+  Pi: 1024 * 1024 * 1024 * 1024 * 1024,
+  Ei: 1024 * 1024 * 1024 * 1024 * 1024 * 1024,
+  K: 1000,
+  M: 1000 * 1000,
+  G: 1000 * 1000 * 1000,
+  T: 1000 * 1000 * 1000 * 1000,
+  P: 1000 * 1000 * 1000 * 1000 * 1000,
+  E: 1000 * 1000 * 1000 * 1000 * 1000 * 1000
+};
+
+const validationConfig = {
+	maxUnitCPU:     10 * 1000,    // 10 CPUs
+	maxUnitMemory:  16 * specSuffixes.Gi, // 16 Gi
+	maxUnitStorage: specSuffixes.Ti,      // 1 Ti
+	maxUnitCount:   50,
+	maxUnitPrice:   10000000, // 10akt
+
+	minUnitCPU:     10,
+	minUnitMemory:  specSuffixes.Mi,
+	minUnitStorage: 5 * specSuffixes.Mi,
+	minUnitCount:   1,
+	minUnitPrice:   1,
+
+	maxGroupCount: 20,
+	maxGroupUnits: 20,
+
+	maxGroupCPU:     20 * 1000,
+	maxGroupMemory:  32 * specSuffixes.Gi,
+	maxGroupStorage: specSuffixes.Ti,
+}
+
 async function getCurrentHeight(apiEndpoint) {
   const response = await fetch(apiEndpoint + "/blocks/latest");
   const data = await response.json();
@@ -35,27 +71,12 @@ function ParseServiceProtocol(input) {
 
 function parseSizeStr(str) {
   try {
-    const suffixes = {
-      Ki: 1024,
-      Mi: 1024 * 1024,
-      Gi: 1024 * 1024 * 1024,
-      Ti: 1024 * 1024 * 1024 * 1024,
-      Pi: 1024 * 1024 * 1024 * 1024 * 1024,
-      Ei: 1024 * 1024 * 1024 * 1024 * 1024 * 1024,
-      K: 1000,
-      M: 1000 * 1000,
-      G: 1000 * 1000 * 1000,
-      T: 1000 * 1000 * 1000 * 1000,
-      P: 1000 * 1000 * 1000 * 1000 * 1000,
-      E: 1000 * 1000 * 1000 * 1000 * 1000 * 1000
-    };
-
-    const suffix = Object.keys(suffixes).find((s) => str.toLowerCase().endsWith(s.toLowerCase()));
+    const suffix = Object.keys(specSuffixes).find((s) => str.toLowerCase().endsWith(s.toLowerCase()));
 
     if (suffix) {
       const suffixPos = str.length - suffix.length;
       const numberStr = str.substring(0, suffixPos);
-      return (parseFloat(numberStr) * suffixes[suffix]).toString();
+      return (parseFloat(numberStr) * specSuffixes[suffix]).toString();
     } else {
       return parseFloat(str);
     }
