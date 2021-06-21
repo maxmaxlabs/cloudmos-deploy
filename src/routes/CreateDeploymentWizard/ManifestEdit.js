@@ -57,7 +57,6 @@ export function ManifestEdit(props) {
 
     try {
       const message = TransactionMessageData.getCreateDeploymentMsg(dd);
-      // TODO handle response
       const response = await sendTransaction([message]);
 
       if (response) {

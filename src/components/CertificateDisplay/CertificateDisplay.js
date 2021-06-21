@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, Box } from "@material-ui/core";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
 import { usePasswordConfirmationModal } from "../../context/ConfirmPasswordModal";
 import { useTransactionModal } from "../../context/TransactionModal";
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
-import AutorenewIcon from "@material-ui/icons/Autorenew";
+import RefreshIcon from "@material-ui/icons/Refresh";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import { Button, IconButton, Card, CardHeader, CardContent, CircularProgress, MenuItem, Menu } from "@material-ui/core";
 import { useCertificate } from "../../context/CertificateProvider";
@@ -17,7 +17,9 @@ const useStyles = makeStyles({
   root: {
     minWidth: 275,
     minHeight: 104,
-    height: "100%"
+    height: "100%",
+    borderRadius: 0,
+    border: "none"
   },
   bullet: {
     display: "inline-block",
@@ -42,8 +44,6 @@ export function CertificateDisplay(props) {
   async function revokeCertificate(cert) {
     handleClose();
 
-    //setIsLoadingCertificates(true);
-
     try {
       const message = TransactionMessageData.getRevokeCertificateMsg(address, cert.serial);
 
@@ -56,8 +56,8 @@ export function CertificateDisplay(props) {
 
         await loadValidCertificates();
       }
-    } finally {
-      //setIsLoadingCertificates(false);
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -78,8 +78,6 @@ export function CertificateDisplay(props) {
       console.log("cancelled");
       return;
     }
-
-    // setIsLoadingCertificates(true);
 
     const notBefore = new Date();
     let notAfter = new Date();
@@ -124,7 +122,6 @@ export function CertificateDisplay(props) {
 
     try {
       const message = TransactionMessageData.getCreateCertificateMsg(address, crtpem, pubpem);
-      // TODO handle response
       const response = await sendTransaction([message]);
 
       if (response) {
@@ -161,24 +158,27 @@ export function CertificateDisplay(props) {
             )
           }
           title={
-            <>
-              <>
-                <VerifiedUserIcon /> Certificate
-              </>
-            </>
+            <Box display="flex" alignItems="center">
+              <VerifiedUserIcon />
+              <Box component="span" marginLeft="5px">
+                Certificate
+              </Box>
+              <Box marginLeft="1rem">
+                <IconButton onClick={() => loadValidCertificates(true)} aria-label="refresh" disabled={isLoadingCertificates}>
+                  {isLoadingCertificates ? <CircularProgress size="1.5rem" /> : <RefreshIcon />}
+                </IconButton>
+              </Box>
+              {!isLoadingCertificates && !certificate && (
+                <Box marginLeft="1rem">
+                  <Button variant="contained" color="primary" size="small" onClick={() => createCertificate()}>
+                    Create Certificate
+                  </Button>
+                </Box>
+              )}
+            </Box>
           }
           subheader={certificate && "Serial: " + certificate.serial}
         ></CardHeader>
-        <CardContent>
-          {isLoadingCertificates && <CircularProgress />}
-          {!isLoadingCertificates && !certificate && (
-            <>
-              <Button variant="contained" color="primary" onClick={() => createCertificate()}>
-                Create Certificate
-              </Button>
-            </>
-          )}
-        </CardContent>
         {certificate && (
           <Menu
             id="cert-menu"
@@ -201,10 +201,10 @@ export function CertificateDisplay(props) {
               &nbsp;Revoke
             </MenuItem>
             {/* <MenuItem onClick={handleClose}><SystemUpdateAltIcon />&nbsp;Export</MenuItem> */}
-            <MenuItem onClick={handleClose}>
+            {/* <MenuItem onClick={handleClose}>
               <AutorenewIcon />
               &nbsp;Regenerate
-            </MenuItem>
+            </MenuItem> */}
           </Menu>
         )}
       </Card>

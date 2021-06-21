@@ -37,11 +37,7 @@ export function LeaseRow(props) {
   const { lease } = props;
   const [providerInfo, setProviderInfo] = useState(null);
   const [leaseInfoFromProvider, setLeaseInfoFromProvider] = useState(null);
-
   const { localCert } = useCertificate();
-
-  console.log(lease);
-
   const classes = useStyles();
 
   useEffect(() => {

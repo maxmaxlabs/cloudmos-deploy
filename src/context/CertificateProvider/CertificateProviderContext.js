@@ -1,7 +1,9 @@
 import React, { useState, useCallback, useEffect } from "react";
+import { useSnackbar } from "notistack";
 import { openCert } from "../../shared/utils/walletUtils";
 import { useSettings } from "../SettingsProvider";
 import { useWallet } from "../WalletProvider";
+import { Snackbar } from "../../shared/components/Snackbar";
 
 const CertificateProviderContext = React.createContext({});
 
@@ -11,19 +13,27 @@ export const CertificateProvider = ({ children }) => {
   const [localCert, setLocalCert] = useState(null);
   const [isLocalCertMatching, setIsLocalCertMatching] = useState(false);
   const { settings } = useSettings();
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   const { address } = useWallet();
 
-  const loadValidCertificates = useCallback(async () => {
-    setIsLoadingCertificates(true);
-    const response = await fetch(settings.apiEndpoint + "/akash/cert/v1beta1/certificates/list?filter.state=valid&filter.owner=" + address);
-    const data = await response.json();
+  const loadValidCertificates = useCallback(
+    async (showSnackbar) => {
+      setIsLoadingCertificates(true);
+      const response = await fetch(settings.apiEndpoint + "/akash/cert/v1beta1/certificates/list?filter.state=valid&filter.owner=" + address);
+      const data = await response.json();
 
-    setValidCertificates(data.certificates);
-    setIsLoadingCertificates(false);
+      setValidCertificates(data.certificates);
+      setIsLoadingCertificates(false);
 
-    return data.certificates[0];
-  }, [address]);
+      if (showSnackbar) {
+        enqueueSnackbar(<Snackbar title="Certificate refreshed!" />, { variant: "success" });
+      }
+
+      return data.certificates[0];
+    },
+    [address]
+  );
 
   useEffect(() => {
     if (address) {
@@ -55,8 +65,5 @@ export const CertificateProvider = ({ children }) => {
 };
 
 export const useCertificate = () => {
-  const { loadValidCertificates, certificate, isLoadingCertificates, loadLocalCert, localCert, isLocalCertMatching } =
-    React.useContext(CertificateProviderContext);
-
-  return { loadValidCertificates, certificate, isLoadingCertificates, loadLocalCert, localCert, isLocalCertMatching };
+  return { ...React.useContext(CertificateProviderContext) };
 };

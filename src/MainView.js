@@ -18,19 +18,18 @@ import { Settings } from "./routes/Settings";
 import { useQueryParams } from "./hooks/useQueryParams";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    flexGrow: 1,
-    padding: "20px"
-  },
+  root: {},
   paper: {
     padding: theme.spacing(2),
     textAlign: "center",
-    color: theme.palette.text.secondary
+    color: theme.palette.text.secondary,
+    borderRadius: 0
   },
   viewContainer: {
     display: "flex",
     width: "100%",
-    minHeight: 300
+    minHeight: 300,
+    borderRadius: 0
   }
 }));
 
@@ -38,7 +37,7 @@ export function MainView() {
   const history = useHistory();
   const params = useQueryParams();
   const { address, selectedWallet } = useWallet();
-  const { data: deployments, isLoading: isLoadingDeployments, refetch } = useDeploymentList(address);
+  const { data: deployments, isLoading: isLoadingDeployments, isFetching: isFetchingDeployments, refetch } = useDeploymentList(address);
   const classes = useStyles();
 
   useEffect(() => {
@@ -58,7 +57,7 @@ export function MainView() {
 
   return (
     <div className={classes.root}>
-      <Grid container pt={2} spacing={1}>
+      <Grid container pt={2}>
         <ErrorBoundary FallbackComponent={ErrorFallback}>
           <Grid item xs={6}>
             <WalletDisplay />
@@ -70,7 +69,7 @@ export function MainView() {
         </ErrorBoundary>
 
         <Grid item xs={12}>
-          <Paper className={classes.viewContainer}>
+          <Paper className={classes.viewContainer} variant="outlined">
             <LeftNav />
 
             <Box flexGrow={1}>
@@ -82,13 +81,13 @@ export function MainView() {
                   <DeploymentDetail deployments={deployments} />
                 </Route>
                 <Route exact path="/deployments">
-                  <DeploymentList deployments={deployments} isLoadingDeployments={isLoadingDeployments} />
+                  <DeploymentList deployments={deployments} isLoadingDeployments={isFetchingDeployments} />
                 </Route>
                 <Route exact path="/settings">
                   <Settings />
                 </Route>
                 <Route exact path="/">
-                  <Dashboard deployments={deployments} isLoadingDeployments={isLoadingDeployments} />
+                  <Dashboard deployments={deployments} isLoadingDeployments={isFetchingDeployments} />
                 </Route>
               </ErrorBoundary>
             </Box>

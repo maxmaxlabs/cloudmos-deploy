@@ -142,20 +142,27 @@ export function CreateLease(props) {
       {isSendingManifest && <LinearProgress />}
 
       {(isLoadingBids || bids.length === 0) && (
-        <>
+        <Box textAlign="center">
           <CircularProgress />
           <Box paddingTop="1rem">
             <Typography variant="body1">Waiting for bids...</Typography>
           </Box>
-        </>
+        </Box>
       )}
       {dseqList.map((gseq) => (
-        <BidGroup key={gseq} gseq={gseq} bids={groupedBids[gseq]} handleBidSelected={handleBidSelected} selectedBid={selectedBids[gseq]} />
+        <BidGroup
+          key={gseq}
+          gseq={gseq}
+          bids={groupedBids[gseq]}
+          handleBidSelected={handleBidSelected}
+          selectedBid={selectedBids[gseq]}
+          disabled={isSendingManifest}
+        />
       ))}
 
       {!isLoadingBids && !allClosed && (
         <Box mt={1}>
-          <Button variant="contained" color="primary" onClick={handleNext} disabled={dseqList.some((gseq) => !selectedBids[gseq])}>
+          <Button variant="contained" color="primary" onClick={handleNext} disabled={dseqList.some((gseq) => !selectedBids[gseq]) || isSendingManifest}>
             Accept Bid{dseqList.length > 1 ? "s" : ""}
           </Button>
         </Box>

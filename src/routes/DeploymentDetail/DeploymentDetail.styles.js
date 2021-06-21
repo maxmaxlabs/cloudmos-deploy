@@ -2,6 +2,8 @@ import { makeStyles } from "@material-ui/core";
 
 export const useStyles = makeStyles((theme) => ({
   root: {
+    borderRadius: 0,
+    border: "none",
     "& .MuiListItemText-secondary .MuiSvgIcon-root:not(:first-child)": {
       marginLeft: "5px"
     },
@@ -14,6 +16,7 @@ export const useStyles = makeStyles((theme) => ({
   },
   title: {
     fontWeight: "bold",
-    marginLeft: ".5rem"
+    marginLeft: ".5rem",
+    fontSize: "2rem"
   }
 }));

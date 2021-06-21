@@ -10,7 +10,8 @@ import { UrlService } from "../../shared/utils/urlUtils";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    width: "100%"
+    borderRadius: 0,
+    border: "none"
   },
   button: {
     marginRight: theme.spacing(1)
@@ -24,6 +25,9 @@ const useStyles = makeStyles((theme) => ({
   instructions: {
     marginTop: theme.spacing(1),
     marginBottom: theme.spacing(1)
+  },
+  stepContainer: {
+    width: "100%"
   }
 }));
 
@@ -85,43 +89,41 @@ export function CreateDeploymentWizard() {
   }
 
   return (
-    <>
-      <Card variant="outlined">
-        <CardHeader
-          title={
-            <>
-              <IconButton aria-label="back" onClick={handleBackClick}>
-                <ChevronLeftIcon />
-              </IconButton>
-              Create a new deployment
-            </>
-          }
-        />
-        <CardContent>
-          <div className={classes.root}>
-            <Stepper alternativeLabel activeStep={activeStep}>
-              {steps.map((label, index) => {
-                const stepProps = {};
-                const buttonProps = {};
-                return (
-                  <Step key={label} {...stepProps}>
-                    <StepButton onClick={() => handleStep(index)} completed={isStepComplete(index)} {...buttonProps}>
-                      {label}
-                    </StepButton>
-                  </Step>
-                );
-              })}
-            </Stepper>
-            <div>
-              {activeStep === 0 && <PrerequisiteList />}
-              {activeStep === 1 && <TemplateList selectedTemplate={selectedTemplate} setSelectedTemplate={(c) => setSelectedTemplate(c)} />}
-              {activeStep === 2 && <ManifestEdit editedManifest={editedManifest} setEditedManifest={setEditedManifest} />}
-              {activeStep === 3 && <CreateLease dseq={dseq} editedManifest={editedManifest} />}
-            </div>
+    <Card variant="outlined" className={classes.root}>
+      <CardHeader
+        title={
+          <>
+            <IconButton aria-label="back" onClick={handleBackClick}>
+              <ChevronLeftIcon />
+            </IconButton>
+            Create a new deployment
+          </>
+        }
+      />
+      <CardContent>
+        <div className={classes.stepContainer}>
+          <Stepper alternativeLabel activeStep={activeStep}>
+            {steps.map((label, index) => {
+              const stepProps = {};
+              const buttonProps = {};
+              return (
+                <Step key={label} {...stepProps}>
+                  <StepButton onClick={() => handleStep(index)} completed={isStepComplete(index)} {...buttonProps}>
+                    {label}
+                  </StepButton>
+                </Step>
+              );
+            })}
+          </Stepper>
+          <div>
+            {activeStep === 0 && <PrerequisiteList />}
+            {activeStep === 1 && <TemplateList selectedTemplate={selectedTemplate} setSelectedTemplate={(c) => setSelectedTemplate(c)} />}
+            {activeStep === 2 && <ManifestEdit editedManifest={editedManifest} setEditedManifest={setEditedManifest} />}
+            {activeStep === 3 && <CreateLease dseq={dseq} editedManifest={editedManifest} />}
           </div>
-        </CardContent>
-      </Card>
-    </>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 

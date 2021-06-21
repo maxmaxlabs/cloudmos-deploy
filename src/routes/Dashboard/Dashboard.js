@@ -18,6 +18,7 @@ import {
 } from "@material-ui/core";
 import { humanFileSize } from "../../shared/utils/unitUtils";
 import { useHistory } from "react-router";
+import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -39,10 +40,6 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "2rem",
     fontWeight: "bold"
   },
-  loadingSkeleton: {
-    height: "4px",
-    width: "100%"
-  },
   noActiveDeployments: {
     marginBottom: "1rem"
   }
@@ -62,53 +59,54 @@ export function Dashboard({ deployments, isLoadingDeployments }) {
   }
 
   return (
-    <Box className={classes.root}>
-      <Box className={classes.titleContainer}>
-        <Typography variant="h3" className={classes.title}>
-          Active Deployments
-        </Typography>
+    <>
+      <LinearLoadingSkeleton isLoading={isLoadingDeployments} />
+      <Box className={classes.root}>
+        <Box className={classes.titleContainer}>
+          <Typography variant="h3" className={classes.title}>
+            Active Deployments
+          </Typography>
+        </Box>
+        <Box>
+          {orderedDeployments.length > 0 ? (
+            orderedDeployments.map((deployment) => (
+              <ListItem key={deployment.dseq} button onClick={() => viewDeployment(deployment)}>
+                <ListItemIcon>
+                  <CloudIcon color="primary" />
+                </ListItemIcon>
+                <ListItemText
+                  primary={deployment.dseq}
+                  secondary={
+                    <Box component="span" display="flex" alignItems="center">
+                      <SpeedIcon />
+                      {deployment.cpuAmount + "vcpu"}
+                      <MemoryIcon title="Memory" />
+                      {humanFileSize(deployment.memoryAmount)}
+                      <StorageIcon />
+                      {humanFileSize(deployment.storageAmount)}
+                    </Box>
+                  }
+                />
+                <ListItemSecondaryAction>
+                  <IconButton edge="end" onClick={() => viewDeployment(deployment)}>
+                    <ChevronRightIcon />
+                  </IconButton>
+                </ListItemSecondaryAction>
+              </ListItem>
+            ))
+          ) : (
+            <Box textAlign="center" padding="4rem">
+              <Typography variant="h5" className={classes.noActiveDeployments}>
+                No active deployments
+              </Typography>
+              <Button variant="contained" size="medium" color="primary" onClick={() => createDeployment()}>
+                <AddIcon />
+                &nbsp;Create Deployment
+              </Button>
+            </Box>
+          )}
+        </Box>
       </Box>
-      <Box>
-        {isLoadingDeployments ? <LinearProgress /> : <Box className={classes.loadingSkeleton} />}
-
-        {orderedDeployments.length > 0 ? (
-          orderedDeployments.map((deployment) => (
-            <ListItem key={deployment.dseq} button onClick={() => viewDeployment(deployment)}>
-              <ListItemIcon>
-                <CloudIcon color="primary" />
-              </ListItemIcon>
-              <ListItemText
-                primary={deployment.dseq}
-                secondary={
-                  <Box component="span" display="flex" alignItems="center">
-                    <SpeedIcon />
-                    {deployment.cpuAmount + "vcpu"}
-                    <MemoryIcon title="Memory" />
-                    {humanFileSize(deployment.memoryAmount)}
-                    <StorageIcon />
-                    {humanFileSize(deployment.storageAmount)}
-                  </Box>
-                }
-              />
-              <ListItemSecondaryAction>
-                <IconButton edge="end" onClick={() => viewDeployment(deployment)}>
-                  <ChevronRightIcon />
-                </IconButton>
-              </ListItemSecondaryAction>
-            </ListItem>
-          ))
-        ) : (
-          <Box textAlign="center" padding="4rem">
-            <Typography variant="h5" className={classes.noActiveDeployments}>
-              No active deployments
-            </Typography>
-            <Button variant="contained" size="medium" color="primary" onClick={() => createDeployment()}>
-              <AddIcon />
-              &nbsp;Create Deployment
-            </Button>
-          </Box>
-        )}
-      </Box>
-    </Box>
+    </>
   );
 }

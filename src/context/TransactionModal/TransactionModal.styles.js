@@ -1,6 +1,9 @@
 import { makeStyles } from "@material-ui/core";
 
 export const useStyles = makeStyles((theme) => ({
+  title: {
+    fontWeight: "bold"
+  },
   tabContent: {
     padding: 0,
     height: 500,
@@ -59,13 +62,5 @@ export const useStyles = makeStyles((theme) => ({
   actionButton: {
     flexGrow: 1,
     flexBasis: "50%"
-  },
-  snackBarTitle: {
-    fontSize: "1rem",
-    lineHeight: "1rem",
-    fontWeight: "bold"
-  },
-  snackBarSubTitle: {
-    fontSize: ".9rem"
   }
 }));

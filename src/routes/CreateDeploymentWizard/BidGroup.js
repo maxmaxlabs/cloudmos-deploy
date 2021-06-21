@@ -22,6 +22,7 @@ export function BidGroup(props) {
               //onChange={handleChange}
               value={bid.id}
               name="radio-button-demo"
+              disabled={props.disabled}
             />
           </ListItemIcon>
           <ListItemText

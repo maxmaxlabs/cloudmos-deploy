@@ -10,7 +10,6 @@ import {
   Tabs,
   Tab,
   AppBar,
-  makeStyles,
   Typography,
   Badge,
   List,
@@ -29,6 +28,7 @@ import { uaktToAKT } from "../../shared/utils/priceUtils";
 import { useSnackbar } from "notistack";
 import { useStyles } from "./TransactionModal.styles";
 import { useSettings } from "../SettingsProvider";
+import { Snackbar } from "../../shared/components/Snackbar";
 
 const a11yPrefix = "transaction-tab";
 
@@ -54,17 +54,7 @@ export function TransactionModal(props) {
     setError("");
     setIsSendingTransaction(true);
 
-    let pendingSnackbarKey = enqueueSnackbar(
-      <div>
-        <Typography variant="h5" className={classes.snackBarTitle}>
-          Tx is pending...
-        </Typography>
-        <Typography variant="body1" className={classes.snackBarSubTitle}>
-          Please wait a few seconds
-        </Typography>
-      </div>,
-      { variant: "info" }
-    );
+    let pendingSnackbarKey = enqueueSnackbar(<Snackbar title="Tx is pending..." subTitle="Please wait a few seconds" />, { variant: "info" });
 
     try {
       const client = await SigningStargateClient.connectWithSigner(settings.rpcEndpoint, selectedWallet, {
@@ -73,7 +63,7 @@ export function TransactionModal(props) {
       });
 
       const fee = createFee(currentFee, gas, messages.length);
-      const response = await client.signAndBroadcast(address, messages, fee, `Akashlytics tx: ${memo}`);
+      const response = await client.signAndBroadcast(address, messages, fee, memo);
 
       console.log(response);
 
@@ -81,17 +71,7 @@ export function TransactionModal(props) {
         throw new Error("Code " + response.code + " : " + response.rawLog);
       }
 
-      enqueueSnackbar(
-        <div>
-          <Typography variant="h5" className={classes.snackBarTitle}>
-            Tx succeeds!
-          </Typography>
-          <Typography variant="body1" className={classes.snackBarSubTitle}>
-            Congratulations 🎉
-          </Typography>
-        </div>,
-        { variant: "success" }
-      );
+      enqueueSnackbar(<Snackbar title="Tx succeeds!" subTitle="Congratulations 🎉" />, { variant: "success" });
 
       refreshBalance();
 
@@ -134,17 +114,7 @@ export function TransactionModal(props) {
         }
       }
 
-      enqueueSnackbar(
-        <div>
-          <Typography variant="h5" className={classes.snackBarTitle}>
-            Tx has failed...
-          </Typography>
-          <Typography variant="body1" className={classes.snackBarSubTitle}>
-            {errorMsg}
-          </Typography>
-        </div>,
-        { variant: "error" }
-      );
+      enqueueSnackbar(<Snackbar title="Tx has failed..." subTitle={errorMsg} />, { variant: "error" });
 
       setIsSendingTransaction(false);
     } finally {
@@ -172,7 +142,9 @@ export function TransactionModal(props) {
       aria-labelledby="transaction-modal"
       aria-describedby="transaction modal description"
     >
-      <DialogTitle id="transaction-modal">Akash Transaction</DialogTitle>
+      <DialogTitle id="transaction-modal">
+        <span className={classes.title}>Akash Transaction</span>
+      </DialogTitle>
       <DialogContent dividers classes={{ root: classes.tabContent }}>
         <AppBar position="static" color="default">
           <Tabs
@@ -262,7 +234,6 @@ export function TransactionModal(props) {
               <TextField
                 label="Gas"
                 value={gas}
-                defaultValue={baseGas}
                 onChange={(ev) => setGas(ev.target.value)}
                 type="number"
                 variant="outlined"
@@ -291,7 +262,13 @@ export function TransactionModal(props) {
         >
           Reject
         </Button>
-        <Button variant="contained" color="primary" onClick={handleSubmit} disabled={isSendingTransaction || !isGasValid} classes={{ root: classes.actionButton }}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleSubmit}
+          disabled={isSendingTransaction || !isGasValid}
+          classes={{ root: classes.actionButton }}
+        >
           {isSendingTransaction ? <CircularProgress size="24px" color="primary" /> : "Approve"}
         </Button>
       </DialogActions>
