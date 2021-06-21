@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { makeStyles, Box } from "@material-ui/core";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
 import { usePasswordConfirmationModal } from "../../context/ConfirmPasswordModal";
@@ -7,7 +7,8 @@ import VerifiedUserIcon from "@material-ui/icons/VerifiedUser";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
-import { Button, IconButton, Card, CardHeader, CardContent, CircularProgress, MenuItem, Menu } from "@material-ui/core";
+import WarningIcon from "@material-ui/icons/Warning";
+import { Button, IconButton, Card, CardHeader, Tooltip, CircularProgress, MenuItem, Menu } from "@material-ui/core";
 import { useCertificate } from "../../context/CertificateProvider";
 import { useWallet } from "../../context/WalletProvider";
 
@@ -19,7 +20,11 @@ const useStyles = makeStyles({
     minHeight: 104,
     height: "100%",
     borderRadius: 0,
-    border: "none"
+    border: "none",
+    "& .MuiCardHeader-subheader": {
+      alignItems: "center",
+      display: "flex"
+    }
   },
   bullet: {
     display: "inline-block",
@@ -31,23 +36,25 @@ const useStyles = makeStyles({
   },
   pos: {
     marginBottom: 12
+  },
+  tooltip: {
+    fontSize: "16px"
   }
 });
 
-export function CertificateDisplay(props) {
-  const { certificate, isLoadingCertificates, loadValidCertificates, loadLocalCert } = useCertificate();
+export function CertificateDisplay() {
+  const { certificate, isLocalCertMatching, isLoadingCertificates, loadValidCertificates, loadLocalCert } = useCertificate();
   const classes = useStyles();
   const { askForPasswordConfirmation } = usePasswordConfirmationModal();
   const { sendTransaction } = useTransactionModal();
   const { address } = useWallet();
 
-  async function revokeCertificate(cert) {
+  const revokeCertificate = useCallback(async () => {
     handleClose();
 
     try {
-      const message = TransactionMessageData.getRevokeCertificateMsg(address, cert.serial);
+      const message = TransactionMessageData.getRevokeCertificateMsg(address, certificate.serial);
 
-      // TODO handle response
       const response = await sendTransaction([message]);
 
       if (response) {
@@ -59,7 +66,7 @@ export function CertificateDisplay(props) {
     } catch (error) {
       throw error;
     }
-  }
+  }, [certificate]);
 
   function dateToStr(date) {
     const year = date.getUTCFullYear().toString().substring(2).padStart(2, "0");
@@ -177,7 +184,19 @@ export function CertificateDisplay(props) {
               )}
             </Box>
           }
-          subheader={certificate && "Serial: " + certificate.serial}
+          subheader={
+            <>
+              {certificate && "Serial: " + certificate.serial}
+
+              {certificate && !isLocalCertMatching && (
+                <Tooltip title="Add" classes={classes} arrow title="The local cert doesn't match the one on the blockchain. You can revoke it and create a new one.">
+                  <WarningIcon
+                    className="certMismatchWarning"
+                  />
+                </Tooltip>
+              )}
+            </>
+          }
         ></CardHeader>
         {certificate && (
           <Menu
@@ -196,15 +215,10 @@ export function CertificateDisplay(props) {
               horizontal: "right"
             }}
           >
-            <MenuItem onClick={() => revokeCertificate(certificate)}>
+            <MenuItem onClick={() => revokeCertificate()}>
               <DeleteForeverIcon />
               &nbsp;Revoke
             </MenuItem>
-            {/* <MenuItem onClick={handleClose}><SystemUpdateAltIcon />&nbsp;Export</MenuItem> */}
-            {/* <MenuItem onClick={handleClose}>
-              <AutorenewIcon />
-              &nbsp;Regenerate
-            </MenuItem> */}
           </Menu>
         )}
       </Card>

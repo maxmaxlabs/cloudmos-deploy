@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Button, Box, Typography } from "@material-ui/core";
 import { getDeploymentLocalData, saveDeploymentManifest } from "../../shared/utils/deploymentLocalDataUtils";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
-import { NewDeploymentData, Manifest } from "../../shared/utils/deploymentUtils";
+import { NewDeploymentData, Manifest, sendManifestToProvider } from "../../shared/utils/deploymentUtils";
 import { useWallet } from "../../context/WalletProvider";
 import { useTransactionModal } from "../../context/TransactionModal";
 import { useCertificate } from "../../context/CertificateProvider";
@@ -11,6 +11,7 @@ import Alert from "@material-ui/lab/Alert";
 import { useStyles } from "./ManifestEditor.styles";
 import { fetchProviderInfo } from "../../shared/providerCache";
 import { useSettings } from "../../context/SettingsProvider";
+import { useSnackbar } from "notistack";
 
 const yaml = require("js-yaml");
 
@@ -22,6 +23,8 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
   const { address } = useWallet();
   const { localCert } = useCertificate();
   const { sendTransaction } = useTransactionModal();
+
+  const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
     const deploymentData = getDeploymentLocalData(deployment.dseq);
@@ -64,26 +67,14 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
   };
 
   async function sendManifest(providerInfo, mani) {
-    console.log("Sending manifest to " + providerInfo.address);
-    const jsonStr = JSON.stringify(mani, (key, value) => {
-      if (key === "storage" || key === "memory") {
-        let newValue = { ...value };
-        newValue.size = newValue.quantity;
-        delete newValue.quantity;
-        return newValue;
-      }
-      return value;
-    });
+    try {
+      const response = await sendManifestToProvider(providerInfo, mani, deployment.dseq, localCert);
 
-    const response = await window.electron.queryProvider(
-      providerInfo.host_uri + "/deployment/" + deployment.dseq + "/manifest",
-      "PUT",
-      jsonStr,
-      localCert.certPem,
-      localCert.keyPem
-    );
-
-    return response;
+      return response;
+    } catch (err) {
+      enqueueSnackbar("Error while sending manifest to provider", { variant: "error" });
+      throw err;
+    }
   }
 
   async function handleUpdateClick() {
@@ -97,7 +88,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
       // TODO handle response
       const response = await sendTransaction([message]);
 
-      if (!response) throw "Failed";
+      if (!response) throw "Rejected";
     } catch (error) {
       throw error;
     }

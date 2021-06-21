@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Box, Typography, Button } from "@material-ui/core";
 import { NewDeploymentData } from "../../shared/utils/deploymentUtils";
 import { useWallet } from "../../context/WalletProvider";
@@ -19,21 +19,44 @@ export function ManifestEdit(props) {
   const { address } = useWallet();
   const history = useHistory();
 
-  const { editedManifest, setEditedManifest } = props;
+  const { editedManifest, setEditedManifest, selectedTemplate } = props;
 
-  function handleTextChange(value) {
+  async function handleTextChange(value) {
+    setEditedManifest(value);
+  }
+
+  useEffect(() => {
+    const timeoutId = setTimeout(async () => {
+      await createAndValidateDeploymentData(editedManifest, "TEST_DSEQ_VALIDATION");
+    }, 500);
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [editedManifest]);
+
+  async function createAndValidateDeploymentData(yamlStr, dseq) {
     try {
-      yaml.load(value);
+      const doc = yaml.load(yamlStr);
+
+      const dd = await NewDeploymentData(settings.apiEndpoint, doc, dseq, address);
+      validateDeploymentData(dd);
+
       setParsingError(null);
+
+      return dd;
     } catch (err) {
       if (err.name === "YAMLException") {
         setParsingError(err.message);
+      } else if (err.name === "TemplateValidation") {
+        setParsingError(err.message);
       } else {
-        throw err;
+        setParsingError("Error while parsing SDL file");
+        console.error(err);
       }
     }
-
-    setEditedManifest(value);
   }
 
   const options = {
@@ -50,10 +73,28 @@ export function ManifestEdit(props) {
     window.electron.openUrl("https://docs.akash.network/documentation/sdl");
   }
 
-  async function handleCreateClick() {
-    const doc = yaml.load(editedManifest);
+  function validateDeploymentData(deploymentData) {
+    if (selectedTemplate.valuesToChange) {
+      for (const valueToChange of selectedTemplate.valuesToChange) {
+        if (valueToChange.field === "accept") {
+          const serviceNames = Object.keys(deploymentData.sdl.services);
+          for (const serviceName of serviceNames) {
+            if (deploymentData.sdl.services[serviceName].expose?.some((e) => e.accept?.includes(valueToChange.initialValue))) {
+              let error = new Error(`Template value of "${valueToChange.initialValue}" needs to be changed`);
+              error.name = "TemplateValidation";
 
-    const dd = await NewDeploymentData(settings.apiEndpoint, doc, null, address);
+              throw error;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  async function handleCreateClick() {
+    const dd = await createAndValidateDeploymentData(editedManifest, null);
+
+    if (!dd) return;
 
     try {
       const message = TransactionMessageData.getCreateDeploymentMsg(dd);

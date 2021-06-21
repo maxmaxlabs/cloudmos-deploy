@@ -76,6 +76,7 @@ const templates = [
     code: "hello-world",
     description: "Simple web application showing hello world.",
     githubUrl: "https://github.com/tombeynon/akash-hello-world",
+    valuesToChange: [{ field: "accept", initialValue: "www.yourwebsite.com" }],
     content: `---
 version: "2.0"
 
@@ -123,6 +124,7 @@ deployment:
     code: "wordpress",
     description: "A Wordpress web application with MySQL database.",
     githubUrl: "https://github.com/tombeynon/akash-deploy/wiki/Examples#wordpress",
+    valuesToChange: [{ field: "accept", initialValue: "YOURDOMAIN.COM" }],
     content: `---
     version: "2.0"
     services:

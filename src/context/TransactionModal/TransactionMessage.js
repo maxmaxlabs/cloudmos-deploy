@@ -126,7 +126,7 @@ const getMessage = (message, classes) => {
               <CancelIcon classes={{ root: classes.avatarIcon }} />
             </Avatar>
           </ListItemAvatar>
-          <ListItemText primary="Revoke Certificate" classes={{ primary: classes.listItemPrimaryText }} />
+          <ListItemText primary="Revoke Certificate" secondary={`Serial: ${message.value.id.serial}`} classes={{ primary: classes.listItemPrimaryText }} />
         </>
       );
 
