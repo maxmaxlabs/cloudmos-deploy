@@ -3,6 +3,7 @@ import { TextField, Container, Button, CircularProgress, makeStyles, Paper } fro
 import { openWallet } from "../../shared/utils/walletUtils";
 import { useCertificate } from "../../context/CertificateProvider";
 import { useWallet } from "../../context/WalletProvider";
+import { useSnackbar } from "notistack";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -31,6 +32,7 @@ export function WalletOpen() {
   const classes = useStyles();
   const { setSelectedWallet } = useWallet();
   const { loadLocalCert } = useCertificate();
+  const { enqueueSnackbar } = useSnackbar();
 
   async function onOpenClick(ev) {
     ev.preventDefault();
@@ -43,9 +45,12 @@ export function WalletOpen() {
 
       setSelectedWallet(wallet);
     } catch (err) {
-      console.error(err);
-      //enqueueSnackbar(err, { variant: "error" });
-      //debugger;
+      if (err.message === "ciphertext cannot be decrypted using that key") {
+        enqueueSnackbar("Invalid password", { variant: "error" });
+      } else {
+        console.error(err);
+        enqueueSnackbar("Error while decrypting wallet", { variant: "error" });
+      }
     } finally {
       setIsLoading(false);
     }
