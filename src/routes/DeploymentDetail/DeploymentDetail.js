@@ -12,6 +12,8 @@ import { DeploymentJsonViewer } from "./DeploymentJsonViewer";
 import { ManifestEditor } from "./ManifestEditor";
 import { UrlService } from "../../shared/utils/urlUtils";
 import { useSettings } from "../../context/SettingsProvider";
+import RefreshIcon from "@material-ui/icons/Refresh";
+import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 
 export function DeploymentDetail(props) {
   const { settings } = useSettings();
@@ -83,15 +85,21 @@ export function DeploymentDetail(props) {
       if (deploymentFromList) {
         setDeployment(deploymentFromList);
       } else {
-        setIsLoadingDeployment(true);
-        const response = await fetch(settings.apiEndpoint + "/akash/deployment/v1beta1/deployments/info?id.owner=" + address + "&id.dseq=" + dseq);
-        const deployment = await response.json();
-
-        setDeployment(deploymentToDto(deployment));
-        setIsLoadingDeployment(false);
+        await loadDeploymentDetail();
       }
     })();
   }, []);
+
+  async function loadDeploymentDetail() {
+    if (!isLoadingDeployment) {
+      setIsLoadingDeployment(true);
+      const response = await fetch(settings.apiEndpoint + "/akash/deployment/v1beta1/deployments/info?id.owner=" + address + "&id.dseq=" + dseq);
+      const deployment = await response.json();
+
+      setDeployment(deploymentToDto(deployment));
+      setIsLoadingDeployment(false);
+    }
+  }
 
   function handleBackClick() {
     history.push(UrlService.deploymentList());
@@ -99,19 +107,25 @@ export function DeploymentDetail(props) {
 
   return (
     <Card variant="outlined" className={classes.root}>
+      <LinearLoadingSkeleton isLoading={isLoadingLeases || isLoadingDeployment} />
       <CardHeader
         classes={{
           title: classes.cardTitle
         }}
         title={
-          <>
+          <Box display="flex" alignItems="center">
             <IconButton aria-label="back" onClick={handleBackClick}>
               <ChevronLeftIcon />
             </IconButton>
             <Typography variant="h3" className={classes.title}>
               Deployment detail
             </Typography>
-          </>
+            <Box marginLeft="1rem">
+              <IconButton aria-label="back" onClick={loadDeploymentDetail}>
+                <RefreshIcon />
+              </IconButton>
+            </Box>
+          </Box>
         }
         subheader={
           deployment && (
@@ -141,19 +155,15 @@ export function DeploymentDetail(props) {
         {activeTab === "JSON_LEASES" && deployment && <DeploymentJsonViewer jsonObj={leases} title="Leases JSON" />}
         {activeTab === "DETAILS" && (
           <>
-            {!isLoadingLeases && (
-              <>
-                <Typography variant="h6" gutterBottom className={classes.title}>
-                  Leases
-                </Typography>
-                {leases.map((lease) => (
-                  <LeaseRow key={lease.id} cert={props.cert} lease={lease} deployment={deployment} />
-                ))}
-                {leases.length === 0 && <>This deployment doesn't have any leases</>}
-              </>
-            )}
+            <Typography variant="h6" gutterBottom className={classes.title}>
+              Leases
+            </Typography>
+            {leases.map((lease) => (
+              <LeaseRow key={lease.id} cert={props.cert} lease={lease} deployment={deployment} />
+            ))}
+            {leases.length === 0 && !isLoadingLeases && <>This deployment doesn't have any leases</>}
 
-            {(isLoadingLeases || isLoadingDeployment) && (
+            {(isLoadingLeases || isLoadingDeployment) && leases.length === 0 && (
               <Box textAlign="center" padding="2rem">
                 <CircularProgress />
               </Box>
