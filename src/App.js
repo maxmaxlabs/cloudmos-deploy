@@ -29,6 +29,9 @@ const useStyles = makeStyles((theme) => ({
 const queryClient = new QueryClient();
 
 function App() {
+  
+throw "TEST_EXCEPTION_REACT";
+
   const notistackRef = useRef();
   const classes = useStyles();
   const { appVersion } = useAppVersion();

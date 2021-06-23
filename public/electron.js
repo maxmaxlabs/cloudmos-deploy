@@ -5,6 +5,10 @@ const winston = require("winston");
 const url = require("url");
 // const { autoUpdater } = require("electron-updater");
 
+const Sentry = require("@sentry/electron");
+
+Sentry.init({ dsn: "https://fc8f0d800d664154a0f1babe0e318fbb@o877251.ingest.sentry.io/5827747" });
+
 let startUrl = process.env.ELECTRON_START_URL;
 
 // app.on("ready", () => {
