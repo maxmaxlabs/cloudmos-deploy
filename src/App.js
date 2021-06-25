@@ -29,9 +29,6 @@ const useStyles = makeStyles((theme) => ({
 const queryClient = new QueryClient();
 
 function App() {
-  
-throw "TEST_EXCEPTION_REACT";
-
   const notistackRef = useRef();
   const classes = useStyles();
   const { appVersion } = useAppVersion();
@@ -78,7 +75,9 @@ throw "TEST_EXCEPTION_REACT";
 
                     {appVersion && (
                       <footer className={classes.footer}>
-                        <Typography variant="caption">Version: <strong>v{appVersion}</strong></Typography>
+                        <Typography variant="caption">
+                          Version: <strong>v{appVersion}</strong>
+                        </Typography>
                       </footer>
                     )}
                   </CertificateProvider>

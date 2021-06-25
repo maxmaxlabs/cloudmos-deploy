@@ -189,10 +189,13 @@ export function CertificateDisplay() {
               {certificate && "Serial: " + certificate.serial}
 
               {certificate && !isLocalCertMatching && (
-                <Tooltip title="Add" classes={classes} arrow title="The local cert doesn't match the one on the blockchain. You can revoke it and create a new one.">
-                  <WarningIcon
-                    className="certMismatchWarning"
-                  />
+                <Tooltip
+                  title="Add"
+                  classes={classes}
+                  arrow
+                  title="The local cert doesn't match the one on the blockchain. You can revoke it and create a new one."
+                >
+                  <WarningIcon className="certMismatchWarning" />
                 </Tooltip>
               )}
             </>

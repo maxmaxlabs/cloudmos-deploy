@@ -7,9 +7,15 @@ const url = require("url");
 
 const Sentry = require("@sentry/electron");
 
-Sentry.init({ dsn: "https://fc8f0d800d664154a0f1babe0e318fbb@o877251.ingest.sentry.io/5827747" });
-
+let appVersion = app.getVersion();
+let appEnv = app.isPackaged ? "production" : "development";
 let startUrl = process.env.ELECTRON_START_URL;
+
+Sentry.init({
+  dsn: "https://fc8f0d800d664154a0f1babe0e318fbb@o877251.ingest.sentry.io/5827747",
+  environment: appEnv,
+  release: appVersion
+});
 
 // app.on("ready", () => {
 //   autoUpdater.checkForUpdatesAndNotify();
@@ -35,7 +41,8 @@ function createWindow() {
       icon: path.join(__dirname, "logo.png"),
       webPreferences: {
         preload: path.join(__dirname, "preload.js"),
-        webSecurity: false
+        webSecurity: false,
+        additionalArguments: [appVersion, appEnv]
       }
     });
 
@@ -56,11 +63,6 @@ function createWindow() {
     logger.info(`Start url: ${startUrl}`);
 
     mainWindow.loadURL(startUrl);
-
-    ipcMain.on("app_version", (event) => {
-      const version = app.getVersion();
-      event.reply("app_version", { version });
-    });
 
     // autoUpdater.on("update-available", () => {
     //   mainWindow.webContents.send("update_available");
