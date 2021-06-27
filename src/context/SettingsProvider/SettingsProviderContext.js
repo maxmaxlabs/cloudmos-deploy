@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 
-const defaultRpcEndpoint = "http://rpc.akash.forbole.com";
+// const defaultRpcEndpoint = "http://rpc.akash.forbole.com";
+const defaultRpcEndpoint = "http://135.181.60.250:26657";
 const defaultApiEndpoint = "http://135.181.60.250:1317";
 
 const SettingsProviderContext = React.createContext({});
