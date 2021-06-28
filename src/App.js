@@ -75,7 +75,9 @@ function App() {
 
                     {appVersion && (
                       <footer className={classes.footer}>
-                        <Typography variant="caption">Version: <strong>v{appVersion}</strong></Typography>
+                        <Typography variant="caption">
+                          Version: <strong>v{appVersion}</strong>
+                        </Typography>
                       </footer>
                     )}
                   </CertificateProvider>

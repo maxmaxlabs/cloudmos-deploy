@@ -3,15 +3,24 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "./shared/components/ErrorFallback";
 import { CssBaseline, ThemeProvider, createMuiTheme } from "@material-ui/core";
+import * as Sentry from "@sentry/react";
+
+const appVersion = window.electron.getAppVersion();
+const appEnvironment = window.electron.getAppEnvironment();
+
+Sentry.init({
+  dsn: "https://fc8f0d800d664154a0f1babe0e318fbb@o877251.ingest.sentry.io/5827747",
+  environment: appEnvironment,
+  release: appVersion
+});
 
 const theme = createMuiTheme({
   palette: {
     background: {
       // default: "#282c34"
-    },
+    }
     // type: "dark"
   },
   overrides: {
@@ -38,12 +47,12 @@ const theme = createMuiTheme({
 
 ReactDOM.render(
   <React.StrictMode>
-    <ErrorBoundary FallbackComponent={ErrorFallback}>
+    <Sentry.ErrorBoundary fallback={({ error, resetError }) => <ErrorFallback error={error} resetErrorBoundary={resetError} />}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <App />
       </ThemeProvider>
-    </ErrorBoundary>
+    </Sentry.ErrorBoundary>
   </React.StrictMode>,
   document.getElementById("root")
 );

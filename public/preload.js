@@ -1,9 +1,19 @@
 const { contextBridge, shell } = require("electron");
 const providerProxy = require("./providerProxy");
 const { ipcRenderer } = require("electron");
+const Sentry = require("@sentry/electron");
+
+const appVersion = window.process.argv[window.process.argv.length-2];
+const appEnvironment = window.process.argv[window.process.argv.length-1];
+
+Sentry.init({
+  dsn: "https://fc8f0d800d664154a0f1babe0e318fbb@o877251.ingest.sentry.io/5827747",
+  environment: appEnvironment,
+  release: appVersion
+});
 
 // whitelist channels
-const validChannels = ["app_version", "update_available", "update_downloaded", "restart_app"];
+const validChannels = ["update_available", "update_downloaded", "restart_app"];
 
 // All of the Node.js APIs are available in the preload process.
 // It has the same sandbox as a Chrome extension.
@@ -24,6 +34,8 @@ contextBridge.exposeInMainWorld("electron", {
     console.log("Opening in browser: " + url);
     shell.openExternal(url);
   },
+  getAppVersion: () => appVersion,
+  getAppEnvironment: () => appEnvironment,
   api: {
     send: (channel, data) => {
       if (validChannels.includes(channel)) {
