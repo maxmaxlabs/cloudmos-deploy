@@ -15,7 +15,7 @@
   "main": "public/electron.js",
   "homepage": "./",
   "scripts": {
-    "start": "react-scripts start",
+    "start": "set BROWSER=none && react-scripts start",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "electron": "electron .",

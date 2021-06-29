@@ -8,6 +8,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "./shared/components/ErrorFallback";
 import { LeftNav } from "./components/LeftNav";
 import { RightContent } from "./components/RightContent";
+import { getWalletAddresses } from "./shared/utils/walletUtils";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -29,7 +30,7 @@ export function MainView() {
   const { address, selectedWallet } = useWallet();
   const classes = useStyles();
 
-  const walletExists = localStorage.getItem("Wallet") !== null;
+  const walletExists = getWalletAddresses().length > 0;
 
   if (!selectedWallet || !address) {
     return walletExists ? <WalletOpen /> : <WalletImport />;
