@@ -29,6 +29,7 @@ import { useSnackbar } from "notistack";
 import { useStyles } from "./TransactionModal.styles";
 import { useSettings } from "../SettingsProvider";
 import { Snackbar } from "../../shared/components/Snackbar";
+import { useGA4React } from "ga-4-react";
 
 const a11yPrefix = "transaction-tab";
 
@@ -48,6 +49,7 @@ export function TransactionModal(props) {
   const avgFee = createFee("avg", baseGas, messages.length);
   const highFee = createFee("high", baseGas, messages.length);
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const ga4React = useGA4React();
 
   async function handleSubmit(ev) {
     ev.preventDefault();
@@ -73,6 +75,8 @@ export function TransactionModal(props) {
 
       enqueueSnackbar(<Snackbar title="Tx succeeds!" subTitle="Congratulations 🎉" />, { variant: "success" });
 
+      ga4React.event("successful transaction");
+
       refreshBalance();
 
       // return response message
@@ -81,6 +85,8 @@ export function TransactionModal(props) {
       console.error(err);
 
       let errorMsg = "An error has occured";
+
+      ga4React.event("failed transaction");
 
       if (err.message.includes("was submitted but was not yet found on the chain")) {
         errorMsg = "Transaction timeout";
@@ -161,7 +167,7 @@ export function TransactionModal(props) {
         </AppBar>
 
         <TabPanel value={tabIndex} index={0} className={classes.tabPanel}>
-          <Badge color="secondary" badgeContent={messages.length} classes={{ badge: classes.badge }}>
+          <Badge color="primary" badgeContent={messages.length} classes={{ badge: classes.badge }}>
             <Typography variant="h4" className={classes.label}>
               Messages
             </Typography>

@@ -4,6 +4,7 @@ import { openWallet } from "../../shared/utils/walletUtils";
 import { useCertificate } from "../../context/CertificateProvider";
 import { useWallet } from "../../context/WalletProvider";
 import { useSnackbar } from "notistack";
+import { useGA4React } from "ga-4-react";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -33,6 +34,7 @@ export function WalletOpen() {
   const { setSelectedWallet } = useWallet();
   const { loadLocalCert } = useCertificate();
   const { enqueueSnackbar } = useSnackbar();
+  const ga4React = useGA4React();
 
   async function onOpenClick(ev) {
     ev.preventDefault();
@@ -44,6 +46,8 @@ export function WalletOpen() {
       loadLocalCert(address, password);
 
       setSelectedWallet(wallet);
+
+      ga4React.event("open wallet");
     } catch (err) {
       if (err.message === "ciphertext cannot be decrypted using that key") {
         enqueueSnackbar("Invalid password", { variant: "error" });

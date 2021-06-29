@@ -31,16 +31,8 @@ const useStyles = makeStyles({
     border: "none",
     minHeight: 110
   },
-  bullet: {
-    display: "inline-block",
-    margin: "0 2px",
-    transform: "scale(0.8)"
-  },
-  title: {
-    fontSize: 14
-  },
-  pos: {
-    marginBottom: 12
+  headerAction: {
+    margin: 0
   }
 });
 
@@ -68,7 +60,7 @@ export function WalletDisplay() {
 
   function handleCloseMenu() {
     setAnchorEl(null);
-  };
+  }
 
   function handleMenuClick(ev) {
     setAnchorEl(ev.currentTarget);
@@ -86,6 +78,7 @@ export function WalletDisplay() {
     <>
       <Card className={classes.root} variant="outlined">
         <CardHeader
+          classes={{ action: classes.headerAction }}
           action={
             <IconButton aria-label="settings" onClick={handleMenuClick}>
               <MoreVertIcon />
@@ -139,8 +132,8 @@ export function WalletDisplay() {
             Balance: <strong>{balance / 1000000} AKT</strong>
           </p>
           <Alert severity="warning">
-            This wallet will be completely removed from Akashlytics Deploy along with your local certificate and deployments data. If you want to keep access to this wallet, make sure you have a backup of the seed
-            phrase or private key.
+            This wallet will be completely removed from Akashlytics Deploy along with your local certificate and deployments data. If you want to keep access to
+            this wallet, make sure you have a backup of the seed phrase or private key.
           </Alert>
           <br />
           <FormControlLabel

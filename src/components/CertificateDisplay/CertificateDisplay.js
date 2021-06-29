@@ -11,6 +11,7 @@ import WarningIcon from "@material-ui/icons/Warning";
 import { Button, IconButton, Card, CardHeader, Tooltip, CircularProgress, MenuItem, Menu } from "@material-ui/core";
 import { useCertificate } from "../../context/CertificateProvider";
 import { useWallet } from "../../context/WalletProvider";
+import { useGA4React } from "ga-4-react";
 
 var rs = require("jsrsasign");
 
@@ -26,19 +27,8 @@ const useStyles = makeStyles({
       display: "flex"
     }
   },
-  bullet: {
-    display: "inline-block",
-    margin: "0 2px",
-    transform: "scale(0.8)"
-  },
-  title: {
-    fontSize: 14
-  },
-  pos: {
-    marginBottom: 12
-  },
-  tooltip: {
-    fontSize: "16px"
+  headerAction: {
+    margin: 0
   }
 });
 
@@ -48,6 +38,7 @@ export function CertificateDisplay() {
   const { askForPasswordConfirmation } = usePasswordConfirmationModal();
   const { sendTransaction } = useTransactionModal();
   const { address } = useWallet();
+  const ga4React = useGA4React();
 
   const revokeCertificate = useCallback(async () => {
     handleClose();
@@ -62,6 +53,8 @@ export function CertificateDisplay() {
         localStorage.removeItem(address + ".key");
 
         await loadValidCertificates();
+
+        ga4React.event("revoke certificate");
       }
     } catch (error) {
       throw error;
@@ -137,6 +130,8 @@ export function CertificateDisplay() {
 
         loadValidCertificates();
         loadLocalCert(address, password);
+
+        ga4React.event("create certificate");
       }
     } catch (error) {
       throw error;
@@ -157,6 +152,7 @@ export function CertificateDisplay() {
     <>
       <Card className={classes.root} variant="outlined">
         <CardHeader
+          classes={{ action: classes.headerAction }}
           action={
             certificate && (
               <IconButton aria-label="settings" aria-haspopup="true" onClick={handleMenuClick}>
@@ -191,7 +187,7 @@ export function CertificateDisplay() {
               {certificate && !isLocalCertMatching && (
                 <Tooltip
                   title="Add"
-                  classes={classes}
+                  classes={{ tooltip: classes.tooltip }}
                   arrow
                   title="The local cert doesn't match the one on the blockchain. You can revoke it and create a new one."
                 >

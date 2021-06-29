@@ -4,7 +4,7 @@ import { Button, CircularProgress, Box, Typography, LinearProgress, Menu, MenuIt
 import { useWallet } from "../../context/WalletProvider";
 import { BidGroup } from "./BidGroup";
 import { useHistory } from "react-router";
-import { sendManifestToProvider } from "../../shared/utils/deploymentUtils";
+import { sendManifestToProvider, Manifest } from "../../shared/utils/deploymentUtils";
 import { useCertificate } from "../../context/CertificateProvider";
 import { fetchProviderInfo } from "../../shared/providerCache";
 import { getDeploymentLocalData } from "../../shared/utils/deploymentLocalDataUtils";
@@ -15,6 +15,10 @@ import { useBidList } from "../../queries/useBidQuery";
 import { useSnackbar } from "notistack";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import Alert from "@material-ui/lab/Alert";
+import { Helmet } from "react-helmet-async";
+import { useGA4React } from "ga-4-react";
+
+const yaml = require("js-yaml");
 
 export function CreateLease({ dseq }) {
   const { settings } = useSettings();
@@ -25,6 +29,7 @@ export function CreateLease({ dseq }) {
   const { localCert } = useCertificate();
   const { enqueueSnackbar } = useSnackbar();
   const history = useHistory();
+  const ga4React = useGA4React();
 
   const { data: bids, isLoading: isLoadingBids } = useBidList(address, dseq, {
     initialData: [],
@@ -57,6 +62,7 @@ export function CreateLease({ dseq }) {
       const response = await sendTransaction(messages);
 
       if (!response) throw "Rejected transaction";
+      else ga4React.event("create lease");
     } catch (error) {
       throw error;
     }
@@ -68,14 +74,18 @@ export function CreateLease({ dseq }) {
       try {
         console.log("Querying provider info");
         const providerInfo = await fetchProviderInfo(settings.apiEndpoint, selectedBids[Object.keys(selectedBids)[0]].provider);
+        const yamlJson = yaml.load(deploymentData.manifest);
+        const mani = Manifest(yamlJson);
 
-        await sendManifest(providerInfo, deploymentData.manifest);
+        await sendManifest(providerInfo, mani);
       } catch (err) {
         console.error(err);
       }
     }
 
     setIsSendingManifest(false);
+
+    ga4React.event("send manifest");
 
     history.push(UrlService.deploymentDetails(dseq));
   }
@@ -115,6 +125,8 @@ export function CreateLease({ dseq }) {
 
   return (
     <>
+      <Helmet title="Create Deployment - Create Lease" />
+
       {isSendingManifest && <LinearProgress />}
 
       {(isLoadingBids || bids.length === 0) && (

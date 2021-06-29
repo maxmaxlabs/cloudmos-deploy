@@ -33,7 +33,7 @@ export function MainView() {
   const walletExists = getWalletAddresses().length > 0;
 
   if (!selectedWallet || !address) {
-    return walletExists ? <WalletOpen /> : <WalletImport />;
+    return <ErrorBoundary FallbackComponent={ErrorFallback}>{walletExists ? <WalletOpen /> : <WalletImport />}</ErrorBoundary>;
   }
 
   return (

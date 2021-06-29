@@ -2,6 +2,8 @@ import { useState } from "react";
 import { TextField, Container, Paper, makeStyles, Button } from "@material-ui/core";
 import { importWallet } from "../../shared/utils/walletUtils";
 import { useWallet } from "../../context/WalletProvider";
+import { useGA4React } from "ga-4-react";
+import Alert from "@material-ui/lab/Alert";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -20,6 +22,9 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2),
     textAlign: "center",
     color: theme.palette.text.secondary
+  },
+  alert: {
+    marginBottom: "1rem"
   }
 }));
 
@@ -27,14 +32,24 @@ export function WalletImport() {
   const [mnemonic, setMnemonic] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const classes = useStyles();
   const { setSelectedWallet } = useWallet();
+  const ga4React = useGA4React();
 
   async function onImportSubmit(ev) {
     ev.preventDefault();
-    
-    const importedWallet = await importWallet(mnemonic, name, password);
-    setSelectedWallet(importedWallet);
+    setError("");
+
+    try {
+      const importedWallet = await importWallet(mnemonic, name, password);
+      setSelectedWallet(importedWallet);
+
+      ga4React.event("import wallet");
+    } catch (error) {
+      console.error(error);
+      setError(error.message);
+    }
   }
 
   return (
@@ -75,6 +90,12 @@ export function WalletImport() {
               type="password"
               variant="outlined"
             />
+
+            {error && (
+              <Alert className={classes.alert} severity="warning">
+                {error}
+              </Alert>
+            )}
 
             {/* <Button variant="contained" color="default" onClick={onCancelClick}>Cancel</Button> */}
             <Button type="submit" variant="contained" color="primary">

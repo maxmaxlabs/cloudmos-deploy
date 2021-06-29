@@ -10,6 +10,7 @@ const Sentry = require("@sentry/electron");
 let appVersion = app.getVersion();
 let appEnv = app.isPackaged ? "production" : "development";
 let startUrl = process.env.ELECTRON_START_URL;
+const isDev = !!startUrl;
 
 Sentry.init({
   dsn: "https://fc8f0d800d664154a0f1babe0e318fbb@o877251.ingest.sentry.io/5827747",
@@ -41,7 +42,7 @@ function createWindow() {
       icon: path.join(__dirname, "logo.png"),
       webPreferences: {
         preload: path.join(__dirname, "preload.js"),
-        webSecurity: false,
+        webSecurity: !isDev,
         additionalArguments: [appVersion, appEnv]
       }
     });
@@ -50,7 +51,7 @@ function createWindow() {
 
     logger.info("Created Browser Window");
 
-    if (process.env.ELECTRON_START_URL) {
+    if (startUrl) {
       mainWindow.webContents.openDevTools();
     } else {
       startUrl = url.format({

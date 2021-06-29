@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { Box, makeStyles, Typography, Button, FormLabel, TextField } from "@material-ui/core";
 import { useSettings } from "../../context/SettingsProvider";
 import { Controller, useForm } from "react-hook-form";
+import { Helmet } from "react-helmet-async";
 
 const useStyles = makeStyles((theme) => ({
   root: { padding: "1rem" },
@@ -45,6 +46,8 @@ export function Settings(props) {
 
   return (
     <Box className={classes.root}>
+      <Helmet title="Settings" />
+
       <Box className={classes.titleContainer}>
         <Typography variant="h3" className={classes.title}>
           Settings

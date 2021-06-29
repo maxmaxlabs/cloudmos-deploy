@@ -9,6 +9,7 @@ import { makeStyles, Button, IconButton, Box, ListItem, ListItemText, ListItemIc
 import { useHistory } from "react-router";
 import { humanFileSize } from "../../shared/utils/unitUtils";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
+import { Helmet } from "react-helmet-async";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -47,6 +48,8 @@ export function DeploymentList({ deployments, isLoadingDeployments }) {
 
   return (
     <>
+      <Helmet title="Deployment List" />
+
       <LinearLoadingSkeleton isLoading={isLoadingDeployments} />
       <Box className={classes.root}>
         <Box className={classes.titleContainer}>

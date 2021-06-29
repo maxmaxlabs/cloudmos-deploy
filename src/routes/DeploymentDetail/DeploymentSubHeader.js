@@ -11,6 +11,7 @@ import { useHistory } from "react-router";
 import { useTransactionModal } from "../../context/TransactionModal";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
 import { UrlService } from "../../shared/utils/urlUtils";
+import { useGA4React } from "ga-4-react";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -38,7 +39,7 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address }) {
   const timeLeft = getTimeLeft(deploymentCost, deployment.escrowBalance.amount);
   const [anchorEl, setAnchorEl] = useState(null);
   const { sendTransaction } = useTransactionModal();
-
+  const ga4React = useGA4React();
   const history = useHistory();
 
   const onCloseDeployment = async () => {
@@ -51,6 +52,8 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address }) {
 
       if (response) {
         history.push(`${UrlService.deploymentList()}?refetch=true`);
+
+        ga4React.event("close deployment");
       }
     } catch (error) {
       throw error;
