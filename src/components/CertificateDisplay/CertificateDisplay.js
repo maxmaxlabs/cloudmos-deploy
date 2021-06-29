@@ -25,20 +25,6 @@ const useStyles = makeStyles({
       alignItems: "center",
       display: "flex"
     }
-  },
-  bullet: {
-    display: "inline-block",
-    margin: "0 2px",
-    transform: "scale(0.8)"
-  },
-  title: {
-    fontSize: 14
-  },
-  pos: {
-    marginBottom: 12
-  },
-  tooltip: {
-    fontSize: "16px"
   }
 });
 
@@ -191,7 +177,7 @@ export function CertificateDisplay() {
               {certificate && !isLocalCertMatching && (
                 <Tooltip
                   title="Add"
-                  classes={classes}
+                  classes={{ tooltip: classes.tooltip }}
                   arrow
                   title="The local cert doesn't match the one on the blockchain. You can revoke it and create a new one."
                 >
