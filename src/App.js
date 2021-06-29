@@ -14,6 +14,7 @@ import { useAppVersion } from "./hooks/useAppVersion";
 import CloseIcon from "@material-ui/icons/Close";
 import { createMemoryHistory } from "history";
 import { useGA4React } from "ga-4-react";
+import { HelmetProvider } from "react-helmet-async";
 import { Helmet } from "react-helmet-async";
 
 const ipcApi = window.electron.api;
@@ -70,42 +71,44 @@ function App() {
 
   return (
     <Router history={history}>
-      <QueryClientProvider client={queryClient}>
-        <SnackbarProvider
-          maxSnack={3}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-          ref={notistackRef}
-          action={(key) => (
-            <IconButton onClick={onClickDismiss(key)} className={classes.snackbarClose}>
-              <CloseIcon />
-            </IconButton>
-          )}
-          dense
-        >
-          <SettingsProvider>
-            <WalletProvider>
-              <TransactionModalProvider>
-                <PasswordConfirmationModalProvider>
-                  <CertificateProvider>
-                    <Helmet defaultTitle="Akashlytics Deploy" titleTemplate="Akashlytics Deploy - %s" />
+      <HelmetProvider>
+        <QueryClientProvider client={queryClient}>
+          <SnackbarProvider
+            maxSnack={3}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            ref={notistackRef}
+            action={(key) => (
+              <IconButton onClick={onClickDismiss(key)} className={classes.snackbarClose}>
+                <CloseIcon />
+              </IconButton>
+            )}
+            dense
+          >
+            <SettingsProvider>
+              <WalletProvider>
+                <TransactionModalProvider>
+                  <PasswordConfirmationModalProvider>
+                    <CertificateProvider>
+                      <Helmet defaultTitle="Akashlytics Deploy" titleTemplate="Akashlytics Deploy - %s" />
 
-                    <BetaBanner />
-                    <MainView />
+                      <BetaBanner />
+                      <MainView />
 
-                    {appVersion && (
-                      <footer className={classes.footer}>
-                        <Typography variant="caption">
-                          Version: <strong>v{appVersion}</strong>
-                        </Typography>
-                      </footer>
-                    )}
-                  </CertificateProvider>
-                </PasswordConfirmationModalProvider>
-              </TransactionModalProvider>
-            </WalletProvider>
-          </SettingsProvider>
-        </SnackbarProvider>
-      </QueryClientProvider>
+                      {appVersion && (
+                        <footer className={classes.footer}>
+                          <Typography variant="caption">
+                            Version: <strong>v{appVersion}</strong>
+                          </Typography>
+                        </footer>
+                      )}
+                    </CertificateProvider>
+                  </PasswordConfirmationModalProvider>
+                </TransactionModalProvider>
+              </WalletProvider>
+            </SettingsProvider>
+          </SnackbarProvider>
+        </QueryClientProvider>
+      </HelmetProvider>
     </Router>
   );
 }
