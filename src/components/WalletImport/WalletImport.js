@@ -30,8 +30,10 @@ export function WalletImport() {
   const classes = useStyles();
   const { setSelectedWallet } = useWallet();
 
-  async function onImportClick() {
-    const importedWallet = await importWallet(mnemonic, password);
+  async function onImportSubmit(ev) {
+    ev.preventDefault();
+    
+    const importedWallet = await importWallet(mnemonic, name, password);
     setSelectedWallet(importedWallet);
   }
 
@@ -41,9 +43,10 @@ export function WalletImport() {
         <Paper className={classes.paper} elevation={5}>
           <h1>Import an existing wallet</h1>
           <br />
-          <form noValidate autoComplete="false">
+          <form autoComplete="false" onSubmit={onImportSubmit}>
             <TextField
               label="Type your mnemonic / private key"
+              required
               multiline
               fullWidth
               rows={4}
@@ -52,10 +55,19 @@ export function WalletImport() {
               variant="outlined"
             />
 
-            <TextField label="Choose a name for this wallet" fullWidth rows={4} value={name} onChange={(ev) => setName(ev.target.value)} variant="outlined" />
+            <TextField
+              label="Choose a name for this wallet"
+              required
+              fullWidth
+              rows={4}
+              value={name}
+              onChange={(ev) => setName(ev.target.value)}
+              variant="outlined"
+            />
 
             <TextField
               label="Choose a password to keep this wallet safe"
+              required
               fullWidth
               rows={4}
               value={password}
@@ -65,7 +77,7 @@ export function WalletImport() {
             />
 
             {/* <Button variant="contained" color="default" onClick={onCancelClick}>Cancel</Button> */}
-            <Button variant="contained" color="primary" onClick={onImportClick}>
+            <Button type="submit" variant="contained" color="primary">
               Import
             </Button>
           </form>

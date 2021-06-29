@@ -101,7 +101,7 @@ export function ManifestEdit(props) {
       const response = await sendTransaction([message]);
 
       if (response) {
-        saveDeploymentManifest(dd.deploymentId.dseq, editedManifest, dd.version);
+        saveDeploymentManifest(dd.deploymentId.dseq, editedManifest, dd.version, address);
 
         history.push("/createDeployment/acceptBids/" + dd.deploymentId.dseq);
       }

@@ -2,6 +2,8 @@ import { useSnackbar } from "notistack";
 import React, { useState, useCallback, useEffect } from "react";
 import { useSettings } from "../SettingsProvider";
 import { Snackbar } from "../../shared/components/Snackbar";
+import { deleteWalletFromStorage } from "../../shared/utils/walletUtils";
+import { useHistory } from "react-router-dom";
 
 const WalletProviderContext = React.createContext({});
 
@@ -12,6 +14,7 @@ export const WalletProvider = ({ children }) => {
   const [balance, setBalance] = useState(null);
   const [isRefreshingBalance, setIsRefreshingBalance] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
+  const history = useHistory();
 
   const refreshBalance = useCallback(
     async (showSnackbar) => {
@@ -32,6 +35,12 @@ export const WalletProvider = ({ children }) => {
     [address]
   );
 
+  const deleteWallet = useCallback(() => {
+    deleteWalletFromStorage(address);
+    setSelectedWallet(null);
+    history.push("/");
+  }, [address]);
+
   useEffect(() => {
     async function getAddress() {
       const [account] = await selectedWallet.getAccounts();
@@ -49,7 +58,7 @@ export const WalletProvider = ({ children }) => {
   }, [address, refreshBalance]);
 
   return (
-    <WalletProviderContext.Provider value={{ balance, setSelectedWallet, refreshBalance, selectedWallet, address, isRefreshingBalance }}>
+    <WalletProviderContext.Provider value={{ balance, setSelectedWallet, refreshBalance, selectedWallet, address, isRefreshingBalance, deleteWallet }}>
       {children}
     </WalletProviderContext.Provider>
   );
