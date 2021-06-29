@@ -16,6 +16,7 @@ import { useSnackbar } from "notistack";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import Alert from "@material-ui/lab/Alert";
 import { Helmet } from "react-helmet-async";
+import { useGA4React } from "ga-4-react";
 
 const yaml = require("js-yaml");
 
@@ -28,6 +29,7 @@ export function CreateLease({ dseq }) {
   const { localCert } = useCertificate();
   const { enqueueSnackbar } = useSnackbar();
   const history = useHistory();
+  const ga4React = useGA4React();
 
   const { data: bids, isLoading: isLoadingBids } = useBidList(address, dseq, {
     initialData: [],
@@ -60,6 +62,7 @@ export function CreateLease({ dseq }) {
       const response = await sendTransaction(messages);
 
       if (!response) throw "Rejected transaction";
+      else ga4React.event("create lease");
     } catch (error) {
       throw error;
     }
@@ -81,6 +84,8 @@ export function CreateLease({ dseq }) {
     }
 
     setIsSendingManifest(false);
+
+    ga4React.event("send manifest");
 
     history.push(UrlService.deploymentDetails(dseq));
   }

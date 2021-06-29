@@ -49,7 +49,6 @@ function App() {
   useEffect(() => {
     if (ga4React) {
       history.listen((location, action) => {
-        console.log(location);
         ga4React.pageview(location.pathname + location.search);
       });
     }

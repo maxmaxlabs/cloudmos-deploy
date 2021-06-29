@@ -10,6 +10,7 @@ import { TransactionMessageData } from "../../shared/utils/TransactionMessageDat
 import { useTransactionModal } from "../../context/TransactionModal";
 import { useSettings } from "../../context/SettingsProvider";
 import { Helmet } from "react-helmet-async";
+import { useGA4React } from "ga-4-react";
 
 const yaml = require("js-yaml");
 
@@ -18,6 +19,7 @@ export function ManifestEdit(props) {
   const [parsingError, setParsingError] = useState(null);
   const { sendTransaction } = useTransactionModal();
   const { address } = useWallet();
+  const ga4React = useGA4React();
   const history = useHistory();
 
   const { editedManifest, setEditedManifest, selectedTemplate } = props;
@@ -105,6 +107,8 @@ export function ManifestEdit(props) {
         saveDeploymentManifest(dd.deploymentId.dseq, editedManifest, dd.version, address);
 
         history.push("/createDeployment/acceptBids/" + dd.deploymentId.dseq);
+
+        ga4React.event("create deployment");
       }
     } catch (error) {
       throw error;
