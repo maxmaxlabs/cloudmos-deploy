@@ -2,6 +2,7 @@ import React from "react";
 import { IconButton, Button, makeStyles, List, ListItem, ListItemIcon, ListItemSecondaryAction, ListItemText, Radio } from "@material-ui/core";
 import GitHubIcon from "@material-ui/icons/GitHub";
 import { useHistory } from "react-router";
+import { Helmet } from "react-helmet-async";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -30,6 +31,8 @@ export function TemplateList(props) {
 
   return (
     <>
+      <Helmet title="Create Deployment - Template List" />
+
       <List className={classes.root}>
         {templates.map((value) => {
           const labelId = `checkbox-list-label-${value.code}`;

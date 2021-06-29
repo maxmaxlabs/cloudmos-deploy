@@ -6,6 +6,7 @@ import ErrorOutlineIcon from "@material-ui/icons/ErrorOutline";
 import { useCertificate } from "../../context/CertificateProvider";
 import { useWallet } from "../../context/WalletProvider";
 import { useHistory } from "react-router";
+import { Helmet } from "react-helmet-async";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -47,6 +48,8 @@ export function PrerequisiteList(props) {
 
   return (
     <>
+      <Helmet title="Create Deployment - Prerequisites" />
+
       <List className={classes.root}>
         <ListItem>
           <ListItemIcon>

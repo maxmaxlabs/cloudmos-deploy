@@ -14,6 +14,7 @@ import { UrlService } from "../../shared/utils/urlUtils";
 import { useSettings } from "../../context/SettingsProvider";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
+import { Helmet } from "react-helmet-async";
 
 export function DeploymentDetail(props) {
   const { settings } = useSettings();
@@ -107,6 +108,8 @@ export function DeploymentDetail(props) {
 
   return (
     <Card variant="outlined" className={classes.root}>
+      <Helmet title="Deployment Detail" />
+
       <LinearLoadingSkeleton isLoading={isLoadingLeases || isLoadingDeployment} />
       <CardHeader
         classes={{

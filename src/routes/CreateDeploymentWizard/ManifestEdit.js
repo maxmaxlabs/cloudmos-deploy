@@ -9,6 +9,7 @@ import { saveDeploymentManifest } from "../../shared/utils/deploymentLocalDataUt
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
 import { useTransactionModal } from "../../context/TransactionModal";
 import { useSettings } from "../../context/SettingsProvider";
+import { Helmet } from "react-helmet-async";
 
 const yaml = require("js-yaml");
 
@@ -116,6 +117,8 @@ export function ManifestEdit(props) {
 
   return (
     <>
+      <Helmet title="Create Deployment - Manifest Edit" />
+
       <Box pb={2}>
         <Typography>
           You may use the sample deployment file as-is or modify it for your own needs as desscribed in the{" "}

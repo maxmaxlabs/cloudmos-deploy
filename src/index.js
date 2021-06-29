@@ -7,6 +7,7 @@ import { ErrorFallback } from "./shared/components/ErrorFallback";
 import { CssBaseline, ThemeProvider, createMuiTheme } from "@material-ui/core";
 import * as Sentry from "@sentry/react";
 import { GA4R } from "ga-4-react";
+import { HelmetProvider } from "react-helmet-async";
 
 const appVersion = window.electron.getAppVersion();
 const appEnvironment = window.electron.getAppEnvironment();
@@ -51,8 +52,10 @@ ReactDOM.render(
     <Sentry.ErrorBoundary fallback={({ error, resetError }) => <ErrorFallback error={error} resetErrorBoundary={resetError} />}>
       <ThemeProvider theme={theme}>
         <GA4R code="G-CZQBS8H7PK">
-          <CssBaseline />
-          <App />
+          <HelmetProvider>
+            <CssBaseline />
+            <App />
+          </HelmetProvider>
         </GA4R>
       </ThemeProvider>
     </Sentry.ErrorBoundary>

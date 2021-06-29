@@ -4,21 +4,11 @@ import MemoryIcon from "@material-ui/icons/Memory";
 import StorageIcon from "@material-ui/icons/Storage";
 import SpeedIcon from "@material-ui/icons/Speed";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
-import {
-  makeStyles,
-  IconButton,
-  Box,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  ListItemSecondaryAction,
-  Typography,
-  LinearProgress,
-  Button
-} from "@material-ui/core";
+import { makeStyles, IconButton, Box, ListItem, ListItemText, ListItemIcon, ListItemSecondaryAction, Typography, Button } from "@material-ui/core";
 import { humanFileSize } from "../../shared/utils/unitUtils";
 import { useHistory } from "react-router";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
+import { Helmet } from "react-helmet-async";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -60,6 +50,7 @@ export function Dashboard({ deployments, isLoadingDeployments }) {
 
   return (
     <>
+      <Helmet title="Dashboard" />
       <LinearLoadingSkeleton isLoading={isLoadingDeployments} />
       <Box className={classes.root}>
         <Box className={classes.titleContainer}>

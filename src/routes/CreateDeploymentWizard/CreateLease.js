@@ -15,6 +15,7 @@ import { useBidList } from "../../queries/useBidQuery";
 import { useSnackbar } from "notistack";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import Alert from "@material-ui/lab/Alert";
+import { Helmet } from "react-helmet-async";
 
 const yaml = require("js-yaml");
 
@@ -119,6 +120,8 @@ export function CreateLease({ dseq }) {
 
   return (
     <>
+      <Helmet title="Create Deployment - Create Lease" />
+
       {isSendingManifest && <LinearProgress />}
 
       {(isLoadingBids || bids.length === 0) && (

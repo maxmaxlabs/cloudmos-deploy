@@ -14,6 +14,7 @@ import { useAppVersion } from "./hooks/useAppVersion";
 import CloseIcon from "@material-ui/icons/Close";
 import { createMemoryHistory } from "history";
 import { useGA4React } from "ga-4-react";
+import { Helmet } from "react-helmet-async";
 
 const ipcApi = window.electron.api;
 
@@ -87,6 +88,8 @@ function App() {
               <TransactionModalProvider>
                 <PasswordConfirmationModalProvider>
                   <CertificateProvider>
+                    <Helmet defaultTitle="Akashlytics Deploy" titleTemplate="Akashlytics Deploy - %s" />
+
                     <BetaBanner />
                     <MainView />
 
