@@ -10,6 +10,13 @@ export function getWalletAddresses() {
 
 export function deleteWalletFromStorage(address) {
   localStorage.removeItem(address + ".wallet");
+  localStorage.removeItem(address + ".crt");
+  localStorage.removeItem(address + ".key");
+
+  const deploymentKeys = Object.keys(localStorage).filter((key) => key.startsWith("deployments/"));
+  for (const deploymentKey of deploymentKeys) {
+    localStorage.removeItem(deploymentKey);
+  }
 }
 
 export async function importWallet(mnemonic, name, passphrase) {
@@ -24,6 +31,7 @@ export async function importWallet(mnemonic, name, passphrase) {
     address + ".wallet",
     JSON.stringify({
       name: name,
+      address: address,
       serializedWallet: serializedWallet
     })
   );

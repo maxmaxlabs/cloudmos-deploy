@@ -93,7 +93,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
       throw error;
     }
 
-    saveDeploymentManifest(dd.deploymentId.dseq, editedManifest, dd.version);
+    saveDeploymentManifest(dd.deploymentId.dseq, editedManifest, dd.version, address);
 
     const providers = leases.map((lease) => lease.provider).filter((v, i, s) => s.indexOf(v) === i);
 

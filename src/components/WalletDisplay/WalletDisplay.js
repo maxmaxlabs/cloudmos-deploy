@@ -139,13 +139,13 @@ export function WalletDisplay() {
             Balance: <strong>{balance / 1000000} AKT</strong>
           </p>
           <Alert severity="warning">
-            This wallet will be completely removed from Akashlytics Deploy. If you want to keep access to this wallet, make sure you have a backup of the seed
+            This wallet will be completely removed from Akashlytics Deploy along with your local certificate and deployments data. If you want to keep access to this wallet, make sure you have a backup of the seed
             phrase or private key.
           </Alert>
           <br />
           <FormControlLabel
             control={<Checkbox name="checkedC" checked={isConfirmationChecked} onChange={(ev, value) => setIsConfirmationChecked(value)} />}
-            label="I understand the wallet will be completely removed and I have all the backup I need."
+            label="I understand the wallet will be completely removed and I have all the backups I need."
           />
         </DialogContent>
         <DialogActions>

@@ -7,8 +7,9 @@ export function getDeploymentLocalData(dseq) {
   return parsedData;
 }
 
-export function saveDeploymentManifest(dseq, manifest, version) {
+export function saveDeploymentManifest(dseq, manifest, version, address) {
   const data = getDeploymentLocalData(dseq) || {};
+  data.owner = address;
   data.manifest = manifest;
   data.manifestVersion = version;
 
