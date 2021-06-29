@@ -4,7 +4,7 @@ import { Button, CircularProgress, Box, Typography, LinearProgress, Menu, MenuIt
 import { useWallet } from "../../context/WalletProvider";
 import { BidGroup } from "./BidGroup";
 import { useHistory } from "react-router";
-import { sendManifestToProvider } from "../../shared/utils/deploymentUtils";
+import { sendManifestToProvider, Manifest } from "../../shared/utils/deploymentUtils";
 import { useCertificate } from "../../context/CertificateProvider";
 import { fetchProviderInfo } from "../../shared/providerCache";
 import { getDeploymentLocalData } from "../../shared/utils/deploymentLocalDataUtils";
@@ -15,6 +15,8 @@ import { useBidList } from "../../queries/useBidQuery";
 import { useSnackbar } from "notistack";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import Alert from "@material-ui/lab/Alert";
+
+const yaml = require("js-yaml");
 
 export function CreateLease({ dseq }) {
   const { settings } = useSettings();
@@ -68,8 +70,10 @@ export function CreateLease({ dseq }) {
       try {
         console.log("Querying provider info");
         const providerInfo = await fetchProviderInfo(settings.apiEndpoint, selectedBids[Object.keys(selectedBids)[0]].provider);
+        const yamlJson = yaml.load(deploymentData.manifest);
+        const mani = Manifest(yamlJson);
 
-        await sendManifest(providerInfo, deploymentData.manifest);
+        await sendManifest(providerInfo, mani);
       } catch (err) {
         console.error(err);
       }
