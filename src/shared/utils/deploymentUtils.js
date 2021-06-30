@@ -375,7 +375,7 @@ export async function NewDeploymentData(apiEndpoint, yamlJson, dseq, fromAddress
 }
 
 export async function sendManifestToProvider(providerInfo, manifestStr, dseq, localCert) {
-  console.log("Sending manifest to " + providerInfo.address);
+  console.log("Sending manifest to " + providerInfo.owner);
 
   const jsonStr = JSON.stringify(manifestStr, (key, value) => {
     if (key === "storage" || key === "memory") {

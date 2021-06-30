@@ -105,41 +105,38 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address }) {
         <LabelValue label="~Cost/Month:" value={`${getAvgCostPerMonth(deploymentCost)}AKT`} />
       </Grid>
 
-      <Box className={classes.actionContainer}>
-        <Button variant="contained" color="primary" className={classes.actionButton}>
-          Add funds
-        </Button>
+      {deployment.state === "active" && (
+        <Box className={classes.actionContainer}>
+          <Button variant="contained" color="primary" className={classes.actionButton} onClick={() => alert("Coming soon!")}>
+            Add funds
+          </Button>
+          <IconButton aria-label="settings" aria-haspopup="true" onClick={handleMenuClick} className={classes.actionButton}>
+            <MoreVertIcon />
+          </IconButton>
 
-        {deployment.state === "active" && (
-          <>
-            <IconButton aria-label="settings" aria-haspopup="true" onClick={handleMenuClick} className={classes.actionButton}>
-              <MoreVertIcon />
-            </IconButton>
-
-            <Menu
-              id="long-menu"
-              anchorEl={anchorEl}
-              keepMounted
-              getContentAnchorEl={null}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "right"
-              }}
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right"
-              }}
-            >
-              <MenuItem onClick={() => onCloseDeployment()} classes={{ root: classes.menuItem }}>
-                <CancelPresentationIcon />
-                &nbsp;Close
-              </MenuItem>
-            </Menu>
-          </>
-        )}
-      </Box>
+          <Menu
+            id="long-menu"
+            anchorEl={anchorEl}
+            keepMounted
+            getContentAnchorEl={null}
+            open={Boolean(anchorEl)}
+            onClose={handleMenuClose}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "right"
+            }}
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "right"
+            }}
+          >
+            <MenuItem onClick={() => onCloseDeployment()} classes={{ root: classes.menuItem }}>
+              <CancelPresentationIcon />
+              &nbsp;Close
+            </MenuItem>
+          </Menu>
+        </Box>
+      )}
     </Grid>
   );
 }

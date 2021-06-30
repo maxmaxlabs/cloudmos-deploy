@@ -1,6 +1,6 @@
 {
   "name": "akashlytics-deploy",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "private": true,
   "repository": {
     "type": "git",
