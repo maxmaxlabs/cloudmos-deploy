@@ -8,7 +8,7 @@ import { CssBaseline, ThemeProvider, createMuiTheme } from "@material-ui/core";
 import * as Sentry from "@sentry/react";
 import { initAnalytics } from "./shared/utils/analyticsUtils";
 
-initAnalytics();
+initAnalytics(window.electron.isDev());
 
 const appVersion = window.electron.getAppVersion();
 const appEnvironment = window.electron.getAppEnvironment();
