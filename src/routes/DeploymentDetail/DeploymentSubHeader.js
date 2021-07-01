@@ -11,7 +11,7 @@ import { useHistory } from "react-router";
 import { useTransactionModal } from "../../context/TransactionModal";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
 import { UrlService } from "../../shared/utils/urlUtils";
-import { useGA4React } from "ga-4-react";
+import { analytics } from "../../shared/utils/analyticsUtils";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -39,7 +39,6 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address }) {
   const timeLeft = getTimeLeft(deploymentCost, deployment.escrowBalance.amount);
   const [anchorEl, setAnchorEl] = useState(null);
   const { sendTransaction } = useTransactionModal();
-  const ga4React = useGA4React();
   const history = useHistory();
 
   const onCloseDeployment = async () => {
@@ -53,7 +52,7 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address }) {
       if (response) {
         history.push(`${UrlService.deploymentList()}?refetch=true`);
 
-        ga4React.event("close deployment");
+        await analytics.event("deploy", "close deployment");
       }
     } catch (error) {
       throw error;
@@ -105,41 +104,38 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address }) {
         <LabelValue label="~Cost/Month:" value={`${getAvgCostPerMonth(deploymentCost)}AKT`} />
       </Grid>
 
-      <Box className={classes.actionContainer}>
-        <Button variant="contained" color="primary" className={classes.actionButton}>
-          Add funds
-        </Button>
+      {deployment.state === "active" && (
+        <Box className={classes.actionContainer}>
+          <Button variant="contained" color="primary" className={classes.actionButton} onClick={() => alert("Coming soon!")}>
+            Add funds
+          </Button>
+          <IconButton aria-label="settings" aria-haspopup="true" onClick={handleMenuClick} className={classes.actionButton}>
+            <MoreVertIcon />
+          </IconButton>
 
-        {deployment.state === "active" && (
-          <>
-            <IconButton aria-label="settings" aria-haspopup="true" onClick={handleMenuClick} className={classes.actionButton}>
-              <MoreVertIcon />
-            </IconButton>
-
-            <Menu
-              id="long-menu"
-              anchorEl={anchorEl}
-              keepMounted
-              getContentAnchorEl={null}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "right"
-              }}
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right"
-              }}
-            >
-              <MenuItem onClick={() => onCloseDeployment()} classes={{ root: classes.menuItem }}>
-                <CancelPresentationIcon />
-                &nbsp;Close
-              </MenuItem>
-            </Menu>
-          </>
-        )}
-      </Box>
+          <Menu
+            id="long-menu"
+            anchorEl={anchorEl}
+            keepMounted
+            getContentAnchorEl={null}
+            open={Boolean(anchorEl)}
+            onClose={handleMenuClose}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "right"
+            }}
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "right"
+            }}
+          >
+            <MenuItem onClick={() => onCloseDeployment()} classes={{ root: classes.menuItem }}>
+              <CancelPresentationIcon />
+              &nbsp;Close
+            </MenuItem>
+          </Menu>
+        </Box>
+      )}
     </Grid>
   );
 }

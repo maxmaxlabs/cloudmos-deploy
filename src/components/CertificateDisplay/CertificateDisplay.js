@@ -11,7 +11,7 @@ import WarningIcon from "@material-ui/icons/Warning";
 import { Button, IconButton, Card, CardHeader, Tooltip, CircularProgress, MenuItem, Menu } from "@material-ui/core";
 import { useCertificate } from "../../context/CertificateProvider";
 import { useWallet } from "../../context/WalletProvider";
-import { useGA4React } from "ga-4-react";
+import { analytics } from "../../shared/utils/analyticsUtils";
 
 var rs = require("jsrsasign");
 
@@ -38,7 +38,6 @@ export function CertificateDisplay() {
   const { askForPasswordConfirmation } = usePasswordConfirmationModal();
   const { sendTransaction } = useTransactionModal();
   const { address } = useWallet();
-  const ga4React = useGA4React();
 
   const revokeCertificate = useCallback(async () => {
     handleClose();
@@ -54,7 +53,7 @@ export function CertificateDisplay() {
 
         await loadValidCertificates();
 
-        ga4React.event("revoke certificate");
+        await analytics.event("deploy", "revoke certificate");
       }
     } catch (error) {
       throw error;
@@ -131,7 +130,7 @@ export function CertificateDisplay() {
         loadValidCertificates();
         loadLocalCert(address, password);
 
-        ga4React.event("create certificate");
+        await analytics.event("deploy", "create certificate");
       }
     } catch (error) {
       throw error;

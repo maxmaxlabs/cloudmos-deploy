@@ -6,7 +6,9 @@ import reportWebVitals from "./reportWebVitals";
 import { ErrorFallback } from "./shared/components/ErrorFallback";
 import { CssBaseline, ThemeProvider, createMuiTheme } from "@material-ui/core";
 import * as Sentry from "@sentry/react";
-import { GA4R } from "ga-4-react";
+import { initAnalytics } from "./shared/utils/analyticsUtils";
+
+initAnalytics();
 
 const appVersion = window.electron.getAppVersion();
 const appEnvironment = window.electron.getAppEnvironment();
@@ -50,10 +52,8 @@ ReactDOM.render(
   <React.StrictMode>
     <Sentry.ErrorBoundary fallback={({ error, resetError }) => <ErrorFallback error={error} resetErrorBoundary={resetError} />}>
       <ThemeProvider theme={theme}>
-        <GA4R code="G-CZQBS8H7PK">
-          <CssBaseline />
-          <App />
-        </GA4R>
+        <CssBaseline />
+        <App />
       </ThemeProvider>
     </Sentry.ErrorBoundary>
   </React.StrictMode>,

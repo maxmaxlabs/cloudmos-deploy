@@ -13,9 +13,9 @@ import { BetaBanner } from "./components/BetaBanner";
 import { useAppVersion } from "./hooks/useAppVersion";
 import CloseIcon from "@material-ui/icons/Close";
 import { createMemoryHistory } from "history";
-import { useGA4React } from "ga-4-react";
 import { HelmetProvider } from "react-helmet-async";
 import { Helmet } from "react-helmet-async";
+import { analytics, HOSTNAME } from "./shared/utils/analyticsUtils";
 
 const ipcApi = window.electron.api;
 
@@ -41,19 +41,26 @@ function App() {
   const notistackRef = useRef();
   const classes = useStyles();
   const { appVersion } = useAppVersion();
-  const ga4React = useGA4React();
 
   const onClickDismiss = (key) => () => {
     notistackRef.current.closeSnackbar(key);
   };
 
   useEffect(() => {
-    if (ga4React) {
-      history.listen((location, action) => {
-        ga4React.pageview(location.pathname + location.search);
-      });
-    }
-  }, [ga4React]);
+    const init = async () => {
+      await analytics.pageview(HOSTNAME, window.location.pathname + window.location.search, document.title);
+    };
+
+    history.listen(async (location, action) => {
+      try {
+        await analytics.pageview(HOSTNAME, location.pathname + location.search, document.title);
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    init();
+  }, []);
 
   // useEffect(() => {
   // ipcApi.receive("update_available", () => {

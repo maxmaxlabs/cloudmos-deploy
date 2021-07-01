@@ -29,7 +29,7 @@ import { useSnackbar } from "notistack";
 import { useStyles } from "./TransactionModal.styles";
 import { useSettings } from "../SettingsProvider";
 import { Snackbar } from "../../shared/components/Snackbar";
-import { useGA4React } from "ga-4-react";
+import { analytics } from "../../shared/utils/analyticsUtils";
 
 const a11yPrefix = "transaction-tab";
 
@@ -49,7 +49,6 @@ export function TransactionModal(props) {
   const avgFee = createFee("avg", baseGas, messages.length);
   const highFee = createFee("high", baseGas, messages.length);
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-  const ga4React = useGA4React();
 
   async function handleSubmit(ev) {
     ev.preventDefault();
@@ -75,7 +74,7 @@ export function TransactionModal(props) {
 
       enqueueSnackbar(<Snackbar title="Tx succeeds!" subTitle="Congratulations 🎉" />, { variant: "success" });
 
-      ga4React.event("successful transaction");
+      await analytics.event("deploy", "successful transaction");
 
       refreshBalance();
 
@@ -86,7 +85,7 @@ export function TransactionModal(props) {
 
       let errorMsg = "An error has occured";
 
-      ga4React.event("failed transaction");
+      await analytics.event("deploy", "failed transaction");
 
       if (err.message.includes("was submitted but was not yet found on the chain")) {
         errorMsg = "Transaction timeout";
