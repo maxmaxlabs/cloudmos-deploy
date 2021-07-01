@@ -12,7 +12,7 @@ import { useStyles } from "./ManifestEditor.styles";
 import { fetchProviderInfo } from "../../shared/providerCache";
 import { useSettings } from "../../context/SettingsProvider";
 import { useSnackbar } from "notistack";
-import { useGA4React } from "ga-4-react";
+import { analytics } from "../../shared/utils/analyticsUtils";
 
 const yaml = require("js-yaml");
 
@@ -24,7 +24,6 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
   const { address } = useWallet();
   const { localCert } = useCertificate();
   const { sendTransaction } = useTransactionModal();
-  const ga4React = useGA4React();
   const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
@@ -91,7 +90,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
 
       if (!response) throw "Rejected";
 
-      ga4React.event("update deployment");
+      await analytics.event("deploy", "update deployment");
     } catch (error) {
       throw error;
     }
