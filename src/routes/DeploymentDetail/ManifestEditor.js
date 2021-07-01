@@ -31,31 +31,44 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
     setEditedManifest(deploymentData?.manifest);
   }, [deployment]);
 
-  function handleTextChange(value) {
+  async function handleTextChange(value) {
+    setEditedManifest(value);
+  }
+
+  useEffect(() => {
+    const timeoutId = setTimeout(async () => {
+      await createAndValidateDeploymentData(editedManifest, deployment.dseq);
+    }, 500);
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [editedManifest]);
+
+  async function createAndValidateDeploymentData(yamlStr, dseq) {
     try {
-      yaml.load(value);
+      //debugger;
+      const doc = yaml.load(yamlStr);
+      
+      const dd = await NewDeploymentData(settings.apiEndpoint, doc, dseq, address);
+      
       setParsingError(null);
     } catch (err) {
       if (err.name === "YAMLException") {
         setParsingError(err.message);
       } else {
-        throw err;
+        setParsingError("Error while parsing SDL file");
+        console.error(err);
       }
     }
-
-    setEditedManifest(value);
-  }
-
-  function handleSDLDocClick(ev) {
-    ev.preventDefault();
-
-    window.electron.openUrl("https://docs.akash.network/documentation/sdl");
   }
 
   function handleUpdateDocClick(ev) {
     ev.preventDefault();
 
-    window.electron.openUrl("https://docs.akash.network/guides/deploy#update-your-deployment");
+    window.electron.openUrl("https://docs.akash.network/guides/deployment#update-your-deployment");
   }
 
   const options = {

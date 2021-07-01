@@ -74,7 +74,7 @@ export function ManifestEdit(props) {
   function handleDocClick(ev) {
     ev.preventDefault();
 
-    window.electron.openUrl("https://docs.akash.network/documentation/sdl");
+    window.electron.openUrl("https://docs.akash.network/reference/sdl");
   }
 
   function validateDeploymentData(deploymentData) {
