@@ -3,8 +3,9 @@ const providerProxy = require("./providerProxy");
 const { ipcRenderer } = require("electron");
 const Sentry = require("@sentry/electron");
 
-const appVersion = window.process.argv[window.process.argv.length-2];
-const appEnvironment = window.process.argv[window.process.argv.length-1];
+const appVersion = window.process.argv[window.process.argv.length - 2];
+const appEnvironment = window.process.argv[window.process.argv.length - 1];
+const isDev = !!process.env.ELECTRON_START_URL;
 
 Sentry.init({
   dsn: "https://fc8f0d800d664154a0f1babe0e318fbb@o877251.ingest.sentry.io/5827747",
@@ -36,6 +37,7 @@ contextBridge.exposeInMainWorld("electron", {
   },
   getAppVersion: () => appVersion,
   getAppEnvironment: () => appEnvironment,
+  isDev: () => isDev,
   api: {
     send: (channel, data) => {
       if (validChannels.includes(channel)) {
