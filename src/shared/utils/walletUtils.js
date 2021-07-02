@@ -1,4 +1,4 @@
-import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
+import { DirectSecp256k1HdWallet, extractKdfConfiguration } from "@cosmjs/proto-signing";
 
 var rs = require("jsrsasign");
 
@@ -42,7 +42,13 @@ export async function importWallet(mnemonic, name, passphrase) {
 export async function openWallet(password) {
   const walletAddress = getWalletAddresses()[0];
   const walletInfo = JSON.parse(localStorage.getItem(walletAddress + ".wallet"));
-  const wallet = await DirectSecp256k1HdWallet.deserialize(walletInfo.serializedWallet, password);
+
+  const kdfConf = extractKdfConfiguration(walletInfo.serializedWallet);
+
+  const key = await window.electron.deserializeWallet(password, kdfConf);
+  const keyArray = Uint8Array.of(...Object.values(key));
+
+  const wallet = await DirectSecp256k1HdWallet.deserializeWithEncryptionKey(walletInfo.serializedWallet, keyArray);
 
   return wallet;
 }

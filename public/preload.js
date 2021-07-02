@@ -1,7 +1,9 @@
 const { contextBridge, shell } = require("electron");
-const providerProxy = require("./providerProxy");
 const { ipcRenderer } = require("electron");
+const { fork } = require("child_process");
+const providerProxy = require("./providerProxy");
 const Sentry = require("@sentry/electron");
+const path = require("path");
 
 const appVersion = window.process.argv[window.process.argv.length - 2];
 const appEnvironment = window.process.argv[window.process.argv.length - 1];
@@ -38,6 +40,27 @@ contextBridge.exposeInMainWorld("electron", {
   getAppVersion: () => appVersion,
   getAppEnvironment: () => appEnvironment,
   isDev: () => isDev,
+  deserializeWallet: async (password, kdfConf) => {
+    return new Promise((res,rej) => {
+      const myWorker = fork(path.join(__dirname, "wallet.worker.js"), ["args"], {
+        stdio: ["pipe", "pipe", "pipe", "ipc"]
+      });
+  
+      myWorker.on("error", (err) => {
+        rej("Spawn failed! (" + err + ")");
+        myWorker.kill();
+      });
+      myWorker.stderr.on("data", function (data) {
+        rej(data);
+        myWorker.kill();
+      });
+      myWorker.on("message", (data) => {
+        res(data);
+        myWorker.kill();
+      });
+      myWorker.send({ password, kdfConf });
+    });
+  },
   api: {
     send: (channel, data) => {
       if (validChannels.includes(channel)) {
