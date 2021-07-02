@@ -16,25 +16,25 @@ const specSuffixes = {
 };
 
 const validationConfig = {
-	maxUnitCPU:     10 * 1000,    // 10 CPUs
-	maxUnitMemory:  16 * specSuffixes.Gi, // 16 Gi
-	maxUnitStorage: specSuffixes.Ti,      // 1 Ti
-	maxUnitCount:   50,
-	maxUnitPrice:   10000000, // 10akt
+  maxUnitCPU: 10 * 1000, // 10 CPUs
+  maxUnitMemory: 16 * specSuffixes.Gi, // 16 Gi
+  maxUnitStorage: specSuffixes.Ti, // 1 Ti
+  maxUnitCount: 50,
+  maxUnitPrice: 10000000, // 10akt
 
-	minUnitCPU:     10,
-	minUnitMemory:  specSuffixes.Mi,
-	minUnitStorage: 5 * specSuffixes.Mi,
-	minUnitCount:   1,
-	minUnitPrice:   1,
+  minUnitCPU: 10,
+  minUnitMemory: specSuffixes.Mi,
+  minUnitStorage: 5 * specSuffixes.Mi,
+  minUnitCount: 1,
+  minUnitPrice: 1,
 
-	maxGroupCount: 20,
-	maxGroupUnits: 20,
+  maxGroupCount: 20,
+  maxGroupUnits: 20,
 
-	maxGroupCPU:     20 * 1000,
-	maxGroupMemory:  32 * specSuffixes.Gi,
-	maxGroupStorage: specSuffixes.Ti,
-}
+  maxGroupCPU: 20 * 1000,
+  maxGroupMemory: 32 * specSuffixes.Gi,
+  maxGroupStorage: specSuffixes.Ti
+};
 
 async function getCurrentHeight(apiEndpoint) {
   const response = await fetch(apiEndpoint + "/blocks/latest");
@@ -283,10 +283,10 @@ function DeploymentGroups(yamlJson) {
             endpoints.push({ kind: kind });
           }
         });
-
-        resources.resources.endpoints = endpoints;
-        group.resources.push(resources);
       });
+
+      resources.resources.endpoints = endpoints;
+      group.resources.push(resources);
     });
   });
 
@@ -324,8 +324,7 @@ async function ManifestVersion(manifest) {
     }
     return value;
   });
-  //console.log(m);
-  console.log();
+  //console.log(SortJSON(m));
   let sortedBytes = enc.encode(SortJSON(m));
 
   let sum = await crypto.subtle.digest("SHA-256", sortedBytes);

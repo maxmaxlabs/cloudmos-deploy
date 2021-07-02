@@ -3,10 +3,11 @@ import { fetchProviderInfo } from "../../shared/providerCache";
 import {
   makeStyles,
   IconButton,
+  Box,
   Card,
   CardContent,
   CardHeader,
-  Box,
+  Chip,
   Typography,
   List,
   ListItem,
@@ -127,7 +128,10 @@ export function LeaseRow({ lease, setActiveTab }) {
         {isLeaseNotFound && (
           <Alert severity="warning">
             The lease was not found on this provider. This can happen if no manifest was sent to the provider. To send one you can update your deployment in the{" "}
-            <a href="#" onClick={handleEditManifestClick}>VIEW / EDIT MANIFEST</a> tab.
+            <a href="#" onClick={handleEditManifestClick}>
+              VIEW / EDIT MANIFEST
+            </a>{" "}
+            tab.
           </Alert>
         )}
 
@@ -144,6 +148,17 @@ export function LeaseRow({ lease, setActiveTab }) {
                 Ready Replicas: {service.available}
                 <br />
                 Total: {service.available}
+                <br />
+                {leaseInfoFromProvider.forwarded_ports[service.name]?.length > 0 && (
+                  <>
+                    Forwarded Ports:{" "}
+                    {leaseInfoFromProvider.forwarded_ports[service.name].map((p) => (
+                      <Box key={"port_" + p.externalPort} display="inline" mr={0.5}>
+                        <Chip variant="outlined" size="small" label={`${p.externalPort}:${p.port}`} disabled={p.available < 1} />
+                      </Box>
+                    ))}
+                  </>
+                )}
                 {service.uris?.length > 0 && (
                   <List dense>
                     {service.uris.map((uri) => {

@@ -28,7 +28,7 @@ const logger = winston.createLogger({
   transports: [new winston.transports.File({ filename: "electron.log" })]
 });
 
-logger.info("Loaded electron");
+logger.info("Loaded electron (app version " + appVersion + ")");
 
 function createWindow() {
   try {

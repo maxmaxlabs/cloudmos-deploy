@@ -41,6 +41,8 @@ export function ManifestEdit(props) {
 
   async function createAndValidateDeploymentData(yamlStr, dseq) {
     try {
+      if(!editedManifest) return null;
+      
       const doc = yaml.load(yamlStr);
 
       const dd = await NewDeploymentData(settings.apiEndpoint, doc, dseq, address);
@@ -72,7 +74,7 @@ export function ManifestEdit(props) {
   function handleDocClick(ev) {
     ev.preventDefault();
 
-    window.electron.openUrl("https://docs.akash.network/documentation/sdl");
+    window.electron.openUrl("https://docs.akash.network/reference/sdl");
   }
 
   function validateDeploymentData(deploymentData) {
@@ -136,7 +138,7 @@ export function ManifestEdit(props) {
 
       <Box pt={2}>
         <Button onClick={handleChangeTemplate}>Change Template</Button>&nbsp;
-        <Button variant="contained" color="primary" disabled={!!parsingError} onClick={handleCreateClick}>
+        <Button variant="contained" color="primary" disabled={!!parsingError || !editedManifest} onClick={handleCreateClick}>
           Create Deployment
         </Button>
       </Box>

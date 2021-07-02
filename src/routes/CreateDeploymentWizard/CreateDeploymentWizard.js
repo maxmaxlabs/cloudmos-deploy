@@ -78,12 +78,6 @@ export function CreateDeploymentWizard() {
     }
   }
 
-  function handleStep(index) {
-    console.log("handleStep: " + index);
-    const route = getStepRouteByIndex(index);
-    history.push(route);
-  }
-
   function isStepComplete() {
     return false;
   }
@@ -108,7 +102,7 @@ export function CreateDeploymentWizard() {
               const buttonProps = {};
               return (
                 <Step key={label} {...stepProps}>
-                  <StepButton onClick={() => handleStep(index)} completed={isStepComplete(index)} {...buttonProps}>
+                  <StepButton disabled completed={isStepComplete(index)} {...buttonProps}>
                     {label}
                   </StepButton>
                 </Step>
