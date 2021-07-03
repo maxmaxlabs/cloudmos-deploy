@@ -22,7 +22,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
   const { settings } = useSettings();
   const classes = useStyles();
   const { address } = useWallet();
-  const { localCert } = useCertificate();
+  const { localCert, isLocalCertMatching } = useCertificate();
   const { sendTransaction } = useTransactionModal();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -51,9 +51,9 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
     try {
       //debugger;
       const doc = yaml.load(yamlStr);
-      
+
       const dd = await NewDeploymentData(settings.apiEndpoint, doc, dseq, address);
-      
+
       setParsingError(null);
     } catch (err) {
       if (err.name === "YAMLException") {
@@ -141,10 +141,13 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
       {parsingError && <Alert severity="warning">{parsingError}</Alert>}
 
       <Box pt={2}>
-        {/* <Button onClick={() => props.handleBack()}>Back</Button> */}
-        <Button variant="contained" color="primary" disabled={!!parsingError} onClick={handleUpdateClick}>
-          Update Deployment
-        </Button>
+        {!localCert || !isLocalCertMatching ? (
+          <Alert severity="warning">You do not have a valid certificate. You need to create a new one to update an existing deployment.</Alert>
+        ) : (
+          <Button variant="contained" color="primary" disabled={!!parsingError} onClick={handleUpdateClick}>
+            Update Deployment
+          </Button>
+        )}
       </Box>
     </>
   );
