@@ -98,7 +98,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
 
     try {
       const message = TransactionMessageData.getUpdateDeploymentMsg(dd);
-      // TODO handle response
+
       const response = await sendTransaction([message]);
 
       if (!response) throw "Rejected";
@@ -114,7 +114,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
 
     for (const provider of providers) {
       const providerInfo = await fetchProviderInfo(settings.apiEndpoint, provider);
-      const response = await sendManifest(providerInfo, mani);
+      await sendManifest(providerInfo, mani);
     }
 
     closeManifestEditor();

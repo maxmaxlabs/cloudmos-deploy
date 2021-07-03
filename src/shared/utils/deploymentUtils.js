@@ -386,13 +386,22 @@ export async function sendManifestToProvider(providerInfo, manifestStr, dseq, lo
     return value;
   });
 
-  const response = await window.electron.queryProvider(
-    providerInfo.host_uri + "/deployment/" + dseq + "/manifest",
-    "PUT",
-    jsonStr,
-    localCert.certPem,
-    localCert.keyPem
-  );
-
-  return response;
+  for (let i = 1; i <= 3; i++) {
+    console.log("Try #" + i);
+    try {
+      return await window.electron.queryProvider(
+        providerInfo.host_uri + "/deployment/" + dseq + "/manifest",
+        "PUT",
+        jsonStr,
+        localCert.certPem,
+        localCert.keyPem
+      );
+    } catch (err) {
+      if (err.includes && err.includes("no lease for deployment") && i < 3) {
+        console.log("Lease not found, retrying...");
+      } else {
+        throw err;
+      }
+    }
+  }
 }

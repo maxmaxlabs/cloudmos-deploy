@@ -67,7 +67,7 @@ export function LeaseRow({ lease, setActiveTab }) {
       } catch (err) {
         console.error(err);
 
-        if (err.includes("lease not found")) {
+        if (err.includes && err.includes("lease not found")) {
           setIsLeaseNotFound(true);
         }
       }
