@@ -399,9 +399,18 @@ export async function sendManifestToProvider(providerInfo, manifestStr, dseq, lo
     } catch (err) {
       if (err.includes && err.includes("no lease for deployment") && i < 3) {
         console.log("Lease not found, retrying...");
+        await wait(1000); // Waiting for 1 sec
       } else {
         throw err;
       }
     }
   }
+}
+
+async function wait(time) {
+  return new Promise((res, rej) => {
+    setTimeout(() => {
+      res();
+    }, time);
+  });
 }
