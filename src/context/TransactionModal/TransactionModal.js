@@ -181,6 +181,7 @@ export function TransactionModal(props) {
           <Box padding="1rem 0">
             <TextField
               label="Memo"
+              disabled={isSendingTransaction}
               value={memo}
               onChange={(ev) => setMemo(ev.target.value)}
               type="text"
