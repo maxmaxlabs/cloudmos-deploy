@@ -48,6 +48,8 @@ export const WalletProvider = ({ children }) => {
     }
     if (selectedWallet) {
       getAddress();
+    } else {
+      setAddress(null);
     }
   }, [selectedWallet]);
 
