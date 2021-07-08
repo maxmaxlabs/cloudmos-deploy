@@ -19,16 +19,21 @@ const yaml = require("js-yaml");
 export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
   const [parsingError, setParsingError] = useState(null);
   const [editedManifest, setEditedManifest] = useState("");
+  const [showOutsideDeploymentMessage, setShowOutsideDeploymentMessage] = useState(false);
   const { settings } = useSettings();
   const classes = useStyles();
   const { address } = useWallet();
-  const { localCert } = useCertificate();
+  const { localCert, isLocalCertMatching } = useCertificate();
   const { sendTransaction } = useTransactionModal();
   const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
     const deploymentData = getDeploymentLocalData(deployment.dseq);
     setEditedManifest(deploymentData?.manifest);
+
+    if (!deploymentData) {
+      setShowOutsideDeploymentMessage(true);
+    }
   }, [deployment]);
 
   async function handleTextChange(value) {
@@ -49,11 +54,12 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
 
   async function createAndValidateDeploymentData(yamlStr, dseq) {
     try {
-      //debugger;
+      if (!editedManifest) return null;
+
       const doc = yaml.load(yamlStr);
-      
+
       const dd = await NewDeploymentData(settings.apiEndpoint, doc, dseq, address);
-      
+
       setParsingError(null);
     } catch (err) {
       if (err.name === "YAMLException") {
@@ -98,7 +104,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
 
     try {
       const message = TransactionMessageData.getUpdateDeploymentMsg(dd);
-      // TODO handle response
+
       const response = await sendTransaction([message]);
 
       if (!response) throw "Rejected";
@@ -114,7 +120,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
 
     for (const provider of providers) {
       const providerInfo = await fetchProviderInfo(settings.apiEndpoint, provider);
-      const response = await sendManifest(providerInfo, mani);
+      await sendManifest(providerInfo, mani);
     }
 
     closeManifestEditor();
@@ -126,26 +132,45 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
         Update Manifest
       </Typography>
 
-      <Box pb={2}>
-        <Alert severity="info">
-          Akash Groups are translated into Kubernetes Deployments, this means that only a few fields from the Akash SDL are mutable. For example image, command,
-          args, env and exposed ports can be modified, but compute resources and placement criteria cannot. (
-          <a href="#" onClick={handleUpdateDocClick}>
-            View doc
-          </a>
-          )
-        </Alert>
-        <br />
-        <MonacoEditor height="600" language="yaml" theme="vs-dark" value={editedManifest} onChange={handleTextChange} options={options} />
-      </Box>
-      {parsingError && <Alert severity="warning">{parsingError}</Alert>}
+      {showOutsideDeploymentMessage ? (
+        <Box mt={1}>
+          <Alert severity="info">
+            It looks like this deployment was created using another deploy tool. We can't show you the configuration file that was used initially, but you can still
+            update it. Simply continue and enter the configuration you want to use.
+            <Box mt={1}>
+              <Button variant="contained" color="primary" onClick={() => setShowOutsideDeploymentMessage(false)}>
+                Continue
+              </Button>
+            </Box>
+          </Alert>
+        </Box>
+      ) : (
+        <>
+          <Box pb={2}>
+            <Alert severity="info">
+              Akash Groups are translated into Kubernetes Deployments, this means that only a few fields from the Akash SDL are mutable. For example image,
+              command, args, env and exposed ports can be modified, but compute resources and placement criteria cannot. (
+              <a href="#" onClick={handleUpdateDocClick}>
+                View doc
+              </a>
+              )
+            </Alert>
+            <br />
+            <MonacoEditor height="600" language="yaml" theme="vs-dark" value={editedManifest} onChange={handleTextChange} options={options} />
+          </Box>
+          {parsingError && <Alert severity="warning">{parsingError}</Alert>}
 
-      <Box pt={2}>
-        {/* <Button onClick={() => props.handleBack()}>Back</Button> */}
-        <Button variant="contained" color="primary" disabled={!!parsingError} onClick={handleUpdateClick}>
-          Update Deployment
-        </Button>
-      </Box>
+          <Box pt={2}>
+            {!localCert || !isLocalCertMatching ? (
+              <Alert severity="warning">You do not have a valid certificate. You need to create a new one to update an existing deployment.</Alert>
+            ) : (
+              <Button variant="contained" color="primary" disabled={!!parsingError || !editedManifest} onClick={handleUpdateClick}>
+                Update Deployment
+              </Button>
+            )}
+          </Box>
+        </>
+      )}
     </>
   );
 }

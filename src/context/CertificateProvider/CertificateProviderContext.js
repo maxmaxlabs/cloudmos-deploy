@@ -13,7 +13,7 @@ export const CertificateProvider = ({ children }) => {
   const [localCert, setLocalCert] = useState(null);
   const [isLocalCertMatching, setIsLocalCertMatching] = useState(false);
   const { settings } = useSettings();
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const { enqueueSnackbar } = useSnackbar();
 
   const { address } = useWallet();
 
@@ -38,6 +38,8 @@ export const CertificateProvider = ({ children }) => {
   useEffect(() => {
     if (address) {
       loadValidCertificates();
+    } else {
+      setLocalCert(null);
     }
   }, [address, loadValidCertificates]);
 

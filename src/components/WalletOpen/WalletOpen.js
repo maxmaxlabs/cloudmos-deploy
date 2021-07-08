@@ -41,7 +41,9 @@ export function WalletOpen() {
 
     try {
       const wallet = await openWallet(password);
+      
       const address = (await wallet.getAccounts())[0].address;
+      
       loadLocalCert(address, password);
 
       await analytics.event("deploy", "open wallet");
@@ -69,6 +71,7 @@ export function WalletOpen() {
             <TextField
               label="Enter your password"
               fullWidth
+              disabled={isLoading}
               rows={4}
               value={password}
               onChange={(ev) => setPassword(ev.target.value)}
