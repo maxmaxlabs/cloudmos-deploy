@@ -7,6 +7,11 @@ export function getDeploymentLocalData(dseq) {
   return parsedData;
 }
 
+export function saveDeploymentManifestAndName(dseq, manifest, version, address, name) {
+  saveDeploymentManifest(dseq, manifest, version, address);
+  updateDeploymentLocalData(dseq, { name: name });
+}
+
 export function saveDeploymentManifest(dseq, manifest, version, address) {
   const data = getDeploymentLocalData(dseq) || {};
   data.owner = address;
