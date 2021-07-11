@@ -56,7 +56,7 @@ export function DeploymentListRow({ deployment }) {
     history.push("/deployment/" + deployment.dseq);
   }
 
-  const surname = getDeploymentName(deployment.dseq);
+  const name = getDeploymentName(deployment.dseq);
 
   return (
     <ListItem key={deployment.dseq} button onClick={() => viewDeployment(deployment)}>
@@ -66,9 +66,9 @@ export function DeploymentListRow({ deployment }) {
       </ListItemIcon>
       <ListItemText
         primary={
-          surname ? (
+          name ? (
             <>
-              <strong>{surname}</strong>
+              <strong>{name}</strong>
               <Typography className={classes.dseq}> - {deployment.dseq}</Typography>
             </>
           ) : (
