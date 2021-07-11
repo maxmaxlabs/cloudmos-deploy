@@ -21,12 +21,12 @@ export const DeploymentNameModal = ({ dseq, onClose, onSaved, getDeploymentName 
   }
 
   return (
-    <Dialog open={dseq} onClose={onClose} aria-labelledby="simple-modal-title" aria-describedby="simple-modal-description">
+    <Dialog open={!!dseq} onClose={onClose} aria-labelledby="simple-modal-title" aria-describedby="simple-modal-description">
       <DialogTitle id="simple-dialog-title">Change Deployment Name ({dseq})</DialogTitle>
       <DialogContent dividers>
         <div>
           <form onSubmit={handleSubmit}>
-            <TextField label="Name" value={currentName} onChange={(ev) => setCurrentName(ev.target.value)} type="text" variant="outlined" autoFocus />
+            <TextField label="Name" fullWidth value={currentName} onChange={(ev) => setCurrentName(ev.target.value)} type="text" variant="outlined" autoFocus />
           </form>
         </div>
       </DialogContent>
