@@ -149,6 +149,14 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address }) {
           </Menu>
         </Box>
       )}
+      {deployment.state === "closed" && (
+        <Box className={classes.actionContainer}>
+          <Button onClick={() => onChangeName()} variant="contained" color="default" className={classes.actionButton}>
+            <EditIcon fontSize="small" />
+            &nbsp;Edit Name
+          </Button>
+        </Box>
+      )}
     </Grid>
   );
 }
