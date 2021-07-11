@@ -34,7 +34,7 @@ export const DeploymentNameModal = ({ dseq, onClose, onSaved, getDeploymentName 
         <Button variant="contained" onClick={onClose} type="button">
           Cancel
         </Button>
-        <Button disabled={!currentName} variant="contained" color="primary" onClick={handleSubmit}>
+        <Button variant="contained" color="primary" onClick={handleSubmit}>
           Save
         </Button>
       </DialogActions>
