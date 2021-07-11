@@ -1,15 +1,9 @@
-import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
-import CloudIcon from "@material-ui/icons/Cloud";
 import AddIcon from "@material-ui/icons/Add";
-import MemoryIcon from "@material-ui/icons/Memory";
-import StorageIcon from "@material-ui/icons/Storage";
-import SpeedIcon from "@material-ui/icons/Speed";
-import ChevronRightIcon from "@material-ui/icons/ChevronRight";
-import { makeStyles, Button, IconButton, Box, ListItem, ListItemText, ListItemIcon, ListItemSecondaryAction, Typography } from "@material-ui/core";
+import { makeStyles, Button, Box, Typography } from "@material-ui/core";
 import { useHistory } from "react-router";
-import { humanFileSize } from "../../shared/utils/unitUtils";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 import { Helmet } from "react-helmet-async";
+import { DeploymentListRow } from "./DeploymentListRow";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -36,14 +30,11 @@ const useStyles = makeStyles((theme) => ({
 export function DeploymentList({ deployments, isLoadingDeployments }) {
   const classes = useStyles();
   const history = useHistory();
+  
   const orderedDeployments = deployments ? [...deployments].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)) : [];
 
   function createDeployment() {
     history.push("/createDeployment");
-  }
-
-  function viewDeployment(deployment) {
-    history.push("/deployment/" + deployment.dseq);
   }
 
   return (
@@ -64,30 +55,7 @@ export function DeploymentList({ deployments, isLoadingDeployments }) {
         </Box>
         <Box>
           {orderedDeployments.map((deployment) => (
-            <ListItem key={deployment.dseq} button onClick={() => viewDeployment(deployment)}>
-              <ListItemIcon>
-                {deployment.state === "active" && <CloudIcon color="primary" />}
-                {deployment.state === "closed" && <CancelPresentationIcon />}
-              </ListItemIcon>
-              <ListItemText
-                primary={deployment.dseq}
-                secondary={
-                  <Box component="span" display="flex" alignItems="center">
-                    <SpeedIcon />
-                    {deployment.cpuAmount + "vcpu"}
-                    <MemoryIcon title="Memory" />
-                    {humanFileSize(deployment.memoryAmount)}
-                    <StorageIcon />
-                    {humanFileSize(deployment.storageAmount)}
-                  </Box>
-                }
-              />
-              <ListItemSecondaryAction>
-                <IconButton edge="end" onClick={() => viewDeployment(deployment)}>
-                  <ChevronRightIcon />
-                </IconButton>
-              </ListItemSecondaryAction>
-            </ListItem>
+            <DeploymentListRow key={deployment.dseq} deployment={deployment} />
           ))}
         </Box>
       </Box>
