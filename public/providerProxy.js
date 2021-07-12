@@ -16,43 +16,70 @@ function spawnProxy() {
   });
 
   child.on("message", (response) => {
-    requestResponses[response.id] = response;
+    if (response.type === "fetch") {
+      if (response.error) {
+        pendingRequests[response.id].rej(response.error);
+      } else {
+        pendingRequests[response.id].res(response.response);
+      }
+      delete pendingRequests[response.id];
+    } else if (response.type === "websocket") {
+      console.log("Received websocket message", response);
+      openSockets[response.id].onMessage(response.message);
+    }
   });
 }
 spawnProxy();
 
-let requestResponses = [];
+let pendingRequests = [];
+let openSockets = [];
 
-async function makeRequest(url, method, body, certPem, keyPem) {
+exports.openWebSocket = function(url, certPem, keyPem, onMessage) {
   const requestId = nanoid();
+
+  openSockets[requestId] = {
+    onMessage: onMessage
+  };
 
   child.send({
     id: requestId,
+    type: "websocket",
     url: url,
-    method: method,
-    body: body,
     certPem: certPem,
     keyPem: keyPem
   });
 
-  return new Promise((res, rej) => {
-    const intervalTime = 300;
-    let elapsedTime = 0;
-    const intervalId = setInterval(() => {
-      console.log("Waiting for request " + requestId);
-      if (requestId in requestResponses) {
-        clearInterval(intervalId);
+  console.log("Sending websocket request: " + url);
 
-        if (requestResponses[requestId].error) {
-          rej(requestResponses[requestId].error);
-        } else {
-          res(requestResponses[requestId].response);
-        }
-        delete requestResponses[requestId];
-      } else {
-        elapsedTime += intervalTime;
-      }
-    }, intervalTime);
+  return {
+    close: () => {
+      child.send({
+        id: requestId,
+        type: "websocket_close"
+      });
+      delete openSockets[requestId];
+    }
+  };
+}
+
+async function makeRequest(url, method, body, certPem, keyPem) {
+  const requestId = nanoid();
+
+  return new Promise((res, rej) => {
+    pendingRequests[requestId] = {
+      res: res,
+      rej: rej
+    };
+
+    child.send({
+      id: requestId,
+      type: "fetch",
+      url: url,
+      method: method,
+      body: body,
+      certPem: certPem,
+      keyPem: keyPem
+    });
   });
 }
 
