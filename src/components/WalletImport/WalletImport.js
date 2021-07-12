@@ -59,7 +59,7 @@ export function WalletImport() {
           <br />
           <form autoComplete="false" onSubmit={onImportSubmit}>
             <TextField
-              label="Type your mnemonic / private key"
+              label="Type your mnemonic"
               required
               multiline
               fullWidth
