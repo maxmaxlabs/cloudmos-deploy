@@ -42,7 +42,6 @@ export function TemplateList(props) {
               <ListItemIcon>
                 <Radio
                   checked={selectedTemplate?.code === value.code}
-                  //onChange={handleChange}
                   value={value.code}
                   name="radio-button-demo"
                 />

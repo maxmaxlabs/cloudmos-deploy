@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Grid, Menu, makeStyles, Box, Button, IconButton, MenuItem } from "@material-ui/core";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
+import EditIcon from "@material-ui/icons/Edit";
 import { getAvgCostPerMonth, getTimeLeft, uaktToAKT } from "../../shared/utils/priceUtils";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import isValid from "date-fns/isValid";
@@ -12,6 +13,7 @@ import { useTransactionModal } from "../../context/TransactionModal";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
 import { UrlService } from "../../shared/utils/urlUtils";
 import { analytics } from "../../shared/utils/analyticsUtils";
+import { useLocalNotes } from "../../context/LocalNoteProvider";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -38,15 +40,17 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address }) {
   const classes = useStyles();
   const timeLeft = getTimeLeft(deploymentCost, deployment.escrowBalance.amount);
   const [anchorEl, setAnchorEl] = useState(null);
+
   const { sendTransaction } = useTransactionModal();
+  const { changeDeploymentName } = useLocalNotes();
   const history = useHistory();
 
   const onCloseDeployment = async () => {
     handleMenuClose();
-    // TODO
+
     try {
       const message = TransactionMessageData.getCloseDeploymentMsg(address, deployment.dseq);
-      // TODO handle response
+
       const response = await sendTransaction([message]);
 
       if (response) {
@@ -58,6 +62,11 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address }) {
       throw error;
     }
   };
+
+  function onChangeName() {
+    handleMenuClose();
+    changeDeploymentName(deployment.dseq);
+  }
 
   function handleMenuClick(ev) {
     setAnchorEl(ev.currentTarget);
@@ -129,11 +138,23 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address }) {
               horizontal: "right"
             }}
           >
+            <MenuItem onClick={() => onChangeName()} classes={{ root: classes.menuItem }}>
+              <EditIcon />
+              &nbsp;Edit Name
+            </MenuItem>
             <MenuItem onClick={() => onCloseDeployment()} classes={{ root: classes.menuItem }}>
               <CancelPresentationIcon />
               &nbsp;Close
             </MenuItem>
           </Menu>
+        </Box>
+      )}
+      {deployment.state === "closed" && (
+        <Box className={classes.actionContainer}>
+          <Button onClick={() => onChangeName()} variant="contained" color="default" className={classes.actionButton}>
+            <EditIcon fontSize="small" />
+            &nbsp;Edit Name
+          </Button>
         </Box>
       )}
     </Grid>

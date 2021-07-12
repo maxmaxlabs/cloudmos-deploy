@@ -140,7 +140,7 @@ export function TransactionModal(props) {
 
   return (
     <Dialog
-      open={props.isOpen}
+      open={isOpen}
       onClose={!isSendingTransaction ? props.onClose : null}
       maxWidth="xs"
       fullWidth

@@ -9,6 +9,7 @@ import { humanFileSize } from "../../shared/utils/unitUtils";
 import { useHistory } from "react-router";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 import { Helmet } from "react-helmet-async";
+import { DeploymentListRow } from "../DeploymentList/DeploymentListRow";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -61,29 +62,7 @@ export function Dashboard({ deployments, isLoadingDeployments }) {
         <Box>
           {orderedDeployments.length > 0 ? (
             orderedDeployments.map((deployment) => (
-              <ListItem key={deployment.dseq} button onClick={() => viewDeployment(deployment)}>
-                <ListItemIcon>
-                  <CloudIcon color="primary" />
-                </ListItemIcon>
-                <ListItemText
-                  primary={deployment.dseq}
-                  secondary={
-                    <Box component="span" display="flex" alignItems="center">
-                      <SpeedIcon />
-                      {deployment.cpuAmount + "vcpu"}
-                      <MemoryIcon title="Memory" />
-                      {humanFileSize(deployment.memoryAmount)}
-                      <StorageIcon />
-                      {humanFileSize(deployment.storageAmount)}
-                    </Box>
-                  }
-                />
-                <ListItemSecondaryAction>
-                  <IconButton edge="end" onClick={() => viewDeployment(deployment)}>
-                    <ChevronRightIcon />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              </ListItem>
+              <DeploymentListRow key={deployment.dseq} deployment={deployment} />
             ))
           ) : (
             <Box textAlign="center" padding="4rem">

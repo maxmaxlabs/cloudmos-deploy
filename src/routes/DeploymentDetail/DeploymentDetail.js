@@ -15,6 +15,7 @@ import { useSettings } from "../../context/SettingsProvider";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 import { Helmet } from "react-helmet-async";
+import { useLocalNotes } from "../../context/LocalNoteProvider";
 
 export function DeploymentDetail(props) {
   const { settings } = useSettings();
@@ -27,7 +28,10 @@ export function DeploymentDetail(props) {
   const classes = useStyles();
   const history = useHistory();
   const { address } = useWallet();
+  const { getDeploymentName } = useLocalNotes();
   let { dseq } = useParams();
+
+  const deploymentName = getDeploymentName(dseq);
 
   const loadLeases = useCallback(async () => {
     setIsLoadingLeases(true);
@@ -82,7 +86,7 @@ export function DeploymentDetail(props) {
 
   useEffect(() => {
     (async function () {
-      let deploymentFromList = props.deployments.find((d) => d.dseq === dseq);
+      let deploymentFromList = props.deployments?.find((d) => d.dseq === dseq);
       if (deploymentFromList) {
         setDeployment(deploymentFromList);
       } else {
@@ -122,6 +126,7 @@ export function DeploymentDetail(props) {
             </IconButton>
             <Typography variant="h3" className={classes.title}>
               Deployment detail
+              {deploymentName && <> - {deploymentName}</>}
             </Typography>
             <Box marginLeft="1rem">
               <IconButton aria-label="back" onClick={loadDeploymentDetail}>

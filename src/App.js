@@ -8,6 +8,7 @@ import { SnackbarProvider } from "notistack";
 import { IconButton, makeStyles, AppBar, Typography } from "@material-ui/core";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { SettingsProvider } from "./context/SettingsProvider";
+import { LocalNoteProvider } from "./context/LocalNoteProvider";
 import { Router } from "react-router-dom";
 import { BetaBanner } from "./components/BetaBanner";
 import { useAppVersion } from "./hooks/useAppVersion";
@@ -96,18 +97,20 @@ function App() {
                 <TransactionModalProvider>
                   <PasswordConfirmationModalProvider>
                     <CertificateProvider>
-                      <Helmet defaultTitle="Akashlytics Deploy" titleTemplate="Akashlytics Deploy - %s" />
+                      <LocalNoteProvider>
+                        <Helmet defaultTitle="Akashlytics Deploy" titleTemplate="Akashlytics Deploy - %s" />
 
-                      <BetaBanner />
-                      <MainView />
+                        <BetaBanner />
+                        <MainView />
 
-                      {appVersion && (
-                        <footer className={classes.footer}>
-                          <Typography variant="caption">
-                            Version: <strong>v{appVersion}</strong>
-                          </Typography>
-                        </footer>
-                      )}
+                        {appVersion && (
+                          <footer className={classes.footer}>
+                            <Typography variant="caption">
+                              Version: <strong>v{appVersion}</strong>
+                            </Typography>
+                          </footer>
+                        )}
+                      </LocalNoteProvider>
                     </CertificateProvider>
                   </PasswordConfirmationModalProvider>
                 </TransactionModalProvider>

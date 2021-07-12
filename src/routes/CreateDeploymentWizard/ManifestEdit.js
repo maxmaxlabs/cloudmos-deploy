@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import { Box, Typography, Button } from "@material-ui/core";
+import { Box, Typography, Button, TextField } from "@material-ui/core";
 import { NewDeploymentData } from "../../shared/utils/deploymentUtils";
 import { useWallet } from "../../context/WalletProvider";
 import MonacoEditor from "react-monaco-editor";
 import Alert from "@material-ui/lab/Alert";
 import { useHistory } from "react-router";
-import { saveDeploymentManifest } from "../../shared/utils/deploymentLocalDataUtils";
+import { saveDeploymentManifestAndName } from "../../shared/utils/deploymentLocalDataUtils";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
 import { useTransactionModal } from "../../context/TransactionModal";
 import { useSettings } from "../../context/SettingsProvider";
@@ -15,9 +15,10 @@ import { analytics } from "../../shared/utils/analyticsUtils";
 const yaml = require("js-yaml");
 
 export function ManifestEdit(props) {
-  const { settings } = useSettings();
   const [parsingError, setParsingError] = useState(null);
+  const [deploymentName, setDeploymentName] = useState("");
   const { sendTransaction } = useTransactionModal();
+  const { settings } = useSettings();
   const { address } = useWallet();
   const history = useHistory();
 
@@ -41,8 +42,8 @@ export function ManifestEdit(props) {
 
   async function createAndValidateDeploymentData(yamlStr, dseq) {
     try {
-      if(!editedManifest) return null;
-      
+      if (!editedManifest) return null;
+
       const doc = yaml.load(yamlStr);
 
       const dd = await NewDeploymentData(settings.apiEndpoint, doc, dseq, address);
@@ -105,7 +106,7 @@ export function ManifestEdit(props) {
       const response = await sendTransaction([message]);
 
       if (response) {
-        saveDeploymentManifest(dd.deploymentId.dseq, editedManifest, dd.version, address);
+        saveDeploymentManifestAndName(dd.deploymentId.dseq, editedManifest, dd.version, address, deploymentName);
 
         history.push("/createDeployment/acceptBids/" + dd.deploymentId.dseq);
 
@@ -135,6 +136,16 @@ export function ManifestEdit(props) {
         <MonacoEditor height="600" language="yaml" theme="vs-dark" value={editedManifest} onChange={handleTextChange} options={options} />
       </Box>
       {parsingError && <Alert severity="warning">{parsingError}</Alert>}
+
+      <Box mt={2}>
+        <TextField
+          value={deploymentName}
+          onChange={(ev) => setDeploymentName(ev.target.value)}
+          fullWidth
+          label="Name your deployment (optional)"
+          variant="outlined"
+        />
+      </Box>
 
       <Box pt={2}>
         <Button onClick={handleChangeTemplate}>Change Template</Button>&nbsp;
