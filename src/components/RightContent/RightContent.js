@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Route, useHistory } from "react-router-dom";
+import { Route } from "react-router-dom";
 import { CreateDeploymentWizard } from "../../routes/CreateDeploymentWizard";
 import { DeploymentList } from "../../routes/DeploymentList";
 import { DeploymentDetail } from "../../routes/DeploymentDetail";
@@ -9,15 +9,8 @@ import { Dashboard } from "../../routes/Dashboard";
 import { Settings } from "../../routes/Settings";
 
 export function RightContent() {
-  const history = useHistory();
   const { address } = useWallet();
-  const { data: deployments, isLoading: isLoadingDeployments, isFetching: isFetchingDeployments, refetch } = useDeploymentList(address);
-
-  useEffect(() => {
-    if (history.location.pathname === "/deployments" || history.location.pathname === "/") {
-      refetch();
-    }
-  }, [history.location.pathname, refetch]);
+  const { data: deployments, isFetching: isFetchingDeployments, refetch } = useDeploymentList(address);
 
   return (
     <>

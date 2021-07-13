@@ -5,6 +5,7 @@ import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkel
 import { Helmet } from "react-helmet-async";
 import { DeploymentListRow } from "./DeploymentListRow";
 import RefreshIcon from "@material-ui/icons/Refresh";
+import { useEffect } from "react";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -33,6 +34,10 @@ const useStyles = makeStyles((theme) => ({
 export function DeploymentList({ deployments, isLoadingDeployments, refreshDeployments }) {
   const classes = useStyles();
   const history = useHistory();
+
+  useEffect(() => {
+    refreshDeployments();
+  }, []);
 
   const orderedDeployments = deployments ? [...deployments].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)) : [];
 
