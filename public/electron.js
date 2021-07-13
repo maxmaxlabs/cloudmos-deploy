@@ -35,6 +35,7 @@ function createWindow() {
     logger.info("Creating Browser Window");
     // Create the browser window.
     const mainWindow = new BrowserWindow({
+      title: "Akashlytics Deploy",
       width: 1024,
       height: 768,
       minWidth: 991,

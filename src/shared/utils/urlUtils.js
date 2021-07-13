@@ -1,6 +1,6 @@
 export class UrlService {
   static dashboard = () => "/";
-  static deploymentList = (shouldRefresh) => `/deployments/${shouldRefresh ? "?refetch=true" : ""}`;
+  static deploymentList = () => `/deployments`;
   static deploymentDetails = (dseq) => `/deployment/${dseq}`;
   static settings = () => "/settings";
 
