@@ -7,11 +7,9 @@ import { useWallet } from "../../context/WalletProvider";
 import { useDeploymentList } from "../../queries";
 import { Dashboard } from "../../routes/Dashboard";
 import { Settings } from "../../routes/Settings";
-import { useQueryParams } from "../../hooks/useQueryParams";
 
 export function RightContent() {
   const history = useHistory();
-  const params = useQueryParams();
   const { address } = useWallet();
   const { data: deployments, isLoading: isLoadingDeployments, isFetching: isFetchingDeployments, refetch } = useDeploymentList(address);
 
