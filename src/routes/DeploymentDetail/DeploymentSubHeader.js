@@ -54,7 +54,7 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address }) {
       const response = await sendTransaction([message]);
 
       if (response) {
-        history.push(`${UrlService.deploymentList()}?refetch=true`);
+        history.push(UrlService.deploymentList());
 
         await analytics.event("deploy", "close deployment");
       }

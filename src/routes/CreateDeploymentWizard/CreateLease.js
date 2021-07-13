@@ -97,7 +97,7 @@ export function CreateLease({ dseq }) {
       const response = await sendTransaction([message]);
 
       if (response) {
-        history.push(UrlService.deploymentList(true));
+        history.push(UrlService.deploymentList());
       }
     } catch (error) {
       throw error;

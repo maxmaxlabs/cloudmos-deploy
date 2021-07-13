@@ -1,15 +1,10 @@
-import CloudIcon from "@material-ui/icons/Cloud";
 import AddIcon from "@material-ui/icons/Add";
-import MemoryIcon from "@material-ui/icons/Memory";
-import StorageIcon from "@material-ui/icons/Storage";
-import SpeedIcon from "@material-ui/icons/Speed";
-import ChevronRightIcon from "@material-ui/icons/ChevronRight";
-import { makeStyles, IconButton, Box, ListItem, ListItemText, ListItemIcon, ListItemSecondaryAction, Typography, Button } from "@material-ui/core";
-import { humanFileSize } from "../../shared/utils/unitUtils";
+import { makeStyles, IconButton, Box, Typography, Button } from "@material-ui/core";
 import { useHistory } from "react-router";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 import { Helmet } from "react-helmet-async";
 import { DeploymentListRow } from "../DeploymentList/DeploymentListRow";
+import RefreshIcon from "@material-ui/icons/Refresh";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -24,8 +19,7 @@ const useStyles = makeStyles((theme) => ({
   titleContainer: {
     paddingBottom: "1rem",
     display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between"
+    alignItems: "center"
   },
   title: {
     fontSize: "2rem",
@@ -36,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function Dashboard({ deployments, isLoadingDeployments }) {
+export function Dashboard({ deployments, isLoadingDeployments, refreshDeployments }) {
   const history = useHistory();
   const classes = useStyles();
   const orderedDeployments = deployments ? [...deployments].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)).filter((d) => d.state === "active") : [];
@@ -58,12 +52,17 @@ export function Dashboard({ deployments, isLoadingDeployments }) {
           <Typography variant="h3" className={classes.title}>
             Active Deployments
           </Typography>
+
+          <Box marginLeft="1rem">
+            <IconButton aria-label="back" onClick={refreshDeployments}>
+              <RefreshIcon />
+            </IconButton>
+          </Box>
         </Box>
+
         <Box>
           {orderedDeployments.length > 0 ? (
-            orderedDeployments.map((deployment) => (
-              <DeploymentListRow key={deployment.dseq} deployment={deployment} />
-            ))
+            orderedDeployments.map((deployment) => <DeploymentListRow key={deployment.dseq} deployment={deployment} />)
           ) : (
             <Box textAlign="center" padding="4rem">
               <Typography variant="h5" className={classes.noActiveDeployments}>

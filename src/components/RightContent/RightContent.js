@@ -16,13 +16,10 @@ export function RightContent() {
   const { data: deployments, isLoading: isLoadingDeployments, isFetching: isFetchingDeployments, refetch } = useDeploymentList(address);
 
   useEffect(() => {
-    // using query params to tell react-query to refetch manually
-    if (params.get("refetch") === "true") {
+    if (history.location.pathname === "/deployments" || history.location.pathname === "/") {
       refetch();
-
-      history.replace(history.location.pathname);
     }
-  }, [params, history, refetch]);
+  }, [history.location.pathname, refetch]);
 
   return (
     <>
@@ -33,13 +30,13 @@ export function RightContent() {
         <DeploymentDetail deployments={deployments} />
       </Route>
       <Route exact path="/deployments">
-        <DeploymentList deployments={deployments} isLoadingDeployments={isFetchingDeployments} />
+        <DeploymentList deployments={deployments} refreshDeployments={refetch} isLoadingDeployments={isFetchingDeployments} />
       </Route>
       <Route exact path="/settings">
         <Settings />
       </Route>
       <Route exact path="/">
-        <Dashboard deployments={deployments} isLoadingDeployments={isFetchingDeployments} />
+        <Dashboard deployments={deployments} refreshDeployments={refetch} isLoadingDeployments={isFetchingDeployments} />
       </Route>
     </>
   );

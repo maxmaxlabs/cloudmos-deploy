@@ -1,9 +1,10 @@
 import AddIcon from "@material-ui/icons/Add";
-import { makeStyles, Button, Box, Typography } from "@material-ui/core";
+import { makeStyles, Button, Box, Typography, IconButton } from "@material-ui/core";
 import { useHistory } from "react-router";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 import { Helmet } from "react-helmet-async";
 import { DeploymentListRow } from "./DeploymentListRow";
+import RefreshIcon from "@material-ui/icons/Refresh";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -18,19 +19,21 @@ const useStyles = makeStyles((theme) => ({
   titleContainer: {
     paddingBottom: "1rem",
     display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between"
+    alignItems: "center"
   },
   title: {
     fontSize: "2rem",
     fontWeight: "bold"
+  },
+  createBtn: {
+    marginLeft: "auto"
   }
 }));
 
-export function DeploymentList({ deployments, isLoadingDeployments }) {
+export function DeploymentList({ deployments, isLoadingDeployments, refreshDeployments }) {
   const classes = useStyles();
   const history = useHistory();
-  
+
   const orderedDeployments = deployments ? [...deployments].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)) : [];
 
   function createDeployment() {
@@ -48,7 +51,13 @@ export function DeploymentList({ deployments, isLoadingDeployments }) {
             Deployments
           </Typography>
 
-          <Button variant="contained" size="medium" color="primary" onClick={() => createDeployment()}>
+          <Box marginLeft="1rem">
+            <IconButton aria-label="back" onClick={refreshDeployments}>
+              <RefreshIcon />
+            </IconButton>
+          </Box>
+
+          <Button className={classes.createBtn} variant="contained" size="medium" color="primary" onClick={() => createDeployment()}>
             <AddIcon />
             &nbsp;Create Deployment
           </Button>
