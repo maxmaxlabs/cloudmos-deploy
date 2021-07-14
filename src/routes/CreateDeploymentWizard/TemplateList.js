@@ -265,7 +265,7 @@ deployment:
     code: "tetris",
     category: "Games",
     description:
-      "Tetris (Russian: Тетрис [ˈtɛtrʲɪs]) is a tile-matching video game created by Russian software engineer Alexey Pajitnov in 1984. It has been published by several companies, most prominently during a dispute over the appropriation of the rights in the late 1980s.",
+      "Tetris (Russian: Тетрис [ˈtɛtrʲɪs]) is a tile-matching video game created by Russian software engineer Alexey Pajitnov in 1984.",
     githubUrl: "https://github.com/ovrclk/awesome-akash/tree/master/tetris",
     content: `---
 version: "2.0"
@@ -291,8 +291,6 @@ profiles:
           size: 512Mi
   placement:
     westcoast:
-      attributes:
-        organization: ovrclk.com
       signedBy:
         anyOf:
           - "akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63"
@@ -349,6 +347,50 @@ deployment:
   web:
     westcoast:
       profile: web
+      count: 1
+`
+  },
+  {
+    title: "Minesweeper",
+    code: "minesweeper",
+    category: "Games",
+    description: "Minesweeper is a clone of one of the most popular classic game fully written on react.js.",
+    githubUrl: "https://github.com/ovrclk/awesome-akash/tree/master/minesweeper",
+    content: `---
+version: "2.0"
+
+services:
+  minesweeper:
+    image: creepto/minesweeper
+    expose:
+      - port: 3000
+        as: 80
+        to:
+          - global: true
+profiles:
+  compute:
+    minesweeper:
+      resources:
+        cpu:
+          units: 0.5
+        memory:
+          size: 512Mi
+        storage:
+          size: 512Mi
+  placement:
+    westcoast:
+      signedBy:
+        anyOf:
+          - "akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63"
+      pricing:
+        minesweeper: 
+          denom: uakt
+          amount: 1000
+
+deployment:
+  minesweeper:
+    westcoast:
+      profile: minesweeper
       count: 1
 `
   }
