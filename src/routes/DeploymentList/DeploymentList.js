@@ -1,11 +1,12 @@
-import AddIcon from "@material-ui/icons/Add";
+import { useEffect, useState } from "react";
 import { makeStyles, Button, Box, Typography, IconButton } from "@material-ui/core";
 import { useHistory } from "react-router";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 import { Helmet } from "react-helmet-async";
 import { DeploymentListRow } from "./DeploymentListRow";
+import Pagination from "@material-ui/lab/Pagination";
 import RefreshIcon from "@material-ui/icons/Refresh";
-import { useEffect } from "react";
+import AddIcon from "@material-ui/icons/Add";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -32,6 +33,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export function DeploymentList({ deployments, isLoadingDeployments, refreshDeployments }) {
+  const [page, setPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
   const classes = useStyles();
   const history = useHistory();
 
@@ -39,12 +43,25 @@ export function DeploymentList({ deployments, isLoadingDeployments, refreshDeplo
     refreshDeployments();
   }, []);
 
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
   const orderedDeployments = deployments ? [...deployments].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)) : [];
+  const start = (page - 1) * rowsPerPage;
+  const end = start + rowsPerPage;
+  const currentPageDeployments = deployments.slice(start, end);
+  const pageCount = Math.ceil(orderedDeployments.length / rowsPerPage);
 
   function createDeployment() {
     history.push("/createDeployment");
   }
-
+  console.log(page, rowsPerPage, pageCount, orderedDeployments.length / rowsPerPage);
   return (
     <>
       <Helmet title="Deployment List" />
@@ -68,9 +85,12 @@ export function DeploymentList({ deployments, isLoadingDeployments, refreshDeplo
           </Button>
         </Box>
         <Box>
-          {orderedDeployments.map((deployment) => (
+          {currentPageDeployments.map((deployment) => (
             <DeploymentListRow key={deployment.dseq} deployment={deployment} />
           ))}
+        </Box>
+        <Box mt={2}>
+          <Pagination count={pageCount} onChange={handleChangePage} page={page} size="large" />
         </Box>
       </Box>
     </>
