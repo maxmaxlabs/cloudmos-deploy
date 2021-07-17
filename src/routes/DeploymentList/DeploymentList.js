@@ -16,6 +16,9 @@ const useStyles = makeStyles((theme) => ({
     },
     "& .MuiListItemText-secondary .MuiSvgIcon-root": {
       fontSize: "20px"
+    },
+    "& .MuiPagination-ul": {
+      justifyContent: "center"
     }
   },
   titleContainer: {
@@ -55,7 +58,7 @@ export function DeploymentList({ deployments, isLoadingDeployments, refreshDeplo
   const orderedDeployments = deployments ? [...deployments].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)) : [];
   const start = (page - 1) * rowsPerPage;
   const end = start + rowsPerPage;
-  const currentPageDeployments = deployments.slice(start, end);
+  const currentPageDeployments = orderedDeployments.slice(start, end);
   const pageCount = Math.ceil(orderedDeployments.length / rowsPerPage);
 
   function createDeployment() {
