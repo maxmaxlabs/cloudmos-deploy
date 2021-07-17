@@ -8,14 +8,16 @@ Akashlytics Deploy is a desktop app that greatly simplifies and enhances deploym
 - Manage certificates
 - Create/Update deployments
 - Name your deployments
+- Secure (your private key and certificate never leave your computer)
 
 ## Roadmap
+
 - Real-time log viewer
 - Add MacOS compatibility
 - Create wallet
 - Manage multiple wallets
 - Manifest Editor UI
-- Web Version of the tool
+- Web Version of the tool (when it will be possible to do it safely)
 
 ## Installation
 The latest version of the tool can be downloaded from the Akashlytics website:
