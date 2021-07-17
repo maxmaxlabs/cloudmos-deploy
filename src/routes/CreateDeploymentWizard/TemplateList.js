@@ -72,14 +72,14 @@ const templates = [
   {
     title: "Empty",
     code: "empty",
-    category: "Web",
+    category: "General",
     description: "An empty template with some basic config to get started.",
     content: ""
   },
   {
     title: "Hello-world",
     code: "hello-world",
-    category: "Web",
+    category: "General",
     description: "Simple web application showing hello world.",
     githubUrl: "https://github.com/tombeynon/akash-hello-world",
     valuesToChange: [{ field: "accept", initialValue: "www.yourwebsite.com" }],
@@ -128,7 +128,7 @@ deployment:
   {
     title: "Wordpress",
     code: "wordpress",
-    category: "Web",
+    category: "General",
     description: "A Wordpress web application with MySQL database.",
     githubUrl: "https://github.com/tombeynon/akash-deploy/wiki/Examples#wordpress",
     valuesToChange: [{ field: "accept", initialValue: "YOURDOMAIN.COM" }],
@@ -203,7 +203,7 @@ deployment:
   {
     title: "Akash archive node",
     code: "akash-archie-node",
-    category: "Web",
+    category: "General",
     description: "Example of how to run an Akash node on the Akash network.",
     githubUrl: "https://github.com/tombeynon/akash-archive-node",
     content: `---
@@ -264,8 +264,7 @@ deployment:
     title: "Tetris",
     code: "tetris",
     category: "Games",
-    description:
-      "Tetris (Russian: Тетрис [ˈtɛtrʲɪs]) is a tile-matching video game created by Russian software engineer Alexey Pajitnov in 1984.",
+    description: "Tetris (Russian: Тетрис [ˈtɛtrʲɪs]) is a tile-matching video game created by Russian software engineer Alexey Pajitnov in 1984.",
     githubUrl: "https://github.com/ovrclk/awesome-akash/tree/master/tetris",
     content: `---
 version: "2.0"
@@ -304,51 +303,6 @@ deployment:
     westcoast:
       profile: web
       count: 1`
-  },
-  {
-    title: "Pac-Man",
-    code: "pacman",
-    category: "Games",
-    description: "Pac-Man is a maze chase video game",
-    githubUrl: "https://github.com/ovrclk/awesome-akash/tree/master/pacman",
-    content: `---
-version: "2.0"
-
-services:
-  web:
-    image: yuravorobei/pacman-web
-    expose:
-      - port: 8080
-        as: 80
-        to:
-          - global: true
-
-profiles:
-  compute:
-    web:
-      resources:
-        cpu:
-          units: 0.1
-        memory:
-          size: 512Mi
-        storage:
-          size: 512Mi
-  placement:
-    westcoast:
-      signedBy:
-        anyOf:
-          - "akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63"
-      pricing:
-        web: 
-          denom: uakt
-          amount: 3000
-
-deployment:
-  web:
-    westcoast:
-      profile: web
-      count: 1
-`
   },
   {
     title: "Minesweeper",
@@ -391,6 +345,120 @@ deployment:
   minesweeper:
     westcoast:
       profile: minesweeper
+      count: 1`
+  },
+  {
+    title: "Snake",
+    code: "snake",
+    category: "Games",
+    description: "A simple javascript snake game saves scores of players in database(mongoDB) and computes rank of player.",
+    githubUrl: "https://github.com/ovrclk/awesome-akash/tree/master/snake-game",
+    content: `---
+version: "2.0"
+
+services:
+  mongo:
+    image: library/mongo:latest
+    expose:
+      - port: 27017
+        as: 27017
+        to:
+          - service: mongo
+  snake:
+    image: harish1551/snake-game:latest
+    env:
+      - DB_HOST=mongo
+    depends_on:
+      - mongo
+    expose:
+      - port: 8000
+        as: 80
+        to:
+          - global: true
+
+profiles:
+  compute:
+    snake:
+      resources:
+        cpu:
+          units: 0.5
+        memory:
+          size: 512Mi
+        storage:
+          size: 1G
+    mongo:
+      resources:
+        cpu:
+          units: 0.5
+        memory:
+          size: 512Mi
+        storage:
+          size: 128Mi
+  placement:
+    westcoast:
+      signedBy:
+        anyOf:
+          - "akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63"
+      pricing:
+        snake: 
+          denom: uakt
+          amount: 9000
+        mongo: 
+          denom: uakt
+          amount: 5000
+
+deployment:
+  snake:
+    westcoast:
+      profile: snake
+      count: 1
+  mongo:
+    westcoast:
+      profile: mongo
+      count: 1`
+  },
+  {
+    title: "Supermario",
+    code: "super-mario",
+    category: "Games",
+    description: "The Super Mario games follow Mario's adventures, typically in the fictional Mushroom Kingdom with Mario as the player character.",
+    githubUrl: "https://github.com/ovrclk/awesome-akash/tree/master/supermario",
+    content: `---
+version: "2.0"
+
+services:
+  web:
+    image: pengbai/docker-supermario 
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+
+profiles:
+  compute:
+    web:
+      resources:
+        cpu:
+          units: 0.1
+        memory:
+          size: 512Mi
+        storage:
+          size: 512Mi
+  placement:
+    westcoast:
+      signedBy:
+        anyOf:
+          - "akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63"
+      pricing:
+        web: 
+          denom: uakt
+          amount: 3000
+
+deployment:
+  web:
+    westcoast:
+      profile: web
       count: 1
 `
   }

@@ -64,7 +64,7 @@ export function DeploymentList({ deployments, isLoadingDeployments, refreshDeplo
   function createDeployment() {
     history.push("/createDeployment");
   }
-  console.log(page, rowsPerPage, pageCount, orderedDeployments.length / rowsPerPage);
+
   return (
     <>
       <Helmet title="Deployment List" />
