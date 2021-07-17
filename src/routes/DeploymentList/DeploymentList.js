@@ -37,7 +37,6 @@ const useStyles = makeStyles((theme) => ({
 
 export function DeploymentList({ deployments, isLoadingDeployments, refreshDeployments }) {
   const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const classes = useStyles();
   const history = useHistory();
@@ -50,11 +49,7 @@ export function DeploymentList({ deployments, isLoadingDeployments, refreshDeplo
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
+  const rowsPerPage = 10;
   const orderedDeployments = deployments ? [...deployments].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)) : [];
   const start = (page - 1) * rowsPerPage;
   const end = start + rowsPerPage;
