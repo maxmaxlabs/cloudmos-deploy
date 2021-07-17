@@ -47,7 +47,10 @@ export function DeploymentLogs({ leases }) {
     };
   }, [leases]);
 
-  const logText = logs.filter(x => selectedServices.includes(x.service)).map((x) => x.message).join("\n");
+  const logText = logs
+    .filter((x) => selectedServices.includes(x.service))
+    .map((x) => x.message)
+    .join("\n");
 
   const options = {
     selectOnLineNumbers: true,
@@ -71,6 +74,7 @@ export function DeploymentLogs({ leases }) {
       <FormGroup row>
         {services.map((service) => (
           <FormControlLabel
+            key={service}
             control={<Checkbox color="primary" checked={selectedServices.includes(service)} onChange={(ev) => setServiceCheck(service, ev.target.checked)} />}
             label={service}
           />
