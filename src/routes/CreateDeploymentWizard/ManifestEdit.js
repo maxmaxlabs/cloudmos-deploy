@@ -41,8 +41,9 @@ export function ManifestEdit(props) {
   }, [editedManifest]);
 
   async function createAndValidateDeploymentData(yamlStr, dseq) {
-    try {
+    try {      
       if (!editedManifest) return null;
+      // TODO loading
 
       const doc = yaml.load(yamlStr);
 
