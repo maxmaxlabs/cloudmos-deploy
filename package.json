@@ -21,6 +21,8 @@
     "electron": "electron .",
     "electron-dev": "cross-env ELECTRON_START_URL=http://localhost:3000 electron .",
     "build": "set \"GENERATE_SOURCEMAP=false\" && react-scripts build && electron-builder --windows",
+    "build-mac": "cross-env GENERATE_SOURCEMAP=false react-scripts build && electron-builder --mac",
+    "dist-mac": "cross-env DEBUG=electron-builder electron-builder --mac",
     "release": "electron-builder --windows --publish always"
   },
   "eslintConfig": {
