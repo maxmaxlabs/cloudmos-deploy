@@ -3,14 +3,14 @@ const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 const winston = require("winston");
 const url = require("url");
+const isDev = require('electron-is-dev');
 // const { autoUpdater } = require("electron-updater");
 
 const Sentry = require("@sentry/electron");
 
-let appVersion = app.getVersion();
-let appEnv = app.isPackaged ? "production" : "development";
+const appVersion = app.getVersion();
+const appEnv = app.isPackaged ? "production" : "development";
 let startUrl = process.env.ELECTRON_START_URL;
-const isDev = !!startUrl;
 
 Sentry.init({
   dsn: "https://fc8f0d800d664154a0f1babe0e318fbb@o877251.ingest.sentry.io/5827747",
@@ -28,11 +28,17 @@ const logger = winston.createLogger({
   transports: [new winston.transports.File({ filename: "electron.log" })]
 });
 
+logger.info("isDev " + isDev);
+
 logger.info("Loaded electron (app version " + appVersion + ")");
 
 function createWindow() {
   try {
     logger.info("Creating Browser Window");
+    const icon = path.join(__dirname, "icon.png");
+
+    logger.info("icon: " + icon);
+
     // Create the browser window.
     const mainWindow = new BrowserWindow({
       title: "Akashlytics Deploy",
@@ -40,7 +46,7 @@ function createWindow() {
       height: 768,
       minWidth: 991,
       minHeight: 743,
-      icon: path.join(__dirname, "logo.png"),
+      icon: icon,
       webPreferences: {
         preload: path.join(__dirname, "preload.js"),
         webSecurity: !isDev,
@@ -76,6 +82,10 @@ function createWindow() {
     // ipcMain.on("restart_app", () => {
     //   autoUpdater.quitAndInstall();
     // });
+
+    ipcMain.on('isDev', (event, arg) => {
+      event.reply('isDev', isDev)
+    })
   } catch (error) {
     logger.error(error);
   }
