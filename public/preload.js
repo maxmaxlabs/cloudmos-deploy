@@ -37,17 +37,20 @@ contextBridge.exposeInMainWorld("electron", {
   },
   getAppVersion: () => appVersion,
   getAppEnvironment: () => appEnvironment,
-  isDev: async() => {
+  isDev: () => {
     return new Promise((res, rej) => {
-      // todo
-    })
+      ipcRenderer.on("isDev", (event, ...args) => {
+        res(args[0]);
+      });
+      ipcRenderer.send("isDev");
+    });
   },
   deserializeWallet: async (password, kdfConf) => {
-    return new Promise((res,rej) => {
+    return new Promise((res, rej) => {
       const myWorker = fork(path.join(__dirname, "wallet.worker.js"), ["args"], {
         stdio: ["pipe", "pipe", "pipe", "ipc"]
       });
-  
+
       myWorker.on("error", (err) => {
         rej("Spawn failed! (" + err + ")");
         myWorker.kill();

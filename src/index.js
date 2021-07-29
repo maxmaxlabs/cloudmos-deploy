@@ -8,12 +8,14 @@ import { CssBaseline, ThemeProvider, createMuiTheme } from "@material-ui/core";
 import * as Sentry from "@sentry/react";
 import { initAnalytics } from "./shared/utils/analyticsUtils";
 
-initAnalytics(window.electron.isDev());
+(async () => {
+  const isDev = await window.electron.isDev();
+  console.log(`isDev: ${isDev}`);
+  initAnalytics(window.electron.isDev());
+})();
 
 const appVersion = window.electron.getAppVersion();
 const appEnvironment = window.electron.getAppEnvironment();
-
-console.log("isDev" + window.electron.isDev())
 
 Sentry.init({
   dsn: "https://fc8f0d800d664154a0f1babe0e318fbb@o877251.ingest.sentry.io/5827747",

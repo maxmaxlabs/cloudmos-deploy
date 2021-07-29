@@ -3,7 +3,7 @@ const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 const winston = require("winston");
 const url = require("url");
-const isDev = require('electron-is-dev');
+const isDev = require("electron-is-dev");
 // const { autoUpdater } = require("electron-updater");
 
 const Sentry = require("@sentry/electron");
@@ -83,9 +83,9 @@ function createWindow() {
     //   autoUpdater.quitAndInstall();
     // });
 
-    ipcMain.on('isDev', (event, arg) => {
-      event.reply('isDev', isDev)
-    })
+    ipcMain.on("isDev", (event, arg) => {
+      event.reply("isDev", isDev);
+    });
   } catch (error) {
     logger.error(error);
   }
