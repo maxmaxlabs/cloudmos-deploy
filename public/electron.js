@@ -9,7 +9,7 @@ const isDev = require("electron-is-dev");
 const Sentry = require("@sentry/electron");
 
 const appVersion = app.getVersion();
-const appEnv = app.isPackaged ? "production" : "development";
+const appEnv = isDev ? "development" : "production";
 let startUrl = process.env.ELECTRON_START_URL;
 
 Sentry.init({
@@ -58,7 +58,7 @@ function createWindow() {
 
     logger.info("Created Browser Window");
 
-    if (startUrl) {
+    if (isDev) {
       mainWindow.webContents.openDevTools();
     } else {
       startUrl = url.format({

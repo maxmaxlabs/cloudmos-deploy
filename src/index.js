@@ -11,7 +11,7 @@ import { initAnalytics } from "./shared/utils/analyticsUtils";
 (async () => {
   const isDev = await window.electron.isDev();
   console.log(`isDev: ${isDev}`);
-  initAnalytics(window.electron.isDev());
+  initAnalytics(isDev);
 
   runApp();
 })();
