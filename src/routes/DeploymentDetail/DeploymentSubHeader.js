@@ -14,6 +14,8 @@ import { TransactionMessageData } from "../../shared/utils/TransactionMessageDat
 import { UrlService } from "../../shared/utils/urlUtils";
 import { analytics } from "../../shared/utils/analyticsUtils";
 import { useLocalNotes } from "../../context/LocalNoteProvider";
+import { DeploymentDeposit } from "./DeploymentDeposit";
+import { useSnackbar } from "notistack";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -40,10 +42,11 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address }) {
   const classes = useStyles();
   const timeLeft = getTimeLeft(deploymentCost, deployment.escrowBalance.amount);
   const [anchorEl, setAnchorEl] = useState(null);
-
   const { sendTransaction } = useTransactionModal();
   const { changeDeploymentName } = useLocalNotes();
   const history = useHistory();
+  const [isDepositingDeployment, setIsDepositingDeployment] = useState(false);
+  const { enqueueSnackbar } = useSnackbar();
 
   const onCloseDeployment = async () => {
     handleMenuClose();
@@ -74,6 +77,24 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address }) {
 
   const handleMenuClose = () => {
     setAnchorEl(null);
+  };
+
+  const onDeploymentDeposit = async (deposit) => {
+    setIsDepositingDeployment(false);
+
+    try {
+      const message = TransactionMessageData.getDepositDeploymentMsg(address, deployment.dseq, deposit);
+
+      const response = await sendTransaction([message]);
+
+      if (response) {
+        enqueueSnackbar("Deployment deposit successful!", { variant: "success" });
+
+        await analytics.event("deploy", "deployment deposit");
+      }
+    } catch (error) {
+      throw error;
+    }
   };
 
   return (
@@ -115,7 +136,7 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address }) {
 
       {deployment.state === "active" && (
         <Box className={classes.actionContainer}>
-          <Button variant="contained" color="primary" className={classes.actionButton} onClick={() => alert("Coming soon!")}>
+          <Button variant="contained" color="primary" className={classes.actionButton} onClick={() => setIsDepositingDeployment(true)}>
             Add funds
           </Button>
           <IconButton aria-label="settings" aria-haspopup="true" onClick={handleMenuClick} className={classes.actionButton}>
@@ -157,6 +178,12 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address }) {
           </Button>
         </Box>
       )}
+
+      <DeploymentDeposit
+        isDepositingDeployment={isDepositingDeployment}
+        handleCancel={() => setIsDepositingDeployment(false)}
+        onDeploymentDeposit={onDeploymentDeposit}
+      />
     </Grid>
   );
 }

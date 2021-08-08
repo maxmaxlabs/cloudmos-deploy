@@ -84,6 +84,12 @@ export const MsgUpdateDeployment = new Type("MsgUpdateDeployment")
   .add(GroupSpec)
   .add(new Field("version", 3, "bytes"));
 
+export const MsgDepositDeployment = new Type("MsgDepositDeployment")
+  .add(new Field("id", 1, "DeploymentID"))
+  .add(DeploymentID)
+  .add(new Field("amount", 2, "Coin"))
+  .add(Coin);
+
 // Certificates
 
 const CertificateID = new Type("CertificateID").add(new Field("owner", 1, "string")).add(new Field("serial", 2, "string"));
@@ -107,5 +113,6 @@ export const BidID = new Type("BidID")
 export const MsgCreateLease = new Type("MsgCreateLease").add(new Field("bid_id", 1, "BidID")).add(BidID);
 
 root.add(MsgCloseDeployment);
+root.add(MsgDepositDeployment);
 root.add(MsgCreateDeployment);
 root.add(MsgUpdateDeployment);
