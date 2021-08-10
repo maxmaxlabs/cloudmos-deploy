@@ -1,5 +1,4 @@
-const { contextBridge, shell } = require("electron");
-const { ipcRenderer } = require("electron");
+const { ipcRenderer, shell, contextBridge, app } = require("electron");
 const { fork } = require("child_process");
 const providerProxy = require("./providerProxy");
 const Sentry = require("@sentry/electron");
@@ -7,7 +6,6 @@ const path = require("path");
 
 const appVersion = window.process.argv[window.process.argv.length - 2];
 const appEnvironment = window.process.argv[window.process.argv.length - 1];
-const isDev = !!process.env.ELECTRON_START_URL;
 
 Sentry.init({
   dsn: "https://fc8f0d800d664154a0f1babe0e318fbb@o877251.ingest.sentry.io/5827747",
@@ -39,13 +37,20 @@ contextBridge.exposeInMainWorld("electron", {
   },
   getAppVersion: () => appVersion,
   getAppEnvironment: () => appEnvironment,
-  isDev: () => isDev,
+  isDev: () => {
+    return new Promise((res, rej) => {
+      ipcRenderer.on("isDev", (event, ...args) => {
+        res(args[0]);
+      });
+      ipcRenderer.send("isDev");
+    });
+  },
   deserializeWallet: async (password, kdfConf) => {
-    return new Promise((res,rej) => {
+    return new Promise((res, rej) => {
       const myWorker = fork(path.join(__dirname, "wallet.worker.js"), ["args"], {
         stdio: ["pipe", "pipe", "pipe", "ipc"]
       });
-  
+
       myWorker.on("error", (err) => {
         rej("Spawn failed! (" + err + ")");
         myWorker.kill();

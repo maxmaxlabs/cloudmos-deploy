@@ -1,6 +1,6 @@
 {
   "name": "akashlytics-deploy",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "private": true,
   "repository": {
     "type": "git",
@@ -15,12 +15,14 @@
   "main": "public/electron.js",
   "homepage": "./",
   "scripts": {
-    "start": "set BROWSER=none && react-scripts start",
+    "start": "cross-env BROWSER=none react-scripts start",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "electron": "electron .",
-    "electron-dev": "set ELECTRON_START_URL=http://localhost:3000 && electron .",
-    "build": "set \"GENERATE_SOURCEMAP=false\" && react-scripts build && electron-builder --windows",
+    "electron-dev": "cross-env ELECTRON_START_URL=http://localhost:3000 electron .",
+    "build-win": "cross-env GENERATE_SOURCEMAP=false react-scripts build && electron-builder --windows",
+    "build-mac": "cross-env GENERATE_SOURCEMAP=false react-scripts build && electron-builder --mac",
+    "dist-mac": "cross-env DEBUG=electron-builder electron-builder --mac",
     "release": "electron-builder --windows --publish always"
   },
   "eslintConfig": {
@@ -58,6 +60,7 @@
     "clsx": "^1.1.1",
     "date-fns": "^2.22.1",
     "electron-google-analytics": "^1.0.2",
+    "electron-is-dev": "^2.0.0",
     "electron-updater": "^4.3.9",
     "json-stable-stringify": "^1.0.1",
     "jsrsasign": "^10.2.0",
@@ -80,8 +83,9 @@
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",
+    "cross-env": "^7.0.3",
     "electron": "^12.0.7",
-    "electron-builder": "^22.11.7",
+    "electron-builder": "^22.10.5",
     "electron-squirrel-startup": "^1.0.0"
   }
 }

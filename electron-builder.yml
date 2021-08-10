@@ -2,14 +2,18 @@ productName: "Akashlytics Deploy"
 appId: "com.akashlytics.deploy"
 win:
   target: "NSIS"
-  icon: "/public/logo.png"
+  icon: "/public/icon.png"
+mac:
+  category: public.app-category.developer-tools
+  icon: "./build/icon.icns"
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
 asar:
   smartUnpack: true
-asarUnpack: "**/akashlytics-provider-proxy.exe"
+asarUnpack: "**/akashlytics-provider-proxy*"
+npmRebuild: false
 publish:
   provider: github
   token: GH_TOKEN
-  private: true
+  private: false
