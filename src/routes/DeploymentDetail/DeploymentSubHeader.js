@@ -15,7 +15,6 @@ import { UrlService } from "../../shared/utils/urlUtils";
 import { analytics } from "../../shared/utils/analyticsUtils";
 import { useLocalNotes } from "../../context/LocalNoteProvider";
 import { DeploymentDeposit } from "./DeploymentDeposit";
-import { useSnackbar } from "notistack";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -38,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function DeploymentSubHeader({ deployment, deploymentCost, address }) {
+export function DeploymentSubHeader({ deployment, deploymentCost, address, loadDeploymentDetail }) {
   const classes = useStyles();
   const timeLeft = getTimeLeft(deploymentCost, deployment.escrowBalance.amount);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -46,7 +45,6 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address }) {
   const { changeDeploymentName } = useLocalNotes();
   const history = useHistory();
   const [isDepositingDeployment, setIsDepositingDeployment] = useState(false);
-  const { enqueueSnackbar } = useSnackbar();
 
   const onCloseDeployment = async () => {
     handleMenuClose();
@@ -88,7 +86,7 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address }) {
       const response = await sendTransaction([message]);
 
       if (response) {
-        enqueueSnackbar("Deployment deposit successful!", { variant: "success" });
+        loadDeploymentDetail();
 
         await analytics.event("deploy", "deployment deposit");
       }

@@ -142,6 +142,7 @@ export function DeploymentDetail(props) {
               block={currentBlock}
               deploymentCost={leases && leases.length > 0 ? leases.reduce((prev, current) => prev + current.price.amount, []) : 0}
               address={address}
+              loadDeploymentDetail={loadDeploymentDetail}
             />
           )
         }
