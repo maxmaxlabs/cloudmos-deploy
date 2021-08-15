@@ -5,6 +5,7 @@ import VerifiedUserIcon from "@material-ui/icons/VerifiedUser";
 import PublishIcon from "@material-ui/icons/Publish";
 import StorageIcon from "@material-ui/icons/Storage";
 import CancelIcon from "@material-ui/icons/Cancel";
+import AddBoxIcon from "@material-ui/icons/AddBox";
 import { uaktToAKT } from "../../shared/utils/priceUtils";
 
 const useStyles = makeStyles((theme) => ({
@@ -79,25 +80,44 @@ const getMessage = (message, classes) => {
           />
         </>
       );
-      case TransactionMessageData.Types.MSG_UPDATE_DEPLOYMENT:
-        return (
-          <>
-            <ListItemAvatar>
-              <Avatar classes={{ root: classes.avatarRoot }}>
-                <PublishIcon classes={{ root: classes.avatarIcon }} />
-              </Avatar>
-            </ListItemAvatar>
-            <ListItemText
-              primary="Update Deployment"
-              secondary={
-                <>
-                  Update deployment with dseq <strong>{message.value.id.dseq}</strong>
-                </>
-              }
-              classes={{ primary: classes.listItemPrimaryText }}
-            />
-          </>
-        );
+    case TransactionMessageData.Types.MSG_UPDATE_DEPLOYMENT:
+      return (
+        <>
+          <ListItemAvatar>
+            <Avatar classes={{ root: classes.avatarRoot }}>
+              <PublishIcon classes={{ root: classes.avatarIcon }} />
+            </Avatar>
+          </ListItemAvatar>
+          <ListItemText
+            primary="Update Deployment"
+            secondary={
+              <>
+                Update deployment with dseq <strong>{message.value.id.dseq}</strong>
+              </>
+            }
+            classes={{ primary: classes.listItemPrimaryText }}
+          />
+        </>
+      );
+    case TransactionMessageData.Types.MSG_DEPOSIT_DEPLOYMENT:
+      return (
+        <>
+          <ListItemAvatar>
+            <Avatar classes={{ root: classes.avatarRoot }}>
+              <AddBoxIcon classes={{ root: classes.avatarIcon }} />
+            </Avatar>
+          </ListItemAvatar>
+          <ListItemText
+            primary="Deposit Deployment"
+            secondary={
+              <>
+                Add funds of <strong>{uaktToAKT(message.value.amount.amount)}AKT</strong> to deployment with dseq <strong>{message.value.id.dseq}</strong>
+              </>
+            }
+            classes={{ primary: classes.listItemPrimaryText }}
+          />
+        </>
+      );
     case TransactionMessageData.Types.MSG_CREATE_LEASE:
       return (
         <>

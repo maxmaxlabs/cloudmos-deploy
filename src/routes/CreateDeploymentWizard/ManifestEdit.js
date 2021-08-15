@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Box, Typography, Button, TextField } from "@material-ui/core";
+import { Box, Typography, Button, TextField, CircularProgress } from "@material-ui/core";
 import { NewDeploymentData } from "../../shared/utils/deploymentUtils";
 import { useWallet } from "../../context/WalletProvider";
 import MonacoEditor from "react-monaco-editor";
@@ -17,6 +17,7 @@ const yaml = require("js-yaml");
 export function ManifestEdit(props) {
   const [parsingError, setParsingError] = useState(null);
   const [deploymentName, setDeploymentName] = useState("");
+  const [isCreatingDeployment, setIsCreatingDeployment] = useState(false);
   const { sendTransaction } = useTransactionModal();
   const { settings } = useSettings();
   const { address } = useWallet();
@@ -41,12 +42,10 @@ export function ManifestEdit(props) {
   }, [editedManifest]);
 
   async function createAndValidateDeploymentData(yamlStr, dseq) {
-    try {      
+    try {
       if (!editedManifest) return null;
-      // TODO loading
 
       const doc = yaml.load(yamlStr);
-
       const dd = await NewDeploymentData(settings.apiEndpoint, doc, dseq, address);
       validateDeploymentData(dd);
 
@@ -98,6 +97,7 @@ export function ManifestEdit(props) {
   }
 
   async function handleCreateClick() {
+    setIsCreatingDeployment(true);
     const dd = await createAndValidateDeploymentData(editedManifest, null);
 
     if (!dd) return;
@@ -115,6 +115,8 @@ export function ManifestEdit(props) {
       }
     } catch (error) {
       throw error;
+    } finally {
+      setIsCreatingDeployment(false);
     }
   }
 
@@ -150,8 +152,8 @@ export function ManifestEdit(props) {
 
       <Box pt={2}>
         <Button onClick={handleChangeTemplate}>Change Template</Button>&nbsp;
-        <Button variant="contained" color="primary" disabled={!!parsingError || !editedManifest} onClick={handleCreateClick}>
-          Create Deployment
+        <Button variant="contained" color="primary" disabled={isCreatingDeployment || !!parsingError || !editedManifest} onClick={handleCreateClick}>
+          {isCreatingDeployment ? <CircularProgress size="24px" color="primary" /> : "Create Deployment"}
         </Button>
       </Box>
     </>
