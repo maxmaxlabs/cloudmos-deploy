@@ -261,6 +261,63 @@ deployment:
       count: 1`
   },
   {
+    title: "Minecraft Server",
+    code: "minecraft-server",
+    category: "Games",
+    description: "Akash hosted multiplayer minecraft server.",
+    githubUrl: "https://github.com/ChandraStation/minecraft_akash/blob/main/deploy.yml",
+    content: `---
+version: "2.0"
+
+services:
+  web:
+    image: itzg/minecraft-server:java16-openj9
+    env:
+      - EULA=TRUE
+      - PVP=TRUE
+      - MOTD="Minecraft Servers via Akashlytics"
+      - MODE=survival
+      - VIEW_DISTANCE=6
+      - ENABLE_COMMAND_BLOCK=true
+      - ENABLE_RCON=false
+      - SPAWN_PROTECTION=34
+      - HARDCORE=false
+      - MAX_PLAYERS=150
+      - OPS=Thinny
+      - DIFFICULTY=normal
+      - SERVER_NAME=Akashlytics
+      - MEMORY=12G
+      - TYPE=PAPER
+    expose:
+      - port: 25565
+        as: 80
+        to:
+          - global: true
+profiles:
+  compute:
+    web:
+      resources:
+        cpu:
+          units: 10
+        memory:
+          size: 16Gi
+        storage:
+          size: 50Gi
+  placement:
+    westcoast:
+      attributes:
+      pricing:
+        web: 
+          denom: uakt
+          amount: 1000
+
+deployment:
+  web:
+    westcoast:
+      profile: web
+      count: 1`
+  },
+  {
     title: "Tetris",
     code: "tetris",
     category: "Games",
