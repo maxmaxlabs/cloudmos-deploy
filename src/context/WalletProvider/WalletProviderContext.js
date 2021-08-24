@@ -22,7 +22,14 @@ export const WalletProvider = ({ children }) => {
 
       const response = await fetch(settings.apiEndpoint + "/cosmos/bank/v1beta1/balances/" + address);
       const data = await response.json();
-      const balance = data.balances.length > 0 ? data.balances[0].amount : 0;
+      const balance = (() => {
+        for (let i of data.balances) {
+          if (i.denom === "uakt") {
+            return i.amount;
+          }
+        }
+        return 0;
+      })();
       setBalance(balance);
       setIsRefreshingBalance(false);
 
