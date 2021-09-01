@@ -32,7 +32,7 @@ export const WalletProvider = ({ children }) => {
 
       return balance;
     },
-    [address]
+    [address, settings.apiEndpoint]
   );
 
   const deleteWallet = useCallback(() => {

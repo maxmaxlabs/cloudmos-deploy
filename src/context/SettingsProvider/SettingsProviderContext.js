@@ -1,53 +1,63 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { mainNet } from "../../shared/contants";
+import { randomInteger } from "../../shared/utils/math";
 
 const SettingsProviderContext = React.createContext({});
 
 export const SettingsProvider = ({ children }) => {
   const [settings, setSettings] = useState({ apiEndpoint: "", rpcEndpoint: "", isCustomNode: false, nodes: {} });
+  const [isLoadingSettings, setIsLoadingSettings] = useState(false);
 
   // load settings from localStorage or set default values
   useEffect(() => {
     const initiateSettings = async () => {
+      setIsLoadingSettings(true);
+
       const settingsStr = localStorage.getItem("settings");
-      const settings = JSON.parse(settingsStr);
+      const settings = JSON.parse(settingsStr) || {};
+      let defaultApiNode, defaultRpcNode, selectedNodeKey;
 
-      if (settingsStr && settings.nodes) {
-        setSettings(settings);
+      // Set the available nodes list and default endpoints
+      const apiNodes = await axios.get(`${mainNet}/api-nodes.txt`);
+      const rpcNodes = await axios.get(`${mainNet}/rpc-nodes.txt`);
+      const _apiNodes = apiNodes.data
+        .split("\n")
+        .filter((x) => x)
+        .map((node) => new URL(node));
+      const _rpcNodes = rpcNodes.data
+        .split("\n")
+        .filter((x) => x)
+        .map((node) => new URL(node));
+      const nodes = {};
+
+      _apiNodes.forEach((node) => {
+        nodes[node.hostname] = {
+          api: node.port
+        };
+      });
+
+      _rpcNodes.forEach((node) => {
+        if (nodes[node.hostname]) {
+          nodes[node.hostname].rpc = node.port;
+        }
+      });
+
+      if (settingsStr && settings.apiEndpoint && settings.rpcEndpoint && settings.selectedNodeKey && nodes[settings.selectedNodeKey]) {
+        defaultApiNode = settings.apiEndpoint;
+        defaultRpcNode = settings.rpcEndpoint;
+        selectedNodeKey = settings.selectedNodeKey;
       } else {
-        // Set the available nodes list and default endpoints
-        const apiNodes = await axios.get(`${mainNet}/api-nodes.txt`);
-        const rpcNodes = await axios.get(`${mainNet}/rpc-nodes.txt`);
-        const _apiNodes = apiNodes.data
-          .split("\n")
-          .filter((x) => x)
-          .map((node) => new URL(node));
-        const _rpcNodes = rpcNodes.data
-          .split("\n")
-          .filter((x) => x)
-          .map((node) => new URL(node));
-        const nodes = {};
-
-        _apiNodes.forEach((node) => {
-          nodes[node.hostname] = {
-            api: node.port
-          };
-        });
-
-        _rpcNodes.forEach((node) => {
-          if (nodes[node.hostname]) {
-            nodes[node.hostname].rpc = node.port;
-          }
-        });
-
-        // Set first one as default
-        const firstKey = Object.keys(nodes)[0];
-        const defaultApiNode = `http://${firstKey}:${nodes[firstKey].api}`;
-        const defaultRpcNode = `http://${firstKey}:${nodes[firstKey].rpc}`;
-
-        setSettings({ apiEndpoint: defaultApiNode, rpcEndpoint: defaultRpcNode, nodes });
+        // Set random one as default
+        const keys = Object.keys(nodes);
+        const randomNodeKey = keys[randomInteger(0, keys.length - 1)];
+        defaultApiNode = `http://${randomNodeKey}:${nodes[randomNodeKey].api}`;
+        defaultRpcNode = `http://${randomNodeKey}:${nodes[randomNodeKey].rpc}`;
+        selectedNodeKey = randomNodeKey;
       }
+
+      updateSettings({ apiEndpoint: defaultApiNode, rpcEndpoint: defaultRpcNode, selectedNodeKey, nodes });
+      setIsLoadingSettings(false);
     };
 
     initiateSettings();
@@ -58,7 +68,7 @@ export const SettingsProvider = ({ children }) => {
     setSettings(settings);
   };
 
-  return <SettingsProviderContext.Provider value={{ settings, setSettings: updateSettings }}>{children}</SettingsProviderContext.Provider>;
+  return <SettingsProviderContext.Provider value={{ settings, setSettings: updateSettings, isLoadingSettings }}>{children}</SettingsProviderContext.Provider>;
 };
 
 export const useSettings = () => {

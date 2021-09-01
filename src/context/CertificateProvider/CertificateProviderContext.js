@@ -32,7 +32,7 @@ export const CertificateProvider = ({ children }) => {
 
       return data.certificates[0];
     },
-    [address]
+    [address, settings.apiEndpoint]
   );
 
   useEffect(() => {

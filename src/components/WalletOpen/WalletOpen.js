@@ -41,9 +41,8 @@ export function WalletOpen() {
 
     try {
       const wallet = await openWallet(password);
-      
       const address = (await wallet.getAccounts())[0].address;
-      
+
       loadLocalCert(address, password);
 
       await analytics.event("deploy", "open wallet");

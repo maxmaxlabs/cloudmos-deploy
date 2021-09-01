@@ -13,7 +13,7 @@ Akashlytics Deploy is a desktop app that greatly simplifies and enhances deploym
 ## Roadmap
 
 - Real-time log viewer
-- Add MacOS compatibility
+- ~~Add MacOS compatibility~~
 - Create wallet
 - Manage multiple wallets
 - Manifest Editor UI

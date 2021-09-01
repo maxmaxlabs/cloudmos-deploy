@@ -65,7 +65,7 @@ export function DeploymentDetail(props) {
     if (deployment.state === "active" && leases.length === 0) {
       history.push("/createDeployment/acceptBids/" + dseq);
     }
-  }, [deployment, address]);
+  }, [deployment, address, settings.apiEndpoint]);
 
   const loadBlock = useCallback(async () => {
     // setIsLoadingLeases(true);
@@ -75,7 +75,7 @@ export function DeploymentDetail(props) {
     setCurrentBlock(data);
 
     // setIsLoadingLeases(false);
-  }, [deployment]);
+  }, [deployment, settings.apiEndpoint]);
 
   useEffect(() => {
     if (deployment) {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { makeStyles, Button, Box, Typography, IconButton } from "@material-ui/core";
-import { useHistory } from "react-router";
+import { Link } from "react-router-dom";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 import { Helmet } from "react-helmet-async";
 import { DeploymentListRow } from "./DeploymentListRow";
@@ -37,9 +37,7 @@ const useStyles = makeStyles((theme) => ({
 
 export function DeploymentList({ deployments, isLoadingDeployments, refreshDeployments }) {
   const [page, setPage] = useState(1);
-
   const classes = useStyles();
-  const history = useHistory();
 
   useEffect(() => {
     refreshDeployments();
@@ -55,10 +53,6 @@ export function DeploymentList({ deployments, isLoadingDeployments, refreshDeplo
   const end = start + rowsPerPage;
   const currentPageDeployments = orderedDeployments.slice(start, end);
   const pageCount = Math.ceil(orderedDeployments.length / rowsPerPage);
-
-  function createDeployment() {
-    history.push("/createDeployment");
-  }
 
   return (
     <>
@@ -77,7 +71,7 @@ export function DeploymentList({ deployments, isLoadingDeployments, refreshDeplo
             </IconButton>
           </Box>
 
-          <Button className={classes.createBtn} variant="contained" size="medium" color="primary" onClick={() => createDeployment()}>
+          <Button className={classes.createBtn} variant="contained" size="medium" color="primary" component={Link} to="/createDeployment">
             <AddIcon />
             &nbsp;Create Deployment
           </Button>

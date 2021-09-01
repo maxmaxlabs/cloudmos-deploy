@@ -1,4 +1,4 @@
-import { makeStyles, Grid, Paper, Box } from "@material-ui/core";
+import { makeStyles, Grid, Paper, Box, CircularProgress, Typography } from "@material-ui/core";
 import { WalletImport } from "./components/WalletImport";
 import { WalletOpen } from "./components/WalletOpen";
 import { WalletDisplay } from "./components/WalletDisplay";
@@ -9,6 +9,7 @@ import { ErrorFallback } from "./shared/components/ErrorFallback";
 import { LeftNav } from "./components/LeftNav";
 import { RightContent } from "./components/RightContent";
 import { getWalletAddresses } from "./shared/utils/walletUtils";
+import { useSettings } from "./context/SettingsProvider";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -28,9 +29,23 @@ const useStyles = makeStyles((theme) => ({
 
 export function MainView() {
   const { address, selectedWallet } = useWallet();
+  const { isLoadingSettings } = useSettings();
   const classes = useStyles();
 
   const walletExists = getWalletAddresses().length > 0;
+
+  if (isLoadingSettings) {
+    return (
+      <Box display="flex" alignItems="center" justifyContent="center" height="100%" width="100%" flexDirection="column">
+        <Box paddingBottom="1rem">
+          <CircularProgress size="3rem" />
+        </Box>
+        <div>
+          <Typography variant="h5">Loading settings...</Typography>
+        </div>
+      </Box>
+    );
+  }
 
   if (!selectedWallet || !address) {
     return <ErrorBoundary FallbackComponent={ErrorFallback}>{walletExists ? <WalletOpen /> : <WalletImport />}</ErrorBoundary>;
