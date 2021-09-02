@@ -20,17 +20,27 @@ export const WalletProvider = ({ children }) => {
     async (showSnackbar) => {
       setIsRefreshingBalance(true);
 
-      const response = await fetch(settings.apiEndpoint + "/cosmos/bank/v1beta1/balances/" + address);
-      const data = await response.json();
-      const balance = data.balances.length > 0 && data.balances.some((b) => b.denom === "uakt") ? data.balances.find((b) => b.denom === "uakt").amount : 0;
-      setBalance(balance);
-      setIsRefreshingBalance(false);
+      try {
+        const response = await fetch(settings.apiEndpoint + "/cosmos/bank/v1beta1/balances/" + address);
+        const data = await response.json();
+        const balance = data.balances.length > 0 && data.balances.some((b) => b.denom === "uakt") ? data.balances.find((b) => b.denom === "uakt").amount : 0;
 
-      if (showSnackbar) {
-        enqueueSnackbar(<Snackbar title="Balance refreshed!" />, { variant: "success" });
+        setBalance(balance);
+        setIsRefreshingBalance(false);
+
+        if (showSnackbar) {
+          enqueueSnackbar(<Snackbar title="Balance refreshed!" />, { variant: "success" });
+        }
+
+        return balance;
+      } catch (error) {
+        console.log(error);
+
+        setIsRefreshingBalance(false);
+        enqueueSnackbar(<Snackbar title="Error fetching balance." />, { variant: "error" });
+
+        return 0;
       }
-
-      return balance;
     },
     [address, settings.apiEndpoint]
   );

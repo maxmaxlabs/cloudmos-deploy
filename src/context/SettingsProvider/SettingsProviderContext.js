@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { mainNet } from "../../shared/contants";
 import { randomInteger } from "../../shared/utils/math";
+import { queryClient } from "../../queries";
 
 const SettingsProviderContext = React.createContext({});
 
 export const SettingsProvider = ({ children }) => {
   const [settings, setSettings] = useState({ apiEndpoint: "", rpcEndpoint: "", isCustomNode: false, nodes: {} });
-  const [isLoadingSettings, setIsLoadingSettings] = useState(false);
+  const [isLoadingSettings, setIsLoadingSettings] = useState(true);
 
   // load settings from localStorage or set default values
   useEffect(() => {
@@ -56,16 +57,23 @@ export const SettingsProvider = ({ children }) => {
         selectedNodeKey = randomNodeKey;
       }
 
-      updateSettings({ apiEndpoint: defaultApiNode, rpcEndpoint: defaultRpcNode, selectedNodeKey, nodes });
+      updateSettings({ ...settings, apiEndpoint: defaultApiNode, rpcEndpoint: defaultRpcNode, selectedNodeKey, nodes });
       setIsLoadingSettings(false);
     };
 
     initiateSettings();
   }, []);
 
-  const updateSettings = (settings) => {
-    localStorage.setItem("settings", JSON.stringify(settings));
-    setSettings(settings);
+  const updateSettings = (newSettings) => {
+    if (settings.apiEndpoint !== newSettings.apiEndpoint || (settings.isCustomNode && !newSettings.isCustomNode)) {
+      // Cancel and remove queries from cache if the api endpoint is changed
+      queryClient.cancelQueries();
+      queryClient.removeQueries();
+      console.log("invalidated queries");
+    }
+
+    localStorage.setItem("settings", JSON.stringify(newSettings));
+    setSettings(newSettings);
   };
 
   return <SettingsProviderContext.Provider value={{ settings, setSettings: updateSettings, isLoadingSettings }}>{children}</SettingsProviderContext.Provider>;
