@@ -1,9 +1,25 @@
 import { useState, useRef } from "react";
-import { Box, makeStyles, Typography, Button, FormLabel, TextField, FormControlLabel, FormControl, Switch, FormGroup } from "@material-ui/core";
+import {
+  Box,
+  makeStyles,
+  Typography,
+  Button,
+  FormLabel,
+  TextField,
+  FormControlLabel,
+  FormControl,
+  Switch,
+  FormGroup,
+  InputAdornment,
+  IconButton,
+  CircularProgress
+} from "@material-ui/core";
+import RefreshIcon from "@material-ui/icons/Refresh";
 import { useSettings } from "../../context/SettingsProvider";
 import { Controller, useForm } from "react-hook-form";
 import { Helmet } from "react-helmet-async";
 import Autocomplete from "@material-ui/lab/Autocomplete";
+import { StatusPill } from "../../shared/components/StatusPill";
 
 const useStyles = makeStyles((theme) => ({
   root: { padding: "1rem" },
@@ -33,13 +49,16 @@ const useStyles = makeStyles((theme) => ({
   },
   switch: {
     width: "fit-content"
+  },
+  nodeInput: {
+    paddingRight: "1rem !important"
   }
 }));
 
 export function Settings(props) {
   const [isEditing, setIsEditing] = useState(false);
   const classes = useStyles();
-  const { settings, setSettings } = useSettings();
+  const { settings, setSettings, refreshNodeStatuses, isRefreshingNodeStatus } = useSettings();
   const { handleSubmit, control, reset } = useForm();
   const formRef = useRef();
   const nodes = Object.keys(settings.nodes);
@@ -61,6 +80,10 @@ export function Settings(props) {
     setSettings({ ...settings, apiEndpoint, rpcEndpoint, selectedNodeKey: newValue });
   };
 
+  const onRefreshNodeStatus = async () => {
+    await refreshNodeStatuses();
+  };
+
   const onSubmit = (data) => {
     setSettings({ ...settings, ...data });
     setIsEditing(false);
@@ -79,19 +102,51 @@ export function Settings(props) {
       <Box marginTop="1rem">
         <FormGroup>
           {!settings.isCustomNode && (
-            <FormControl>
-              <Autocomplete
-                disableClearable
-                options={nodes}
-                style={{ width: 300 }}
-                value={settings.selectedNodeKey}
-                defaultValue={settings.selectedNodeKey}
-                getOptionSelected={(option, value) => option === value}
-                onChange={onNodeChange}
-                renderInput={(params) => <TextField {...params} label="Node" variant="outlined" />}
-                disabled={settings.isCustomNode}
-              />
-            </FormControl>
+            <Box display="flex" alignItems="center">
+              <FormControl>
+                <Autocomplete
+                  disableClearable
+                  options={nodes}
+                  style={{ width: 300 }}
+                  value={settings.selectedNodeKey}
+                  defaultValue={settings.selectedNodeKey}
+                  getOptionSelected={(option, value) => option === value}
+                  onChange={onNodeChange}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Node"
+                      variant="outlined"
+                      InputProps={{
+                        ...params.InputProps,
+                        classes: { root: classes.nodeInput },
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <NodeStatus
+                              latency={Math.floor(settings.nodes[settings.selectedNodeKey].latency)}
+                              status={settings.nodes[settings.selectedNodeKey].status}
+                            />
+                          </InputAdornment>
+                        )
+                      }}
+                    />
+                  )}
+                  renderOption={(option, {}) => (
+                    <Box display="flex" alignItems="center" justifyContent="space-between" width="100%">
+                      <div>{option}</div>
+                      <NodeStatus latency={Math.floor(settings.nodes[option].latency)} status={settings.nodes[option].status} />
+                    </Box>
+                  )}
+                  disabled={settings.isCustomNode}
+                />
+              </FormControl>
+
+              <Box marginLeft="1rem">
+                <IconButton onClick={() => onRefreshNodeStatus()} aria-label="refresh" disabled={isRefreshingNodeStatus}>
+                  {isRefreshingNodeStatus ? <CircularProgress size="1.5rem" /> : <RefreshIcon />}
+                </IconButton>
+              </Box>
+            </Box>
           )}
 
           <FormControlLabel
@@ -187,3 +242,16 @@ export function Settings(props) {
     </Box>
   );
 }
+
+const NodeStatus = ({ latency, status }) => {
+  return (
+    <Box display="flex" alignItems="center">
+      <div>
+        <Typography variant="caption">{latency}ms</Typography>
+      </div>
+      <div>
+        <StatusPill state={status === "active" ? "active" : "closed"} />
+      </div>
+    </Box>
+  );
+};
