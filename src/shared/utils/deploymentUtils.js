@@ -166,7 +166,7 @@ export function Manifest(yamlJson) {
             });
           });
         } else {
-          msvc.expose.push({
+          msvc.Expose.push({
             Port: expose.port,
             ExternalPort: expose.as || 0,
             Proto: proto,
