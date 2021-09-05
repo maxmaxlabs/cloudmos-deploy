@@ -117,7 +117,7 @@ profiles:
       pricing:
         web:
           denom: uakt
-          amount: 1
+          amount: 100
 
 deployment:
   web:
@@ -252,7 +252,7 @@ profiles:
       pricing:
         akash:
           denom: uakt
-          amount: 10
+          amount: 100
 
 deployment:
   akash:

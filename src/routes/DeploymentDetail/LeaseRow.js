@@ -15,13 +15,15 @@ import {
   ListItemSecondaryAction
 } from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
-import LaunchIcon from "@material-ui/icons/Launch";
+import FileCopyIcon from "@material-ui/icons/FileCopy";
 import { StatusPill } from "../../shared/components/StatusPill";
 import { LabelValue } from "../../shared/components/LabelValue";
 import { getAvgCostPerMonth } from "../../shared/utils/priceUtils";
 import { SpecDetail } from "../../shared/components/SpecDetail";
 import { useCertificate } from "../../context/CertificateProvider";
 import { useSettings } from "../../context/SettingsProvider";
+import { copyTextToClipboard } from "../../shared/utils/copyClipboard";
+import { useSnackbar } from "notistack";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -39,6 +41,7 @@ export function LeaseRow({ lease, setActiveTab }) {
   const [providerInfo, setProviderInfo] = useState(null);
   const [leaseInfoFromProvider, setLeaseInfoFromProvider] = useState(null);
   const [isLeaseNotFound, setIsLeaseNotFound] = useState(false);
+  const { enqueueSnackbar } = useSnackbar();
 
   const { localCert } = useCertificate();
   const classes = useStyles();
@@ -154,7 +157,14 @@ export function LeaseRow({ lease, setActiveTab }) {
                     Forwarded Ports:{" "}
                     {leaseInfoFromProvider.forwarded_ports[service.name].map((p) => (
                       <Box key={"port_" + p.externalPort} display="inline" mr={0.5}>
-                        <Chip variant="outlined" size="small" label={`${p.externalPort}:${p.port}`} disabled={p.available < 1} />
+                        <Chip
+                          variant="outlined"
+                          size="small"
+                          label={`${p.externalPort}:${p.port}`}
+                          disabled={p.available < 1}
+                          component="a"
+                          onClick={(ev) => handleExternalUrlClick(ev, `${p.host}:${p.externalPort}`)}
+                        />
                       </Box>
                     ))}
                   </>
@@ -163,11 +173,21 @@ export function LeaseRow({ lease, setActiveTab }) {
                   <List dense>
                     {service.uris.map((uri) => {
                       return (
-                        <ListItem key={uri}>
+                        <ListItem key={uri} component="a" button onClick={(ev) => handleExternalUrlClick(ev, uri)}>
                           <ListItemText primary={uri} />
                           <ListItemSecondaryAction>
-                            <IconButton edge="end" aria-label="uri" onClick={(ev) => handleExternalUrlClick(ev, uri)}>
-                              <LaunchIcon />
+                            <IconButton
+                              edge="end"
+                              aria-label="uri"
+                              onClick={(ev) => {
+                                copyTextToClipboard(uri);
+                                enqueueSnackbar("Uri copied to clipboard!", {
+                                  variant: "success",
+                                  autoHideDuration: 2000
+                                });
+                              }}
+                            >
+                              <FileCopyIcon />
                             </IconButton>
                           </ListItemSecondaryAction>
                         </ListItem>
