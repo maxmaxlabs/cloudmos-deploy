@@ -20,6 +20,7 @@ import { Controller, useForm } from "react-hook-form";
 import { Helmet } from "react-helmet-async";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import { StatusPill } from "../../shared/components/StatusPill";
+import { isUrl } from "../../shared/utils/stringUtils";
 
 const useStyles = makeStyles((theme) => ({
   root: { padding: "1rem" },
@@ -41,6 +42,9 @@ const useStyles = makeStyles((theme) => ({
     minWidth: 150,
     paddingRight: "1rem"
   },
+  formControl: {
+    width: "100%"
+  },
   formValue: {
     flexGrow: 1
   },
@@ -59,7 +63,12 @@ export function Settings(props) {
   const [isEditing, setIsEditing] = useState(false);
   const classes = useStyles();
   const { settings, setSettings, refreshNodeStatuses, isRefreshingNodeStatus } = useSettings();
-  const { handleSubmit, control, reset } = useForm();
+  const {
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors }
+  } = useForm();
   const formRef = useRef();
   const nodes = Object.keys(settings.nodes);
 
@@ -163,22 +172,31 @@ export function Settings(props) {
             <FormLabel className={classes.formLabel}>Api Endpoint:</FormLabel>
 
             {isEditing ? (
-              <Controller
-                control={control}
-                name="apiEndpoint"
-                rules={{ required: true }}
-                defaultValue={settings.apiEndpoint}
-                render={({ fieldState, field }) => (
-                  <TextField
-                    {...field}
-                    type="text"
-                    variant="outlined"
-                    error={!!fieldState.invalid}
-                    helperText={fieldState.invalid && "Api Endpoint is required."}
-                    className={classes.formValue}
-                  />
-                )}
-              />
+              <FormControl error={!errors.apiEndpoint} className={classes.formControl}>
+                <Controller
+                  control={control}
+                  name="apiEndpoint"
+                  rules={{
+                    required: true,
+                    validate: (v) => isUrl(v)
+                  }}
+                  defaultValue={settings.apiEndpoint}
+                  render={({ fieldState, field }) => {
+                    const helperText = fieldState.error?.type === "validate" ? "Url is invalid." : "Api endpoint is required.";
+
+                    return (
+                      <TextField
+                        {...field}
+                        type="text"
+                        variant="outlined"
+                        error={!!fieldState.invalid}
+                        helperText={fieldState.invalid && helperText}
+                        className={classes.formValue}
+                      />
+                    );
+                  }}
+                />
+              </FormControl>
             ) : (
               <Typography variant="body1" className={classes.formValue}>
                 {settings.apiEndpoint}
@@ -190,22 +208,31 @@ export function Settings(props) {
             <FormLabel className={classes.formLabel}>Rpc Endpoint:</FormLabel>
 
             {isEditing ? (
-              <Controller
-                control={control}
-                name="rpcEndpoint"
-                rules={{ required: true }}
-                defaultValue={settings.rpcEndpoint}
-                render={({ fieldState, field }) => (
-                  <TextField
-                    {...field}
-                    type="text"
-                    variant="outlined"
-                    error={!!fieldState.invalid}
-                    helperText={fieldState.invalid && "Rpc Endpoint is required."}
-                    className={classes.formValue}
-                  />
-                )}
-              />
+              <FormControl error={!errors.apiEndpoint} className={classes.formControl}>
+                <Controller
+                  control={control}
+                  name="rpcEndpoint"
+                  rules={{
+                    required: true,
+                    validate: (v) => isUrl(v)
+                  }}
+                  defaultValue={settings.rpcEndpoint}
+                  render={({ fieldState, field }) => {
+                    const helperText = fieldState.error?.type === "validate" ? "Url is invalid." : "Rpc endpoint is required.";
+
+                    return (
+                      <TextField
+                        {...field}
+                        type="text"
+                        variant="outlined"
+                        error={!!fieldState.invalid}
+                        helperText={fieldState.invalid && helperText}
+                        className={classes.formValue}
+                      />
+                    );
+                  }}
+                />
+              </FormControl>
             ) : (
               <Typography variant="body1" className={classes.formValue}>
                 {settings.rpcEndpoint}
@@ -222,7 +249,13 @@ export function Settings(props) {
 
             {isEditing && (
               <>
-                <Button variant="contained" onClick={() => setIsEditing(false)}>
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    reset(null, { keepDefaultValues: true });
+                    setIsEditing(false);
+                  }}
+                >
                   Cancel
                 </Button>
                 <Button
