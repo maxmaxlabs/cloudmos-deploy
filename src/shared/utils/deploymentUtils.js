@@ -1,5 +1,8 @@
 const stableStringify = require("json-stable-stringify");
 
+// 5AKT aka 5000000uakt
+export const defaultInitialDeposit = 5000000;
+
 const specSuffixes = {
   Ki: 1024,
   Mi: 1024 * 1024,
@@ -256,12 +259,12 @@ function DeploymentGroups(yamlJson) {
       };
 
       let endpoints = [];
-      svc.expose.forEach((expose) => {
-        expose.to.forEach((to) => {
+      svc?.expose?.forEach((expose) => {
+        expose?.to?.forEach((to) => {
           if (to.global) {
             const proto = ParseServiceProtocol(expose.proto);
 
-            let v = {
+            const v = {
               port: expose.port,
               externalPort: expose.as || 0,
               proto: proto,
@@ -334,20 +337,14 @@ async function ManifestVersion(manifest) {
   return base64;
 }
 
-function DepositFromFlags(flags) {
-  // let val = flags["deposit"];
-
-  // if(!val) return {};
-
-  // return ParseCoinNormalized(val)
-  // TODO
+function DepositFromFlags(deposit) {
   return {
     denom: "uakt",
-    amount: "5000000"
+    amount: deposit.toString()
   };
 }
 
-export async function NewDeploymentData(apiEndpoint, yamlJson, dseq, fromAddress) {
+export async function NewDeploymentData(apiEndpoint, yamlJson, dseq, fromAddress, deposit = defaultInitialDeposit) {
   const groups = DeploymentGroups(yamlJson);
   const mani = Manifest(yamlJson);
   const ver = await ManifestVersion(mani);
@@ -355,7 +352,7 @@ export async function NewDeploymentData(apiEndpoint, yamlJson, dseq, fromAddress
     owner: fromAddress,
     dseq: dseq
   };
-  const deposit = DepositFromFlags();
+  const _deposit = DepositFromFlags(deposit);
 
   if (!id.dseq) {
     id.dseq = await getCurrentHeight(apiEndpoint);
@@ -369,7 +366,7 @@ export async function NewDeploymentData(apiEndpoint, yamlJson, dseq, fromAddress
     orderId: [],
     leaseId: [],
     version: ver,
-    deposit: deposit
+    deposit: _deposit
   };
 }
 

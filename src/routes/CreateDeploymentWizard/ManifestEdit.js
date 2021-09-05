@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Box, Typography, Button, TextField, CircularProgress } from "@material-ui/core";
-import { NewDeploymentData } from "../../shared/utils/deploymentUtils";
+import { Box, Typography, Button, TextField, CircularProgress, makeStyles } from "@material-ui/core";
+import { NewDeploymentData, defaultInitialDeposit } from "../../shared/utils/deploymentUtils";
 import { useWallet } from "../../context/WalletProvider";
 import MonacoEditor from "react-monaco-editor";
 import Alert from "@material-ui/lab/Alert";
@@ -11,8 +11,16 @@ import { useTransactionModal } from "../../context/TransactionModal";
 import { useSettings } from "../../context/SettingsProvider";
 import { Helmet } from "react-helmet-async";
 import { analytics } from "../../shared/utils/analyticsUtils";
+import { DeploymentDeposit } from "../DeploymentDetail/DeploymentDeposit";
 
 const yaml = require("js-yaml");
+
+const useStyles = makeStyles((theme) => ({
+  root: {},
+  alert: {
+    marginBottom: "1rem"
+  }
+}));
 
 export function ManifestEdit(props) {
   const [parsingError, setParsingError] = useState(null);
@@ -21,7 +29,9 @@ export function ManifestEdit(props) {
   const { sendTransaction } = useTransactionModal();
   const { settings } = useSettings();
   const { address } = useWallet();
+  const [isDepositingDeployment, setIsDepositingDeployment] = useState(false);
   const history = useHistory();
+  const classes = useStyles();
 
   const { editedManifest, setEditedManifest, selectedTemplate } = props;
 
@@ -41,12 +51,12 @@ export function ManifestEdit(props) {
     };
   }, [editedManifest]);
 
-  async function createAndValidateDeploymentData(yamlStr, dseq) {
+  async function createAndValidateDeploymentData(yamlStr, dseq = null, deposit = defaultInitialDeposit) {
     try {
       if (!editedManifest) return null;
 
       const doc = yaml.load(yamlStr);
-      const dd = await NewDeploymentData(settings.apiEndpoint, doc, dseq, address);
+      const dd = await NewDeploymentData(settings.apiEndpoint, doc, dseq, address, deposit);
       validateDeploymentData(dd);
 
       setParsingError(null);
@@ -72,10 +82,10 @@ export function ManifestEdit(props) {
     }
   };
 
-  function handleDocClick(ev) {
+  function handleDocClick(ev, url) {
     ev.preventDefault();
 
-    window.electron.openUrl("https://docs.akash.network/reference/sdl");
+    window.electron.openUrl(url);
   }
 
   function validateDeploymentData(deploymentData) {
@@ -96,9 +106,14 @@ export function ManifestEdit(props) {
     }
   }
 
-  async function handleCreateClick() {
+  const onDeploymentDeposit = async (deposit) => {
+    setIsDepositingDeployment(false);
+    await handleCreateClick(deposit);
+  };
+
+  async function handleCreateClick(deposit) {
     setIsCreatingDeployment(true);
-    const dd = await createAndValidateDeploymentData(editedManifest, null);
+    const dd = await createAndValidateDeploymentData(editedManifest, null, deposit);
 
     if (!dd) return;
 
@@ -131,7 +146,7 @@ export function ManifestEdit(props) {
       <Box pb={2}>
         <Typography>
           You may use the sample deployment file as-is or modify it for your own needs as desscribed in the{" "}
-          <a href="#" onClick={handleDocClick}>
+          <a href="#" onClick={(ev) => handleDocClick(ev, "https://docs.akash.network/reference/sdl")}>
             SDL (Stack Definition Language)
           </a>{" "}
           documentation. A typical modification would be to reference your own image instead of the demo app image.
@@ -152,10 +167,34 @@ export function ManifestEdit(props) {
 
       <Box pt={2}>
         <Button onClick={handleChangeTemplate}>Change Template</Button>&nbsp;
-        <Button variant="contained" color="primary" disabled={isCreatingDeployment || !!parsingError || !editedManifest} onClick={handleCreateClick}>
+        <Button
+          variant="contained"
+          color="primary"
+          disabled={isCreatingDeployment || !!parsingError || !editedManifest}
+          onClick={() => setIsDepositingDeployment(true)}
+        >
           {isCreatingDeployment ? <CircularProgress size="24px" color="primary" /> : "Create Deployment"}
         </Button>
       </Box>
+
+      <DeploymentDeposit
+        isDepositingDeployment={isDepositingDeployment}
+        handleCancel={() => setIsDepositingDeployment(false)}
+        onDeploymentDeposit={onDeploymentDeposit}
+        min={5}
+        infoText={
+          <Alert severity="info" className={classes.alert}>
+            <Typography variant="caption">
+              To create a deployment you need a minimum of <strong>5AKT</strong> for the{" "}
+              <a href="#" onClick={(ev) => handleDocClick(ev, "https://docs.akash.network/glossary/escrow#escrow-accounts")}>
+                <strong>escrow account.</strong>
+              </a>{" "}
+              Escrow accounts are a mechanism that allow for time-based payments from one bank account to another without block-by-block micropayments. If your
+              escrow account runs out, your deployment will automatically close. You can still add more funds to your deployment escrow once it's created.
+            </Typography>
+          </Alert>
+        }
+      />
     </>
   );
 }

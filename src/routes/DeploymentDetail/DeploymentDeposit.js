@@ -22,22 +22,22 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function DeploymentDeposit({ isDepositingDeployment, handleCancel, onDeploymentDeposit }) {
+export function DeploymentDeposit({ isDepositingDeployment, handleCancel, onDeploymentDeposit, min = 0, infoText = null }) {
   const classes = useStyles();
-  const [depositAmount, setDepositAmount] = useState(0);
+  const [depositAmount, setDepositAmount] = useState(min);
   const [error, setError] = useState("");
   const { balance } = useWallet();
 
   const onClose = () => {
-    setDepositAmount(0);
+    setDepositAmount(min);
   };
 
   const handleSubmit = () => {
     setError("");
     const deposit = aktToUakt(depositAmount);
 
-    if (deposit === 0) {
-      setError(`Deposit amount must be greater than 0.`);
+    if (deposit === min) {
+      setError(`Deposit amount must be greater than ${min}.`);
       return;
     }
 
@@ -62,6 +62,8 @@ export function DeploymentDeposit({ isDepositingDeployment, handleCancel, onDepl
       <DialogTitle id="deposit-deployment-dialog-title">Deployment Deposit</DialogTitle>
       <DialogContent dividers>
         <form onSubmit={handleSubmit}>
+          {infoText}
+
           <FormControl fullWidth variant="outlined">
             <InputLabel htmlFor="deployment-deposit-amount">Amount</InputLabel>
             <OutlinedInput
@@ -74,7 +76,7 @@ export function DeploymentDeposit({ isDepositingDeployment, handleCancel, onDepl
               startAdornment={<InputAdornment position="start">AKT</InputAdornment>}
               labelWidth={60}
               type="number"
-              inputProps={{ min: 0 }}
+              inputProps={{ min: min }}
               autoFocus
             />
           </FormControl>
