@@ -15,6 +15,7 @@ import { UrlService } from "../../shared/utils/urlUtils";
 import { analytics } from "../../shared/utils/analyticsUtils";
 import { useLocalNotes } from "../../context/LocalNoteProvider";
 import { DeploymentDeposit } from "./DeploymentDeposit";
+import PublishIcon from "@material-ui/icons/Publish";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -42,9 +43,10 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address, loadD
   const timeLeft = getTimeLeft(deploymentCost, deployment.escrowBalance.amount);
   const [anchorEl, setAnchorEl] = useState(null);
   const { sendTransaction } = useTransactionModal();
-  const { changeDeploymentName } = useLocalNotes();
+  const { changeDeploymentName, getDeploymentData } = useLocalNotes();
   const history = useHistory();
   const [isDepositingDeployment, setIsDepositingDeployment] = useState(false);
+  const storageDeploymentData = getDeploymentData(deployment.dseq);
 
   const onCloseDeployment = async () => {
     handleMenuClose();
@@ -75,6 +77,11 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address, loadD
 
   const handleMenuClose = () => {
     setAnchorEl(null);
+  };
+
+  const redeploy = () => {
+    const url = UrlService.createDeployment(deployment.dseq);
+    history.push(url);
   };
 
   const onDeploymentDeposit = async (deposit) => {
@@ -161,6 +168,12 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address, loadD
               <EditIcon />
               &nbsp;Edit Name
             </MenuItem>
+            {storageDeploymentData?.manifest && (
+              <MenuItem onClick={() => redeploy()} classes={{ root: classes.menuItem }}>
+                <PublishIcon />
+                &nbsp;Redeploy
+              </MenuItem>
+            )}
             <MenuItem onClick={() => onCloseDeployment()} classes={{ root: classes.menuItem }}>
               <CancelPresentationIcon />
               &nbsp;Close
@@ -174,6 +187,13 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address, loadD
             <EditIcon fontSize="small" />
             &nbsp;Edit Name
           </Button>
+
+          {storageDeploymentData?.manifest && (
+            <Button onClick={() => redeploy()} variant="contained" color="default" className={classes.actionButton}>
+              <PublishIcon fontSize="small" />
+              &nbsp;Redeploy
+            </Button>
+          )}
         </Box>
       )}
 

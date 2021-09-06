@@ -107,7 +107,7 @@ export function DeploymentDetail(props) {
   }
 
   function handleBackClick() {
-    history.push(UrlService.deploymentList());
+    history.goBack();
   }
 
   return (
