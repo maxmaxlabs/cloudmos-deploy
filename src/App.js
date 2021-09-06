@@ -5,8 +5,8 @@ import { CertificateProvider } from "./context/CertificateProvider";
 import { TransactionModalProvider } from "./context/TransactionModal";
 import { WalletProvider } from "./context/WalletProvider";
 import { SnackbarProvider } from "notistack";
-import { IconButton, makeStyles, AppBar, Typography } from "@material-ui/core";
-import { QueryClient, QueryClientProvider } from "react-query";
+import { IconButton, makeStyles, Typography } from "@material-ui/core";
+import { QueryClientProvider } from "react-query";
 import { SettingsProvider } from "./context/SettingsProvider";
 import { LocalNoteProvider } from "./context/LocalNoteProvider";
 import { Router } from "react-router-dom";
@@ -17,6 +17,7 @@ import { createMemoryHistory } from "history";
 import { HelmetProvider } from "react-helmet-async";
 import { Helmet } from "react-helmet-async";
 import { analytics, HOSTNAME } from "./shared/utils/analyticsUtils";
+import { queryClient } from "./queries";
 
 const ipcApi = window.electron.api;
 
@@ -35,8 +36,6 @@ const useStyles = makeStyles((theme) => ({
     padding: "2px 1rem"
   }
 }));
-
-const queryClient = new QueryClient();
 
 function App() {
   const notistackRef = useRef();

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState } from "react";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
 import { Button, CircularProgress, Box, Typography, LinearProgress, Menu, MenuItem, IconButton } from "@material-ui/core";
 import { useWallet } from "../../context/WalletProvider";

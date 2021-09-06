@@ -16,3 +16,15 @@ export function syntaxHighlight(json) {
     return '<span class="' + cls + '">' + match + "</span>";
   });
 }
+
+export function isUrl(val) {
+  let url;
+
+  try {
+    url = new URL(val);
+  } catch (_) {
+    return false;
+  }
+
+  return (url.protocol === "http:" || url.protocol === "https:") && !!url.port;
+}

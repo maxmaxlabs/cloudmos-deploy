@@ -22,6 +22,7 @@ import IconButton from "@material-ui/core/IconButton";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import { useWallet } from "../../context/WalletProvider";
+import { useSettings } from "../../context/SettingsProvider";
 
 const useStyles = makeStyles({
   root: {
@@ -40,10 +41,9 @@ export function WalletDisplay() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [isShowingConfirmationModal, setIsShowingConfirmationModal] = useState(false);
   const [isConfirmationChecked, setIsConfirmationChecked] = useState(false);
-
-  const classes = useStyles();
-
   const { address, balance, refreshBalance, isRefreshingBalance, deleteWallet } = useWallet();
+  const classes = useStyles();
+  const { settings } = useSettings();
 
   // function importWallet() {
   //     history.push("/walletImport");
@@ -52,6 +52,10 @@ export function WalletDisplay() {
   useEffect(() => {
     setIsConfirmationChecked(false);
   }, [isShowingConfirmationModal]);
+
+  useEffect(() => {
+    refreshBalance();
+  }, [settings.apiEndpoint]);
 
   function deleteWalletClick() {
     handleCloseMenu();

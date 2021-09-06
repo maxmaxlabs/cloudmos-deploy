@@ -1,6 +1,6 @@
 import AddIcon from "@material-ui/icons/Add";
 import { makeStyles, IconButton, Box, Typography, Button } from "@material-ui/core";
-import { useHistory } from "react-router";
+import { Link } from "react-router-dom";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 import { Helmet } from "react-helmet-async";
 import { DeploymentListRow } from "../DeploymentList/DeploymentListRow";
@@ -28,11 +28,13 @@ const useStyles = makeStyles((theme) => ({
   },
   noActiveDeployments: {
     marginBottom: "1rem"
+  },
+  createBtn: {
+    marginLeft: "auto"
   }
 }));
 
 export function Dashboard({ deployments, isLoadingDeployments, refreshDeployments }) {
-  const history = useHistory();
   const classes = useStyles();
 
   useEffect(() => {
@@ -40,14 +42,6 @@ export function Dashboard({ deployments, isLoadingDeployments, refreshDeployment
   }, []);
 
   const orderedDeployments = deployments ? [...deployments].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)).filter((d) => d.state === "active") : [];
-
-  function createDeployment() {
-    history.push("/createDeployment");
-  }
-
-  function viewDeployment(deployment) {
-    history.push("/deployment/" + deployment.dseq);
-  }
 
   return (
     <>
@@ -64,6 +58,13 @@ export function Dashboard({ deployments, isLoadingDeployments, refreshDeployment
               <RefreshIcon />
             </IconButton>
           </Box>
+
+          {orderedDeployments.length > 0 && (
+            <Button className={classes.createBtn} variant="contained" size="medium" color="primary" component={Link} to="/createDeployment">
+              <AddIcon />
+              &nbsp;Create Deployment
+            </Button>
+          )}
         </Box>
 
         <Box>
@@ -74,7 +75,7 @@ export function Dashboard({ deployments, isLoadingDeployments, refreshDeployment
               <Typography variant="h5" className={classes.noActiveDeployments}>
                 No active deployments
               </Typography>
-              <Button variant="contained" size="medium" color="primary" onClick={() => createDeployment()}>
+              <Button variant="contained" size="medium" color="primary" component={Link} to="/createDeployment">
                 <AddIcon />
                 &nbsp;Create Deployment
               </Button>

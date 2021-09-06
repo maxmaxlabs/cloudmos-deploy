@@ -20,19 +20,29 @@ export const CertificateProvider = ({ children }) => {
   const loadValidCertificates = useCallback(
     async (showSnackbar) => {
       setIsLoadingCertificates(true);
-      const response = await fetch(settings.apiEndpoint + "/akash/cert/v1beta1/certificates/list?filter.state=valid&filter.owner=" + address);
-      const data = await response.json();
 
-      setValidCertificates(data.certificates);
-      setIsLoadingCertificates(false);
+      try {
+        const response = await fetch(settings.apiEndpoint + "/akash/cert/v1beta1/certificates/list?filter.state=valid&filter.owner=" + address);
+        const data = await response.json();
 
-      if (showSnackbar) {
-        enqueueSnackbar(<Snackbar title="Certificate refreshed!" />, { variant: "success" });
+        setValidCertificates(data.certificates);
+        setIsLoadingCertificates(false);
+
+        if (showSnackbar) {
+          enqueueSnackbar(<Snackbar title="Certificate refreshed!" />, { variant: "success" });
+        }
+
+        return data.certificates[0];
+      } catch (error) {
+        console.log(error);
+
+        setIsLoadingCertificates(false);
+        enqueueSnackbar(<Snackbar title="Error fetching certificate." />, { variant: "error" });
+
+        return "Certificate error.";
       }
-
-      return data.certificates[0];
     },
-    [address]
+    [address, settings.apiEndpoint]
   );
 
   useEffect(() => {
