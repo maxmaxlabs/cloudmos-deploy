@@ -33,8 +33,11 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: ".5rem"
   },
   menuItem: {
-    paddingBottom: "3px",
-    paddingTop: "3px"
+    paddingBottom: "5px",
+    paddingTop: "5px"
+  },
+  menuItemLabel: {
+    marginLeft: "1rem"
   }
 }));
 
@@ -166,17 +169,17 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address, loadD
           >
             <MenuItem onClick={() => onChangeName()} classes={{ root: classes.menuItem }}>
               <EditIcon />
-              &nbsp;Edit Name
+              <div className={classes.menuItemLabel}>Edit Name</div>
             </MenuItem>
             {storageDeploymentData?.manifest && (
               <MenuItem onClick={() => redeploy()} classes={{ root: classes.menuItem }}>
                 <PublishIcon />
-                &nbsp;Redeploy
+                <div className={classes.menuItemLabel}>Redeploy</div>
               </MenuItem>
             )}
             <MenuItem onClick={() => onCloseDeployment()} classes={{ root: classes.menuItem }}>
               <CancelPresentationIcon />
-              &nbsp;Close
+              <div className={classes.menuItemLabel}>Close</div>
             </MenuItem>
           </Menu>
         </Box>

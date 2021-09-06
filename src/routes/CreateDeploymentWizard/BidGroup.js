@@ -64,7 +64,7 @@ export function BidGroup({ bids, gseq, selectedBid, handleBidSelected, disabled,
                   <strong>Attributes</strong>
                 </Typography>
                 {provider.attributes.map((a) => (
-                  <Box className={classes.attributeRow}>
+                  <Box className={classes.attributeRow} key={a.key}>
                     <Box>
                       <Typography variant="caption" className={classes.attributeText}>
                         {a.key}:
