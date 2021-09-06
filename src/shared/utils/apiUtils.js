@@ -14,4 +14,7 @@ export class ApiUrlService {
   static providers(apiEndpoint) {
     return `${apiEndpoint}/akash/provider/v1beta1/providers`;
   }
+  static block(apiEndpoint, id) {
+    return `${apiEndpoint}/blocks/${id}`;
+  }
 }

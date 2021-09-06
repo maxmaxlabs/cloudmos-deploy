@@ -51,14 +51,18 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab }, ref) => {
   const classes = useStyles();
 
   React.useImperativeHandle(ref, () => ({
-    getLeaseStatus
+    getLeaseStatus: loadLeaseStatus
   }));
 
   useEffect(() => {
+    loadLeaseStatus();
+  }, [lease, providerInfo, localCert]);
+
+  function loadLeaseStatus() {
     if (isLeaseActive && providerInfo && localCert) {
       getLeaseStatus();
     }
-  }, [lease, providerInfo, localCert]);
+  }
 
   function handleExternalUrlClick(ev, externalUrl) {
     ev.preventDefault();

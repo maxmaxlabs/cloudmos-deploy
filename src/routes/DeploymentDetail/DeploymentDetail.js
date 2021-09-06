@@ -9,7 +9,7 @@ import { useWallet } from "../../context/WalletProvider";
 import { deploymentToDto } from "../../shared/utils/deploymentDetailUtils";
 import { DeploymentJsonViewer } from "./DeploymentJsonViewer";
 import { ManifestEditor } from "./ManifestEditor";
-import { useDeploymentDetail, useLeaseList } from "../../queries";
+import { useBlock, useDeploymentDetail, useLeaseList } from "../../queries";
 import { useSettings } from "../../context/SettingsProvider";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
@@ -18,7 +18,7 @@ import { useLocalNotes } from "../../context/LocalNoteProvider";
 
 export function DeploymentDetail(props) {
   const { settings } = useSettings();
-  const [currentBlock, setCurrentBlock] = useState(null);
+  // const [currentBlock, setCurrentBlock] = useState(null);
   const [deployment, setDeployment] = useState(null);
   const [activeTab, setActiveTab] = useState("DETAILS");
   const classes = useStyles();
@@ -32,6 +32,7 @@ export function DeploymentDetail(props) {
     refetch: getDeploymentDetail
   } = useDeploymentDetail(address, dseq, { refetchOnMount: false });
   const { data: leases, isLoading: isLoadingLeases, refetch: getLeases } = useLeaseList(deployment, address, { enabled: !!deployment });
+  const { data: currentBlock, refetch: getCurrentBlock } = useBlock(deployment?.createdAt, { enabled: !!deployment });
   const hasLeases = leases && leases.length > 0;
   const [leaseRefs, setLeaseRefs] = useState([]);
 
@@ -40,6 +41,7 @@ export function DeploymentDetail(props) {
   const loadLeases = useCallback(async () => {
     getLeases();
 
+    // Redirect to select bids if has no lease
     if (deployment.state === "active" && !hasLeases && !isLoadingLeases) {
       history.push("/createDeployment/acceptBids/" + dseq);
     }
@@ -55,22 +57,12 @@ export function DeploymentDetail(props) {
     }
   }, [deployment, leases]);
 
-  const loadBlock = useCallback(async () => {
-    // setIsLoadingLeases(true);
-    const response = await fetch(`${settings.apiEndpoint}/blocks/${deployment.createdAt}`);
-    const data = await response.json();
-
-    setCurrentBlock(data);
-
-    // setIsLoadingLeases(false);
-  }, [deployment, settings.apiEndpoint]);
-
   useEffect(() => {
     if (deployment) {
       loadLeases();
-      loadBlock();
+      getCurrentBlock();
     }
-  }, [deployment, loadLeases, loadBlock]);
+  }, [deployment, loadLeases]);
 
   useEffect(() => {
     if (deploymentDetail) {
