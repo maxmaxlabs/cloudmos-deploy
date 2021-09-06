@@ -32,18 +32,11 @@ export const SettingsProvider = ({ children }) => {
         .map((node) => new URL(node));
       const nodes = {};
 
-      await Promise.all(
-        _apiNodes.map(async (node) => {
-          const nodeStatus = await loadNodeStatus(`http://${node.hostname}:${node.port}`);
-
-          nodes[node.hostname] = {
-            api: node.port,
-            status: nodeStatus.status,
-            latency: nodeStatus.latency,
-            nodeInfo: nodeStatus.nodeInfo
-          };
-        })
-      );
+      _apiNodes.map(async (node) => {
+        nodes[node.hostname] = {
+          api: node.port
+        };
+      });
 
       _rpcNodes.forEach((node) => {
         if (nodes[node.hostname]) {
@@ -51,12 +44,32 @@ export const SettingsProvider = ({ children }) => {
         }
       });
 
+      const hasSettings = settingsStr && settings.apiEndpoint && settings.rpcEndpoint && settings.selectedNodeKey && nodes[settings.selectedNodeKey];
+
       // if user has settings
-      if (settingsStr && settings.apiEndpoint && settings.rpcEndpoint && settings.selectedNodeKey && nodes[settings.selectedNodeKey]) {
+      if (hasSettings) {
+        _apiNodes.map(async (node) => {
+          const nodeStatus = await loadNodeStatus(`http://${node.hostname}:${node.port}`);
+
+          nodes[node.hostname].status = nodeStatus.status;
+          nodes[node.hostname].latency = nodeStatus.latency;
+          nodes[node.hostname].nodeInfo = nodeStatus.nodeInfo;
+        });
+
         defaultApiNode = settings.apiEndpoint;
         defaultRpcNode = settings.rpcEndpoint;
         selectedNodeKey = settings.selectedNodeKey;
       } else {
+        await Promise.all(
+          _apiNodes.map(async (node) => {
+            const nodeStatus = await loadNodeStatus(`http://${node.hostname}:${node.port}`);
+
+            nodes[node.hostname].status = nodeStatus.status;
+            nodes[node.hostname].latency = nodeStatus.latency;
+            nodes[node.hostname].nodeInfo = nodeStatus.nodeInfo;
+          })
+        );
+
         // Set fastest one as default
         const randomNodeKey = getFastestNode(nodes);
         defaultApiNode = `http://${randomNodeKey}:${nodes[randomNodeKey].api}`;
