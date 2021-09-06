@@ -75,6 +75,7 @@ export function CreateLease({ dseq }) {
     if (deploymentData && deploymentData.manifest) {
       try {
         console.log("Querying provider info");
+        // TODO Use react-query
         const providerInfo = await fetchProviderInfo(settings.apiEndpoint, selectedBids[Object.keys(selectedBids)[0]].provider);
         const yamlJson = yaml.load(deploymentData.manifest);
         const mani = Manifest(yamlJson);
@@ -153,7 +154,12 @@ export function CreateLease({ dseq }) {
 
       {!isLoadingBids && bids.length > 0 && !allClosed && (
         <Box mt={1}>
-          <Button variant="contained" color="primary" onClick={handleNext} disabled={dseqList.some((gseq) => !selectedBids[gseq]) || isSendingManifest}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleNext}
+            disabled={dseqList.some((gseq) => !selectedBids[gseq]) || isSendingManifest || !providers}
+          >
             Accept Bid{dseqList.length > 1 ? "s" : ""}
           </Button>
 

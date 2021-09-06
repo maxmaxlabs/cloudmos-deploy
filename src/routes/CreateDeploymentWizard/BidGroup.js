@@ -10,7 +10,7 @@ const useStyles = makeStyles((theme) => ({
   },
   attributesContainer: {
     flexBasis: "45%",
-    marginBottom: ".5rem",
+    margin: "2px 0",
     backgroundColor: "rgba(0,0,0,0.05)",
     borderRadius: ".5rem",
     padding: ".5rem"

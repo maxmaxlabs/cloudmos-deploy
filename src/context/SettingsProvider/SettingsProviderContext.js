@@ -96,7 +96,7 @@ export const SettingsProvider = ({ children }) => {
       nodeInfo = {};
 
     try {
-      const response = await axios.get(`${nodeUrl}/node_info`);
+      const response = await axios.get(`${nodeUrl}/node_info`, { timeout: 10000 });
       nodeInfo = response.data;
       status = "active";
     } catch (error) {
@@ -119,9 +119,14 @@ export const SettingsProvider = ({ children }) => {
    * @returns
    */
   const getFastestNode = (nodes) => {
-    const nodeKeys = Object.keys(nodes);
+    const nodeKeys = Object.keys(nodes).filter((n) => nodes[n].status === "active");
     let lowest = Number.POSITIVE_INFINITY,
       fastestNodeKey;
+
+    // No active node, return the first one
+    if (nodeKeys.length === 0) {
+      return Object.keys(nodes)[0];
+    }
 
     for (let i = 0; i < nodeKeys.length - 1; i++) {
       const currentNode = nodes[nodeKeys[i]];

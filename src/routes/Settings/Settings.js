@@ -280,7 +280,9 @@ const NodeStatus = ({ latency, status }) => {
   return (
     <Box display="flex" alignItems="center">
       <div>
-        <Typography variant="caption">{latency}ms</Typography>
+        <Typography variant="caption">
+          {latency}ms{latency >= 10000 && "+"}
+        </Typography>
       </div>
       <div>
         <StatusPill state={status === "active" ? "active" : "closed"} />

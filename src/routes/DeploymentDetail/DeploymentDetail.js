@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, createRef } from "react";
 import { useParams, useHistory } from "react-router-dom";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import { CircularProgress, Tabs, Tab, IconButton, Card, CardContent, CardHeader, Typography, Box } from "@material-ui/core";
@@ -9,7 +9,7 @@ import { useWallet } from "../../context/WalletProvider";
 import { deploymentToDto } from "../../shared/utils/deploymentDetailUtils";
 import { DeploymentJsonViewer } from "./DeploymentJsonViewer";
 import { ManifestEditor } from "./ManifestEditor";
-import { useLeaseList } from "../../queries";
+import { useDeploymentDetail, useLeaseList } from "../../queries";
 import { useSettings } from "../../context/SettingsProvider";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
@@ -18,19 +18,22 @@ import { useLocalNotes } from "../../context/LocalNoteProvider";
 
 export function DeploymentDetail(props) {
   const { settings } = useSettings();
-  // const [isLoadingLeases, setIsLoadingLeases] = useState(false);
-  // const [leases, setLeases] = useState([]);
   const [currentBlock, setCurrentBlock] = useState(null);
   const [deployment, setDeployment] = useState(null);
-  const [isLoadingDeployment, setIsLoadingDeployment] = useState(false);
   const [activeTab, setActiveTab] = useState("DETAILS");
   const classes = useStyles();
   const history = useHistory();
   const { address } = useWallet();
   const { getDeploymentName } = useLocalNotes();
   const { dseq } = useParams();
+  const {
+    data: deploymentDetail,
+    isFetching: isLoadingDeployment,
+    refetch: getDeploymentDetail
+  } = useDeploymentDetail(address, dseq, { refetchOnMount: false });
   const { data: leases, isLoading: isLoadingLeases, refetch: getLeases } = useLeaseList(deployment, address, { enabled: !!deployment });
   const hasLeases = leases && leases.length > 0;
+  const [leaseRefs, setLeaseRefs] = useState([]);
 
   const deploymentName = getDeploymentName(dseq);
 
@@ -39,6 +42,16 @@ export function DeploymentDetail(props) {
 
     if (deployment.state === "active" && !hasLeases && !isLoadingLeases) {
       history.push("/createDeployment/acceptBids/" + dseq);
+    }
+
+    // Set the array of refs for lease rows
+    // To be able to refresh lease status when refresh deployment detail
+    if (hasLeases && leases.length !== leaseRefs) {
+      setLeaseRefs((elRefs) =>
+        Array(leases.length)
+          .fill()
+          .map((_, i) => elRefs[i] || createRef())
+      );
     }
   }, [deployment, leases]);
 
@@ -60,24 +73,26 @@ export function DeploymentDetail(props) {
   }, [deployment, loadLeases, loadBlock]);
 
   useEffect(() => {
-    (async function () {
-      let deploymentFromList = props.deployments?.find((d) => d.dseq === dseq);
-      if (deploymentFromList) {
-        setDeployment(deploymentFromList);
-      } else {
-        await loadDeploymentDetail();
-      }
-    })();
+    if (deploymentDetail) {
+      setDeployment(deploymentDetail);
+    }
+  }, [deploymentDetail]);
+
+  useEffect(() => {
+    let deploymentFromList = props.deployments?.find((d) => d.dseq === dseq);
+    if (deploymentFromList) {
+      setDeployment(deploymentFromList);
+    } else {
+      loadDeploymentDetail();
+    }
   }, []);
 
-  async function loadDeploymentDetail() {
+  function loadDeploymentDetail() {
     if (!isLoadingDeployment) {
-      setIsLoadingDeployment(true);
-      const response = await fetch(settings.apiEndpoint + "/akash/deployment/v1beta1/deployments/info?id.owner=" + address + "&id.dseq=" + dseq);
-      const deployment = await response.json();
+      getDeploymentDetail();
+      getLeases();
 
-      setDeployment(deploymentToDto(deployment));
-      setIsLoadingDeployment(false);
+      leaseRefs.forEach((lr) => lr.current.getLeaseStatus());
     }
   }
 
@@ -104,7 +119,7 @@ export function DeploymentDetail(props) {
               {deploymentName && <> - {deploymentName}</>}
             </Typography>
             <Box marginLeft="1rem">
-              <IconButton aria-label="back" onClick={loadDeploymentDetail}>
+              <IconButton aria-label="back" onClick={() => loadDeploymentDetail()}>
                 <RefreshIcon />
               </IconButton>
             </Box>
@@ -142,7 +157,7 @@ export function DeploymentDetail(props) {
             <Typography variant="h6" gutterBottom className={classes.title}>
               Leases
             </Typography>
-            {leases && leases.map((lease) => <LeaseRow key={lease.id} cert={props.cert} lease={lease} deployment={deployment} setActiveTab={setActiveTab} />)}
+            {leases && leases.map((lease, i) => <LeaseRow key={lease.id} lease={lease} setActiveTab={setActiveTab} ref={leaseRefs[i]} />)}
             {!hasLeases && !isLoadingLeases && <>This deployment doesn't have any leases</>}
 
             {(isLoadingLeases || isLoadingDeployment) && !hasLeases && (
