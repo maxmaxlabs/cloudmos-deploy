@@ -11,12 +11,13 @@ import { getDeploymentLocalData } from "../../shared/utils/deploymentLocalDataUt
 import { useTransactionModal } from "../../context/TransactionModal";
 import { UrlService } from "../../shared/utils/urlUtils";
 import { useSettings } from "../../context/SettingsProvider";
-import { useBidList } from "../../queries/useBidQuery";
+import { useBidList } from "../../queries";
 import { useSnackbar } from "notistack";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import Alert from "@material-ui/lab/Alert";
 import { Helmet } from "react-helmet-async";
 import { analytics } from "../../shared/utils/analyticsUtils";
+import { useProviders } from "../../queries";
 
 const yaml = require("js-yaml");
 
@@ -29,6 +30,7 @@ export function CreateLease({ dseq }) {
   const { localCert } = useCertificate();
   const { enqueueSnackbar } = useSnackbar();
   const history = useHistory();
+  const { data: providers } = useProviders();
 
   const { data: bids, isLoading: isLoadingBids } = useBidList(address, dseq, {
     initialData: [],
@@ -145,6 +147,7 @@ export function CreateLease({ dseq }) {
           handleBidSelected={handleBidSelected}
           selectedBid={selectedBids[gseq]}
           disabled={isSendingManifest}
+          providers={providers}
         />
       ))}
 
