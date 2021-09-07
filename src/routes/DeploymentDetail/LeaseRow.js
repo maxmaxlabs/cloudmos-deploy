@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { fetchProviderInfo } from "../../shared/providerCache";
+import { useEffect } from "react";
 import {
   makeStyles,
   IconButton,
@@ -21,7 +20,6 @@ import { LabelValue } from "../../shared/components/LabelValue";
 import { getAvgCostPerMonth } from "../../shared/utils/priceUtils";
 import { SpecDetail } from "../../shared/components/SpecDetail";
 import { useCertificate } from "../../context/CertificateProvider";
-import { useSettings } from "../../context/SettingsProvider";
 import { copyTextToClipboard } from "../../shared/utils/copyClipboard";
 import { useSnackbar } from "notistack";
 import { useLeaseStatus } from "../../queries/useLeaseQuery";

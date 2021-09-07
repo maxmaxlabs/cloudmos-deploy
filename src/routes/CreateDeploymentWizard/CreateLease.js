@@ -6,11 +6,9 @@ import { BidGroup } from "./BidGroup";
 import { useHistory } from "react-router";
 import { sendManifestToProvider, Manifest } from "../../shared/utils/deploymentUtils";
 import { useCertificate } from "../../context/CertificateProvider";
-import { fetchProviderInfo } from "../../shared/providerCache";
 import { getDeploymentLocalData } from "../../shared/utils/deploymentLocalDataUtils";
 import { useTransactionModal } from "../../context/TransactionModal";
 import { UrlService } from "../../shared/utils/urlUtils";
-import { useSettings } from "../../context/SettingsProvider";
 import { useBidList } from "../../queries";
 import { useSnackbar } from "notistack";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
@@ -22,7 +20,6 @@ import { useProviders } from "../../queries";
 const yaml = require("js-yaml");
 
 export function CreateLease({ dseq }) {
-  const { settings } = useSettings();
   const [isSendingManifest, setIsSendingManifest] = useState(false);
   const [selectedBids, setSelectedBids] = useState({});
   const { sendTransaction } = useTransactionModal();
@@ -74,13 +71,11 @@ export function CreateLease({ dseq }) {
     const deploymentData = getDeploymentLocalData(dseq);
     if (deploymentData && deploymentData.manifest) {
       try {
-        console.log("Querying provider info");
-        // TODO Use react-query
-        const providerInfo = await fetchProviderInfo(settings.apiEndpoint, selectedBids[Object.keys(selectedBids)[0]].provider);
+        const provider = providers.find((x) => x.owner === selectedBids[Object.keys(selectedBids)[0]].provider);
         const yamlJson = yaml.load(deploymentData.manifest);
         const mani = Manifest(yamlJson);
 
-        await sendManifest(providerInfo, mani);
+        await sendManifest(provider, mani);
       } catch (err) {
         console.error(err);
       }
@@ -96,7 +91,6 @@ export function CreateLease({ dseq }) {
   async function handleCloseDeployment() {
     try {
       const message = TransactionMessageData.getCloseDeploymentMsg(address, dseq);
-      // TODO handle response
       const response = await sendTransaction([message]);
 
       if (response) {
