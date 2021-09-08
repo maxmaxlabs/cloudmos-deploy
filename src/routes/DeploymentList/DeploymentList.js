@@ -41,7 +41,7 @@ export function DeploymentList({ deployments, isLoadingDeployments, refreshDeplo
 
   useEffect(() => {
     refreshDeployments();
-  }, []);
+  }, [refreshDeployments]);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);

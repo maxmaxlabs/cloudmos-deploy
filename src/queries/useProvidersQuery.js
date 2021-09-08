@@ -12,5 +12,11 @@ async function getProviders(apiEndpoint) {
 
 export function useProviders(options) {
   const { settings } = useSettings();
-  return useQuery(QueryKeys.getProvidersKey(), () => getProviders(settings.apiEndpoint), options);
+  return useQuery(QueryKeys.getProvidersKey(), () => getProviders(settings.apiEndpoint), {
+    ...options,
+    refetchInterval: false,
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false
+  });
 }

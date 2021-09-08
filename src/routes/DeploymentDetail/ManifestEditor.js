@@ -42,6 +42,25 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
   }
 
   useEffect(() => {
+    async function createAndValidateDeploymentData(yamlStr, dseq) {
+      try {
+        if (!editedManifest) return null;
+
+        const doc = yaml.load(yamlStr);
+
+        await NewDeploymentData(settings.apiEndpoint, doc, dseq, address);
+
+        setParsingError(null);
+      } catch (err) {
+        if (err.name === "YAMLException") {
+          setParsingError(err.message);
+        } else {
+          setParsingError("Error while parsing SDL file");
+          console.error(err);
+        }
+      }
+    }
+
     const timeoutId = setTimeout(async () => {
       await createAndValidateDeploymentData(editedManifest, deployment.dseq);
     }, 500);
@@ -51,26 +70,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
         clearTimeout(timeoutId);
       }
     };
-  }, [editedManifest]);
-
-  async function createAndValidateDeploymentData(yamlStr, dseq) {
-    try {
-      if (!editedManifest) return null;
-
-      const doc = yaml.load(yamlStr);
-
-      const dd = await NewDeploymentData(settings.apiEndpoint, doc, dseq, address);
-
-      setParsingError(null);
-    } catch (err) {
-      if (err.name === "YAMLException") {
-        setParsingError(err.message);
-      } else {
-        setParsingError("Error while parsing SDL file");
-        console.error(err);
-      }
-    }
-  }
+  }, [editedManifest, deployment.dseq, settings.apiEndpoint, address]);
 
   function handleUpdateDocClick(ev) {
     ev.preventDefault();
@@ -108,7 +108,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
 
       const response = await sendTransaction([message]);
 
-      if (!response) throw "Rejected";
+      if (!response) throw new Error("Rejected");
 
       await analytics.event("deploy", "update deployment");
     } catch (error) {
@@ -151,7 +151,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
             <Alert severity="info">
               Akash Groups are translated into Kubernetes Deployments, this means that only a few fields from the Akash SDL are mutable. For example image,
               command, args, env and exposed ports can be modified, but compute resources and placement criteria cannot. (
-              <a href="#" onClick={handleUpdateDocClick}>
+              <a href="!#" onClick={handleUpdateDocClick}>
                 View doc
               </a>
               )

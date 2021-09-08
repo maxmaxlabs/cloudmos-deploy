@@ -13,5 +13,11 @@ async function getBlock(apiEndpoint, id) {
 
 export function useBlock(id, options) {
   const { settings } = useSettings();
-  return useQuery(QueryKeys.getBlockKey(id), () => getBlock(settings.apiEndpoint, id), options);
+  return useQuery(QueryKeys.getBlockKey(id), () => getBlock(settings.apiEndpoint, id), {
+    ...options,
+    refetchInterval: false,
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false
+  });
 }
