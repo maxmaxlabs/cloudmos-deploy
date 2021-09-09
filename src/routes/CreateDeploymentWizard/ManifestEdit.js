@@ -91,10 +91,13 @@ export function ManifestEdit(props) {
   function validateDeploymentData(deploymentData) {
     if (selectedTemplate.valuesToChange) {
       for (const valueToChange of selectedTemplate.valuesToChange) {
-        if (valueToChange.field === "accept") {
+        if (valueToChange.field === "accept" || valueToChange.field === "env") {
           const serviceNames = Object.keys(deploymentData.sdl.services);
           for (const serviceName of serviceNames) {
-            if (deploymentData.sdl.services[serviceName].expose?.some((e) => e.accept?.includes(valueToChange.initialValue))) {
+            if (
+              deploymentData.sdl.services[serviceName].expose?.some((e) => e.accept?.includes(valueToChange.initialValue)) ||
+              deploymentData.sdl.services[serviceName].env?.some((e) => e?.includes(valueToChange.initialValue))
+            ) {
               let error = new Error(`Template value of "${valueToChange.initialValue}" needs to be changed`);
               error.name = "TemplateValidation";
 

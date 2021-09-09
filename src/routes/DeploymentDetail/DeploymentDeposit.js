@@ -36,8 +36,8 @@ export function DeploymentDeposit({ isDepositingDeployment, handleCancel, onDepl
     setError("");
     const deposit = aktToUakt(depositAmount);
 
-    if (deposit === min) {
-      setError(`Deposit amount must be greater than ${min}.`);
+    if (depositAmount < min) {
+      setError(`Deposit amount must be greater or equal than ${min}.`);
       return;
     }
 

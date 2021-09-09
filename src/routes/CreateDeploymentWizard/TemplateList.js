@@ -266,6 +266,7 @@ deployment:
     category: "General",
     description: "A miner for PKT. Visit https://pkt.cash/ for more info.",
     githubUrl: "https://github.com/ovrclk/pkt-miner/blob/main/deploy.yaml",
+    valuesToChange: [{ field: "env", initialValue: "<PKT_Wallet>" }],
     content: `---
 version: "2.0"
 
