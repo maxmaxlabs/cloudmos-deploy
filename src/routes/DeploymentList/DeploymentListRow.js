@@ -1,22 +1,10 @@
 import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
 import CloudIcon from "@material-ui/icons/Cloud";
-import AddIcon from "@material-ui/icons/Add";
 import MemoryIcon from "@material-ui/icons/Memory";
 import StorageIcon from "@material-ui/icons/Storage";
 import SpeedIcon from "@material-ui/icons/Speed";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
-import {
-  makeStyles,
-  Button,
-  IconButton,
-  Box,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  ListItemSecondaryAction,
-  Typography,
-  LinearProgress
-} from "@material-ui/core";
+import { makeStyles, IconButton, Box, ListItem, ListItemText, ListItemIcon, ListItemSecondaryAction, Typography } from "@material-ui/core";
 import { useHistory } from "react-router";
 import { humanFileSize } from "../../shared/utils/unitUtils";
 import { useLocalNotes } from "../../context/LocalNoteProvider";

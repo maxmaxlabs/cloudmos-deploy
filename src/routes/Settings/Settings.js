@@ -140,7 +140,7 @@ export function Settings(props) {
                       }}
                     />
                   )}
-                  renderOption={(option, {}) => (
+                  renderOption={(option) => (
                     <Box display="flex" alignItems="center" justifyContent="space-between" width="100%">
                       <div>{option}</div>
                       <NodeStatus latency={Math.floor(settings.nodes[option].latency)} status={settings.nodes[option].status} />
@@ -280,7 +280,9 @@ const NodeStatus = ({ latency, status }) => {
   return (
     <Box display="flex" alignItems="center">
       <div>
-        <Typography variant="caption">{latency}ms</Typography>
+        <Typography variant="caption">
+          {latency}ms{latency >= 10000 && "+"}
+        </Typography>
       </div>
       <div>
         <StatusPill state={status === "active" ? "active" : "closed"} />

@@ -32,18 +32,11 @@ export const SettingsProvider = ({ children }) => {
         .map((node) => new URL(node));
       const nodes = {};
 
-      await Promise.all(
-        _apiNodes.map(async (node) => {
-          const nodeStatus = await loadNodeStatus(`http://${node.hostname}:${node.port}`);
-
-          nodes[node.hostname] = {
-            api: node.port,
-            status: nodeStatus.status,
-            latency: nodeStatus.latency,
-            nodeInfo: nodeStatus.nodeInfo
-          };
-        })
-      );
+      _apiNodes.map(async (node) => {
+        nodes[node.hostname] = {
+          api: node.port
+        };
+      });
 
       _rpcNodes.forEach((node) => {
         if (nodes[node.hostname]) {
@@ -51,12 +44,32 @@ export const SettingsProvider = ({ children }) => {
         }
       });
 
+      const hasSettings = settingsStr && settings.apiEndpoint && settings.rpcEndpoint && settings.selectedNodeKey && nodes[settings.selectedNodeKey];
+
       // if user has settings
-      if (settingsStr && settings.apiEndpoint && settings.rpcEndpoint && settings.selectedNodeKey && nodes[settings.selectedNodeKey]) {
+      if (hasSettings) {
+        _apiNodes.map(async (node) => {
+          const nodeStatus = await loadNodeStatus(`http://${node.hostname}:${node.port}`);
+
+          nodes[node.hostname].status = nodeStatus.status;
+          nodes[node.hostname].latency = nodeStatus.latency;
+          nodes[node.hostname].nodeInfo = nodeStatus.nodeInfo;
+        });
+
         defaultApiNode = settings.apiEndpoint;
         defaultRpcNode = settings.rpcEndpoint;
         selectedNodeKey = settings.selectedNodeKey;
       } else {
+        await Promise.all(
+          _apiNodes.map(async (node) => {
+            const nodeStatus = await loadNodeStatus(`http://${node.hostname}:${node.port}`);
+
+            nodes[node.hostname].status = nodeStatus.status;
+            nodes[node.hostname].latency = nodeStatus.latency;
+            nodes[node.hostname].nodeInfo = nodeStatus.nodeInfo;
+          })
+        );
+
         // Set fastest one as default
         const randomNodeKey = getFastestNode(nodes);
         defaultApiNode = `http://${randomNodeKey}:${nodes[randomNodeKey].api}`;
@@ -83,7 +96,7 @@ export const SettingsProvider = ({ children }) => {
       nodeInfo = {};
 
     try {
-      const response = await axios.get(`${nodeUrl}/node_info`);
+      const response = await axios.get(`${nodeUrl}/node_info`, { timeout: 10000 });
       nodeInfo = response.data;
       status = "active";
     } catch (error) {
@@ -106,9 +119,14 @@ export const SettingsProvider = ({ children }) => {
    * @returns
    */
   const getFastestNode = (nodes) => {
-    const nodeKeys = Object.keys(nodes);
+    const nodeKeys = Object.keys(nodes).filter((n) => nodes[n].status === "active");
     let lowest = Number.POSITIVE_INFINITY,
       fastestNodeKey;
+
+    // No active node, return the first one
+    if (nodeKeys.length === 0) {
+      return Object.keys(nodes)[0];
+    }
 
     for (let i = 0; i < nodeKeys.length - 1; i++) {
       const currentNode = nodes[nodeKeys[i]];

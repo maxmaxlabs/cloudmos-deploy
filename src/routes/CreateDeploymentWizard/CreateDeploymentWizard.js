@@ -35,8 +35,8 @@ export function CreateDeploymentWizard() {
   const classes = useStyles();
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [editedManifest, setEditedManifest] = useState(null);
-
   const { step, dseq } = useParams();
+
   const history = useHistory();
   const steps = getSteps();
 
@@ -45,7 +45,7 @@ export function CreateDeploymentWizard() {
   }, [selectedTemplate]);
 
   function handleBackClick() {
-    history.push(UrlService.deploymentList());
+    history.goBack();
   }
 
   let activeStep = getStepIndexByParam(step);
@@ -110,7 +110,7 @@ export function CreateDeploymentWizard() {
             })}
           </Stepper>
           <div>
-            {activeStep === 0 && <PrerequisiteList />}
+            {activeStep === 0 && <PrerequisiteList selectedTemplate={selectedTemplate} setSelectedTemplate={(c) => setSelectedTemplate(c)} />}
             {activeStep === 1 && <TemplateList selectedTemplate={selectedTemplate} setSelectedTemplate={(c) => setSelectedTemplate(c)} />}
             {activeStep === 2 && <ManifestEdit selectedTemplate={selectedTemplate} editedManifest={editedManifest} setEditedManifest={setEditedManifest} />}
             {activeStep === 3 && <CreateLease dseq={dseq} editedManifest={editedManifest} />}

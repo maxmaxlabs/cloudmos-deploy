@@ -9,10 +9,10 @@ import { useCertificate } from "../../context/CertificateProvider";
 import MonacoEditor from "react-monaco-editor";
 import Alert from "@material-ui/lab/Alert";
 import { useStyles } from "./ManifestEditor.styles";
-import { fetchProviderInfo } from "../../shared/providerCache";
 import { useSettings } from "../../context/SettingsProvider";
 import { useSnackbar } from "notistack";
 import { analytics } from "../../shared/utils/analyticsUtils";
+import { useProviders } from "../../queries";
 
 const yaml = require("js-yaml");
 
@@ -26,6 +26,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
   const { localCert, isLocalCertMatching } = useCertificate();
   const { sendTransaction } = useTransactionModal();
   const { enqueueSnackbar } = useSnackbar();
+  const { data: providers } = useProviders();
 
   useEffect(() => {
     const deploymentData = getDeploymentLocalData(deployment.dseq);
@@ -41,6 +42,25 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
   }
 
   useEffect(() => {
+    async function createAndValidateDeploymentData(yamlStr, dseq) {
+      try {
+        if (!editedManifest) return null;
+
+        const doc = yaml.load(yamlStr);
+
+        await NewDeploymentData(settings.apiEndpoint, doc, dseq, address);
+
+        setParsingError(null);
+      } catch (err) {
+        if (err.name === "YAMLException") {
+          setParsingError(err.message);
+        } else {
+          setParsingError("Error while parsing SDL file");
+          console.error(err);
+        }
+      }
+    }
+
     const timeoutId = setTimeout(async () => {
       await createAndValidateDeploymentData(editedManifest, deployment.dseq);
     }, 500);
@@ -50,26 +70,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
         clearTimeout(timeoutId);
       }
     };
-  }, [editedManifest]);
-
-  async function createAndValidateDeploymentData(yamlStr, dseq) {
-    try {
-      if (!editedManifest) return null;
-
-      const doc = yaml.load(yamlStr);
-
-      const dd = await NewDeploymentData(settings.apiEndpoint, doc, dseq, address);
-
-      setParsingError(null);
-    } catch (err) {
-      if (err.name === "YAMLException") {
-        setParsingError(err.message);
-      } else {
-        setParsingError("Error while parsing SDL file");
-        console.error(err);
-      }
-    }
-  }
+  }, [editedManifest, deployment.dseq, settings.apiEndpoint, address]);
 
   function handleUpdateDocClick(ev) {
     ev.preventDefault();
@@ -107,7 +108,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
 
       const response = await sendTransaction([message]);
 
-      if (!response) throw "Rejected";
+      if (!response) throw new Error("Rejected");
 
       await analytics.event("deploy", "update deployment");
     } catch (error) {
@@ -116,10 +117,10 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
 
     saveDeploymentManifest(dd.deploymentId.dseq, editedManifest, dd.version, address);
 
-    const providers = leases.map((lease) => lease.provider).filter((v, i, s) => s.indexOf(v) === i);
+    const leaseProviders = leases.map((lease) => lease.provider).filter((v, i, s) => s.indexOf(v) === i);
 
-    for (const provider of providers) {
-      const providerInfo = await fetchProviderInfo(settings.apiEndpoint, provider);
+    for (const provider of leaseProviders) {
+      const providerInfo = providers.find((x) => x.owner === provider);
       await sendManifest(providerInfo, mani);
     }
 
@@ -135,8 +136,8 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
       {showOutsideDeploymentMessage ? (
         <Box mt={1}>
           <Alert severity="info">
-            It looks like this deployment was created using another deploy tool. We can't show you the configuration file that was used initially, but you can still
-            update it. Simply continue and enter the configuration you want to use.
+            It looks like this deployment was created using another deploy tool. We can't show you the configuration file that was used initially, but you can
+            still update it. Simply continue and enter the configuration you want to use.
             <Box mt={1}>
               <Button variant="contained" color="primary" onClick={() => setShowOutsideDeploymentMessage(false)}>
                 Continue
@@ -150,7 +151,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
             <Alert severity="info">
               Akash Groups are translated into Kubernetes Deployments, this means that only a few fields from the Akash SDL are mutable. For example image,
               command, args, env and exposed ports can be modified, but compute resources and placement criteria cannot. (
-              <a href="#" onClick={handleUpdateDocClick}>
+              <a href="!#" onClick={handleUpdateDocClick}>
                 View doc
               </a>
               )
@@ -164,7 +165,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
             {!localCert || !isLocalCertMatching ? (
               <Alert severity="warning">You do not have a valid certificate. You need to create a new one to update an existing deployment.</Alert>
             ) : (
-              <Button variant="contained" color="primary" disabled={!!parsingError || !editedManifest} onClick={handleUpdateClick}>
+              <Button variant="contained" color="primary" disabled={!!parsingError || !editedManifest || !providers} onClick={handleUpdateClick}>
                 Update Deployment
               </Button>
             )}

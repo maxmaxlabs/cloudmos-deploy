@@ -4,7 +4,9 @@ import axios from "axios";
 import { ApiUrlService } from "../shared/utils/apiUtils";
 import { deploymentToDto } from "../shared/utils/deploymentDetailUtils";
 import { useSettings } from "../context/SettingsProvider";
+import { deploymentGroupResourceSum } from "../shared/utils/deploymentDetailUtils";
 
+// Deployment list
 async function getDeploymentList(apiEndpoint, address) {
   if (!address) return [];
 
@@ -17,4 +19,18 @@ async function getDeploymentList(apiEndpoint, address) {
 export function useDeploymentList(address, options) {
   const { settings } = useSettings();
   return useQuery(QueryKeys.getDeploymentListKey(address), () => getDeploymentList(settings.apiEndpoint, address), options);
+}
+
+// Deployment detail
+async function getDeploymentDetail(apiEndpoint, address, dseq) {
+  if (!address) return {};
+
+  const response = await axios.get(ApiUrlService.deploymentDetail(apiEndpoint, address, dseq));
+
+  return deploymentToDto(response.data);
+}
+
+export function useDeploymentDetail(address, dseq, options) {
+  const { settings } = useSettings();
+  return useQuery(QueryKeys.getDeploymentDetailKey(address, dseq), () => getDeploymentDetail(settings.apiEndpoint, address, dseq), options);
 }

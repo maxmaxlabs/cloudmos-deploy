@@ -10,7 +10,7 @@ import { Settings } from "../../routes/Settings";
 
 export function RightContent() {
   const { address } = useWallet();
-  const { data: deployments, isFetching: isFetchingDeployments, refetch } = useDeploymentList(address);
+  const { data: deployments, isFetching: isFetchingDeployments, refetch } = useDeploymentList(address, { enabled: false });
 
   return (
     <>

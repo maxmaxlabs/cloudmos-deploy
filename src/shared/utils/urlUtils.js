@@ -4,7 +4,7 @@ export class UrlService {
   static deploymentDetails = (dseq) => `/deployment/${dseq}`;
   static settings = () => "/settings";
 
-  static createDeployment = () => "/createDeployment";
+  static createDeployment = (dseq) => `/createDeployment${dseq ? "?redeploy=" + dseq : ""}`;
   static createDeploymentStepTemplate = () => "/createDeployment/chooseTemplate";
   static createDeploymentStepManifest = () => "/createDeployment/editManifest";
   static createDeploymentStepBids = () => "/createDeployment/acceptBids";

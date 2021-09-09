@@ -19,7 +19,7 @@ import { Helmet } from "react-helmet-async";
 import { analytics, HOSTNAME } from "./shared/utils/analyticsUtils";
 import { queryClient } from "./queries";
 
-const ipcApi = window.electron.api;
+// const ipcApi = window.electron.api;
 
 let history = createMemoryHistory({
   initialEntries: ["/"],

@@ -117,7 +117,7 @@ profiles:
       pricing:
         web:
           denom: uakt
-          amount: 1
+          amount: 100
 
 deployment:
   web:
@@ -202,7 +202,7 @@ deployment:
   },
   {
     title: "Akash archive node",
-    code: "akash-archie-node",
+    code: "akash-archive-node",
     category: "General",
     description: "Example of how to run an Akash node on the Akash network.",
     githubUrl: "https://github.com/tombeynon/akash-archive-node",
@@ -252,12 +252,66 @@ profiles:
       pricing:
         akash:
           denom: uakt
-          amount: 10
+          amount: 100
 
 deployment:
   akash:
     dcloud:
       profile: akash
+      count: 1`
+  },
+  {
+    title: "PKT Miner",
+    code: "akash-archie-node",
+    category: "General",
+    description: "A miner for PKT. Visit https://pkt.cash/ for more info.",
+    githubUrl: "https://github.com/ovrclk/pkt-miner/blob/main/deploy.yaml",
+    valuesToChange: [{ field: "env", initialValue: "<PKT_Wallet>" }],
+    content: `---
+version: "2.0"
+
+services:
+  miner:
+    image: chandrastation/pkt_on_akash:v1.0.0
+    env:
+      - WALLET_ADDR=<PKT_Wallet>
+      - POOL1=http://pool.srizbi.com 
+      - POOL2=http://pool.pktpool.io
+      - POOL3=http://pool.pkt.world
+      - POOL4=http://pool.pkteer.com
+      - POOL5=http://pool.pktco.in
+    expose:
+      - port: 3000
+        as: 80
+        to:
+          - global: true
+
+profiles:
+  compute:
+    miner:
+      resources:
+        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          size: 1Gi
+  placement:
+    miner:
+      attributes:
+        host: akash
+      signedBy:
+        anyOf:
+          - "akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63"
+      pricing:
+        miner:
+          denom: uakt
+          amount: 1000
+
+deployment:
+  miner:
+    miner:
+      profile: miner
       count: 1`
   },
   {

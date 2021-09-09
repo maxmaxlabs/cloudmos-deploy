@@ -1,5 +1,8 @@
 const stableStringify = require("json-stable-stringify");
 
+// 5AKT aka 5000000uakt
+export const defaultInitialDeposit = 5000000;
+
 const specSuffixes = {
   Ki: 1024,
   Mi: 1024 * 1024,
@@ -15,26 +18,26 @@ const specSuffixes = {
   E: 1000 * 1000 * 1000 * 1000 * 1000 * 1000
 };
 
-const validationConfig = {
-  maxUnitCPU: 10 * 1000, // 10 CPUs
-  maxUnitMemory: 16 * specSuffixes.Gi, // 16 Gi
-  maxUnitStorage: specSuffixes.Ti, // 1 Ti
-  maxUnitCount: 50,
-  maxUnitPrice: 10000000, // 10akt
+// const validationConfig = {
+//   maxUnitCPU: 10 * 1000, // 10 CPUs
+//   maxUnitMemory: 16 * specSuffixes.Gi, // 16 Gi
+//   maxUnitStorage: specSuffixes.Ti, // 1 Ti
+//   maxUnitCount: 50,
+//   maxUnitPrice: 10000000, // 10akt
 
-  minUnitCPU: 10,
-  minUnitMemory: specSuffixes.Mi,
-  minUnitStorage: 5 * specSuffixes.Mi,
-  minUnitCount: 1,
-  minUnitPrice: 1,
+//   minUnitCPU: 10,
+//   minUnitMemory: specSuffixes.Mi,
+//   minUnitStorage: 5 * specSuffixes.Mi,
+//   minUnitCount: 1,
+//   minUnitPrice: 1,
 
-  maxGroupCount: 20,
-  maxGroupUnits: 20,
+//   maxGroupCount: 20,
+//   maxGroupUnits: 20,
 
-  maxGroupCPU: 20 * 1000,
-  maxGroupMemory: 32 * specSuffixes.Gi,
-  maxGroupStorage: specSuffixes.Ti
-};
+//   maxGroupCPU: 20 * 1000,
+//   maxGroupMemory: 32 * specSuffixes.Gi,
+//   maxGroupStorage: specSuffixes.Ti
+// };
 
 async function getCurrentHeight(apiEndpoint) {
   const response = await fetch(apiEndpoint + "/blocks/latest");
@@ -82,7 +85,7 @@ function parseSizeStr(str) {
     }
   } catch (err) {
     console.error(err);
-    throw "Error while parsing size: " + str;
+    throw new Error("Error while parsing size: " + str);
   }
 }
 
@@ -163,7 +166,7 @@ export function Manifest(yamlJson) {
             });
           });
         } else {
-          msvc.expose.push({
+          msvc.Expose.push({
             Port: expose.port,
             ExternalPort: expose.as || 0,
             Proto: proto,
@@ -256,12 +259,12 @@ function DeploymentGroups(yamlJson) {
       };
 
       let endpoints = [];
-      svc.expose.forEach((expose) => {
-        expose.to.forEach((to) => {
+      svc?.expose?.forEach((expose) => {
+        expose?.to?.forEach((to) => {
           if (to.global) {
             const proto = ParseServiceProtocol(expose.proto);
 
-            let v = {
+            const v = {
               port: expose.port,
               externalPort: expose.as || 0,
               proto: proto,
@@ -334,20 +337,14 @@ async function ManifestVersion(manifest) {
   return base64;
 }
 
-function DepositFromFlags(flags) {
-  // let val = flags["deposit"];
-
-  // if(!val) return {};
-
-  // return ParseCoinNormalized(val)
-  // TODO
+function DepositFromFlags(deposit) {
   return {
     denom: "uakt",
-    amount: "5000000"
+    amount: deposit.toString()
   };
 }
 
-export async function NewDeploymentData(apiEndpoint, yamlJson, dseq, fromAddress) {
+export async function NewDeploymentData(apiEndpoint, yamlJson, dseq, fromAddress, deposit = defaultInitialDeposit) {
   const groups = DeploymentGroups(yamlJson);
   const mani = Manifest(yamlJson);
   const ver = await ManifestVersion(mani);
@@ -355,7 +352,7 @@ export async function NewDeploymentData(apiEndpoint, yamlJson, dseq, fromAddress
     owner: fromAddress,
     dseq: dseq
   };
-  const deposit = DepositFromFlags();
+  const _deposit = DepositFromFlags(deposit);
 
   if (!id.dseq) {
     id.dseq = await getCurrentHeight(apiEndpoint);
@@ -369,7 +366,7 @@ export async function NewDeploymentData(apiEndpoint, yamlJson, dseq, fromAddress
     orderId: [],
     leaseId: [],
     version: ver,
-    deposit: deposit
+    deposit: _deposit
   };
 }
 

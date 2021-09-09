@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { fetchProviderInfo } from "../../shared/providerCache";
+import { useEffect } from "react";
 import {
   makeStyles,
   IconButton,
@@ -15,13 +14,17 @@ import {
   ListItemSecondaryAction
 } from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
-import LaunchIcon from "@material-ui/icons/Launch";
+import FileCopyIcon from "@material-ui/icons/FileCopy";
 import { StatusPill } from "../../shared/components/StatusPill";
 import { LabelValue } from "../../shared/components/LabelValue";
 import { getAvgCostPerMonth } from "../../shared/utils/priceUtils";
 import { SpecDetail } from "../../shared/components/SpecDetail";
 import { useCertificate } from "../../context/CertificateProvider";
-import { useSettings } from "../../context/SettingsProvider";
+import { copyTextToClipboard } from "../../shared/utils/copyClipboard";
+import { useSnackbar } from "notistack";
+import { useLeaseStatus } from "../../queries/useLeaseQuery";
+import { useProviders } from "../../queries";
+import React from "react";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -34,49 +37,30 @@ const useStyles = makeStyles((theme) => ({
   title: {}
 }));
 
-export function LeaseRow({ lease, setActiveTab }) {
-  const { settings } = useSettings();
-  const [providerInfo, setProviderInfo] = useState(null);
-  const [leaseInfoFromProvider, setLeaseInfoFromProvider] = useState(null);
-  const [isLeaseNotFound, setIsLeaseNotFound] = useState(false);
-
+export const LeaseRow = React.forwardRef(({ lease, setActiveTab }, ref) => {
+  const { enqueueSnackbar } = useSnackbar();
+  const { data: providers } = useProviders();
+  const providerInfo = providers?.find((p) => p.owner === lease?.provider);
   const { localCert } = useCertificate();
+  const isLeaseActive = lease.state === "active";
+  const { data: leaseStatus, error, refetch: getLeaseStatus } = useLeaseStatus(providerInfo?.host_uri, lease, { enabled: false });
+  const isLeaseNotFound = error && error.includes && error.includes("lease not found") && isLeaseActive;
+  const servicesNames = leaseStatus ? Object.keys(leaseStatus.services) : [];
   const classes = useStyles();
 
-  useEffect(() => {
-    async function loadProviderInfo() {
-      const providerInfo = await fetchProviderInfo(settings.apiEndpoint, lease.provider);
-      console.log("providerInfo", providerInfo);
-      setProviderInfo(providerInfo);
-    }
-
-    if (localCert) {
-      loadProviderInfo();
-    }
-  }, [lease, localCert]);
+  React.useImperativeHandle(ref, () => ({
+    getLeaseStatus: loadLeaseStatus
+  }));
 
   useEffect(() => {
-    async function loadLeaseDetailsFromProvider() {
-      try {
-        setIsLeaseNotFound(false);
-
-        const leaseStatusPath = `${providerInfo.host_uri}/lease/${lease.dseq}/${lease.gseq}/${lease.oseq}/status`;
-        const response = await window.electron.queryProvider(leaseStatusPath, "GET", null, localCert.certPem, localCert.keyPem);
-        console.log("leaseDetail", response);
-        setLeaseInfoFromProvider(response);
-      } catch (err) {
-        console.error(err);
-
-        if (err.includes && err.includes("lease not found")) {
-          setIsLeaseNotFound(true);
-        }
-      }
-    }
-
-    if (lease.state === "active" && providerInfo && localCert) {
-      loadLeaseDetailsFromProvider();
-    }
+    loadLeaseStatus();
   }, [lease, providerInfo, localCert]);
+
+  function loadLeaseStatus() {
+    if (isLeaseActive && providerInfo && localCert) {
+      getLeaseStatus();
+    }
+  }
 
   function handleExternalUrlClick(ev, externalUrl) {
     ev.preventDefault();
@@ -88,8 +72,6 @@ export function LeaseRow({ lease, setActiveTab }) {
     ev.preventDefault();
     setActiveTab("EDIT");
   }
-
-  const servicesNames = leaseInfoFromProvider ? Object.keys(leaseInfoFromProvider.services) : [];
 
   return (
     <Card className={classes.root}>
@@ -135,9 +117,10 @@ export function LeaseRow({ lease, setActiveTab }) {
           </Alert>
         )}
 
-        {leaseInfoFromProvider &&
+        {isLeaseActive &&
+          leaseStatus &&
           servicesNames
-            .map((n) => leaseInfoFromProvider.services[n])
+            .map((n) => leaseStatus.services[n])
             .map((service, i) => (
               <Box mb={2} key={`${service.name}_${i}`}>
                 <Typography variant="h6" className={classes.title}>
@@ -149,12 +132,19 @@ export function LeaseRow({ lease, setActiveTab }) {
                 <br />
                 Total: {service.available}
                 <br />
-                {leaseInfoFromProvider.forwarded_ports[service.name]?.length > 0 && (
+                {leaseStatus.forwarded_ports[service.name]?.length > 0 && (
                   <>
                     Forwarded Ports:{" "}
-                    {leaseInfoFromProvider.forwarded_ports[service.name].map((p) => (
+                    {leaseStatus.forwarded_ports[service.name].map((p) => (
                       <Box key={"port_" + p.externalPort} display="inline" mr={0.5}>
-                        <Chip variant="outlined" size="small" label={`${p.externalPort}:${p.port}`} disabled={p.available < 1} />
+                        <Chip
+                          variant="outlined"
+                          size="small"
+                          label={`${p.externalPort}:${p.port}`}
+                          disabled={p.available < 1}
+                          component="a"
+                          onClick={(ev) => handleExternalUrlClick(ev, `${p.host}:${p.externalPort}`)}
+                        />
                       </Box>
                     ))}
                   </>
@@ -163,11 +153,21 @@ export function LeaseRow({ lease, setActiveTab }) {
                   <List dense>
                     {service.uris.map((uri) => {
                       return (
-                        <ListItem key={uri}>
+                        <ListItem key={uri} component="a" button onClick={(ev) => handleExternalUrlClick(ev, uri)}>
                           <ListItemText primary={uri} />
                           <ListItemSecondaryAction>
-                            <IconButton edge="end" aria-label="uri" onClick={(ev) => handleExternalUrlClick(ev, uri)}>
-                              <LaunchIcon />
+                            <IconButton
+                              edge="end"
+                              aria-label="uri"
+                              onClick={(ev) => {
+                                copyTextToClipboard(uri);
+                                enqueueSnackbar("Uri copied to clipboard!", {
+                                  variant: "success",
+                                  autoHideDuration: 2000
+                                });
+                              }}
+                            >
+                              <FileCopyIcon />
                             </IconButton>
                           </ListItemSecondaryAction>
                         </ListItem>
@@ -180,4 +180,4 @@ export function LeaseRow({ lease, setActiveTab }) {
       </CardContent>
     </Card>
   );
-}
+});

@@ -15,6 +15,7 @@ import { UrlService } from "../../shared/utils/urlUtils";
 import { analytics } from "../../shared/utils/analyticsUtils";
 import { useLocalNotes } from "../../context/LocalNoteProvider";
 import { DeploymentDeposit } from "./DeploymentDeposit";
+import PublishIcon from "@material-ui/icons/Publish";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -32,8 +33,11 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: ".5rem"
   },
   menuItem: {
-    paddingBottom: "3px",
-    paddingTop: "3px"
+    paddingBottom: "5px",
+    paddingTop: "5px"
+  },
+  menuItemLabel: {
+    marginLeft: "1rem"
   }
 }));
 
@@ -42,9 +46,10 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address, loadD
   const timeLeft = getTimeLeft(deploymentCost, deployment.escrowBalance.amount);
   const [anchorEl, setAnchorEl] = useState(null);
   const { sendTransaction } = useTransactionModal();
-  const { changeDeploymentName } = useLocalNotes();
+  const { changeDeploymentName, getDeploymentData } = useLocalNotes();
   const history = useHistory();
   const [isDepositingDeployment, setIsDepositingDeployment] = useState(false);
+  const storageDeploymentData = getDeploymentData(deployment.dseq);
 
   const onCloseDeployment = async () => {
     handleMenuClose();
@@ -75,6 +80,11 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address, loadD
 
   const handleMenuClose = () => {
     setAnchorEl(null);
+  };
+
+  const redeploy = () => {
+    const url = UrlService.createDeployment(deployment.dseq);
+    history.push(url);
   };
 
   const onDeploymentDeposit = async (deposit) => {
@@ -159,11 +169,17 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address, loadD
           >
             <MenuItem onClick={() => onChangeName()} classes={{ root: classes.menuItem }}>
               <EditIcon />
-              &nbsp;Edit Name
+              <div className={classes.menuItemLabel}>Edit Name</div>
             </MenuItem>
+            {storageDeploymentData?.manifest && (
+              <MenuItem onClick={() => redeploy()} classes={{ root: classes.menuItem }}>
+                <PublishIcon />
+                <div className={classes.menuItemLabel}>Redeploy</div>
+              </MenuItem>
+            )}
             <MenuItem onClick={() => onCloseDeployment()} classes={{ root: classes.menuItem }}>
               <CancelPresentationIcon />
-              &nbsp;Close
+              <div className={classes.menuItemLabel}>Close</div>
             </MenuItem>
           </Menu>
         </Box>
@@ -174,6 +190,13 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address, loadD
             <EditIcon fontSize="small" />
             &nbsp;Edit Name
           </Button>
+
+          {storageDeploymentData?.manifest && (
+            <Button onClick={() => redeploy()} variant="contained" color="default" className={classes.actionButton}>
+              <PublishIcon fontSize="small" />
+              &nbsp;Redeploy
+            </Button>
+          )}
         </Box>
       )}
 
