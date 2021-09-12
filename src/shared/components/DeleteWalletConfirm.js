@@ -5,6 +5,8 @@ import { uaktToAKT } from "../../shared/utils/priceUtils";
 
 export const DeleteWalletConfirm = ({ isOpen, address, balance, handleCancel, handleConfirmDelete }) => {
   const [isConfirmationChecked, setIsConfirmationChecked] = useState(false);
+  const [deleteCert, setDeleteCert] = useState(true);
+  const [deleteDeployments, setDeleteDeployments] = useState(true);
 
   return (
     <Dialog
@@ -18,7 +20,6 @@ export const DeleteWalletConfirm = ({ isOpen, address, balance, handleCancel, ha
       <DialogTitle id="confirmation-dialog-title">Delete Wallet</DialogTitle>
       <DialogContent dividers>
         Are you sure you want to delete this wallet?
-        <br />
         <p>
           Address: <strong>{address}</strong>
           <br />
@@ -33,6 +34,11 @@ export const DeleteWalletConfirm = ({ isOpen, address, balance, handleCancel, ha
           this wallet, make sure you have a backup of the seed phrase or private key.
         </Alert>
         <br />
+        <FormControlLabel control={<Checkbox checked={deleteCert} onChange={(ev, value) => setDeleteCert(value)} />} label="Delete local certificate." />
+        <FormControlLabel
+          control={<Checkbox checked={deleteDeployments} onChange={(ev, value) => setDeleteDeployments(value)} />}
+          label="Delete local deployment data."
+        />
         <FormControlLabel
           control={<Checkbox checked={isConfirmationChecked} onChange={(ev, value) => setIsConfirmationChecked(value)} />}
           label="I understand the wallet will be completely removed and I have all the backups I need."
@@ -42,7 +48,7 @@ export const DeleteWalletConfirm = ({ isOpen, address, balance, handleCancel, ha
         <Button autoFocus onClick={handleCancel} color="primary">
           Cancel
         </Button>
-        <Button onClick={handleConfirmDelete} disabled={!isConfirmationChecked} variant="contained" color="secondary">
+        <Button onClick={() => handleConfirmDelete(deleteCert, deleteDeployments)} disabled={!isConfirmationChecked} variant="contained" color="secondary">
           Delete Wallet
         </Button>
       </DialogActions>

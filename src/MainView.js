@@ -1,6 +1,6 @@
 import { makeStyles, Grid, Paper, Box, CircularProgress, Typography } from "@material-ui/core";
-import { WalletImport } from "./components/WalletImport";
-import { WalletOpen } from "./components/WalletOpen";
+import { WalletImport } from "./routes/WalletImport";
+import { WalletOpen } from "./routes/WalletOpen";
 import { WalletDisplay } from "./components/WalletDisplay";
 import { CertificateDisplay } from "./components/CertificateDisplay";
 import { useWallet } from "./context/WalletProvider";
@@ -8,7 +8,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "./shared/components/ErrorFallback";
 import { LeftNav } from "./components/LeftNav";
 import { RightContent } from "./components/RightContent";
-import { getWalletAddresses } from "./shared/utils/walletUtils";
+import { useStorageWalletAddresses } from "./shared/utils/walletUtils";
 import { useSettings } from "./context/SettingsProvider";
 
 const useStyles = makeStyles((theme) => ({
@@ -31,25 +31,28 @@ export function MainView() {
   const { address, selectedWallet } = useWallet();
   const { isLoadingSettings } = useSettings();
   const classes = useStyles();
+  const { addresses } = useStorageWalletAddresses();
 
-  const walletExists = getWalletAddresses().length > 0;
+  const walletExists = addresses?.length > 0;
 
-  if (isLoadingSettings) {
-    return (
-      <Box display="flex" alignItems="center" justifyContent="center" height="100%" width="100%" flexDirection="column">
-        <Box paddingBottom="1rem">
-          <CircularProgress size="3rem" />
-        </Box>
-        <div>
-          <Typography variant="h5">Loading settings...</Typography>
-        </div>
-      </Box>
-    );
-  }
+  // TODO make wallet import and open routes
 
-  if (!selectedWallet || !address) {
-    return <ErrorBoundary FallbackComponent={ErrorFallback}>{walletExists ? <WalletOpen /> : <WalletImport />}</ErrorBoundary>;
-  }
+  // if (isLoadingSettings) {
+  //   return (
+  //     <Box display="flex" alignItems="center" justifyContent="center" height="100%" width="100%" flexDirection="column">
+  //       <Box paddingBottom="1rem">
+  //         <CircularProgress size="3rem" />
+  //       </Box>
+  //       <div>
+  //         <Typography variant="h5">Loading settings...</Typography>
+  //       </div>
+  //     </Box>
+  //   );
+  // }
+
+  // if (!selectedWallet || !address) {
+  //   return <ErrorBoundary FallbackComponent={ErrorFallback}>{walletExists ? <WalletOpen /> : <WalletImport />}</ErrorBoundary>;
+  // }
 
   return (
     <div className={classes.root}>

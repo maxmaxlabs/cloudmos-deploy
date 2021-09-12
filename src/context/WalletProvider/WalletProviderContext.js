@@ -18,6 +18,8 @@ export const WalletProvider = ({ children }) => {
 
   const refreshBalance = useCallback(
     async (showSnackbar) => {
+      if (!address) return 0;
+
       setIsRefreshingBalance(true);
 
       try {

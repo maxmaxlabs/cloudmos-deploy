@@ -6,6 +6,8 @@ import { useWallet } from "../../context/WalletProvider";
 import { useSnackbar } from "notistack";
 import { analytics } from "../../shared/utils/analyticsUtils";
 import { DeleteWalletConfirm } from "../../shared/components/DeleteWalletConfirm";
+import { UrlService } from "../../shared/utils/urlUtils";
+import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -45,6 +47,7 @@ export function WalletOpen() {
   const { loadLocalCert } = useCertificate();
   const { enqueueSnackbar } = useSnackbar();
   const currentWallet = getCurrentWalletFromStorage();
+  const history = useHistory();
 
   async function onOpenClick(ev) {
     ev.preventDefault();
@@ -59,6 +62,8 @@ export function WalletOpen() {
       await analytics.event("deploy", "open wallet");
 
       setSelectedWallet(wallet);
+
+      history.push(UrlService.dashboard());
     } catch (err) {
       if (err.message === "ciphertext cannot be decrypted using that key") {
         enqueueSnackbar("Invalid password", { variant: "error" });
@@ -66,7 +71,6 @@ export function WalletOpen() {
         console.error(err);
         enqueueSnackbar("Error while decrypting wallet", { variant: "error" });
       }
-    } finally {
       setIsLoading(false);
     }
   }
@@ -75,9 +79,11 @@ export function WalletOpen() {
     setIsShowingConfirmationModal(false);
   }
 
-  function handleConfirmDelete() {
-    deleteWallet(currentWallet?.address);
+  function handleConfirmDelete(deleteCert, deleteDeployments) {
+    deleteWallet(currentWallet?.address, deleteCert, deleteDeployments);
     setIsShowingConfirmationModal(false);
+
+    history.replace(UrlService.walletImport());
   }
 
   return (

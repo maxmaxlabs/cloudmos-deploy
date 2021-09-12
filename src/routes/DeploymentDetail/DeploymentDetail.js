@@ -147,7 +147,7 @@ export function DeploymentDetail(props) {
               Leases
             </Typography>
             {leases && leases.map((lease, i) => <LeaseRow key={lease.id} lease={lease} setActiveTab={setActiveTab} ref={leaseRefs[i]} />)}
-            {!hasLeases && !isLoadingLeases && <>This deployment doesn't have any leases</>}
+            {!hasLeases && !isLoadingLeases && !isLoadingDeployment && <>This deployment doesn't have any leases</>}
 
             {(isLoadingLeases || isLoadingDeployment) && !hasLeases && (
               <Box textAlign="center" padding="2rem">

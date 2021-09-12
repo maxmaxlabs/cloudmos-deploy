@@ -9,7 +9,6 @@ function spawnProxy() {
   const dir = __dirname.replace("asar", "asar.unpacked");
   const command = path.join(dir, getProxyFilePath());
 
-  console.log(command);
   const parameters = [];
 
   child = spawn(command, parameters, {
@@ -74,9 +73,9 @@ exports.queryProvider = async function (url, method, body, certPem, prvPem) {
 function getProxyFilePath() {
   switch (process.platform) {
     case "win32":
-      return "./tools/akashlytics-provider-proxy.exe"
+      return "./tools/akashlytics-provider-proxy.exe";
     case "darwin":
-      return "./tools/akashlytics-provider-proxy"
+      return "./tools/akashlytics-provider-proxy";
     default:
       throw new Error("Unsupported platform: " + process.platform);
   }

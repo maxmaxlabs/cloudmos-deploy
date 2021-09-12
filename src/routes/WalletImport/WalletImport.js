@@ -4,6 +4,8 @@ import { importWallet } from "../../shared/utils/walletUtils";
 import { useWallet } from "../../context/WalletProvider";
 import Alert from "@material-ui/lab/Alert";
 import { analytics } from "../../shared/utils/analyticsUtils";
+import { useHistory } from "react-router-dom";
+import { UrlService } from "../../shared/utils/urlUtils";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -38,6 +40,7 @@ export function WalletImport() {
   const classes = useStyles();
   const { setSelectedWallet } = useWallet();
   const [isLoading, setIsLoading] = useState(false);
+  const history = useHistory();
 
   async function onImportSubmit(ev) {
     ev.preventDefault();
@@ -50,10 +53,11 @@ export function WalletImport() {
       setSelectedWallet(importedWallet);
 
       await analytics.event("deploy", "import wallet");
+
+      history.replace(UrlService.dashboard());
     } catch (error) {
       console.error(error);
       setError(error.message);
-    } finally {
       setIsLoading(false);
     }
   }

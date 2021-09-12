@@ -24,6 +24,8 @@ import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import { useWallet } from "../../context/WalletProvider";
 import { useSettings } from "../../context/SettingsProvider";
 import { DeleteWalletConfirm } from "../../shared/components/DeleteWalletConfirm";
+import { useHistory } from "react-router-dom";
+import { UrlService } from "../../shared/utils/urlUtils";
 
 const useStyles = makeStyles({
   root: {
@@ -44,6 +46,7 @@ export function WalletDisplay() {
   const { address, balance, refreshBalance, isRefreshingBalance, deleteWallet } = useWallet();
   const classes = useStyles();
   const { settings } = useSettings();
+  const history = useHistory();
 
   // function importWallet() {
   //     history.push("/walletImport");
@@ -70,8 +73,9 @@ export function WalletDisplay() {
     setIsShowingConfirmationModal(false);
   }
 
-  function handleConfirmDelete() {
-    deleteWallet(address);
+  function handleConfirmDelete(deleteCert, deleteDeployments) {
+    deleteWallet(address, deleteCert, deleteDeployments);
+    history.push(UrlService.walletImport());
   }
 
   return (
