@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TextField, Container, Paper, makeStyles, Button } from "@material-ui/core";
+import { CircularProgress, TextField, Container, Paper, makeStyles, Button } from "@material-ui/core";
 import { importWallet } from "../../shared/utils/walletUtils";
 import { useWallet } from "../../context/WalletProvider";
 import Alert from "@material-ui/lab/Alert";
@@ -8,7 +8,6 @@ import { analytics } from "../../shared/utils/analyticsUtils";
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
-    // backgroundColor: "#f5f5f5",
     padding: "4rem 0",
     "& .MuiTextField-root": {
       marginBottom: "20px"
@@ -25,6 +24,9 @@ const useStyles = makeStyles((theme) => ({
   },
   alert: {
     marginBottom: "1rem"
+  },
+  loading: {
+    color: "#fff"
   }
 }));
 
@@ -35,10 +37,13 @@ export function WalletImport() {
   const [error, setError] = useState("");
   const classes = useStyles();
   const { setSelectedWallet } = useWallet();
+  const [isLoading, setIsLoading] = useState(false);
 
   async function onImportSubmit(ev) {
     ev.preventDefault();
     setError("");
+
+    setIsLoading(true);
 
     try {
       const importedWallet = await importWallet(mnemonic, name, password);
@@ -48,6 +53,8 @@ export function WalletImport() {
     } catch (error) {
       console.error(error);
       setError(error.message);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -96,9 +103,8 @@ export function WalletImport() {
               </Alert>
             )}
 
-            {/* <Button variant="contained" color="default" onClick={onCancelClick}>Cancel</Button> */}
-            <Button type="submit" variant="contained" color="primary">
-              Import
+            <Button type="submit" variant="contained" color="primary" disabled={isLoading}>
+              {isLoading ? <CircularProgress size="1.5rem" className={classes.loading} /> : <>Import</>}
             </Button>
           </form>
         </Paper>

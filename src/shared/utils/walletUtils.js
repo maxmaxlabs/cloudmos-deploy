@@ -2,6 +2,12 @@ import { DirectSecp256k1HdWallet, extractKdfConfiguration } from "@cosmjs/proto-
 
 var rs = require("jsrsasign");
 
+export const useStorageWalletAddresses = () => {
+  const addresses = getWalletAddresses();
+
+  return { addresses };
+};
+
 export function getWalletAddresses() {
   return Object.keys(localStorage)
     .filter((key) => key.endsWith(".wallet"))
@@ -51,6 +57,13 @@ export async function openWallet(password) {
   const wallet = await DirectSecp256k1HdWallet.deserializeWithEncryptionKey(walletInfo.serializedWallet, keyArray);
 
   return wallet;
+}
+
+export function getCurrentWalletFromStorage() {
+  const walletAddress = getWalletAddresses()[0];
+  const walletInfo = JSON.parse(localStorage.getItem(walletAddress + ".wallet"));
+
+  return walletInfo;
 }
 
 export async function openCert(address, password) {

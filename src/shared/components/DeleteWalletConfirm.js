@@ -1,0 +1,51 @@
+import { useState } from "react";
+import { Checkbox, Dialog, DialogTitle, DialogContent, DialogActions, Button, FormControlLabel } from "@material-ui/core";
+import Alert from "@material-ui/lab/Alert";
+import { uaktToAKT } from "../../shared/utils/priceUtils";
+
+export const DeleteWalletConfirm = ({ isOpen, address, balance, handleCancel, handleConfirmDelete }) => {
+  const [isConfirmationChecked, setIsConfirmationChecked] = useState(false);
+
+  return (
+    <Dialog
+      disableBackdropClick
+      disableEscapeKeyDown
+      maxWidth="sm"
+      aria-labelledby="confirmation-dialog-title"
+      open={isOpen}
+      onExit={() => setIsConfirmationChecked(false)}
+    >
+      <DialogTitle id="confirmation-dialog-title">Delete Wallet</DialogTitle>
+      <DialogContent dividers>
+        Are you sure you want to delete this wallet?
+        <br />
+        <p>
+          Address: <strong>{address}</strong>
+          <br />
+          {balance && (
+            <>
+              Balance: <strong>{uaktToAKT(balance)} AKT</strong>
+            </>
+          )}
+        </p>
+        <Alert severity="warning">
+          This wallet will be completely removed from Akashlytics Deploy along with your local certificate and deployments data. If you want to keep access to
+          this wallet, make sure you have a backup of the seed phrase or private key.
+        </Alert>
+        <br />
+        <FormControlLabel
+          control={<Checkbox checked={isConfirmationChecked} onChange={(ev, value) => setIsConfirmationChecked(value)} />}
+          label="I understand the wallet will be completely removed and I have all the backups I need."
+        />
+      </DialogContent>
+      <DialogActions>
+        <Button autoFocus onClick={handleCancel} color="primary">
+          Cancel
+        </Button>
+        <Button onClick={handleConfirmDelete} disabled={!isConfirmationChecked} variant="contained" color="secondary">
+          Delete Wallet
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};

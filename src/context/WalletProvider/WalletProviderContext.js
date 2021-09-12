@@ -45,11 +45,11 @@ export const WalletProvider = ({ children }) => {
     [address, settings.apiEndpoint]
   );
 
-  const deleteWallet = useCallback(() => {
+  const deleteWallet = (address) => {
     deleteWalletFromStorage(address);
     setSelectedWallet(null);
     history.push("/");
-  }, [address]);
+  };
 
   useEffect(() => {
     async function getAddress() {
