@@ -12,6 +12,7 @@ function spawnProxy() {
   const parameters = [];
 
   child = spawn(command, parameters, {
+    env: {},
     stdio: ["pipe", "pipe", "pipe", "ipc"]
   });
 
