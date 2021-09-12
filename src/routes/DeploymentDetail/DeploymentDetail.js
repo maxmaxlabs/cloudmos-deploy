@@ -6,19 +6,15 @@ import { LeaseRow } from "./LeaseRow";
 import { useStyles } from "./DeploymentDetail.styles";
 import { DeploymentSubHeader } from "./DeploymentSubHeader";
 import { useWallet } from "../../context/WalletProvider";
-import { deploymentToDto } from "../../shared/utils/deploymentDetailUtils";
 import { DeploymentJsonViewer } from "./DeploymentJsonViewer";
 import { ManifestEditor } from "./ManifestEditor";
 import { useBlock, useDeploymentDetail, useLeaseList } from "../../queries";
-import { useSettings } from "../../context/SettingsProvider";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 import { Helmet } from "react-helmet-async";
 import { useLocalNotes } from "../../context/LocalNoteProvider";
 
 export function DeploymentDetail(props) {
-  const { settings } = useSettings();
-  // const [currentBlock, setCurrentBlock] = useState(null);
   const [deployment, setDeployment] = useState(null);
   const [activeTab, setActiveTab] = useState("DETAILS");
   const classes = useStyles();
@@ -30,8 +26,8 @@ export function DeploymentDetail(props) {
     data: deploymentDetail,
     isFetching: isLoadingDeployment,
     refetch: getDeploymentDetail
-  } = useDeploymentDetail(address, dseq, { refetchOnMount: false });
-  const { data: leases, isLoading: isLoadingLeases, refetch: getLeases } = useLeaseList(deployment, address, { enabled: !!deployment });
+  } = useDeploymentDetail(address, dseq, { refetchOnMount: false, enabled: false });
+  const { data: leases, isLoading: isLoadingLeases, refetch: getLeases, remove: removeLeases } = useLeaseList(deployment, address, { enabled: !!deployment });
   const { data: currentBlock, refetch: getCurrentBlock } = useBlock(deployment?.createdAt, { enabled: !!deployment });
   const hasLeases = leases && leases.length > 0;
   const [leaseRefs, setLeaseRefs] = useState([]);
@@ -55,7 +51,7 @@ export function DeploymentDetail(props) {
           .map((_, i) => elRefs[i] || createRef())
       );
     }
-  }, [deployment, leases]);
+  }, [deployment, hasLeases, isLoadingLeases, leases, dseq]);
 
   useEffect(() => {
     if (deployment) {
@@ -125,6 +121,7 @@ export function DeploymentDetail(props) {
               deploymentCost={hasLeases ? leases.reduce((prev, current) => prev + current.price.amount, []) : 0}
               address={address}
               loadDeploymentDetail={loadDeploymentDetail}
+              removeLeases={removeLeases}
             />
           )
         }

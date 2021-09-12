@@ -1,5 +1,5 @@
 import AddIcon from "@material-ui/icons/Add";
-import { makeStyles, IconButton, Box, Typography, Button } from "@material-ui/core";
+import { makeStyles, IconButton, Box, Typography, Button, CircularProgress } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 import { Helmet } from "react-helmet-async";
@@ -72,9 +72,16 @@ export function Dashboard({ deployments, isLoadingDeployments, refreshDeployment
             orderedDeployments.map((deployment) => <DeploymentListRow key={deployment.dseq} deployment={deployment} />)
           ) : (
             <Box textAlign="center" padding="4rem">
-              <Typography variant="h5" className={classes.noActiveDeployments}>
-                No active deployments
-              </Typography>
+              {isLoadingDeployments ? (
+                <Box paddingBottom="1rem">
+                  <CircularProgress size="2.5rem" />
+                </Box>
+              ) : (
+                <Typography variant="h5" className={classes.noActiveDeployments}>
+                  No active deployments
+                </Typography>
+              )}
+
               <Button variant="contained" size="medium" color="primary" component={Link} to="/createDeployment">
                 <AddIcon />
                 &nbsp;Create Deployment
