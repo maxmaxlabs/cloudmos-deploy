@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import { useCertificate } from "../../context/CertificateProvider";
 import MonacoEditor from "react-monaco-editor";
 import { Checkbox, FormControlLabel, FormGroup, LinearProgress } from "@material-ui/core";
-import { useSettings } from "../../context/SettingsProvider";
-import { fetchProviderInfo } from "../../shared/providerCache";
+import { useProviders } from "../../queries";
 
 export function DeploymentLogs({ leases }) {
   const [logs, setLogs] = useState([]);
@@ -11,15 +10,18 @@ export function DeploymentLogs({ leases }) {
   const [services, setServices] = useState([]);
   const [selectedServices, setSelectedServices] = useState([]);
 
+  const { data: providers } = useProviders();
+
   const { localCert } = useCertificate();
-  const { settings } = useSettings();
 
   useEffect(() => {
+    if (!providers) return;
+
     let sockets = [];
     if (leases && leases.length > 0) {
       (async () => {
         for (let lease of leases) {
-          const providerInfo = await fetchProviderInfo(settings.apiEndpoint, lease.provider);
+          const providerInfo = providers?.find((p) => p.owner === lease.provider);
 
           const leaseStatusPath = `${providerInfo.host_uri}/lease/${lease.dseq}/${lease.gseq}/${lease.oseq}/status`;
           const leaseStatus = await window.electron.queryProvider(leaseStatusPath, "GET", null, localCert.certPem, localCert.keyPem);
@@ -45,7 +47,7 @@ export function DeploymentLogs({ leases }) {
         socket.close();
       }
     };
-  }, [leases]);
+  }, [leases, providers]);
 
   const logText = logs
     .filter((x) => selectedServices.includes(x.service))
