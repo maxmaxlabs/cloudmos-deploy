@@ -8,12 +8,12 @@ import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import WarningIcon from "@material-ui/icons/Warning";
+import AutorenewIcon from "@material-ui/icons/Autorenew";
 import { Button, IconButton, Card, CardHeader, Tooltip, CircularProgress, MenuItem, Menu } from "@material-ui/core";
 import { useCertificate } from "../../context/CertificateProvider";
 import { useWallet } from "../../context/WalletProvider";
 import { analytics } from "../../shared/utils/analyticsUtils";
-
-var rs = require("jsrsasign");
+import { generateCertificate } from "../../shared/utils/certificateUtils";
 
 const useStyles = makeStyles({
   root: {
@@ -60,17 +60,6 @@ export function CertificateDisplay() {
     }
   }, [certificate]);
 
-  function dateToStr(date) {
-    const year = date.getUTCFullYear().toString().substring(2).padStart(2, "0");
-    const month = (date.getUTCMonth() + 1).toString().padStart(2, "0");
-    const day = date.getUTCDate().toString().padStart(2, "0");
-    const hours = date.getUTCHours().toString().padStart(2, "0");
-    const minutes = date.getUTCMinutes().toString().padStart(2, "0");
-    const secs = date.getUTCSeconds().toString().padStart(2, "0");
-
-    return `${year}${month}${day}${hours}${minutes}${secs}Z`;
-  }
-
   async function createCertificate() {
     const password = await askForPasswordConfirmation();
     if (!password) {
@@ -78,50 +67,39 @@ export function CertificateDisplay() {
       return;
     }
 
-    const notBefore = new Date();
-    let notAfter = new Date();
-    notAfter.setFullYear(notBefore.getFullYear() + 1);
-
-    const notBeforeStr = dateToStr(notBefore);
-    const notAfterStr = dateToStr(notAfter);
-
-    // STEP1. generate a key pair
-    var kp = rs.KEYUTIL.generateKeypair("EC", "secp256r1");
-    var prv = kp.prvKeyObj;
-    var pub = kp.pubKeyObj;
-    // var prvpem = rs.KEYUTIL.getPEM(prv, "PKCS8PRV");
-
-    var encryptedKey = rs.KEYUTIL.getPEM(prv, "PKCS8PRV", password);
-
-    var pubpem = rs.KEYUTIL.getPEM(pub, "PKCS8PUB").replaceAll("PUBLIC KEY", "EC PUBLIC KEY");
-
-    // STEP2. specify certificate parameters
-    var cert = new rs.KJUR.asn1.x509.Certificate({
-      version: 3,
-      serial: { int: Math.floor(new Date().getTime() * 1000) },
-      issuer: { str: "/CN=" + address },
-      notbefore: notBeforeStr,
-      notafter: notAfterStr,
-      subject: { str: "/CN=" + address },
-      //subjectAltName: {array: [{oid: "2.23.133.2.6", value: "v0.0.1"}]},
-      sbjpubkey: pub, // can specify public key object or PEM string
-      ext: [
-        { extname: "keyUsage", critical: true, names: ["keyEncipherment", "dataEncipherment"] },
-        {
-          extname: "extKeyUsage",
-          array: [{ name: "clientAuth" }]
-        },
-        { extname: "basicConstraints", cA: true, critical: true }
-      ],
-      sigalg: "SHA256withECDSA",
-      cakey: prv // can specify private key object or PEM string
-    });
-
-    const crtpem = cert.getPEM();
+    const { crtpem, pubpem, encryptedKey } = generateCertificate(address, password);
 
     try {
       const message = TransactionMessageData.getCreateCertificateMsg(address, crtpem, pubpem);
       const response = await sendTransaction([message]);
+
+      if (response) {
+        localStorage.setItem(address + ".crt", crtpem);
+        localStorage.setItem(address + ".key", encryptedKey);
+
+        loadValidCertificates();
+        loadLocalCert(address, password);
+
+        await analytics.event("deploy", "create certificate");
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async function regenerateCertificate() {
+    const password = await askForPasswordConfirmation();
+    if (!password) {
+      console.log("cancelled");
+      return;
+    }
+
+    const { crtpem, pubpem, encryptedKey } = generateCertificate(address, password);
+
+    try {
+      const revokeCertMsg = TransactionMessageData.getRevokeCertificateMsg(address, certificate.serial);
+      const createCertMsg = TransactionMessageData.getCreateCertificateMsg(address, crtpem, pubpem);
+      const response = await sendTransaction([revokeCertMsg, createCertMsg]);
 
       if (response) {
         localStorage.setItem(address + ".crt", crtpem);
@@ -216,6 +194,10 @@ export function CertificateDisplay() {
             <MenuItem onClick={() => revokeCertificate()}>
               <DeleteForeverIcon />
               &nbsp;Revoke
+            </MenuItem>
+            <MenuItem onClick={() => regenerateCertificate()}>
+              <AutorenewIcon />
+              &nbsp;Regenerate
             </MenuItem>
           </Menu>
         )}
