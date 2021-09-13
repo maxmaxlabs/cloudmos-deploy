@@ -79,8 +79,8 @@ export function WalletOpen() {
     setIsShowingConfirmationModal(false);
   }
 
-  function handleConfirmDelete(deleteCert, deleteDeployments) {
-    deleteWallet(currentWallet?.address, deleteCert, deleteDeployments);
+  function handleConfirmDelete(deleteDeployments) {
+    deleteWallet(currentWallet?.address, deleteDeployments);
     setIsShowingConfirmationModal(false);
 
     history.replace(UrlService.walletImport());

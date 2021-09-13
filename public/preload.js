@@ -45,6 +45,30 @@ contextBridge.exposeInMainWorld("electron", {
       ipcRenderer.send("isDev");
     });
   },
+  serializeWallet: async (mnemonic, password) => {
+    return new Promise((res, rej) => {
+      const myWorker = fork(path.join(__dirname, "wallet.worker.js"), ["args"], {
+        stdio: ["pipe", "pipe", "pipe", "ipc"]
+      });
+
+      myWorker.on("error", (err) => {
+        rej("Spawn failed! (" + err + ")");
+        myWorker.kill();
+      });
+      myWorker.stderr.on("data", function (data) {
+        debugger;
+        rej(data);
+        myWorker.kill();
+      });
+      myWorker.on("message", (data) => {
+        res(data);
+        myWorker.kill();
+      });
+
+      const action = "serialize";
+      myWorker.send({ action, mnemonic, password });
+    });
+  },
   deserializeWallet: async (password, kdfConf) => {
     return new Promise((res, rej) => {
       const myWorker = fork(path.join(__dirname, "wallet.worker.js"), ["args"], {
@@ -63,7 +87,9 @@ contextBridge.exposeInMainWorld("electron", {
         res(data);
         myWorker.kill();
       });
-      myWorker.send({ password, kdfConf });
+
+      const action = "deserialize";
+      myWorker.send({ action, password, kdfConf });
     });
   },
   api: {

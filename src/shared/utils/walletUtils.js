@@ -14,13 +14,10 @@ export function getWalletAddresses() {
     .map((key) => key.replace(".wallet", ""));
 }
 
-export function deleteWalletFromStorage(address, deleteCert, deleteDeployments) {
+export function deleteWalletFromStorage(address, deleteDeployments) {
   localStorage.removeItem(address + ".wallet");
-
-  if (deleteCert) {
-    localStorage.removeItem(address + ".crt");
-    localStorage.removeItem(address + ".key");
-  }
+  localStorage.removeItem(address + ".crt");
+  localStorage.removeItem(address + ".key");
 
   if (deleteDeployments) {
     const deploymentKeys = Object.keys(localStorage).filter((key) => key.startsWith("deployments/"));
@@ -30,16 +27,13 @@ export function deleteWalletFromStorage(address, deleteCert, deleteDeployments) 
   }
 }
 
-export async function importWallet(mnemonic, name, passphrase) {
-  debugger;
+export async function importWallet(mnemonic, name, password) {
   const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, {
     prefix: "akash"
   });
 
+  const serializedWallet = await window.electron.serializeWallet(mnemonic, password);
   const address = (await wallet.getAccounts())[0].address;
-
-  // TODO serialize in another process
-  const serializedWallet = await wallet.serialize(passphrase);
 
   localStorage.setItem(
     address + ".wallet",
