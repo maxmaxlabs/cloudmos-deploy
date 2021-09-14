@@ -56,7 +56,6 @@ contextBridge.exposeInMainWorld("electron", {
         myWorker.kill();
       });
       myWorker.stderr.on("data", function (data) {
-        debugger;
         rej(data);
         myWorker.kill();
       });

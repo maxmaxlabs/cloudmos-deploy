@@ -72,7 +72,6 @@ export function CertificateDisplay() {
   async function createCertificate() {
     const password = await askForPasswordConfirmation();
     if (!password) {
-      console.log("cancelled");
       return;
     }
 
@@ -102,7 +101,6 @@ export function CertificateDisplay() {
   async function regenerateCertificate() {
     const password = await askForPasswordConfirmation();
     if (!password) {
-      console.log("cancelled");
       return;
     }
 

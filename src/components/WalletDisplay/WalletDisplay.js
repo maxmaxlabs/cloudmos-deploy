@@ -1,21 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  makeStyles,
-  Box,
-  Card,
-  CardHeader,
-  Checkbox,
-  CircularProgress,
-  Menu,
-  MenuItem,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  FormControlLabel
-} from "@material-ui/core";
-import Alert from "@material-ui/lab/Alert";
+import { makeStyles, Box, Card, CardHeader, CircularProgress, Menu, MenuItem } from "@material-ui/core";
 import AccountBalanceWalletIcon from "@material-ui/icons/AccountBalanceWallet";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import IconButton from "@material-ui/core/IconButton";
@@ -47,10 +31,6 @@ export function WalletDisplay() {
   const classes = useStyles();
   const { settings } = useSettings();
   const history = useHistory();
-
-  // function importWallet() {
-  //     history.push("/walletImport");
-  // }
 
   useEffect(() => {
     refreshBalance();
