@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useCertificate } from "../../context/CertificateProvider";
 import { Checkbox, FormControlLabel, FormGroup, LinearProgress, Box } from "@material-ui/core";
 import { useProviders } from "../../queries";
@@ -10,10 +10,13 @@ export function DeploymentLogs({ leases }) {
   const [isWaitingForFirstLog, setIsWaitingForFirstLog] = useState(true);
   const [services, setServices] = useState([]);
   const [selectedServices, setSelectedServices] = useState([]);
+  const [stickToBottom, setStickToBottom] = useState(true);
 
   const { data: providers } = useProviders();
 
   const { localCert, isLocalCertMatching } = useCertificate();
+
+  const monacoRef = useRef();
 
   useEffect(() => {
     if (!providers) return;
@@ -73,6 +76,12 @@ export function DeploymentLogs({ leases }) {
     }
   }
 
+  useEffect(() => {
+    if (stickToBottom) {
+      monacoRef.current.editor.revealLine(monacoRef.current.editor.getModel().getLineCount());
+    }
+  }, [logText, stickToBottom]);
+
   return (
     <>
       {isLocalCertMatching ? (
@@ -89,7 +98,11 @@ export function DeploymentLogs({ leases }) {
             ))}
           </FormGroup>
           {isWaitingForFirstLog && <LinearProgress />}
-          <MonacoEditor height="600" theme="vs-dark" value={logText} options={options} />
+          <MonacoEditor ref={monacoRef} height="600" theme="vs-dark" value={logText} options={options} />
+          <FormControlLabel
+            control={<Checkbox color="primary" checked={stickToBottom} onChange={(ev) => setStickToBottom(ev.target.checked)} />}
+            label={"Stick to bottom"}
+          />
         </>
       ) : (
         <Box mt={1}>
