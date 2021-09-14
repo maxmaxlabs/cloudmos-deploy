@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useCertificate } from "../../context/CertificateProvider";
-import MonacoEditor from "react-monaco-editor";
-import { Checkbox, FormControlLabel, FormGroup, LinearProgress } from "@material-ui/core";
+import { Checkbox, FormControlLabel, FormGroup, LinearProgress, Box } from "@material-ui/core";
 import { useProviders } from "../../queries";
+import MonacoEditor from "react-monaco-editor";
+import Alert from "@material-ui/lab/Alert";
 
 export function DeploymentLogs({ leases }) {
   const [logs, setLogs] = useState([]);
@@ -12,10 +13,11 @@ export function DeploymentLogs({ leases }) {
 
   const { data: providers } = useProviders();
 
-  const { localCert } = useCertificate();
+  const { localCert, isLocalCertMatching } = useCertificate();
 
   useEffect(() => {
     if (!providers) return;
+    if (!isLocalCertMatching) return;
 
     let sockets = [];
     if (leases && leases.length > 0) {
@@ -47,7 +49,7 @@ export function DeploymentLogs({ leases }) {
         socket.close();
       }
     };
-  }, [leases, providers]);
+  }, [leases, providers, isLocalCertMatching]);
 
   const logText = logs
     .filter((x) => selectedServices.includes(x.service))
@@ -73,17 +75,27 @@ export function DeploymentLogs({ leases }) {
 
   return (
     <>
-      <FormGroup row>
-        {services.map((service) => (
-          <FormControlLabel
-            key={service}
-            control={<Checkbox color="primary" checked={selectedServices.includes(service)} onChange={(ev) => setServiceCheck(service, ev.target.checked)} />}
-            label={service}
-          />
-        ))}
-      </FormGroup>
-      {isWaitingForFirstLog && <LinearProgress />}
-      <MonacoEditor height="600" theme="vs-dark" value={logText} options={options} />
+      {isLocalCertMatching ? (
+        <>
+          <FormGroup row>
+            {services.map((service) => (
+              <FormControlLabel
+                key={service}
+                control={
+                  <Checkbox color="primary" checked={selectedServices.includes(service)} onChange={(ev) => setServiceCheck(service, ev.target.checked)} />
+                }
+                label={service}
+              />
+            ))}
+          </FormGroup>
+          {isWaitingForFirstLog && <LinearProgress />}
+          <MonacoEditor height="600" theme="vs-dark" value={logText} options={options} />
+        </>
+      ) : (
+        <Box mt={1}>
+          <Alert severity="info">You need a valid certificate to view deployment logs.</Alert>
+        </Box>
+      )}
     </>
   );
 }
