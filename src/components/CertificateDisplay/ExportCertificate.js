@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
-import { Button, makeStyles, Dialog, DialogTitle, DialogContent, DialogActions, CircularProgress, lighten, Typography } from "@material-ui/core";
-import { useSnackbar } from "notistack";
-import { useCertificate } from "../../context/CertificateProvider";
+import { Button, makeStyles, Dialog, DialogTitle, DialogContent, DialogActions, Typography } from "@material-ui/core";
 import { useWallet } from "../../context/WalletProvider";
 import { CodeSnippet } from "../../shared/components/CodeSnippet";
+import { analytics } from "../../shared/utils/analyticsUtils";
 
 const useStyles = makeStyles((theme) => ({
   label: {
@@ -17,10 +16,16 @@ export function ExportCertificate(props) {
   const classes = useStyles();
 
   useEffect(() => {
-    const crtpem = localStorage.getItem(address + ".crt");
-    const encryptedKey = localStorage.getItem(address + ".key");
+    async function init() {
+      const crtpem = localStorage.getItem(address + ".crt");
+      const encryptedKey = localStorage.getItem(address + ".key");
 
-    setCertData({ crtpem, encryptedKey });
+      await analytics.event("deploy", "export certificate");
+
+      setCertData({ crtpem, encryptedKey });
+    }
+
+    init();
   }, []);
 
   return (

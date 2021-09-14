@@ -1,7 +1,5 @@
 import { DirectSecp256k1HdWallet, extractKdfConfiguration } from "@cosmjs/proto-signing";
 
-var rs = require("jsrsasign");
-
 export const useStorageWalletAddresses = () => {
   const addresses = getWalletAddresses();
 
@@ -66,20 +64,4 @@ export function getCurrentWalletFromStorage() {
   const walletInfo = JSON.parse(localStorage.getItem(walletAddress + ".wallet"));
 
   return walletInfo;
-}
-
-export async function openCert(address, password) {
-  const certPem = localStorage.getItem(address + ".crt");
-  if (!certPem) return null;
-
-  const encryptedKeyPem = localStorage.getItem(address + ".key");
-
-  if (!encryptedKeyPem) return null;
-
-  const key = rs.KEYUTIL.getKeyFromEncryptedPKCS8PEM(encryptedKeyPem, password);
-
-  return {
-    certPem: certPem,
-    keyPem: rs.KEYUTIL.getPEM(key, "PKCS8PRV")
-  };
 }

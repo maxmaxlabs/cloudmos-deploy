@@ -1,5 +1,21 @@
 import rs from "jsrsasign";
 
+export async function openCert(address, password) {
+  const certPem = localStorage.getItem(address + ".crt");
+  if (!certPem) return null;
+
+  const encryptedKeyPem = localStorage.getItem(address + ".key");
+
+  if (!encryptedKeyPem) return null;
+
+  const key = rs.KEYUTIL.getKeyFromEncryptedPKCS8PEM(encryptedKeyPem, password);
+
+  return {
+    certPem: certPem,
+    keyPem: rs.KEYUTIL.getPEM(key, "PKCS8PRV")
+  };
+}
+
 export const generateCertificate = (address, password) => {
   const notBefore = new Date();
   let notAfter = new Date();

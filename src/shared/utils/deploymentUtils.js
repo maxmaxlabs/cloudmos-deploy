@@ -74,7 +74,7 @@ function ParseServiceProtocol(input) {
 
 function parseSizeStr(str) {
   try {
-    const suffix = Object.keys(specSuffixes).find((s) => str.toLowerCase().endsWith(s.toLowerCase()));
+    const suffix = Object.keys(specSuffixes).find((s) => str.toString().toLowerCase().endsWith(s.toLowerCase()));
 
     if (suffix) {
       const suffixPos = str.length - suffix.length;

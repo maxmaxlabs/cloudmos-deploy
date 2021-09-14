@@ -120,7 +120,7 @@ export function CertificateDisplay() {
         loadValidCertificates();
         loadLocalCert(address, password);
 
-        await analytics.event("deploy", "create certificate");
+        await analytics.event("deploy", "regenerate certificate");
       }
     } catch (error) {
       throw error;
