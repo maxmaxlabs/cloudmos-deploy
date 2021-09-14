@@ -188,6 +188,7 @@ export function CreateLease({ dseq }) {
               vertical: "top",
               horizontal: "right"
             }}
+            onClick={handleMenuClose}
           >
             <MenuItem onClick={() => handleCloseDeployment()}>Close Deployment</MenuItem>
           </Menu>

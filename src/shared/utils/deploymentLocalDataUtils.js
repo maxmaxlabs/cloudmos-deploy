@@ -18,7 +18,7 @@ export function saveDeploymentManifest(dseq, manifest, version, address) {
   data.manifest = manifest;
   data.manifestVersion = version;
 
-  updateDeploymentLocalData({ owner: address, manifest: manifest, manifestVersion: version });
+  updateDeploymentLocalData(dseq, { owner: address, manifest: manifest, manifestVersion: version });
 
   localStorage.setItem(`deployments/${dseq}.data`, JSON.stringify(data));
 }

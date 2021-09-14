@@ -14,6 +14,8 @@ import { useCertificate } from "../../context/CertificateProvider";
 import { useWallet } from "../../context/WalletProvider";
 import { analytics } from "../../shared/utils/analyticsUtils";
 import { generateCertificate } from "../../shared/utils/certificateUtils";
+import { ExportCertificate } from "./ExportCertificate";
+import GetAppIcon from "@material-ui/icons/GetApp";
 
 const useStyles = makeStyles({
   root: {
@@ -38,7 +40,11 @@ export function CertificateDisplay() {
   const { askForPasswordConfirmation } = usePasswordConfirmationModal();
   const { sendTransaction } = useTransactionModal();
   const { address } = useWallet();
+  const [isExportingCert, setIsExportingCert] = useState(false);
 
+  /**
+   * Revoke certificate
+   */
   const revokeCertificate = useCallback(async () => {
     handleClose();
 
@@ -60,6 +66,9 @@ export function CertificateDisplay() {
     }
   }, [certificate]);
 
+  /**
+   * Create certificate
+   */
   async function createCertificate() {
     const password = await askForPasswordConfirmation();
     if (!password) {
@@ -87,6 +96,9 @@ export function CertificateDisplay() {
     }
   }
 
+  /**
+   * Regenerate certificate
+   */
   async function regenerateCertificate() {
     const password = await askForPasswordConfirmation();
     if (!password) {
@@ -190,6 +202,7 @@ export function CertificateDisplay() {
               vertical: "top",
               horizontal: "right"
             }}
+            onClick={handleClose}
           >
             <MenuItem onClick={() => revokeCertificate()}>
               <DeleteForeverIcon />
@@ -199,9 +212,15 @@ export function CertificateDisplay() {
               <AutorenewIcon />
               &nbsp;Regenerate
             </MenuItem>
+            <MenuItem onClick={() => setIsExportingCert(true)}>
+              <GetAppIcon />
+              &nbsp;Export
+            </MenuItem>
           </Menu>
         )}
       </Card>
+
+      <ExportCertificate isOpen={isExportingCert} onClose={() => setIsExportingCert(false)} />
     </>
   );
 }
