@@ -45,7 +45,7 @@ contextBridge.exposeInMainWorld("electron", {
       ipcRenderer.send("isDev");
     });
   },
-  serializeWallet: async (mnemonic, password) => {
+  executeKdf: async (password, kdfConf) => {
     return new Promise((res, rej) => {
       const myWorker = fork(path.join(__dirname, "wallet.worker.js"), ["args"], {
         stdio: ["pipe", "pipe", "pipe", "ipc"]
@@ -64,31 +64,7 @@ contextBridge.exposeInMainWorld("electron", {
         myWorker.kill();
       });
 
-      const action = "serialize";
-      myWorker.send({ action, mnemonic, password });
-    });
-  },
-  deserializeWallet: async (password, kdfConf) => {
-    return new Promise((res, rej) => {
-      const myWorker = fork(path.join(__dirname, "wallet.worker.js"), ["args"], {
-        stdio: ["pipe", "pipe", "pipe", "ipc"]
-      });
-
-      myWorker.on("error", (err) => {
-        rej("Spawn failed! (" + err + ")");
-        myWorker.kill();
-      });
-      myWorker.stderr.on("data", function (data) {
-        rej(data);
-        myWorker.kill();
-      });
-      myWorker.on("message", (data) => {
-        res(data);
-        myWorker.kill();
-      });
-
-      const action = "deserialize";
-      myWorker.send({ action, password, kdfConf });
+      myWorker.send({ password, kdfConf });
     });
   },
   api: {

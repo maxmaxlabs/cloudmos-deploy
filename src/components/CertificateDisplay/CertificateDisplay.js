@@ -218,7 +218,7 @@ export function CertificateDisplay() {
         )}
       </Card>
 
-      <ExportCertificate isOpen={isExportingCert} onClose={() => setIsExportingCert(false)} />
+      {isExportingCert && <ExportCertificate isOpen={isExportingCert} onClose={() => setIsExportingCert(false)} />}
     </>
   );
 }

@@ -1,5 +1,15 @@
 import { DirectSecp256k1HdWallet, extractKdfConfiguration } from "@cosmjs/proto-signing";
 
+// default cosmojs KdfConfiguration
+const basicPasswordHashingOptions = {
+  algorithm: "argon2id",
+  params: {
+    outputLength: 32,
+    opsLimit: 24,
+    memLimitKib: 12 * 1024
+  }
+};
+
 export const useStorageWalletAddresses = () => {
   const addresses = getWalletAddresses();
 
@@ -30,7 +40,10 @@ export async function importWallet(mnemonic, name, password) {
     prefix: "akash"
   });
 
-  const serializedWallet = await window.electron.serializeWallet(mnemonic, password);
+  const key = await window.electron.executeKdf(password, basicPasswordHashingOptions);
+  const keyArray = Uint8Array.of(...Object.values(key));
+
+  const serializedWallet = await wallet.serializeWithEncryptionKey(keyArray, basicPasswordHashingOptions);
   const address = (await wallet.getAccounts())[0].address;
 
   localStorage.setItem(
@@ -51,7 +64,7 @@ export async function openWallet(password) {
 
   const kdfConf = extractKdfConfiguration(walletInfo.serializedWallet);
 
-  const key = await window.electron.deserializeWallet(password, kdfConf);
+  const key = await window.electron.executeKdf(password, kdfConf);
   const keyArray = Uint8Array.of(...Object.values(key));
 
   const wallet = await DirectSecp256k1HdWallet.deserializeWithEncryptionKey(walletInfo.serializedWallet, keyArray);
