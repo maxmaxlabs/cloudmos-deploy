@@ -45,7 +45,7 @@ contextBridge.exposeInMainWorld("electron", {
       ipcRenderer.send("isDev");
     });
   },
-  deserializeWallet: async (password, kdfConf) => {
+  executeKdf: async (password, kdfConf) => {
     return new Promise((res, rej) => {
       const myWorker = fork(path.join(__dirname, "wallet.worker.js"), ["args"], {
         stdio: ["pipe", "pipe", "pipe", "ipc"]
@@ -63,6 +63,7 @@ contextBridge.exposeInMainWorld("electron", {
         res(data);
         myWorker.kill();
       });
+
       myWorker.send({ password, kdfConf });
     });
   },

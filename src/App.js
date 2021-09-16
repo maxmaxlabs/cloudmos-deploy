@@ -1,23 +1,21 @@
 import { useRef, useEffect } from "react";
 import { PasswordConfirmationModalProvider } from "./context/ConfirmPasswordModal";
-import { MainView } from "./MainView";
 import { CertificateProvider } from "./context/CertificateProvider";
 import { TransactionModalProvider } from "./context/TransactionModal";
 import { WalletProvider } from "./context/WalletProvider";
 import { SnackbarProvider } from "notistack";
-import { IconButton, makeStyles, Typography } from "@material-ui/core";
+import { IconButton, makeStyles } from "@material-ui/core";
 import { QueryClientProvider } from "react-query";
 import { SettingsProvider } from "./context/SettingsProvider";
 import { LocalNoteProvider } from "./context/LocalNoteProvider";
 import { Router } from "react-router-dom";
-import { BetaBanner } from "./components/BetaBanner";
-import { useAppVersion } from "./hooks/useAppVersion";
 import CloseIcon from "@material-ui/icons/Close";
 import { createMemoryHistory } from "history";
 import { HelmetProvider } from "react-helmet-async";
 import { Helmet } from "react-helmet-async";
 import { analytics, HOSTNAME } from "./shared/utils/analyticsUtils";
 import { queryClient } from "./queries";
+import { AppContainer } from "./AppContainer";
 
 // const ipcApi = window.electron.api;
 
@@ -40,7 +38,6 @@ const useStyles = makeStyles((theme) => ({
 function App() {
   const notistackRef = useRef();
   const classes = useStyles();
-  const { appVersion } = useAppVersion();
 
   const onClickDismiss = (key) => () => {
     notistackRef.current.closeSnackbar(key);
@@ -99,16 +96,7 @@ function App() {
                       <LocalNoteProvider>
                         <Helmet defaultTitle="Akashlytics Deploy" titleTemplate="Akashlytics Deploy - %s" />
 
-                        <BetaBanner />
-                        <MainView />
-
-                        {appVersion && (
-                          <footer className={classes.footer}>
-                            <Typography variant="caption">
-                              Version: <strong>v{appVersion}</strong>
-                            </Typography>
-                          </footer>
-                        )}
+                        <AppContainer />
                       </LocalNoteProvider>
                     </CertificateProvider>
                   </PasswordConfirmationModalProvider>

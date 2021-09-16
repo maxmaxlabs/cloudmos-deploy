@@ -3,7 +3,7 @@ import { TransactionMessageData } from "../../shared/utils/TransactionMessageDat
 import PowerOffIcon from "@material-ui/icons/PowerOff";
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser";
 import PublishIcon from "@material-ui/icons/Publish";
-import StorageIcon from "@material-ui/icons/Storage";
+import ReceiptIcon from "@material-ui/icons/Receipt";
 import CancelIcon from "@material-ui/icons/Cancel";
 import AddBoxIcon from "@material-ui/icons/AddBox";
 import { uaktToAKT } from "../../shared/utils/priceUtils";
@@ -12,7 +12,9 @@ const useStyles = makeStyles((theme) => ({
   root: {
     paddingTop: ".5rem",
     paddingBottom: ".5rem",
-    borderBottom: "1px solid rgba(0,0,0,0.2)"
+    borderBottom: "1px solid rgba(0,0,0,0.2)",
+    wordBreak: "break-word",
+    overflowWrap: "break-word"
   },
   avatarRoot: {
     height: "2rem",
@@ -123,7 +125,7 @@ const getMessage = (message, classes) => {
         <>
           <ListItemAvatar>
             <Avatar classes={{ root: classes.avatarRoot }}>
-              <StorageIcon classes={{ root: classes.avatarIcon }} />
+              <ReceiptIcon classes={{ root: classes.avatarIcon }} />
             </Avatar>
           </ListItemAvatar>
           <ListItemText

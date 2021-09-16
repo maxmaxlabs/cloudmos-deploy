@@ -18,6 +18,8 @@ export const WalletProvider = ({ children }) => {
 
   const refreshBalance = useCallback(
     async (showSnackbar) => {
+      if (!address) return 0;
+
       setIsRefreshingBalance(true);
 
       try {
@@ -45,11 +47,11 @@ export const WalletProvider = ({ children }) => {
     [address, settings.apiEndpoint]
   );
 
-  const deleteWallet = useCallback(() => {
+  const deleteWallet = (address) => {
     deleteWalletFromStorage(address);
     setSelectedWallet(null);
     history.push("/");
-  }, [address]);
+  };
 
   useEffect(() => {
     async function getAddress() {

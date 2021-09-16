@@ -1,21 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  makeStyles,
-  Box,
-  Card,
-  CardHeader,
-  Checkbox,
-  CircularProgress,
-  Menu,
-  MenuItem,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  FormControlLabel
-} from "@material-ui/core";
-import Alert from "@material-ui/lab/Alert";
+import { makeStyles, Box, Card, CardHeader, CircularProgress, Menu, MenuItem } from "@material-ui/core";
 import AccountBalanceWalletIcon from "@material-ui/icons/AccountBalanceWallet";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import IconButton from "@material-ui/core/IconButton";
@@ -23,6 +7,9 @@ import MoreVertIcon from "@material-ui/icons/MoreVert";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import { useWallet } from "../../context/WalletProvider";
 import { useSettings } from "../../context/SettingsProvider";
+import { DeleteWalletConfirm } from "../../shared/components/DeleteWalletConfirm";
+import { useHistory } from "react-router-dom";
+import { UrlService } from "../../shared/utils/urlUtils";
 
 const useStyles = makeStyles({
   root: {
@@ -40,18 +27,10 @@ const useStyles = makeStyles({
 export function WalletDisplay() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [isShowingConfirmationModal, setIsShowingConfirmationModal] = useState(false);
-  const [isConfirmationChecked, setIsConfirmationChecked] = useState(false);
   const { address, balance, refreshBalance, isRefreshingBalance, deleteWallet } = useWallet();
   const classes = useStyles();
   const { settings } = useSettings();
-
-  // function importWallet() {
-  //     history.push("/walletImport");
-  // }
-
-  useEffect(() => {
-    setIsConfirmationChecked(false);
-  }, [isShowingConfirmationModal]);
+  const history = useHistory();
 
   useEffect(() => {
     refreshBalance();
@@ -74,8 +53,9 @@ export function WalletDisplay() {
     setIsShowingConfirmationModal(false);
   }
 
-  function handleConfirmDelete() {
-    deleteWallet();
+  function handleConfirmDelete(deleteDeployments) {
+    deleteWallet(address, deleteDeployments);
+    history.push(UrlService.walletImport());
   }
 
   return (
@@ -125,35 +105,14 @@ export function WalletDisplay() {
           </MenuItem>
         </Menu>
       </Card>
-      <Dialog disableBackdropClick disableEscapeKeyDown maxWidth="sm" aria-labelledby="confirmation-dialog-title" open={isShowingConfirmationModal}>
-        <DialogTitle id="confirmation-dialog-title">Delete Wallet</DialogTitle>
-        <DialogContent dividers>
-          Are you sure you want to delete this wallet?
-          <br />
-          <p>
-            Address: <strong>{address}</strong>
-            <br />
-            Balance: <strong>{balance / 1000000} AKT</strong>
-          </p>
-          <Alert severity="warning">
-            This wallet will be completely removed from Akashlytics Deploy along with your local certificate and deployments data. If you want to keep access to
-            this wallet, make sure you have a backup of the seed phrase or private key.
-          </Alert>
-          <br />
-          <FormControlLabel
-            control={<Checkbox name="checkedC" checked={isConfirmationChecked} onChange={(ev, value) => setIsConfirmationChecked(value)} />}
-            label="I understand the wallet will be completely removed and I have all the backups I need."
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button autoFocus onClick={handleCancel} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleConfirmDelete} disabled={!isConfirmationChecked} variant="contained" color="secondary">
-            Delete Wallet
-          </Button>
-        </DialogActions>
-      </Dialog>
+
+      <DeleteWalletConfirm
+        isOpen={isShowingConfirmationModal}
+        address={address}
+        balance={balance}
+        handleCancel={handleCancel}
+        handleConfirmDelete={handleConfirmDelete}
+      />
     </>
   );
 }

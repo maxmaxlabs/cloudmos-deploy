@@ -1,4 +1,7 @@
 export class UrlService {
+  static walletImport = () => "wallet-import";
+  static walletOpen = () => "wallet-open";
+
   static dashboard = () => "/";
   static deploymentList = () => `/deployments`;
   static deploymentDetails = (dseq) => `/deployment/${dseq}`;

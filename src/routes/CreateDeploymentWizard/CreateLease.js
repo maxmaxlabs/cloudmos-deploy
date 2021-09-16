@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
-import { Button, CircularProgress, Box, Typography, LinearProgress, Menu, MenuItem, IconButton } from "@material-ui/core";
+import { Button, CircularProgress, Box, Typography, LinearProgress, Menu, MenuItem, IconButton, makeStyles } from "@material-ui/core";
 import { useWallet } from "../../context/WalletProvider";
 import { BidGroup } from "./BidGroup";
 import { useHistory } from "react-router";
@@ -19,6 +19,13 @@ import { useProviders } from "../../queries";
 
 const yaml = require("js-yaml");
 
+const useStyles = makeStyles((theme) => ({
+  root: {},
+  alert: {
+    marginBottom: "1rem"
+  }
+}));
+
 export function CreateLease({ dseq }) {
   const [isSendingManifest, setIsSendingManifest] = useState(false);
   const [selectedBids, setSelectedBids] = useState({});
@@ -28,6 +35,7 @@ export function CreateLease({ dseq }) {
   const { enqueueSnackbar } = useSnackbar();
   const history = useHistory();
   const { data: providers } = useProviders();
+  const classes = useStyles();
 
   const { data: bids, isLoading: isLoadingBids } = useBidList(address, dseq, {
     initialData: [],
@@ -134,6 +142,7 @@ export function CreateLease({ dseq }) {
           </Box>
         </Box>
       )}
+
       {dseqList.map((gseq) => (
         <BidGroup
           key={gseq}
@@ -148,6 +157,10 @@ export function CreateLease({ dseq }) {
 
       {!isLoadingBids && bids.length > 0 && !allClosed && (
         <Box mt={1}>
+          <Alert severity="info" className={classes.alert}>
+            Bids automatically close 5 minutes after the deployment is created if none are selected for a lease.
+          </Alert>
+
           <Button
             variant="contained"
             color="primary"
@@ -175,6 +188,7 @@ export function CreateLease({ dseq }) {
               vertical: "top",
               horizontal: "right"
             }}
+            onClick={handleMenuClose}
           >
             <MenuItem onClick={() => handleCloseDeployment()}>Close Deployment</MenuItem>
           </Menu>

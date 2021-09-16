@@ -1,6 +1,20 @@
 import { DirectSecp256k1HdWallet, extractKdfConfiguration } from "@cosmjs/proto-signing";
 
-var rs = require("jsrsasign");
+// default cosmojs KdfConfiguration
+const basicPasswordHashingOptions = {
+  algorithm: "argon2id",
+  params: {
+    outputLength: 32,
+    opsLimit: 24,
+    memLimitKib: 12 * 1024
+  }
+};
+
+export const useStorageWalletAddresses = () => {
+  const addresses = getWalletAddresses();
+
+  return { addresses };
+};
 
 export function getWalletAddresses() {
   return Object.keys(localStorage)
@@ -8,25 +22,30 @@ export function getWalletAddresses() {
     .map((key) => key.replace(".wallet", ""));
 }
 
-export function deleteWalletFromStorage(address) {
+export function deleteWalletFromStorage(address, deleteDeployments) {
   localStorage.removeItem(address + ".wallet");
   localStorage.removeItem(address + ".crt");
   localStorage.removeItem(address + ".key");
 
-  const deploymentKeys = Object.keys(localStorage).filter((key) => key.startsWith("deployments/"));
-  for (const deploymentKey of deploymentKeys) {
-    localStorage.removeItem(deploymentKey);
+  if (deleteDeployments) {
+    const deploymentKeys = Object.keys(localStorage).filter((key) => key.startsWith("deployments/"));
+    for (const deploymentKey of deploymentKeys) {
+      localStorage.removeItem(deploymentKey);
+    }
   }
 }
 
-export async function importWallet(mnemonic, name, passphrase) {
+export async function importWallet(mnemonic, name, password) {
   const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, {
     prefix: "akash"
   });
 
+  const key = await window.electron.executeKdf(password, basicPasswordHashingOptions);
+  const keyArray = Uint8Array.of(...Object.values(key));
+
+  const serializedWallet = await wallet.serializeWithEncryptionKey(keyArray, basicPasswordHashingOptions);
   const address = (await wallet.getAccounts())[0].address;
 
-  const serializedWallet = await wallet.serialize(passphrase);
   localStorage.setItem(
     address + ".wallet",
     JSON.stringify({
@@ -45,7 +64,7 @@ export async function openWallet(password) {
 
   const kdfConf = extractKdfConfiguration(walletInfo.serializedWallet);
 
-  const key = await window.electron.deserializeWallet(password, kdfConf);
+  const key = await window.electron.executeKdf(password, kdfConf);
   const keyArray = Uint8Array.of(...Object.values(key));
 
   const wallet = await DirectSecp256k1HdWallet.deserializeWithEncryptionKey(walletInfo.serializedWallet, keyArray);
@@ -53,18 +72,9 @@ export async function openWallet(password) {
   return wallet;
 }
 
-export async function openCert(address, password) {
-  const certPem = localStorage.getItem(address + ".crt");
-  if (!certPem) return null;
+export function getCurrentWalletFromStorage() {
+  const walletAddress = getWalletAddresses()[0];
+  const walletInfo = JSON.parse(localStorage.getItem(walletAddress + ".wallet"));
 
-  const encryptedKeyPem = localStorage.getItem(address + ".key");
-
-  if (!encryptedKeyPem) return null;
-
-  const key = rs.KEYUTIL.getKeyFromEncryptedPKCS8PEM(encryptedKeyPem, password);
-
-  return {
-    certPem: certPem,
-    keyPem: rs.KEYUTIL.getPEM(key, "PKCS8PRV")
-  };
+  return walletInfo;
 }

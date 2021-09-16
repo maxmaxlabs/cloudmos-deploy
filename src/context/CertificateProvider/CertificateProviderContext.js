@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useSnackbar } from "notistack";
-import { openCert } from "../../shared/utils/walletUtils";
+import { openCert } from "../../shared/utils/certificateUtils";
 import { useSettings } from "../SettingsProvider";
 import { useWallet } from "../WalletProvider";
 import { Snackbar } from "../../shared/components/Snackbar";
