@@ -3,14 +3,17 @@ import { useCertificate } from "../../context/CertificateProvider";
 import { Checkbox, FormControlLabel, FormGroup, LinearProgress, Box } from "@material-ui/core";
 import { useProviders } from "../../queries";
 import MonacoEditor from "react-monaco-editor";
-import Alert from "@material-ui/lab/Alert";
+import { ToggleButtonGroup, ToggleButton, Alert } from "@material-ui/lab";
 
 export function DeploymentLogs({ leases }) {
   const [logs, setLogs] = useState([]);
   const [isWaitingForFirstLog, setIsWaitingForFirstLog] = useState(true);
   const [services, setServices] = useState([]);
   const [selectedServices, setSelectedServices] = useState([]);
+  const [selectedMode, setSelectedMode] = useState("logs");
   const [stickToBottom, setStickToBottom] = useState(true);
+
+  //const [selectedLease, setSelectedLease] = useState(null);
 
   const { data: providers } = useProviders();
 
@@ -25,25 +28,41 @@ export function DeploymentLogs({ leases }) {
     let sockets = [];
     if (leases && leases.length > 0) {
       (async () => {
-        for (let lease of leases) {
-          const providerInfo = providers?.find((p) => p.owner === lease.provider);
+        const lease = leases[0];
+        const providerInfo = providers?.find((p) => p.owner === lease.provider);
 
-          const leaseStatusPath = `${providerInfo.host_uri}/lease/${lease.dseq}/${lease.gseq}/${lease.oseq}/status`;
-          const leaseStatus = await window.electron.queryProvider(leaseStatusPath, "GET", null, localCert.certPem, localCert.keyPem);
+        // TODO: Do only one time?
+        const leaseStatusPath = `${providerInfo.host_uri}/lease/${lease.dseq}/${lease.gseq}/${lease.oseq}/status`;
+        const leaseStatus = await window.electron.queryProvider(leaseStatusPath, "GET", null, localCert.certPem, localCert.keyPem);
+
+        let url = null;
+        if (selectedMode === "logs") {
           setServices(Object.keys(leaseStatus.services));
           setSelectedServices(Object.keys(leaseStatus.services));
 
-          const url = `${providerInfo.host_uri}/lease/${lease.dseq}/${lease.gseq}/${lease.oseq}/logs?follow=true`;
-          const socket = window.electron.openWebSocket(url, localCert.certPem, localCert.keyPem, (message) => {
-            setIsWaitingForFirstLog(false);
-
-            let parsedLog = JSON.parse(message);
-            parsedLog.service = parsedLog.name.split("-")[0];
-            setLogs((logs) => [...logs, parsedLog]);
-            console.log(message);
-          });
-          sockets.push(socket);
+          url = `${providerInfo.host_uri}/lease/${lease.dseq}/${lease.gseq}/${lease.oseq}/logs?follow=true`;
+        } else {
+          url = `${providerInfo.host_uri}/lease/${lease.dseq}/${lease.gseq}/${lease.oseq}/kubeevents?follow=true`;
         }
+
+        const socket = window.electron.openWebSocket(url, localCert.certPem, localCert.keyPem, (message) => {
+          setIsWaitingForFirstLog(false);
+
+          let parsedLog = null;
+          if (selectedMode === "logs") {
+            console.log(message);
+            parsedLog = JSON.parse(message);
+            parsedLog.service = parsedLog.name.split("-")[0];
+          } else {
+            console.log(message);
+            //parsedLog = {} =
+            parsedLog = JSON.parse(message);
+            parsedLog.message = parsedLog.event;
+          }
+          //parsedLog.message = parsedLog.note;
+          setLogs((logs) => [...logs, parsedLog]);
+        });
+        sockets.push(socket);
       })();
     }
 
@@ -52,7 +71,7 @@ export function DeploymentLogs({ leases }) {
         socket.close();
       }
     };
-  }, [leases, providers, isLocalCertMatching]);
+  }, [leases, providers, isLocalCertMatching, selectedMode]);
 
   const logText = logs
     .filter((x) => selectedServices.includes(x.service))
@@ -77,15 +96,26 @@ export function DeploymentLogs({ leases }) {
   }
 
   useEffect(() => {
-    if (stickToBottom) {
+    if (stickToBottom && monacoRef.current) {
       monacoRef.current.editor.revealLine(monacoRef.current.editor.getModel().getLineCount());
     }
   }, [logText, stickToBottom]);
+
+  function handleModeChange(ev, val) {
+    setSelectedMode(val);
+  }
 
   return (
     <>
       {isLocalCertMatching ? (
         <>
+          {/* {leases.map(l => (
+            <>{JSON.stringify(l)}</>
+          ))} */}
+          <ToggleButtonGroup color="primary" value={selectedMode} exclusive onChange={handleModeChange}>
+            <ToggleButton value="logs">Logs</ToggleButton>
+            <ToggleButton value="events">Events</ToggleButton>
+          </ToggleButtonGroup>
           <FormGroup row>
             {services.map((service) => (
               <FormControlLabel
