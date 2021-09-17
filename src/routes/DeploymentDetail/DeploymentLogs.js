@@ -1,9 +1,22 @@
 import { useEffect, useRef, useState } from "react";
 import { useCertificate } from "../../context/CertificateProvider";
-import { Checkbox, FormControlLabel, FormGroup, LinearProgress, Box } from "@material-ui/core";
+import { makeStyles, Checkbox, FormControlLabel, FormGroup, LinearProgress, Box } from "@material-ui/core";
 import { useProviders } from "../../queries";
 import MonacoEditor from "react-monaco-editor";
 import { ToggleButtonGroup, ToggleButton, Alert } from "@material-ui/lab";
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    "& .MuiToggleButton-root": {
+      color: "rgba(0, 0, 0, 0.54)",
+      fontWeight: "bold",
+      "&.Mui-selected": {
+        color: "rgb(25, 118, 210)",
+        backgroundColor: "rgba(25, 118, 210, 0.08)"
+      }
+    }
+  }
+}));
 
 export function DeploymentLogs({ leases }) {
   const [logs, setLogs] = useState([]);
@@ -15,6 +28,7 @@ export function DeploymentLogs({ leases }) {
 
   //const [selectedLease, setSelectedLease] = useState(null);
 
+  const classes = useStyles();
   const { data: providers } = useProviders();
 
   const { localCert, isLocalCertMatching } = useCertificate();
@@ -102,11 +116,13 @@ export function DeploymentLogs({ leases }) {
   }, [logText, stickToBottom]);
 
   function handleModeChange(ev, val) {
-    setSelectedMode(val);
+    if (val) {
+      setSelectedMode(val);
+    }
   }
 
   return (
-    <>
+    <div className={classes.root}>
       {isLocalCertMatching ? (
         <>
           {/* {leases.map(l => (
@@ -139,6 +155,6 @@ export function DeploymentLogs({ leases }) {
           <Alert severity="info">You need a valid certificate to view deployment logs.</Alert>
         </Box>
       )}
-    </>
+    </div>
   );
 }
