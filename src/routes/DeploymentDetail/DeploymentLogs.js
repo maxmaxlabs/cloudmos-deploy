@@ -4,6 +4,7 @@ import { makeStyles, Checkbox, FormControl, InputLabel, Select, MenuItem, FormCo
 import { useProviders } from "../../queries";
 import MonacoEditor from "react-monaco-editor";
 import { ToggleButtonGroup, ToggleButton, Alert } from "@material-ui/lab";
+import * as monaco from "monaco-editor";
 
 const useStyles = makeStyles((theme) => ({
   leaseSelector: {
@@ -123,7 +124,11 @@ export function DeploymentLogs({ leases }) {
 
   useEffect(() => {
     if (stickToBottom && monacoRef.current) {
-      monacoRef.current.editor.revealLine(monacoRef.current.editor.getModel().getLineCount());
+      const editor = monacoRef.current.editor;
+      // Immediate scroll type, scroll to bottom
+      editor.revealLine(editor.getModel().getLineCount(), 1);
+      // Clear selection
+      editor.setSelection(new monaco.Selection(0, 0, 0, 0));
     }
   }, [logText, stickToBottom]);
 
@@ -171,7 +176,7 @@ export function DeploymentLogs({ leases }) {
                 </FormGroup>
               )}
               {isWaitingForFirstLog && <LinearProgress />}
-              <MonacoEditor ref={monacoRef} className={classes.editor} height="600" theme="vs-dark" value={logText} options={options} />
+              <MonacoEditor ref={monacoRef} className={classes.editor} height="400" theme="vs-dark" value={logText} options={options} />
               <FormControlLabel
                 control={<Checkbox color="primary" checked={stickToBottom} onChange={(ev) => setStickToBottom(ev.target.checked)} />}
                 label={"Stick to bottom"}
