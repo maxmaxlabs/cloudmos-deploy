@@ -52,7 +52,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
 
         setParsingError(null);
       } catch (err) {
-        if (err.name === "YAMLException") {
+        if (err.name === "YAMLException" || err.name === "CustomValidationError") {
           setParsingError(err.message);
         } else {
           setParsingError("Error while parsing SDL file");

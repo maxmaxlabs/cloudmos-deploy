@@ -3,6 +3,13 @@ const stableStringify = require("json-stable-stringify");
 // 5AKT aka 5000000uakt
 export const defaultInitialDeposit = 5000000;
 
+class CustomValidationError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "CustomValidationError";
+  }
+}
+
 const specSuffixes = {
   Ki: 1024,
   Mi: 1024 * 1024,
@@ -151,7 +158,7 @@ export function Manifest(yamlJson) {
         Expose: []
       };
 
-      svc.expose.forEach((expose) => {
+      svc.expose?.forEach((expose) => {
         const proto = ParseServiceProtocol(expose.proto);
 
         if (expose.to && expose.to.length > 0) {
@@ -222,6 +229,10 @@ function DeploymentGroups(yamlJson) {
   Object.keys(yamlJson.services).forEach((svcName) => {
     const svc = yamlJson.services[svcName];
     const depl = yamlJson.deployment[svcName];
+
+    if (!depl) {
+      throw new CustomValidationError(`Service "${svcName}" is not defined in the "deployment" section.`);
+    }
 
     Object.keys(depl).forEach((placementName) => {
       const svcdepl = depl[placementName];
