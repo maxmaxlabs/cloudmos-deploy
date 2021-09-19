@@ -27,7 +27,6 @@ const useStyles = makeStyles((theme) => ({
 export function DeploymentLogs({ leases }) {
   const [logs, setLogs] = useState([]);
   const [isWaitingForFirstLog, setIsWaitingForFirstLog] = useState(true);
-  //const [leaseStatus, setLeaseStatus] = useState(null);
   const [services, setServices] = useState([]);
   const [selectedServices, setSelectedServices] = useState([]);
   const [selectedMode, setSelectedMode] = useState("logs");
