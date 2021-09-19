@@ -238,7 +238,21 @@ function DeploymentGroups(yamlJson) {
       const svcdepl = depl[placementName];
       const compute = yamlJson.profiles.compute[svcdepl.profile];
       const infra = yamlJson.profiles.placement[placementName];
+
+      if (!infra) {
+        throw new CustomValidationError(`The placement "${placementName}" is not defined in the "placement" section.`);
+      }
+
       const price = infra.pricing[svcdepl.profile];
+
+      if (!price) {
+        throw new CustomValidationError(`The pricing for the "${svcdepl.profile}" profile is not defined in the "${placementName}" placement definition.`);
+      }
+
+      if (!compute) {
+        throw new CustomValidationError(`The compute requirements for the "${svcdepl.profile}" profile are not defined in the "compute" section.`);
+      }
+
       price.amount = price.amount.toString(); // Interpreted as number otherwise
 
       let group = groups[placementName];

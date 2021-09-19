@@ -63,7 +63,7 @@ export function ManifestEdit(props) {
 
       return dd;
     } catch (err) {
-      if (err.name === "YAMLException") {
+      if (err.name === "YAMLException" || err.name === "CustomValidationError") {
         setParsingError(err.message);
       } else if (err.name === "TemplateValidation") {
         setParsingError(err.message);
