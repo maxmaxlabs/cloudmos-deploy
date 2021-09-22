@@ -16,6 +16,8 @@ function spawnProxy() {
     stdio: ["pipe", "pipe", "pipe", "ipc"]
   });
 
+  child.stdout.on('data', function (data) {});
+
   child.on("message", (response) => {
     if (response.type === "fetch") {
       if (response.error) {
@@ -29,14 +31,28 @@ function spawnProxy() {
       openSockets[response.id].onMessage(response.message);
     }
   });
+
+  child.on("close", (code, signal) => {
+    console.error("Proxy was closed with code: " + code);
+  });
+
+  child.on("error", (err) => {
+    console.error(err);
+  });
+
+  child.on("exit", (code, signal) => {
+    console.error("Proxy exited with code: " + code);
+  });
 }
 spawnProxy();
 
 let pendingRequests = [];
 let openSockets = [];
 
-exports.openWebSocket = function(url, certPem, keyPem, onMessage) {
+exports.openWebSocket = function (url, certPem, keyPem, onMessage) {
   const requestId = nanoid();
+
+  console.log("openWebSocket: ", child);
 
   openSockets[requestId] = {
     onMessage: onMessage
@@ -54,14 +70,17 @@ exports.openWebSocket = function(url, certPem, keyPem, onMessage) {
 
   return {
     close: () => {
+      console.log("sending websocket_close");
+      console.log(child);
       child.send({
         id: requestId,
         type: "websocket_close"
       });
+      console.log("sent websocket_close");
       delete openSockets[requestId];
     }
   };
-}
+};
 
 async function makeRequest(url, method, body, certPem, keyPem) {
   const requestId = nanoid();
