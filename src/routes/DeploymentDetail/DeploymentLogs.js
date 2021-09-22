@@ -74,6 +74,10 @@ export function DeploymentLogs({ leases }) {
     let url = null;
     if (selectedMode === "logs") {
       url = `${providerInfo.host_uri}/lease/${selectedLease.dseq}/${selectedLease.gseq}/${selectedLease.oseq}/logs?follow=true&tail=100`;
+
+      if (selectedServices.length < services.length) {
+        url += "&service=" + selectedServices.join(",");
+      }
     } else {
       url = `${providerInfo.host_uri}/lease/${selectedLease.dseq}/${selectedLease.gseq}/${selectedLease.oseq}/kubeevents?follow=true`;
     }
@@ -98,10 +102,9 @@ export function DeploymentLogs({ leases }) {
     return () => {
       socket.close();
     };
-  }, [leases, providers, isLocalCertMatching, selectedMode, selectedLease]);
+  }, [leases, providers, isLocalCertMatching, selectedMode, selectedLease, selectedServices]);
 
   const logText = logs
-    .filter((x) => selectedServices.includes(x.service))
     .map((x) => x.message)
     .join("\n");
 
@@ -167,6 +170,7 @@ export function DeploymentLogs({ leases }) {
                   {services.map((service) => (
                     <FormControlLabel
                       key={service}
+                      disabled={selectedMode !== "logs"}
                       control={
                         <Checkbox color="primary" checked={selectedServices.includes(service)} onChange={(ev) => setServiceCheck(service, ev.target.checked)} />
                       }
