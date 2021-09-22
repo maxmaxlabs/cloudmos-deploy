@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useCertificate } from "../../context/CertificateProvider";
-import { makeStyles, Checkbox, FormControl, InputLabel, Select, MenuItem, FormControlLabel, FormGroup, LinearProgress, Box } from "@material-ui/core";
+import { makeStyles, Checkbox, FormControlLabel, FormGroup, LinearProgress, Box } from "@material-ui/core";
 import { useProviders } from "../../queries";
 import MonacoEditor from "react-monaco-editor";
 import { ToggleButtonGroup, ToggleButton, Alert } from "@material-ui/lab";
@@ -104,9 +104,7 @@ export function DeploymentLogs({ leases }) {
     };
   }, [leases, providers, isLocalCertMatching, selectedMode, selectedLease, selectedServices]);
 
-  const logText = logs
-    .map((x) => x.message)
-    .join("\n");
+  const logText = logs.map((x) => x.message).join("\n");
 
   const options = {
     selectOnLineNumbers: true,
