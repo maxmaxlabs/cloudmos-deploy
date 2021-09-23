@@ -49,10 +49,12 @@ export function DeploymentLogs({ leases }) {
   }, [leases]);
 
   useEffect(() => {
-    if (!selectedLease) return;
+    if (!selectedLease || !providers || providers.length === 0) return;
 
     (async () => {
       const providerInfo = providers?.find((p) => p.owner === selectedLease.provider);
+
+      if (!providerInfo) return;
 
       const leaseStatusPath = `${providerInfo.host_uri}/lease/${selectedLease.dseq}/${selectedLease.gseq}/${selectedLease.oseq}/status`;
       const leaseStatus = await window.electron.queryProvider(leaseStatusPath, "GET", null, localCert.certPem, localCert.keyPem);
@@ -60,7 +62,7 @@ export function DeploymentLogs({ leases }) {
       setServices(Object.keys(leaseStatus.services));
       setSelectedServices(Object.keys(leaseStatus.services));
     })();
-  }, [selectedLease]);
+  }, [selectedLease, providers]);
 
   useEffect(() => {
     if (!providers) return;

@@ -26,8 +26,8 @@ function spawnProxy() {
         pendingRequests[response.id].res(response.response);
       }
       delete pendingRequests[response.id];
-    } else if (response.type === "websocket") {
-      console.log("Received websocket message", response);
+    } else if (response.type === "websocket" && openSockets[response.id]) {
+      // console.log("Received websocket message", response);
       openSockets[response.id].onMessage(response.message);
     }
   });
