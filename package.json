@@ -1,6 +1,6 @@
 {
   "name": "akashlytics-deploy",
-  "version": "0.2.7",
+  "version": "0.3.0",
   "private": true,
   "repository": {
     "type": "git",
@@ -15,13 +15,13 @@
   "main": "public/electron.js",
   "homepage": "./",
   "scripts": {
-    "start": "cross-env BROWSER=none react-scripts start",
+    "start": "cross-env BROWSER=none react-app-rewired start --scripts-version react-scripts",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "electron": "electron .",
     "electron-dev": "cross-env ELECTRON_START_URL=http://localhost:3000 electron .",
-    "build-win": "cross-env GENERATE_SOURCEMAP=false react-scripts build && electron-builder --windows",
-    "build-mac": "cross-env GENERATE_SOURCEMAP=false react-scripts build && electron-builder --mac",
+    "build-win": "cross-env GENERATE_SOURCEMAP=false react-app-rewired build && electron-builder --windows",
+    "build-mac": "cross-env GENERATE_SOURCEMAP=false react-app-rewired build && electron-builder --mac",
     "dist-mac": "cross-env DEBUG=electron-builder electron-builder --mac",
     "release": "electron-builder --windows --publish always"
   },
@@ -72,7 +72,7 @@
     "react-error-boundary": "^3.1.3",
     "react-helmet-async": "^1.0.9",
     "react-hook-form": "^7.8.4",
-    "react-monaco-editor": "^0.43.0",
+    "react-monaco-editor": "^0.45.0",
     "react-query": "^3.17.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
@@ -86,6 +86,8 @@
     "cross-env": "^7.0.3",
     "electron": "^12.0.7",
     "electron-builder": "^22.10.5",
-    "electron-squirrel-startup": "^1.0.0"
+    "electron-squirrel-startup": "^1.0.0",
+    "monaco-editor-webpack-plugin": "^4.1.2",
+    "react-app-rewired": "^2.1.8"
   }
 }

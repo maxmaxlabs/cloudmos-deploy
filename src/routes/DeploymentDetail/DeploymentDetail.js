@@ -13,6 +13,7 @@ import RefreshIcon from "@material-ui/icons/Refresh";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 import { Helmet } from "react-helmet-async";
 import { useLocalNotes } from "../../context/LocalNoteProvider";
+import { DeploymentLogs } from "./DeploymentLogs";
 
 export function DeploymentDetail(props) {
   const [deployment, setDeployment] = useState(null);
@@ -130,17 +131,21 @@ export function DeploymentDetail(props) {
       <Tabs value={activeTab} onChange={(ev, value) => setActiveTab(value)} indicatorColor="primary" textColor="primary">
         <Tab value="DETAILS" label="Details" />
         <Tab value="EDIT" label="View / Edit Manifest" />
-        {/* <Tab label="Logs" /> */}
-        <Tab value="JSON_DEPLOYMENT" label="Deployment JSON" />
-        <Tab value="JSON_LEASES" label="Leases JSON" />
+        {deployment?.state === "active" && leases?.some(x => x.state === "active") && <Tab value="LOGS" label="Logs" />}
+        <Tab value="JSON_DATA" label="JSON Data" />
       </Tabs>
 
       <CardContent>
         {activeTab === "EDIT" && deployment && leases && (
           <ManifestEditor deployment={deployment} leases={leases} closeManifestEditor={() => setActiveTab("DETAILS")} />
         )}
-        {activeTab === "JSON_DEPLOYMENT" && deployment && <DeploymentJsonViewer jsonObj={deployment} title="Deployment JSON" />}
-        {activeTab === "JSON_LEASES" && deployment && <DeploymentJsonViewer jsonObj={leases} title="Leases JSON" />}
+        {activeTab === "LOGS" && <DeploymentLogs leases={leases} />}
+        {activeTab === "JSON_DATA" && deployment && (
+          <>
+            <DeploymentJsonViewer jsonObj={deployment} title="Deployment JSON" />
+            <DeploymentJsonViewer jsonObj={leases} title="Leases JSON" />
+          </>
+        )}
         {activeTab === "DETAILS" && (
           <>
             <Typography variant="h6" gutterBottom className={classes.title}>

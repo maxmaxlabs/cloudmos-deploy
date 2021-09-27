@@ -3,6 +3,13 @@ const stableStringify = require("json-stable-stringify");
 // 5AKT aka 5000000uakt
 export const defaultInitialDeposit = 5000000;
 
+class CustomValidationError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "CustomValidationError";
+  }
+}
+
 const specSuffixes = {
   Ki: 1024,
   Mi: 1024 * 1024,
@@ -151,7 +158,7 @@ export function Manifest(yamlJson) {
         Expose: []
       };
 
-      svc.expose.forEach((expose) => {
+      svc.expose?.forEach((expose) => {
         const proto = ParseServiceProtocol(expose.proto);
 
         if (expose.to && expose.to.length > 0) {
@@ -223,11 +230,29 @@ function DeploymentGroups(yamlJson) {
     const svc = yamlJson.services[svcName];
     const depl = yamlJson.deployment[svcName];
 
+    if (!depl) {
+      throw new CustomValidationError(`Service "${svcName}" is not defined in the "deployment" section.`);
+    }
+
     Object.keys(depl).forEach((placementName) => {
       const svcdepl = depl[placementName];
       const compute = yamlJson.profiles.compute[svcdepl.profile];
       const infra = yamlJson.profiles.placement[placementName];
+
+      if (!infra) {
+        throw new CustomValidationError(`The placement "${placementName}" is not defined in the "placement" section.`);
+      }
+
       const price = infra.pricing[svcdepl.profile];
+
+      if (!price) {
+        throw new CustomValidationError(`The pricing for the "${svcdepl.profile}" profile is not defined in the "${placementName}" placement definition.`);
+      }
+
+      if (!compute) {
+        throw new CustomValidationError(`The compute requirements for the "${svcdepl.profile}" profile are not defined in the "compute" section.`);
+      }
+
       price.amount = price.amount.toString(); // Interpreted as number otherwise
 
       let group = groups[placementName];

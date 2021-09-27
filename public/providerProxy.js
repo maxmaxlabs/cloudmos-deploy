@@ -12,47 +12,94 @@ function spawnProxy() {
   const parameters = [];
 
   child = spawn(command, parameters, {
+    env: {},
     stdio: ["pipe", "pipe", "pipe", "ipc"]
   });
 
+  child.stdout.on('data', function (data) {});
+
   child.on("message", (response) => {
-    requestResponses[response.id] = response;
+    if (response.type === "fetch") {
+      if (response.error) {
+        pendingRequests[response.id].rej(response.error);
+      } else {
+        pendingRequests[response.id].res(response.response);
+      }
+      delete pendingRequests[response.id];
+    } else if (response.type === "websocket" && openSockets[response.id]) {
+      // console.log("Received websocket message", response);
+      openSockets[response.id].onMessage(response.message);
+    }
+  });
+
+  child.on("close", (code, signal) => {
+    console.error("Proxy was closed with code: " + code);
+  });
+
+  child.on("error", (err) => {
+    console.error(err);
+  });
+
+  child.on("exit", (code, signal) => {
+    console.error("Proxy exited with code: " + code);
   });
 }
 spawnProxy();
 
-let requestResponses = [];
+let pendingRequests = [];
+let openSockets = [];
 
-async function makeRequest(url, method, body, certPem, keyPem) {
+exports.openWebSocket = function (url, certPem, keyPem, onMessage) {
   const requestId = nanoid();
+
+  console.log("openWebSocket: ", child);
+
+  openSockets[requestId] = {
+    onMessage: onMessage
+  };
 
   child.send({
     id: requestId,
+    type: "websocket",
     url: url,
-    method: method,
-    body: body,
     certPem: certPem,
     keyPem: keyPem
   });
 
-  return new Promise((res, rej) => {
-    const intervalTime = 300;
-    let elapsedTime = 0;
-    const intervalId = setInterval(() => {
-      console.log("Waiting for request " + requestId);
-      if (requestId in requestResponses) {
-        clearInterval(intervalId);
+  console.log("Sending websocket request: " + url);
 
-        if (requestResponses[requestId].error) {
-          rej(requestResponses[requestId].error);
-        } else {
-          res(requestResponses[requestId].response);
-        }
-        delete requestResponses[requestId];
-      } else {
-        elapsedTime += intervalTime;
-      }
-    }, intervalTime);
+  return {
+    close: () => {
+      console.log("sending websocket_close");
+      console.log(child);
+      child.send({
+        id: requestId,
+        type: "websocket_close"
+      });
+      console.log("sent websocket_close");
+      delete openSockets[requestId];
+    }
+  };
+};
+
+async function makeRequest(url, method, body, certPem, keyPem) {
+  const requestId = nanoid();
+
+  return new Promise((res, rej) => {
+    pendingRequests[requestId] = {
+      res: res,
+      rej: rej
+    };
+
+    child.send({
+      id: requestId,
+      type: "fetch",
+      url: url,
+      method: method,
+      body: body,
+      certPem: certPem,
+      keyPem: keyPem
+    });
   });
 }
 
