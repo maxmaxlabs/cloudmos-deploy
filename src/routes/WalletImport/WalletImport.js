@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { CircularProgress, TextField, Container, Paper, makeStyles, Button } from "@material-ui/core";
+import { CircularProgress, TextField, Container, Paper, makeStyles, Button, Box } from "@material-ui/core";
 import { importWallet } from "../../shared/utils/walletUtils";
 import { useWallet } from "../../context/WalletProvider";
 import Alert from "@material-ui/lab/Alert";
 import { analytics } from "../../shared/utils/analyticsUtils";
-import { useHistory } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { UrlService } from "../../shared/utils/urlUtils";
 
 const useStyles = makeStyles((theme) => ({
@@ -109,9 +109,15 @@ export function WalletImport() {
               </Alert>
             )}
 
-            <Button type="submit" variant="contained" color="primary" disabled={isLoading}>
-              {isLoading ? <CircularProgress size="1.5rem" className={classes.loading} /> : <>Import</>}
-            </Button>
+            <Box display="flex" justifyContent="space-between">
+              <Button component={Link} to={UrlService.register()}>
+                Back
+              </Button>
+
+              <Button type="submit" variant="contained" color="primary" disabled={isLoading}>
+                {isLoading ? <CircularProgress size="1.5rem" className={classes.loading} /> : <>Import</>}
+              </Button>
+            </Box>
           </form>
         </Paper>
       </Container>

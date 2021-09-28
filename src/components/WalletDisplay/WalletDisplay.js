@@ -67,7 +67,7 @@ export function WalletDisplay() {
 
   function handleConfirmDelete(deleteDeployments) {
     deleteWallet(address, deleteDeployments);
-    history.push(UrlService.walletImport());
+    history.push(UrlService.register());
   }
 
   const sendClick = () => {

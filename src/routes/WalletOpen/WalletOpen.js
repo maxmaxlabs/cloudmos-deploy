@@ -84,7 +84,7 @@ export function WalletOpen() {
     deleteWallet(currentWallet?.address, deleteDeployments);
     setIsShowingConfirmationModal(false);
 
-    history.replace(UrlService.walletImport());
+    history.replace(UrlService.register());
   }
 
   return (
