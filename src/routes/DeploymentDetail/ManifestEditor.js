@@ -92,7 +92,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
 
       return response;
     } catch (err) {
-      enqueueSnackbar("Error while sending manifest to provider", { variant: "error" });
+      enqueueSnackbar(`Error while sending manifest to provider. ${err}`, { variant: "error", autoHideDuration: null });
       throw err;
     }
   }
@@ -108,23 +108,23 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
 
       const response = await sendTransaction([message]);
 
-      if (!response) throw new Error("Rejected");
+      if (response) {
+        saveDeploymentManifest(dd.deploymentId.dseq, editedManifest, dd.version, address);
 
-      await analytics.event("deploy", "update deployment");
+        const leaseProviders = leases.map((lease) => lease.provider).filter((v, i, s) => s.indexOf(v) === i);
+
+        for (const provider of leaseProviders) {
+          const providerInfo = providers.find((x) => x.owner === provider);
+          await sendManifest(providerInfo, mani);
+        }
+
+        await analytics.event("deploy", "update deployment");
+
+        closeManifestEditor();
+      }
     } catch (error) {
       throw error;
     }
-
-    saveDeploymentManifest(dd.deploymentId.dseq, editedManifest, dd.version, address);
-
-    const leaseProviders = leases.map((lease) => lease.provider).filter((v, i, s) => s.indexOf(v) === i);
-
-    for (const provider of leaseProviders) {
-      const providerInfo = providers.find((x) => x.owner === provider);
-      await sendManifest(providerInfo, mani);
-    }
-
-    closeManifestEditor();
   }
 
   return (
@@ -165,7 +165,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
             {!localCert || !isLocalCertMatching ? (
               <Alert severity="warning">You do not have a valid certificate. You need to create a new one to update an existing deployment.</Alert>
             ) : (
-              <Button variant="contained" color="primary" disabled={!!parsingError || !editedManifest || !providers} onClick={handleUpdateClick}>
+              <Button variant="contained" color="primary" disabled={!!parsingError || !editedManifest || !providers} onClick={() => handleUpdateClick()}>
                 Update Deployment
               </Button>
             )}

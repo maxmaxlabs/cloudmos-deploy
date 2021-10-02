@@ -25,6 +25,15 @@ const specSuffixes = {
   E: 1000 * 1000 * 1000 * 1000 * 1000 * 1000
 };
 
+const defaultHTTPOptions = {
+  MaxBodySize: 2097152,
+  ReadTimeout: 60000,
+  SendTimeout: 60000,
+  NextTries: 3,
+  NextTimeout: 0,
+  NextCases: ["off"]
+};
+
 // const validationConfig = {
 //   maxUnitCPU: 10 * 1000, // 10 CPUs
 //   maxUnitMemory: 16 * specSuffixes.Gi, // 16 Gi
@@ -169,7 +178,8 @@ export function Manifest(yamlJson) {
               Proto: proto,
               Service: to.service || "",
               Global: !!to.global,
-              Hosts: expose.accept || null
+              Hosts: expose.accept || null,
+              HTTPOptions: getHttpOptions(expose["http_options"])
             });
           });
         } else {
@@ -179,7 +189,8 @@ export function Manifest(yamlJson) {
             Proto: proto,
             Service: "",
             Global: false,
-            Hosts: expose.accept?.items || null
+            Hosts: expose.accept?.items || null,
+            HTTPOptions: getHttpOptions(expose["http_options"])
           });
         }
       });
@@ -221,6 +232,17 @@ function exposeExternalPort(expose) {
   }
 
   return expose.externalPort;
+}
+
+function getHttpOptions(options = {}) {
+  return {
+    MaxBodySize: options["max_body_size"] || defaultHTTPOptions.MaxBodySize,
+    ReadTimeout: options["read_timeout"] || defaultHTTPOptions.ReadTimeout,
+    SendTimeout: options["send_timeout"] || defaultHTTPOptions.SendTimeout,
+    NextTries: options["next_tries"] || defaultHTTPOptions.NextTries,
+    NextTimeout: options["next_timeout"] || defaultHTTPOptions.NextTimeout,
+    NextCases: options["next_cases"] || defaultHTTPOptions.NextCases
+  };
 }
 
 function DeploymentGroups(yamlJson) {
@@ -295,7 +317,8 @@ function DeploymentGroups(yamlJson) {
               proto: proto,
               service: to.service || null,
               global: !!to.global,
-              hosts: expose.accept || null
+              hosts: expose.accept || null,
+              HTTPOptions: getHttpOptions(expose["http_options"])
             };
 
             // TODO Enum
