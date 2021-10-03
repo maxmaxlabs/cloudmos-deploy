@@ -6,6 +6,9 @@ win:
 mac:
   category: public.app-category.developer-tools
   icon: "./build/icon.icns"
+linux:
+  category: "Utility"
+  icon: "./build/icon.icns"
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
