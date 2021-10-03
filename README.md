@@ -2,6 +2,10 @@
 # Akashlytics Deploy
 Akashlytics Deploy is a desktop app that greatly simplifies and enhances deployments on the Akash Network.
 
+## Support
+
+`akash13265twfqejnma6cc93rw5dxk4cldyz2zyy8cdm`
+
 ## Features
 - Import wallet
 - Manifest templates
@@ -9,12 +13,15 @@ Akashlytics Deploy is a desktop app that greatly simplifies and enhances deploym
 - Create/Update deployments
 - Name your deployments
 - Secure (your private key and certificate never leave your computer)
+- Real-time log and events viewer
 
 ## Roadmap
 
-- Real-time log viewer
-- ~~Add MacOS compatibility~~
+- Linux support
 - Create wallet
+- Send transactions
+- Auto update
+- Template gallery
 - Manage multiple wallets
 - Manifest Editor UI
 - Web Version of the tool (when it will be possible to do it safely)
