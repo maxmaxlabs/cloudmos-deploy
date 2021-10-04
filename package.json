@@ -1,6 +1,6 @@
 {
   "name": "akashlytics-deploy",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "repository": {
     "type": "git",
@@ -22,6 +22,7 @@
     "electron-dev": "cross-env ELECTRON_START_URL=http://localhost:3000 electron .",
     "build-win": "cross-env GENERATE_SOURCEMAP=false react-app-rewired build && electron-builder --windows",
     "build-mac": "cross-env GENERATE_SOURCEMAP=false react-app-rewired build && electron-builder --mac",
+    "build-linux": "cross-env GENERATE_SOURCEMAP=false react-app-rewired build && electron-builder --linux",
     "dist-mac": "cross-env DEBUG=electron-builder electron-builder --mac",
     "release": "electron-builder --windows --publish always"
   },

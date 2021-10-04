@@ -11,7 +11,8 @@ import {
   List,
   ListItem,
   ListItemText,
-  ListItemSecondaryAction
+  ListItemSecondaryAction,
+  CircularProgress
 } from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
 import FileCopyIcon from "@material-ui/icons/FileCopy";
@@ -43,7 +44,12 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab }, ref) => {
   const providerInfo = providers?.find((p) => p.owner === lease?.provider);
   const { localCert } = useCertificate();
   const isLeaseActive = lease.state === "active";
-  const { data: leaseStatus, error, refetch: getLeaseStatus } = useLeaseStatus(providerInfo?.host_uri, lease, { enabled: false });
+  const {
+    data: leaseStatus,
+    error,
+    refetch: getLeaseStatus,
+    isLoading: isLoadingLeaseStatus
+  } = useLeaseStatus(providerInfo?.host_uri, lease, { enabled: false });
   const isLeaseNotFound = error && error.includes && error.includes("lease not found") && isLeaseActive;
   const servicesNames = leaseStatus ? Object.keys(leaseStatus.services) : [];
   const classes = useStyles();
@@ -116,6 +122,8 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab }, ref) => {
             tab.
           </Alert>
         )}
+
+        {!leaseStatus && isLoadingLeaseStatus && <CircularProgress size="1rem" />}
 
         {isLeaseActive &&
           leaseStatus &&

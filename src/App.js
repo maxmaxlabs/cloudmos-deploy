@@ -25,6 +25,9 @@ let history = createMemoryHistory({
 });
 
 const useStyles = makeStyles((theme) => ({
+  snackbarRoot: {
+    maxWidth: "300px"
+  },
   snackbarClose: {
     color: "#ffffff"
   },
@@ -86,6 +89,7 @@ function App() {
                 <CloseIcon />
               </IconButton>
             )}
+            classes={{ root: classes.snackbarRoot }}
             dense
           >
             <SettingsProvider>

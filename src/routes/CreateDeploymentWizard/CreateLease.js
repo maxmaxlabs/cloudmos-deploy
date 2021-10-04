@@ -53,7 +53,7 @@ export function CreateLease({ dseq }) {
 
       return response;
     } catch (err) {
-      enqueueSnackbar("Error while sending manifest to provider", { variant: "error" });
+      enqueueSnackbar(`Error while sending manifest to provider. ${err}`, { variant: "error", autoHideDuration: null });
       throw err;
     }
   }
