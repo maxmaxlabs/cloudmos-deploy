@@ -4,7 +4,7 @@ const path = require("path");
 const winston = require("winston");
 const url = require("url");
 const isDev = require("electron-is-dev");
-// const { autoUpdater } = require("electron-updater");
+const { autoUpdater } = require("electron-updater");
 
 const Sentry = require("@sentry/electron");
 
@@ -18,9 +18,9 @@ Sentry.init({
   release: appVersion
 });
 
-// app.on("ready", () => {
-//   autoUpdater.checkForUpdatesAndNotify();
-// });
+app.on("ready", () => {
+  autoUpdater.checkForUpdatesAndNotify();
+});
 
 const logger = winston.createLogger({
   level: "info",
@@ -72,16 +72,16 @@ function createWindow() {
 
     mainWindow.loadURL(startUrl);
 
-    // autoUpdater.on("update-available", () => {
-    //   mainWindow.webContents.send("update_available");
-    // });
-    // autoUpdater.on("update-downloaded", () => {
-    //   mainWindow.webContents.send("update_downloaded");
-    // });
+    autoUpdater.on("update-available", () => {
+      mainWindow.webContents.send("update_available");
+    });
+    autoUpdater.on("update-downloaded", () => {
+      mainWindow.webContents.send("update_downloaded");
+    });
 
-    // ipcMain.on("restart_app", () => {
-    //   autoUpdater.quitAndInstall();
-    // });
+    ipcMain.on("restart_app", () => {
+      autoUpdater.quitAndInstall();
+    });
 
     ipcMain.on("isDev", (event, arg) => {
       event.reply("isDev", isDev);
