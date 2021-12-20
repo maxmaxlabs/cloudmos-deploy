@@ -72,8 +72,8 @@ export const SettingsProvider = ({ children }) => {
 
         // Set fastest one as default
         const randomNodeKey = getFastestNode(nodes);
-        defaultApiNode = `http://${randomNodeKey}:${nodes[randomNodeKey].api}`;
-        defaultRpcNode = `http://${randomNodeKey}:${nodes[randomNodeKey].rpc}`;
+        defaultApiNode = `http://${randomNodeKey}${nodes[randomNodeKey].api ? ":" + nodes[randomNodeKey].api : ""}`;
+        defaultRpcNode = `http://${randomNodeKey}${nodes[randomNodeKey].rpc ? ":" + nodes[randomNodeKey].rpc : ""}`;
         selectedNodeKey = randomNodeKey;
       }
 
@@ -164,7 +164,7 @@ export const SettingsProvider = ({ children }) => {
       await Promise.all(
         Object.keys(nodes).map(async (nodeKey) => {
           const node = nodes[nodeKey];
-          const nodeStatus = await loadNodeStatus(`http://${nodeKey}:${node.api}`);
+          const nodeStatus = await loadNodeStatus(`http://${nodeKey}${node.api ? ":" + node.api : ""}`);
 
           nodes[nodeKey] = {
             ...nodes[nodeKey],

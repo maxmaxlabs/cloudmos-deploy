@@ -74,8 +74,12 @@ export function Settings(props) {
 
   const onIsCustomNodeChange = (event) => {
     const isChecked = event.target.checked;
-    const apiEndpoint = isChecked ? settings.apiEndpoint : `http://${settings.selectedNodeKey}:${settings.nodes[settings.selectedNodeKey].api}`;
-    const rpcEndpoint = isChecked ? settings.rpcEndpoint : `http://${settings.selectedNodeKey}:${settings.nodes[settings.selectedNodeKey].rpc}`;
+    const apiEndpoint = isChecked
+      ? settings.apiEndpoint
+      : `http://${settings.selectedNodeKey}${settings.nodes[settings.selectedNodeKey].api ? ":" + settings.nodes[settings.selectedNodeKey].api : ""}`;
+    const rpcEndpoint = isChecked
+      ? settings.rpcEndpoint
+      : `http://${settings.selectedNodeKey}${settings.nodes[settings.selectedNodeKey].rpc ? ":" + settings.nodes[settings.selectedNodeKey].rpc : ""}`;
 
     reset();
 
@@ -83,8 +87,8 @@ export function Settings(props) {
   };
 
   const onNodeChange = (event, newValue) => {
-    const apiEndpoint = `http://${newValue}:${settings.nodes[newValue].api}`;
-    const rpcEndpoint = `http://${newValue}:${settings.nodes[newValue].rpc}`;
+    const apiEndpoint = `http://${newValue}${settings.nodes[newValue].api ? ":" + settings.nodes[newValue].api : ""}`;
+    const rpcEndpoint = `http://${newValue}${settings.nodes[newValue].rpc ? ":" + settings.nodes[newValue].rpc : ""}`;
 
     setSettings({ ...settings, apiEndpoint, rpcEndpoint, selectedNodeKey: newValue });
   };

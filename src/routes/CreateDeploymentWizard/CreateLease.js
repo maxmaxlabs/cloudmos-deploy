@@ -1,6 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
-import { Button, CircularProgress, Box, Typography, LinearProgress, Menu, MenuItem, IconButton, makeStyles } from "@material-ui/core";
+import {
+  Button,
+  CircularProgress,
+  Box,
+  Typography,
+  LinearProgress,
+  Menu,
+  MenuItem,
+  IconButton,
+  makeStyles,
+  TextField,
+  InputAdornment
+} from "@material-ui/core";
 import { useWallet } from "../../context/WalletProvider";
 import { BidGroup } from "./BidGroup";
 import { useHistory } from "react-router";
@@ -16,6 +28,7 @@ import Alert from "@material-ui/lab/Alert";
 import { Helmet } from "react-helmet-async";
 import { analytics } from "../../shared/utils/analyticsUtils";
 import { useProviders } from "../../queries";
+import CloseIcon from "@material-ui/icons/Close";
 
 const yaml = require("js-yaml");
 
@@ -29,19 +42,49 @@ const useStyles = makeStyles((theme) => ({
 export function CreateLease({ dseq }) {
   const [isSendingManifest, setIsSendingManifest] = useState(false);
   const [selectedBids, setSelectedBids] = useState({});
+  const [filteredBids, setFilteredBids] = useState([]);
+  const [search, setSearch] = useState("");
   const { sendTransaction } = useTransactionModal();
   const { address } = useWallet();
   const { localCert } = useCertificate();
   const { enqueueSnackbar } = useSnackbar();
   const history = useHistory();
   const { data: providers } = useProviders();
+  const [anchorEl, setAnchorEl] = useState(null);
   const classes = useStyles();
-
   const { data: bids, isLoading: isLoadingBids } = useBidList(address, dseq, {
     initialData: [],
     initialStale: true,
     refetchInterval: 7000
   });
+  const groupedBids = bids.reduce((a, b) => {
+    a[b.gseq] = [...(a[b.gseq] || []), b];
+    return a;
+  }, {});
+  const dseqList = Object.keys(groupedBids);
+  const allClosed = bids.length > 0 && bids.every((bid) => bid.state === "closed");
+
+  // Filter bids by search
+  useEffect(() => {
+    if (search) {
+      const fBids = [];
+
+      bids?.forEach((bid) => {
+        const provider = providers.find((p) => p.owner === bid.provider);
+
+        // Filter by attribute value
+        provider?.attributes.forEach((att) => {
+          if (att.value?.includes(search)) {
+            fBids.push(bid.id);
+          }
+        });
+      });
+
+      setFilteredBids(fBids);
+    } else {
+      setFilteredBids(bids?.map((b) => b.id) || []);
+    }
+  }, [search, bids]);
 
   const handleBidSelected = (bid) => {
     setSelectedBids({ ...selectedBids, [bid.gseq]: bid });
@@ -109,8 +152,6 @@ export function CreateLease({ dseq }) {
     }
   }
 
-  const [anchorEl, setAnchorEl] = useState(null);
-
   function handleMenuClick(ev) {
     setAnchorEl(ev.currentTarget);
   }
@@ -119,14 +160,10 @@ export function CreateLease({ dseq }) {
     setAnchorEl(null);
   };
 
-  const groupedBids = bids.reduce((a, b) => {
-    a[b.gseq] = [...(a[b.gseq] || []), b];
-    return a;
-  }, {});
-
-  const dseqList = Object.keys(groupedBids);
-
-  const allClosed = bids.length > 0 && bids.every((bid) => bid.state === "closed");
+  const onSearchChange = (event) => {
+    const value = event.target.value;
+    setSearch(value);
+  };
 
   return (
     <>
@@ -134,12 +171,37 @@ export function CreateLease({ dseq }) {
 
       {isSendingManifest && <LinearProgress />}
 
-      {(isLoadingBids || bids.length === 0) && (
-        <Box textAlign="center">
-          <CircularProgress />
-          <Box paddingTop="1rem">
-            <Typography variant="body1">Waiting for bids...</Typography>
+      {isLoadingBids ||
+        (bids.length === 0 && (
+          <Box textAlign="center">
+            <CircularProgress />
+            <Box paddingTop="1rem">
+              <Typography variant="body1">Waiting for bids...</Typography>
+            </Box>
           </Box>
+        ))}
+
+      {!isLoadingBids && bids.length > 0 && (
+        <Box display="flex" justifyContent="flex-end">
+          <TextField
+            label="Search by attribute..."
+            disabled={bids.length === 0}
+            value={search}
+            onChange={onSearchChange}
+            type="text"
+            variant="outlined"
+            autoFocus
+            size="small"
+            InputProps={{
+              endAdornment: search && (
+                <InputAdornment position="end">
+                  <IconButton size="small" onClick={() => setSearch("")}>
+                    <CloseIcon />
+                  </IconButton>
+                </InputAdornment>
+              )
+            }}
+          />
         </Box>
       )}
 
@@ -152,6 +214,7 @@ export function CreateLease({ dseq }) {
           selectedBid={selectedBids[gseq]}
           disabled={isSendingManifest}
           providers={providers}
+          filteredBids={filteredBids}
         />
       ))}
 

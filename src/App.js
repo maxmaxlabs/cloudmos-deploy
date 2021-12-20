@@ -29,7 +29,8 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: "300px"
   },
   snackbarClose: {
-    color: "#ffffff"
+    color: "#ffffff",
+    paddingLeft: 0
   },
   footer: {
     top: "auto",
