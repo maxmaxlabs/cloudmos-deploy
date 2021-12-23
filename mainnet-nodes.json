@@ -38,5 +38,5 @@
 		"id": "smartnodes.co",
 		"api": "https://api.akash.smartnodes.co",
 		"rpc": "https://rpc.akash.smartnodes.co:443"
-	},
+	}
 ]
