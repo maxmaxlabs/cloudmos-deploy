@@ -1,1 +1,1 @@
-export const mainNet = "https://raw.githubusercontent.com/ovrclk/net/master/mainnet";
+export const mainNetNodes = "https://raw.githubusercontent.com/Akashlytics/akashlytics-deploy/master/mainnet-nodes.json";

@@ -55,7 +55,6 @@ export const useStyles = makeStyles((theme) => ({
     display: "flex",
     justifyContent: "flex-end",
     padding: "2px",
-    paddingBottom: "1rem",
     fontSize: ".9rem",
     fontWeight: "bold"
   },

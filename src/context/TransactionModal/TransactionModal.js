@@ -19,12 +19,12 @@ import {
 } from "@material-ui/core";
 import { a11yProps } from "../../shared/utils/a11yUtils";
 import { TabPanel } from "../../shared/components/TabPanel";
-import { baseGas, createFee, customRegistry } from "../../shared/utils/blockchainUtils";
+import { baseGas, createFee, customRegistry, fees, createCustomFee } from "../../shared/utils/blockchainUtils";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { useWallet } from "../WalletProvider";
 import clsx from "clsx";
 import { TransactionMessage } from "./TransactionMessage";
-import { uaktToAKT } from "../../shared/utils/priceUtils";
+import { aktToUakt, uaktToAKT } from "../../shared/utils/priceUtils";
 import { useSnackbar } from "notistack";
 import { useStyles } from "./TransactionModal.styles";
 import { useSettings } from "../SettingsProvider";
@@ -42,13 +42,16 @@ export function TransactionModal(props) {
   const [tabIndex, setTabIndex] = useState(0);
   const [memo, setMemo] = useState("");
   const [gas, setGas] = useState(baseGas);
-  const [isSettingGas, setIsSettingGas] = useState(false);
+  const [customFee, setCustomFee] = useState(uaktToAKT(fees["avg"]));
+  const [isSettingCustomFee, setIsCustomFee] = useState(false);
   const [currentFee, setCurrentFee] = useState("avg");
   const classes = useStyles();
   const lowFee = createFee("low", baseGas, messages.length);
   const avgFee = createFee("avg", baseGas, messages.length);
   const highFee = createFee("high", baseGas, messages.length);
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const isCustomFeeValid = customFee && parseFloat(customFee) > 0;
+  const isGasValid = gas && parseInt(gas) > 0;
 
   async function handleSubmit(ev) {
     ev.preventDefault();
@@ -63,7 +66,7 @@ export function TransactionModal(props) {
         broadcastTimeoutMs: 300_000 // 5min
       });
 
-      const fee = createFee(currentFee, gas, messages.length);
+      const fee = isSettingCustomFee ? createCustomFee(aktToUakt(customFee), gas, messages.length) : createFee(currentFee, gas, messages.length);
       const response = await client.signAndBroadcast(address, messages, fee, memo);
 
       console.log(response);
@@ -93,6 +96,7 @@ export function TransactionModal(props) {
         try {
           const reg = /Broadcasting transaction failed with code (.+?) \(codespace: (.+?)\)/i;
           const match = err.message.match(reg);
+          const log = err.message.substring(err.message.indexOf("Log"), err.message.length);
 
           if (match) {
             const code = parseInt(match[1]);
@@ -114,6 +118,10 @@ export function TransactionModal(props) {
               }
             }
           }
+
+          if (log) {
+            errorMsg += `. ${log}`;
+          }
         } catch (err) {
           console.error(err);
         }
@@ -133,10 +141,8 @@ export function TransactionModal(props) {
 
   const onSetGasClick = (event) => {
     event.preventDefault();
-    setIsSettingGas(!isSettingGas);
+    setIsCustomFee(!isSettingCustomFee);
   };
-
-  const isGasValid = gas && parseInt(gas) > 0;
 
   return (
     <Dialog
@@ -194,7 +200,13 @@ export function TransactionModal(props) {
           </Box>
 
           <Box>
-            <ButtonGroup size="large" color="primary" aria-label="large outlined primary button group" classes={{ root: classes.fullWidth }}>
+            <ButtonGroup
+              size="large"
+              color="primary"
+              aria-label="large outlined primary button group"
+              classes={{ root: classes.fullWidth }}
+              disabled={isSettingCustomFee}
+            >
               <Button
                 disabled={isSendingTransaction}
                 classes={{ root: classes.feeButton, label: classes.feeButtonLabel }}
@@ -237,24 +249,44 @@ export function TransactionModal(props) {
             {!isSendingTransaction && (
               <Typography className={classes.setGasLink}>
                 <Link href="#" onClick={onSetGasClick}>
-                  Set gas
+                  Set custom fee
                 </Link>
               </Typography>
             )}
-            {!isSendingTransaction && isSettingGas && (
-              <TextField
-                label="Gas"
-                value={gas}
-                onChange={(ev) => setGas(ev.target.value)}
-                type="number"
-                variant="outlined"
-                error={!isGasValid}
-                inputProps={{
-                  step: 1,
-                  min: 1
-                }}
-                classes={{ root: classes.fullWidth }}
-              />
+            {!isSendingTransaction && isSettingCustomFee && (
+              <>
+                <Box marginBottom=".5rem">
+                  <TextField
+                    label="Fee (AKT)"
+                    value={customFee}
+                    onChange={(ev) => setCustomFee(ev.target.value)}
+                    type="number"
+                    variant="outlined"
+                    error={!isCustomFeeValid}
+                    inputProps={{
+                      step: 0.001,
+                      min: 0
+                    }}
+                    classes={{ root: classes.fullWidth }}
+                  />
+                </Box>
+
+                <Box>
+                  <TextField
+                    label="Gas"
+                    value={gas}
+                    onChange={(ev) => setGas(ev.target.value)}
+                    type="number"
+                    variant="outlined"
+                    error={!isGasValid}
+                    inputProps={{
+                      step: 1,
+                      min: 1
+                    }}
+                    classes={{ root: classes.fullWidth }}
+                  />
+                </Box>
+              </>
             )}
           </Box>
         </TabPanel>

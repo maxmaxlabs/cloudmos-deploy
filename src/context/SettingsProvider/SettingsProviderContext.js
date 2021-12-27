@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { mainNet } from "../../shared/contants";
+import { mainNetNodes } from "../../shared/contants";
 import { queryClient } from "../../queries";
 
 const SettingsProviderContext = React.createContext({});
 
 export const SettingsProvider = ({ children }) => {
-  const [settings, setSettings] = useState({ apiEndpoint: "", rpcEndpoint: "", isCustomNode: false, nodes: {} });
+  const [settings, setSettings] = useState({ apiEndpoint: "", rpcEndpoint: "", isCustomNode: false, nodes: [], selectedNode: null });
   const [isLoadingSettings, setIsLoadingSettings] = useState(true);
   const [isRefreshingNodeStatus, setIsRefreshingNodeStatus] = useState(false);
 
@@ -17,68 +17,62 @@ export const SettingsProvider = ({ children }) => {
 
       const settingsStr = localStorage.getItem("settings");
       const settings = JSON.parse(settingsStr) || {};
-      let defaultApiNode, defaultRpcNode, selectedNodeKey;
+      let defaultApiNode, defaultRpcNode, selectedNode;
 
       // Set the available nodes list and default endpoints
-      const apiNodes = await axios.get(`${mainNet}/api-nodes.txt`);
-      const rpcNodes = await axios.get(`${mainNet}/rpc-nodes.txt`);
-      const _apiNodes = apiNodes.data
-        .split("\n")
-        .filter((x) => x)
-        .map((node) => new URL(node));
-      const _rpcNodes = rpcNodes.data
-        .split("\n")
-        .filter((x) => x)
-        .map((node) => new URL(node));
-      const nodes = {};
+      const response = await axios.get(mainNetNodes);
+      let nodes = response.data;
 
-      _apiNodes.map(async (node) => {
-        nodes[node.hostname] = {
-          api: node.port
-        };
-      });
+      const hasSettings =
+        settingsStr && settings.apiEndpoint && settings.rpcEndpoint && settings.selectedNode && nodes.find((x) => x.id === settings.selectedNode.id);
 
-      _rpcNodes.forEach((node) => {
-        if (nodes[node.hostname]) {
-          nodes[node.hostname].rpc = node.port;
-        }
-      });
-
-      const hasSettings = settingsStr && settings.apiEndpoint && settings.rpcEndpoint && settings.selectedNodeKey && nodes[settings.selectedNodeKey];
-
-      // if user has settings
+      // if user has settings locally
       if (hasSettings) {
-        _apiNodes.map(async (node) => {
-          const nodeStatus = await loadNodeStatus(`http://${node.hostname}:${node.port}`);
+        nodes = nodes.map(async (node) => {
+          const nodeStatus = await loadNodeStatus(node.api);
 
-          nodes[node.hostname].status = nodeStatus.status;
-          nodes[node.hostname].latency = nodeStatus.latency;
-          nodes[node.hostname].nodeInfo = nodeStatus.nodeInfo;
+          return {
+            ...node,
+            status: nodeStatus.status,
+            latency: nodeStatus.latency,
+            nodeInfo: nodeStatus.nodeInfo
+          };
         });
 
         defaultApiNode = settings.apiEndpoint;
         defaultRpcNode = settings.rpcEndpoint;
-        selectedNodeKey = settings.selectedNodeKey;
-      } else {
-        await Promise.all(
-          _apiNodes.map(async (node) => {
-            const nodeStatus = await loadNodeStatus(`http://${node.hostname}:${node.port}`);
+        selectedNode = settings.selectedNode;
 
-            nodes[node.hostname].status = nodeStatus.status;
-            nodes[node.hostname].latency = nodeStatus.latency;
-            nodes[node.hostname].nodeInfo = nodeStatus.nodeInfo;
+        updateSettings({ ...settings, apiEndpoint: defaultApiNode, rpcEndpoint: defaultRpcNode, selectedNode });
+        setIsLoadingSettings(false);
+
+        // update the node statuses asynchronously
+        nodes = await Promise.all(nodes);
+
+        updateSettings({ ...settings, nodes });
+      } else {
+        nodes = await Promise.all(
+          nodes.map(async (node) => {
+            const nodeStatus = await loadNodeStatus(node.api);
+
+            return {
+              ...node,
+              status: nodeStatus.status,
+              latency: nodeStatus.latency,
+              nodeInfo: nodeStatus.nodeInfo
+            };
           })
         );
 
         // Set fastest one as default
-        const randomNodeKey = getFastestNode(nodes);
-        defaultApiNode = `http://${randomNodeKey}${nodes[randomNodeKey].api ? ":" + nodes[randomNodeKey].api : ""}`;
-        defaultRpcNode = `http://${randomNodeKey}${nodes[randomNodeKey].rpc ? ":" + nodes[randomNodeKey].rpc : ""}`;
-        selectedNodeKey = randomNodeKey;
-      }
+        const randomNode = getFastestNode(nodes);
+        defaultApiNode = randomNode.api;
+        defaultRpcNode = randomNode.rpc;
+        selectedNode = randomNode;
 
-      updateSettings({ ...settings, apiEndpoint: defaultApiNode, rpcEndpoint: defaultRpcNode, selectedNodeKey, nodes });
-      setIsLoadingSettings(false);
+        updateSettings({ ...settings, apiEndpoint: defaultApiNode, rpcEndpoint: defaultRpcNode, selectedNode, nodes });
+        setIsLoadingSettings(false);
+      }
     };
 
     initiateSettings();
@@ -119,24 +113,23 @@ export const SettingsProvider = ({ children }) => {
    * @returns
    */
   const getFastestNode = (nodes) => {
-    const nodeKeys = Object.keys(nodes).filter((n) => nodes[n].status === "active");
+    const filteredNodes = nodes.filter((n) => n.status === "active");
     let lowest = Number.POSITIVE_INFINITY,
-      fastestNodeKey;
+      fastestNode;
 
     // No active node, return the first one
-    if (nodeKeys.length === 0) {
-      return Object.keys(nodes)[0];
+    if (filteredNodes.length === 0) {
+      return nodes[0];
     }
 
-    for (let i = 0; i < nodeKeys.length - 1; i++) {
-      const currentNode = nodes[nodeKeys[i]];
-      if (currentNode.latency < lowest) {
-        lowest = currentNode.latency;
-        fastestNodeKey = nodeKeys[i];
+    filteredNodes.forEach((node) => {
+      if (node.latency < lowest) {
+        lowest = node.latency;
+        fastestNode = node;
       }
-    }
+    });
 
-    return fastestNodeKey;
+    return fastestNode;
   };
 
   const updateSettings = (newSettings) => {
@@ -159,15 +152,14 @@ export const SettingsProvider = ({ children }) => {
   const refreshNodeStatuses = async () => {
     return new Promise(async (res, rej) => {
       setIsRefreshingNodeStatus(true);
-      const nodes = settings.nodes;
+      let nodes = settings.nodes;
 
-      await Promise.all(
-        Object.keys(nodes).map(async (nodeKey) => {
-          const node = nodes[nodeKey];
-          const nodeStatus = await loadNodeStatus(`http://${nodeKey}${node.api ? ":" + node.api : ""}`);
+      nodes = await Promise.all(
+        nodes.map(async (node) => {
+          const nodeStatus = await loadNodeStatus(node.api);
 
-          nodes[nodeKey] = {
-            ...nodes[nodeKey],
+          return {
+            ...node,
             status: nodeStatus.status,
             latency: nodeStatus.latency,
             nodeInfo: nodeStatus.nodeInfo
@@ -177,7 +169,9 @@ export const SettingsProvider = ({ children }) => {
 
       setIsRefreshingNodeStatus(false);
 
-      updateSettings({ ...settings, nodes });
+      const selectedNode = nodes.find((node) => node.id === settings.selectedNode.id);
+
+      updateSettings({ ...settings, nodes, selectedNode });
 
       res(true);
     });
