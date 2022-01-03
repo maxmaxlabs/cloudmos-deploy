@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { mainNetNodes } from "../../shared/contants";
 import { queryClient } from "../../queries";
@@ -133,49 +133,65 @@ export const SettingsProvider = ({ children }) => {
   };
 
   const updateSettings = (newSettings) => {
-    if (settings.apiEndpoint !== newSettings.apiEndpoint || (settings.isCustomNode && !newSettings.isCustomNode)) {
+    setSettings((prevSettings) => {
+      clearQueries(prevSettings, newSettings);
+      localStorage.setItem("settings", JSON.stringify(newSettings));
+
+      return newSettings;
+    });
+  };
+
+  const clearQueries = (prevSettings, newSettings) => {
+    if (prevSettings.apiEndpoint !== newSettings.apiEndpoint || (prevSettings.isCustomNode && !newSettings.isCustomNode)) {
       // Cancel and remove queries from cache if the api endpoint is changed
       queryClient.resetQueries();
       queryClient.cancelQueries();
       queryClient.removeQueries();
       queryClient.clear();
     }
-
-    localStorage.setItem("settings", JSON.stringify(newSettings));
-    setSettings(newSettings);
   };
 
   /**
    * Refresh the nodes status and latency
    * @returns
    */
-  const refreshNodeStatuses = async () => {
-    return new Promise(async (res, rej) => {
-      setIsRefreshingNodeStatus(true);
-      let nodes = settings.nodes;
+  const refreshNodeStatuses = useCallback(async () => {
+    setIsRefreshingNodeStatus(true);
+    let nodes = settings.nodes;
 
-      nodes = await Promise.all(
-        nodes.map(async (node) => {
-          const nodeStatus = await loadNodeStatus(node.api);
+    nodes = await Promise.all(
+      nodes.map(async (node) => {
+        const nodeStatus = await loadNodeStatus(node.api);
 
-          return {
-            ...node,
-            status: nodeStatus.status,
-            latency: nodeStatus.latency,
-            nodeInfo: nodeStatus.nodeInfo
-          };
-        })
-      );
+        return {
+          ...node,
+          status: nodeStatus.status,
+          latency: nodeStatus.latency,
+          nodeInfo: nodeStatus.nodeInfo
+        };
+      })
+    );
 
-      setIsRefreshingNodeStatus(false);
+    setIsRefreshingNodeStatus(false);
 
-      const selectedNode = nodes.find((node) => node.id === settings.selectedNode.id);
+    // Update the settings with callback to avoid stale state settings
+    setSettings((prevSettings) => {
+      const selectedNode = nodes.find((node) => node.id === prevSettings.selectedNode.id);
 
-      updateSettings({ ...settings, nodes, selectedNode });
+      const newSettings = {
+        ...prevSettings,
+        nodes,
+        selectedNode
+      };
 
-      res(true);
+      clearQueries(prevSettings, newSettings);
+      localStorage.setItem("settings", JSON.stringify(newSettings));
+
+      return newSettings;
     });
-  };
+
+    // updateSettings({ ...settings, nodes, selectedNode });
+  }, [settings?.selectedNode?.id]);
 
   return (
     <SettingsProviderContext.Provider value={{ settings, setSettings: updateSettings, isLoadingSettings, refreshNodeStatuses, isRefreshingNodeStatus }}>
