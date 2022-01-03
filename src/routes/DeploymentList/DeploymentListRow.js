@@ -87,6 +87,7 @@ export function DeploymentListRow({ deployment }) {
             deployment.dseq
           )
         }
+        secondaryTypographyProps={{ component: "div" }}
         secondary={
           <>
             <Box display="flex" alignItems="center">

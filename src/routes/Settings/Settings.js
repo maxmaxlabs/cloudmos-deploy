@@ -19,8 +19,8 @@ import { useSettings } from "../../context/SettingsProvider";
 import { Controller, useForm } from "react-hook-form";
 import { Helmet } from "react-helmet-async";
 import Autocomplete from "@material-ui/lab/Autocomplete";
-import { StatusPill } from "../../shared/components/StatusPill";
 import { isUrl } from "../../shared/utils/stringUtils";
+import { NodeStatus } from "../../shared/components/NodeStatus";
 
 const useStyles = makeStyles((theme) => ({
   root: { padding: "1rem" },
@@ -276,18 +276,3 @@ export function Settings(props) {
     </Box>
   );
 }
-
-const NodeStatus = ({ latency, status }) => {
-  return (
-    <Box display="flex" alignItems="center">
-      <div>
-        <Typography variant="caption">
-          {latency}ms{latency >= 10000 && "+"}
-        </Typography>
-      </div>
-      <div>
-        <StatusPill state={status === "active" ? "active" : "closed"} />
-      </div>
-    </Box>
-  );
-};

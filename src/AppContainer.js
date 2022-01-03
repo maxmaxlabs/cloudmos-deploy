@@ -12,6 +12,7 @@ import { WalletOpen } from "./routes/WalletOpen";
 import { WalletImport } from "./routes/WalletImport";
 import { ErrorFallback } from "./shared/components/ErrorFallback";
 import { ErrorBoundary } from "react-error-boundary";
+import { NodeStatusBar } from "./components/NodeStatusBar";
 
 const useStyles = makeStyles((theme) => ({
   footer: {
@@ -71,7 +72,12 @@ export const AppContainer = () => {
             </ErrorBoundary>
           </Route>
 
-          {isAppInitiated && selectedWallet && address && <MainView />}
+          {isAppInitiated && selectedWallet && address && (
+            <>
+              <NodeStatusBar />
+              <MainView />
+            </>
+          )}
 
           {appVersion && (
             <footer className={classes.footer}>
