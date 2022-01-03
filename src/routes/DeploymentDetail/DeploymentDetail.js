@@ -14,6 +14,8 @@ import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkel
 import { Helmet } from "react-helmet-async";
 import { useLocalNotes } from "../../context/LocalNoteProvider";
 import { DeploymentLogs } from "./DeploymentLogs";
+import { useCertificate } from "../../context/CertificateProvider";
+import Alert from "@material-ui/lab/Alert";
 
 export function DeploymentDetail(props) {
   const [deployment, setDeployment] = useState(null);
@@ -32,6 +34,7 @@ export function DeploymentDetail(props) {
   const { data: currentBlock, refetch: getCurrentBlock } = useBlock(deployment?.createdAt, { enabled: !!deployment });
   const hasLeases = leases && leases.length > 0;
   const [leaseRefs, setLeaseRefs] = useState([]);
+  const { certificate, isLocalCertMatching, localCert } = useCertificate();
 
   const deploymentName = getDeploymentName(dseq);
 
@@ -131,7 +134,7 @@ export function DeploymentDetail(props) {
       <Tabs value={activeTab} onChange={(ev, value) => setActiveTab(value)} indicatorColor="primary" textColor="primary">
         <Tab value="DETAILS" label="Details" />
         <Tab value="EDIT" label="View / Edit Manifest" />
-        {deployment?.state === "active" && leases?.some(x => x.state === "active") && <Tab value="LOGS" label="Logs" />}
+        {deployment?.state === "active" && leases?.some((x) => x.state === "active") && <Tab value="LOGS" label="Logs" />}
         <Tab value="JSON_DATA" label="JSON Data" />
       </Tabs>
 
@@ -153,6 +156,12 @@ export function DeploymentDetail(props) {
             </Typography>
             {leases && leases.map((lease, i) => <LeaseRow key={lease.id} lease={lease} setActiveTab={setActiveTab} ref={leaseRefs[i]} />)}
             {!hasLeases && !isLoadingLeases && !isLoadingDeployment && <>This deployment doesn't have any leases</>}
+
+            {leases && certificate && (!localCert || !isLocalCertMatching) && (
+              <Box marginTop="1rem">
+                <Alert severity="warning">You do not have a valid local certificate. You need to create a new one to view lease status and details.</Alert>
+              </Box>
+            )}
 
             {(isLoadingLeases || isLoadingDeployment) && !hasLeases && (
               <Box textAlign="center" padding="2rem">
