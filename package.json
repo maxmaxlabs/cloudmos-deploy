@@ -1,12 +1,12 @@
 {
   "name": "akashlytics-deploy",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/Akashlytics/akashlytics-deploy-tool.git"
   },
-  "description": "Akashlytics deploy.",
+  "description": "Akashlytics deploy tool.",
   "author": {
     "name": "Akashlytics",
     "email": "admin@akashlytics.com",
