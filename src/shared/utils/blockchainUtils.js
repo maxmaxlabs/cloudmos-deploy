@@ -38,3 +38,7 @@ export const fees = {
 export const createFee = (type, gas = baseGas, msgCount = 1) => {
   return { gas, amount: [{ denom: "uakt", amount: (fees[type] * msgCount).toString() }] };
 };
+
+export const createCustomFee = (fee = fees["avg"], gas = baseGas, msgCount = 1) => {
+  return { gas, amount: [{ denom: "uakt", amount: (fee * msgCount).toString() }] };
+}

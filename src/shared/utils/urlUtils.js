@@ -12,3 +12,5 @@ export class UrlService {
   static createDeploymentStepManifest = () => "/createDeployment/editManifest";
   static createDeploymentStepBids = () => "/createDeployment/acceptBids";
 }
+
+export const legitPaths = ["wallet-import", "wallet-open", "deployments", "deployment", "settings", "createDeployment"];

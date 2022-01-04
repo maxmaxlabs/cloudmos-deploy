@@ -16,6 +16,7 @@ import { Helmet } from "react-helmet-async";
 import { analytics, HOSTNAME } from "./shared/utils/analyticsUtils";
 import { queryClient } from "./queries";
 import { AppContainer } from "./AppContainer";
+import { legitPaths } from "./shared/utils/urlUtils";
 
 // const ipcApi = window.electron.api;
 
@@ -29,7 +30,8 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: "300px"
   },
   snackbarClose: {
-    color: "#ffffff"
+    color: "#ffffff",
+    paddingLeft: 0
   },
   footer: {
     top: "auto",
@@ -48,12 +50,14 @@ function App() {
 
   useEffect(() => {
     const init = async () => {
-      await analytics.pageview(HOSTNAME, window.location.pathname + window.location.search, document.title);
+      const shouldLog = isLegitPath(window.location.pathname);
+      shouldLog && (await analytics.pageview(HOSTNAME, window.location.pathname + window.location.search, document.title));
     };
 
     history.listen(async (location, action) => {
       try {
-        await analytics.pageview(HOSTNAME, location.pathname + location.search, document.title);
+        const shouldLog = isLegitPath(location.pathname);
+        shouldLog && (await analytics.pageview(HOSTNAME, location.pathname + location.search, document.title));
       } catch (error) {
         console.log(error);
       }
@@ -61,6 +65,11 @@ function App() {
 
     init();
   }, []);
+
+  const isLegitPath = (pathname) => {
+    const firstPath = pathname.split("/")[1];
+    return legitPaths.includes(firstPath) || firstPath === "";
+  };
 
   // useEffect(() => {
   // ipcApi.receive("update_available", () => {

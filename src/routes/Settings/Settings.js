@@ -19,8 +19,8 @@ import { useSettings } from "../../context/SettingsProvider";
 import { Controller, useForm } from "react-hook-form";
 import { Helmet } from "react-helmet-async";
 import Autocomplete from "@material-ui/lab/Autocomplete";
-import { StatusPill } from "../../shared/components/StatusPill";
 import { isUrl } from "../../shared/utils/stringUtils";
+import { NodeStatus } from "../../shared/components/NodeStatus";
 
 const useStyles = makeStyles((theme) => ({
   root: { padding: "1rem" },
@@ -70,23 +70,24 @@ export function Settings(props) {
     formState: { errors }
   } = useForm();
   const formRef = useRef();
-  const nodes = Object.keys(settings.nodes);
+  const { selectedNode, nodes } = settings;
 
   const onIsCustomNodeChange = (event) => {
     const isChecked = event.target.checked;
-    const apiEndpoint = isChecked ? settings.apiEndpoint : `http://${settings.selectedNodeKey}:${settings.nodes[settings.selectedNodeKey].api}`;
-    const rpcEndpoint = isChecked ? settings.rpcEndpoint : `http://${settings.selectedNodeKey}:${settings.nodes[settings.selectedNodeKey].rpc}`;
+    const apiEndpoint = isChecked ? settings.apiEndpoint : selectedNode.api;
+    const rpcEndpoint = isChecked ? settings.rpcEndpoint : selectedNode.rpc;
 
     reset();
 
     setSettings({ ...settings, isCustomNode: isChecked, apiEndpoint, rpcEndpoint });
   };
 
-  const onNodeChange = (event, newValue) => {
-    const apiEndpoint = `http://${newValue}:${settings.nodes[newValue].api}`;
-    const rpcEndpoint = `http://${newValue}:${settings.nodes[newValue].rpc}`;
+  const onNodeChange = (event, newNodeId) => {
+    const newNode = nodes.find((n) => n.id === newNodeId);
+    const apiEndpoint = newNode.api;
+    const rpcEndpoint = newNode.rpc;
 
-    setSettings({ ...settings, apiEndpoint, rpcEndpoint, selectedNodeKey: newValue });
+    setSettings({ ...settings, apiEndpoint, rpcEndpoint, selectedNode: newNode });
   };
 
   const onRefreshNodeStatus = async () => {
@@ -115,10 +116,10 @@ export function Settings(props) {
               <FormControl>
                 <Autocomplete
                   disableClearable
-                  options={nodes}
+                  options={nodes.map((n) => n.id)}
                   style={{ width: 300 }}
-                  value={settings.selectedNodeKey}
-                  defaultValue={settings.selectedNodeKey}
+                  value={settings.selectedNode.id}
+                  defaultValue={settings.selectedNode.id}
                   getOptionSelected={(option, value) => option === value}
                   onChange={onNodeChange}
                   renderInput={(params) => (
@@ -131,21 +132,21 @@ export function Settings(props) {
                         classes: { root: classes.nodeInput },
                         endAdornment: (
                           <InputAdornment position="end">
-                            <NodeStatus
-                              latency={Math.floor(settings.nodes[settings.selectedNodeKey].latency)}
-                              status={settings.nodes[settings.selectedNodeKey].status}
-                            />
+                            <NodeStatus latency={Math.floor(selectedNode.latency)} status={selectedNode.status} />
                           </InputAdornment>
                         )
                       }}
                     />
                   )}
-                  renderOption={(option) => (
-                    <Box display="flex" alignItems="center" justifyContent="space-between" width="100%">
-                      <div>{option}</div>
-                      <NodeStatus latency={Math.floor(settings.nodes[option].latency)} status={settings.nodes[option].status} />
-                    </Box>
-                  )}
+                  renderOption={(option) => {
+                    const node = nodes.find((n) => n.id === option);
+                    return (
+                      <Box display="flex" alignItems="center" justifyContent="space-between" width="100%">
+                        <div>{option}</div>
+                        <NodeStatus latency={Math.floor(node.latency)} status={node.status} />
+                      </Box>
+                    );
+                  }}
                   disabled={settings.isCustomNode}
                 />
               </FormControl>
@@ -275,18 +276,3 @@ export function Settings(props) {
     </Box>
   );
 }
-
-const NodeStatus = ({ latency, status }) => {
-  return (
-    <Box display="flex" alignItems="center">
-      <div>
-        <Typography variant="caption">
-          {latency}ms{latency >= 10000 && "+"}
-        </Typography>
-      </div>
-      <div>
-        <StatusPill state={status === "active" ? "active" : "closed"} />
-      </div>
-    </Box>
-  );
-};

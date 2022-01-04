@@ -10,6 +10,7 @@ import { useSettings } from "../../context/SettingsProvider";
 import { DeleteWalletConfirm } from "../../shared/components/DeleteWalletConfirm";
 import { useHistory } from "react-router-dom";
 import { UrlService } from "../../shared/utils/urlUtils";
+import { Address } from "../../shared/components/Address";
 
 const useStyles = makeStyles({
   root: {
@@ -81,7 +82,7 @@ export function WalletDisplay() {
               </Box>
             </Box>
           }
-          subheader={address}
+          subheader={<Address address={address} isCopyable />}
         ></CardHeader>
         <Menu
           id="wallet-menu"

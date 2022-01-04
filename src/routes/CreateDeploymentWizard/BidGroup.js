@@ -1,4 +1,5 @@
 import { makeStyles, ListSubheader, Radio, List, ListItemText, ListItemIcon, ListItem, Box, Typography } from "@material-ui/core";
+import { Address } from "../../shared/components/Address";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -29,59 +30,61 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function BidGroup({ bids, gseq, selectedBid, handleBidSelected, disabled, providers }) {
+export function BidGroup({ bids, gseq, selectedBid, handleBidSelected, disabled, providers, filteredBids }) {
   const classes = useStyles();
 
   return (
     <List className={classes.root} subheader={<ListSubheader component="div">GSEQ: {gseq}</ListSubheader>}>
-      {bids.map((bid) => {
-        const provider = providers && providers.find((x) => x.owner === bid.provider);
-        return (
-          <ListItem disabled={bid.state !== "open"} key={bid.id} dense button onClick={() => handleBidSelected(bid)}>
-            <ListItemIcon>
-              <Radio
-                checked={selectedBid?.id === bid.id}
-                //onChange={handleChange}
-                value={bid.id}
-                name="radio-button-demo"
-                disabled={disabled}
+      {bids
+        .filter((bid) => filteredBids.includes(bid.id))
+        .map((bid) => {
+          const provider = providers && providers.find((x) => x.owner === bid.provider);
+          return (
+            <ListItem disabled={bid.state !== "open"} key={bid.id} dense button onClick={() => handleBidSelected(bid)}>
+              <ListItemIcon>
+                <Radio
+                  checked={selectedBid?.id === bid.id}
+                  //onChange={handleChange}
+                  value={bid.id}
+                  name="radio-button-demo"
+                  disabled={disabled}
+                />
+              </ListItemIcon>
+              <ListItemText
+                id={`checkbox-list-label-${bid.id}`}
+                classes={{ secondary: classes.secondaryText }}
+                primary={
+                  <>
+                    {bid.price.amount} uakt / block ({bid.state})
+                  </>
+                }
+                secondary={<Address address={bid.provider} isCopyable />}
               />
-            </ListItemIcon>
-            <ListItemText
-              id={`checkbox-list-label-${bid.id}`}
-              classes={{ secondary: classes.secondaryText }}
-              primary={
-                <>
-                  {bid.price.amount} uakt / block ({bid.state})
-                </>
-              }
-              secondary={bid.provider}
-            />
 
-            {provider && (
-              <Box className={classes.attributesContainer}>
-                <Typography variant="body2" className={classes.attributeTitle}>
-                  <strong>Attributes</strong>
-                </Typography>
-                {provider.attributes.map((a) => (
-                  <Box className={classes.attributeRow} key={a.key}>
-                    <Box>
-                      <Typography variant="caption" className={classes.attributeText}>
-                        {a.key}:
-                      </Typography>
+              {provider && (
+                <Box className={classes.attributesContainer}>
+                  <Typography variant="body2" className={classes.attributeTitle}>
+                    <strong>Attributes</strong>
+                  </Typography>
+                  {provider.attributes.map((a) => (
+                    <Box className={classes.attributeRow} key={a.key}>
+                      <Box>
+                        <Typography variant="caption" className={classes.attributeText}>
+                          {a.key}:
+                        </Typography>
+                      </Box>
+                      <Box marginLeft="1rem">
+                        <Typography variant="caption" className={classes.attributeText}>
+                          {a.value}
+                        </Typography>
+                      </Box>
                     </Box>
-                    <Box marginLeft="1rem">
-                      <Typography variant="caption" className={classes.attributeText}>
-                        {a.value}
-                      </Typography>
-                    </Box>
-                  </Box>
-                ))}
-              </Box>
-            )}
-          </ListItem>
-        );
-      })}
+                  ))}
+                </Box>
+              )}
+            </ListItem>
+          );
+        })}
     </List>
   );
 }

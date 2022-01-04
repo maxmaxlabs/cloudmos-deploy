@@ -26,7 +26,7 @@ export function isUrl(val) {
     return false;
   }
 
-  return (url.protocol === "http:" || url.protocol === "https:") && !!url.port;
+  return url.protocol === "http:" || url.protocol === "https:";
 }
 
 export function selectText(node) {

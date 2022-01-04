@@ -14,10 +14,10 @@ Akashlytics Deploy is a desktop app that greatly simplifies and enhances deploym
 - Name your deployments
 - Secure (your private key and certificate never leave your computer)
 - Real-time log and events viewer
+- Linux support
 
 ## Roadmap
 
-- Linux support
 - Create wallet
 - Send transactions
 - Auto update
