@@ -18,9 +18,9 @@ Sentry.init({
   release: appVersion
 });
 
-app.on("ready", () => {
-  autoUpdater.checkForUpdatesAndNotify();
-});
+// app.on("ready", () => {
+//   autoUpdater.checkForUpdatesAndNotify();
+// });
 
 const logger = winston.createLogger({
   level: "info",
@@ -98,6 +98,8 @@ app.whenReady().then(() => {
   logger.info("Creating window");
 
   createWindow();
+
+  autoUpdater.checkForUpdatesAndNotify();
 
   app.on("activate", function () {
     // On macOS it's common to re-create a window in the app when the
