@@ -5,6 +5,7 @@ const winston = require("winston");
 const url = require("url");
 const isDev = require("electron-is-dev");
 const { autoUpdater } = require("electron-updater");
+const log = require("electron-log");
 
 const Sentry = require("@sentry/electron");
 
@@ -17,6 +18,9 @@ Sentry.init({
   environment: appEnv,
   release: appVersion
 });
+
+autoUpdater.logger = log;
+autoUpdater.logger.transports.file.level = "info";
 
 // app.on("ready", () => {
 //   autoUpdater.checkForUpdatesAndNotify();
