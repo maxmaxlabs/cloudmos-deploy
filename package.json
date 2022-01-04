@@ -1,6 +1,6 @@
 {
   "name": "akashlytics-deploy",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "private": true,
   "repository": {
     "type": "git",
@@ -24,7 +24,7 @@
     "build-mac": "cross-env GENERATE_SOURCEMAP=false react-app-rewired build && electron-builder --mac",
     "build-linux": "cross-env GENERATE_SOURCEMAP=false react-app-rewired build && electron-builder --linux",
     "dist-mac": "cross-env DEBUG=electron-builder electron-builder --mac",
-    "release": "electron-builder --windows --publish always"
+    "release": "react-app-rewired build && electron-builder --windows --publish always"
   },
   "eslintConfig": {
     "extends": [

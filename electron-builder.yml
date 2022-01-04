@@ -18,5 +18,3 @@ asarUnpack: "**/akashlytics-provider-proxy*"
 npmRebuild: false
 publish:
   provider: github
-  token: GH_TOKEN
-  private: false
