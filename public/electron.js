@@ -1,5 +1,5 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, Notification } = require("electron");
 const path = require("path");
 const winston = require("winston");
 const url = require("url");
@@ -21,10 +21,11 @@ Sentry.init({
 
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = "info";
+autoUpdater.autoDownload = false;
+autoUpdater.autoInstallOnAppQuit = false;
 
-// app.on("ready", () => {
-//   autoUpdater.checkForUpdatesAndNotify();
-// });
+// Set the app user model id for the notifications
+app.setAppUserModelId("Akashlytics Deploy");
 
 const logger = winston.createLogger({
   level: "info",
@@ -76,19 +77,26 @@ function createWindow() {
 
     mainWindow.loadURL(startUrl);
 
+    // Event handlers
+    // Auto update
     autoUpdater.on("update-available", () => {
       mainWindow.webContents.send("update_available");
     });
-    autoUpdater.on("update-downloaded", () => {
-      mainWindow.webContents.send("update_downloaded");
+    autoUpdater.on("update-downloaded", (event, releaseNotes, releaseName) => {
+      mainWindow.webContents.send("update_downloaded", event, releaseNotes, releaseName);
     });
-
+    // Custom events
+    ipcMain.on("download_update", () => {
+      autoUpdater.downloadUpdate();
+    });
     ipcMain.on("restart_app", () => {
       autoUpdater.quitAndInstall();
     });
-
     ipcMain.on("isDev", (event, arg) => {
       event.reply("isDev", isDev);
+    });
+    ipcMain.on("show_notification", (event, notif) => {
+      new Notification(notif).show();
     });
   } catch (error) {
     logger.error(error);
@@ -103,7 +111,10 @@ app.whenReady().then(() => {
 
   createWindow();
 
-  autoUpdater.checkForUpdatesAndNotify();
+  autoUpdater.checkForUpdates();
+  setInterval(() => {
+    autoUpdater.checkForUpdates();
+  }, 30 * 60 * 1000); // Check every 30 minutes for updates
 
   app.on("activate", function () {
     // On macOS it's common to re-create a window in the app when the

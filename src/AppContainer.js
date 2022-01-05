@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { MainView } from "./MainView";
 import { useWallet } from "./context/WalletProvider";
-import { Box, CircularProgress, makeStyles, Typography } from "@material-ui/core";
+import { Box, CircularProgress, makeStyles, Typography, Button } from "@material-ui/core";
 import { useSettings } from "./context/SettingsProvider";
 import { Route, useHistory } from "react-router-dom";
 import { BetaBanner } from "./components/BetaBanner";
@@ -13,9 +13,7 @@ import { WalletImport } from "./routes/WalletImport";
 import { ErrorFallback } from "./shared/components/ErrorFallback";
 import { ErrorBoundary } from "react-error-boundary";
 import { NodeStatusBar } from "./components/NodeStatusBar";
-import { useSnackbar } from "notistack";
-
-const ipcApi = window.electron.api;
+import { AutoUpdater } from "./components/AutoUpdater";
 
 const useStyles = makeStyles((theme) => ({
   footer: {
@@ -33,8 +31,6 @@ export const AppContainer = () => {
   const { isLoadingSettings } = useSettings();
   const { addresses } = useStorageWalletAddresses();
   const history = useHistory();
-  const [isUpdateAvailable, setIsUpdateAvailable] = useState(false);
-  const { enqueueSnackbar } = useSnackbar();
 
   const walletExists = addresses?.length > 0;
 
@@ -47,22 +43,6 @@ export const AppContainer = () => {
         history.replace(UrlService.walletImport());
       }
     }
-
-    ipcApi.receive("update_available", () => {
-      debugger;
-      ipcApi.removeAllListeners("update_available");
-
-      enqueueSnackbar("A new update is available. Downloading now...", { variant: "info" });
-    });
-    ipcApi.receive("update_downloaded", () => {
-      debugger;
-      ipcApi.removeAllListeners("update_downloaded");
-
-      enqueueSnackbar("Update Downloaded. It will be installed on restart. Restart now?", { variant: "info" });
-
-      // TODO Handle click button to send restart
-      // ipcApi.send("restart_app");
-    });
 
     setIsAppInitiated(true);
   }, []);
@@ -95,6 +75,8 @@ export const AppContainer = () => {
 
           {isAppInitiated && selectedWallet && address && (
             <>
+              <AutoUpdater />
+
               <NodeStatusBar />
               <MainView />
             </>

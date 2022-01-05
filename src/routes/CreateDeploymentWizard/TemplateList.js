@@ -363,12 +363,14 @@ deployment:
     category: "Mining",
     description: "Create Chia plots and upload over (SSH) to a remote host.",
     githubUrl: "https://github.com/ovrclk/awesome-akash/blob/master/chia/deploy.yaml",
-    valuesToChange: [{ field: "env", initialValue: "<CONTRACT>" }],
-    valuesToChange: [{ field: "env", initialValue: "<FARMERYKEY>" }],
-    valuesToChange: [{ field: "env", initialValue: "<REMOTE_HOST>" }],
-    valuesToChange: [{ field: "env", initialValue: "<REMOTE_PORT>" }],
-    valuesToChange: [{ field: "env", initialValue: "<REMOTE_USER>" }],
-    valuesToChange: [{ field: "env", initialValue: "<REMOTE_PASS>" }],
+    valuesToChange: [
+      { field: "env", initialValue: "<CONTRACT>" },
+      { field: "env", initialValue: "<FARMERYKEY>" },
+      { field: "env", initialValue: "<REMOTE_HOST>" },
+      { field: "env", initialValue: "<REMOTE_PORT>" },
+      { field: "env", initialValue: "<REMOTE_USER>" },
+      { field: "env", initialValue: "<REMOTE_PASS>" }
+    ],
     content: `---
 version: "2.0"
 
