@@ -82,8 +82,8 @@ function createWindow() {
     autoUpdater.on("update-available", () => {
       mainWindow.webContents.send("update_available");
     });
-    autoUpdater.on("update-downloaded", (event, releaseNotes, releaseName) => {
-      mainWindow.webContents.send("update_downloaded", event, releaseNotes, releaseName);
+    autoUpdater.on("update-downloaded", (event) => {
+      mainWindow.webContents.send("update_downloaded", event);
     });
     // Custom events
     ipcMain.on("download_update", () => {

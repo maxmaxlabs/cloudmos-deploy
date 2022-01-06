@@ -36,14 +36,16 @@ export const AutoUpdater = () => {
     ipcApi.receive("update_available", () => {
       ipcApi.removeAllListeners("update_available");
 
+      console.log("Update available");
+
       showDownloadingUpdateSnackbar();
     });
-    ipcApi.receive("update_downloaded", (event, releaseNotes, releaseName, releaseDate, updateUrl) => {
+    ipcApi.receive("update_downloaded", (event) => {
       ipcApi.removeAllListeners("update_downloaded");
 
-      console.log("Update downloaded:", event, releaseNotes, releaseName, releaseDate, updateUrl);
+      console.log("Update downloaded:", event);
 
-      showUpdateDownloadedSnackbar(releaseNotes, releaseName, releaseDate);
+      showUpdateDownloadedSnackbar(event.releaseNotes, event.releaseName, event.releaseDate);
     });
   }, []);
 
@@ -63,29 +65,29 @@ export const AutoUpdater = () => {
   /**
    * Show snackbar when there's a new update to download
    */
-  const showNewUpdateSnackbar = () => {
-    enqueueSnackbar(
-      <div>
-        <Box marginBottom=".5rem">
-          <strong>A new update is available!</strong> Downloading now...
-        </Box>
-        <Button
-          size="small"
-          variant="contained"
-          onClick={() => {
-            ipcApi.send("download_update");
-            showDownloadingUpdateSnackbar();
-          }}
-        >
-          Download
-        </Button>
-      </div>,
-      {
-        variant: "info",
-        autoHideDuration: 5 * 60 * 1000 // 10 minutes
-      }
-    );
-  };
+  // const showNewUpdateSnackbar = () => {
+  //   enqueueSnackbar(
+  //     <div>
+  //       <Box marginBottom=".5rem">
+  //         <strong>A new update is available!</strong> Downloading now...
+  //       </Box>
+  //       <Button
+  //         size="small"
+  //         variant="contained"
+  //         onClick={() => {
+  //           ipcApi.send("download_update");
+  //           showDownloadingUpdateSnackbar();
+  //         }}
+  //       >
+  //         Download
+  //       </Button>
+  //     </div>,
+  //     {
+  //       variant: "info",
+  //       autoHideDuration: 5 * 60 * 1000 // 10 minutes
+  //     }
+  //   );
+  // };
 
   /**
    * Show snackbar when the update is downloaded
@@ -93,18 +95,13 @@ export const AutoUpdater = () => {
   const showUpdateDownloadedSnackbar = (releaseNotes, releaseName, releaseDate) => {
     console.log("Release info", releaseNotes, releaseName, releaseDate);
 
-    ipcApi.send("show_notification", {
-      title: "Update Downloaded!",
-      body: "Akashlytics Deploy new version has been downloaded and will be automatically installed on exit."
-    });
-
     closeSnackbar(downloadSnackbarKey);
     setDownloadSnackbarKey(null);
 
     enqueueSnackbar(
       <div>
         <Box marginBottom=".5rem">
-          <strong>Update Downloaded!</strong> It will be installed on restart.
+          <strong>Update {releaseName} Downloaded!</strong> It will be installed on restart.
           <br />
           <a href="#" onClick={() => window.electron.openUrl("https://github.com/Akashlytics/akashlytics-deploy/releases")}>
             View release notes
