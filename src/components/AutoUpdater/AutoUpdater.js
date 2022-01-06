@@ -128,22 +128,22 @@ export const AutoUpdater = () => {
     );
   };
 
-  // return null;
-  return (
-    <>
-      <Button onClick={showDownloadingUpdateSnackbar}>Update available</Button>
-      <Button onClick={showUpdateDownloadedSnackbar}>Update downloaded</Button>
-      {/* <Button onClick={showDownloadingUpdateSnackbar}>Downloading Update</Button>
-      <Button
-        onClick={() => {
-          closeSnackbar(downloadSnackbarKey);
-          setDownloadSnackbarKey(null);
-        }}
-      >
-        Close snackbar
-      </Button> */}
-    </>
-  );
+  return null;
+  // return (
+  //   <>
+  //     <Button onClick={showDownloadingUpdateSnackbar}>Update available</Button>
+  //     <Button onClick={showUpdateDownloadedSnackbar}>Update downloaded</Button>
+  //     {/* <Button onClick={showDownloadingUpdateSnackbar}>Downloading Update</Button>
+  //     <Button
+  //       onClick={() => {
+  //         closeSnackbar(downloadSnackbarKey);
+  //         setDownloadSnackbarKey(null);
+  //       }}
+  //     >
+  //       Close snackbar
+  //     </Button> */}
+  //   </>
+  // );
 };
 
 const DownloadingUpdate = forwardRef(({ message, id }, ref) => {
