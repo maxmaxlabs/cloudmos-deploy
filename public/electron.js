@@ -111,9 +111,9 @@ app.whenReady().then(() => {
 
   createWindow();
 
-  autoUpdater.checkForUpdates();
+  autoUpdater.checkForUpdatesAndNotify();
   setInterval(() => {
-    autoUpdater.checkForUpdates();
+    autoUpdater.checkForUpdatesAndNotify()    
   }, 30 * 60 * 1000); // Check every 30 minutes for updates
 
   app.on("activate", function () {
