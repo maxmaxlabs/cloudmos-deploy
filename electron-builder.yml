@@ -2,7 +2,7 @@ productName: "Akashlytics Deploy"
 artifactName: "Akashlytics-Deploy-${version}.${ext}"
 appId: "com.akashlytics.deploy"
 win:
-  target: "NSIS"
+  target: ["NSIS", "zip"]
   icon: "/public/icon.png"
 mac:
   category: public.app-category.developer-tools

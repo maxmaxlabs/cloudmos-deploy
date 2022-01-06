@@ -70,7 +70,7 @@ export const NodeStatusBar = () => {
             <Typography variant="caption" className={classes.caption}>
               Fork me!
             </Typography>
-            <Box component="span" display="inline" marginLeft=".5rem">
+            <Box component="span" display="inline-flex" marginLeft=".5rem">
               <GitHubIcon className={classes.githubIcon} />
             </Box>
           </Button>

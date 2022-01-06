@@ -33,10 +33,10 @@ export const AutoUpdater = () => {
   const [downloadSnackbarKey, setDownloadSnackbarKey] = useState(null);
 
   useEffect(() => {
-    ipcApi.receive("update_available", () => {
+    ipcApi.receive("update_available", (event) => {
       ipcApi.removeAllListeners("update_available");
 
-      console.log("Update available");
+      console.log("Update available", event);
 
       showDownloadingUpdateSnackbar();
     });
