@@ -61,6 +61,7 @@ export const AppContainer = () => {
       ) : (
         <>
           <BetaBanner />
+          <AutoUpdater />
 
           <Route exact path="/wallet-import">
             <ErrorBoundary FallbackComponent={ErrorFallback}>
@@ -75,8 +76,6 @@ export const AppContainer = () => {
 
           {isAppInitiated && selectedWallet && address && (
             <>
-              <AutoUpdater />
-
               <NodeStatusBar />
               <MainView />
             </>

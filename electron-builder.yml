@@ -1,4 +1,5 @@
 productName: "Akashlytics Deploy"
+artifactName: "Akashlytics-Deploy-${version}.${ext}"
 appId: "com.akashlytics.deploy"
 win:
   target: "NSIS"
