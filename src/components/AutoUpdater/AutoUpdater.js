@@ -36,7 +36,7 @@ export const AutoUpdater = () => {
     ipcApi.receive("update_available", () => {
       ipcApi.removeAllListeners("update_available");
 
-      showNewUpdateSnackbar();
+      showDownloadingUpdateSnackbar();
     });
     ipcApi.receive("update_downloaded", (event, releaseNotes, releaseName, releaseDate, updateUrl) => {
       ipcApi.removeAllListeners("update_downloaded");
@@ -51,7 +51,7 @@ export const AutoUpdater = () => {
    * Show snackbar when downloading the update
    */
   const showDownloadingUpdateSnackbar = () => {
-    const key = enqueueSnackbar("Downloading Update...", {
+    const key = enqueueSnackbar("A new update is available! Downloading now...", {
       variant: "info",
       content: (key, message) => <DownloadingUpdate id={key} message={message} />,
       autoHideDuration: null // Wait for download to finish
@@ -67,7 +67,7 @@ export const AutoUpdater = () => {
     enqueueSnackbar(
       <div>
         <Box marginBottom=".5rem">
-          <strong>A new update is available!</strong> Downloading now?
+          <strong>A new update is available!</strong> Downloading now...
         </Box>
         <Button
           size="small"
@@ -128,22 +128,22 @@ export const AutoUpdater = () => {
     );
   };
 
-  return null;
-  // return (
-  //   <>
-  //     <Button onClick={showNewUpdateSnackbar}>Update available</Button>
-  //     <Button onClick={showUpdateDownloadedSnackbar}>Update downloaded</Button>
-  //     <Button onClick={showDownloadingUpdateSnackbar}>Downloading Update</Button>
-  //     <Button
-  //       onClick={() => {
-  //         closeSnackbar(downloadSnackbarKey);
-  //         setDownloadSnackbarKey(null);
-  //       }}
-  //     >
-  //       Close snackbar
-  //     </Button>
-  //   </>
-  // );
+  // return null;
+  return (
+    <>
+      <Button onClick={showDownloadingUpdateSnackbar}>Update available</Button>
+      <Button onClick={showUpdateDownloadedSnackbar}>Update downloaded</Button>
+      {/* <Button onClick={showDownloadingUpdateSnackbar}>Downloading Update</Button>
+      <Button
+        onClick={() => {
+          closeSnackbar(downloadSnackbarKey);
+          setDownloadSnackbarKey(null);
+        }}
+      >
+        Close snackbar
+      </Button> */}
+    </>
+  );
 };
 
 const DownloadingUpdate = forwardRef(({ message, id }, ref) => {

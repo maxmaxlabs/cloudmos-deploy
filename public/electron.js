@@ -21,8 +21,8 @@ Sentry.init({
 
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = "info";
-autoUpdater.autoDownload = false;
-autoUpdater.autoInstallOnAppQuit = false;
+// autoUpdater.autoDownload = false;
+// autoUpdater.autoInstallOnAppQuit = false;
 
 // Set the app user model id for the notifications
 app.setAppUserModelId("Akashlytics Deploy");
@@ -112,9 +112,6 @@ app.whenReady().then(() => {
   createWindow();
 
   autoUpdater.checkForUpdatesAndNotify();
-  setInterval(() => {
-    autoUpdater.checkForUpdatesAndNotify()    
-  }, 30 * 60 * 1000); // Check every 30 minutes for updates
 
   app.on("activate", function () {
     // On macOS it's common to re-create a window in the app when the
@@ -129,6 +126,3 @@ app.whenReady().then(() => {
 app.on("window-all-closed", function () {
   if (process.platform !== "darwin") app.quit();
 });
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
