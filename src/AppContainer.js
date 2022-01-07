@@ -50,7 +50,7 @@ export const AppContainer = () => {
   return (
     <>
       <AutoUpdater />
-      
+
       {isLoadingSettings ? (
         <Box display="flex" alignItems="center" justifyContent="center" height="100%" width="100%" flexDirection="column">
           <Box paddingBottom="1rem">
@@ -62,6 +62,7 @@ export const AppContainer = () => {
         </Box>
       ) : (
         <>
+          <NodeStatusBar />
           <BetaBanner />
 
           <Route exact path="/wallet-import">
@@ -77,7 +78,6 @@ export const AppContainer = () => {
 
           {isAppInitiated && selectedWallet && address && (
             <>
-              <NodeStatusBar />
               <MainView />
             </>
           )}

@@ -49,7 +49,9 @@ export function WalletImport() {
     setIsLoading(true);
 
     try {
-      const importedWallet = await importWallet(mnemonic, name, password);
+      const trimmedMnemonic = mnemonic.trim();
+
+      const importedWallet = await importWallet(trimmedMnemonic, name, password);
       setSelectedWallet(importedWallet);
 
       await analytics.event("deploy", "import wallet");
