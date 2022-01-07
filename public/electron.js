@@ -103,7 +103,7 @@ function createWindow() {
     ipcMain.on("show_notification", (event, notif) => {
       new Notification(notif).show();
     });
-    ipcMain.on("show_notification", (event, notif) => {
+    ipcMain.on("check_update", (event, notif) => {
       autoUpdater.checkForUpdatesAndNotify();
     });
   } catch (error) {
