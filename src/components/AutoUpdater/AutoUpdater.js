@@ -1,4 +1,4 @@
-import { useState, useEffect, forwardRef, useCallback } from "react";
+import { useState, useEffect, forwardRef, useCallback, useRef } from "react";
 import { Box, makeStyles, Button, Typography, CircularProgress, CardContent, Card, CardActions, IconButton } from "@material-ui/core";
 import { SnackbarContent, useSnackbar } from "notistack";
 import CloseIcon from "@material-ui/icons/Close";
@@ -30,8 +30,10 @@ const useStyles = makeStyles((theme) => ({
 export const AutoUpdater = () => {
   const classes = useStyles();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-  const [newUpdateSnackbarKey, setNewUpdateSnackbarKey] = useState(null);
-  const [downloadSnackbarKey, setDownloadSnackbarKey] = useState(null);
+  const newUpdateSnackbarKey = useRef(null);
+  const downloadSnackbarKey = useRef(null);
+  // const [newUpdateSnackbarKey, setNewUpdateSnackbarKey] = useState(null);
+  // const [downloadSnackbarKey, setDownloadSnackbarKey] = useState(null);
 
   useEffect(() => {
     ipcApi.receive("update_available", (event) => {
@@ -53,19 +55,7 @@ export const AutoUpdater = () => {
   }, []);
 
   /**
-   * Show snackbar when downloading the update
-   */
-  const showDownloadingUpdateSnackbar = () => {
-    const key = enqueueSnackbar("Downloading new update...", {
-      variant: "info",
-      content: (key, message) => <DownloadingUpdate id={key} message={message} />,
-      autoHideDuration: null // Wait for download to finish
-    });
-
-    setDownloadSnackbarKey(key);
-  };
-
-  /**
+   * 1.
    * Show snackbar when there's a new update to download
    */
   const showNewUpdateSnackbar = (releaseNotes, releaseName, releaseDate) => {
@@ -80,7 +70,9 @@ export const AutoUpdater = () => {
           onClick={() => {
             ipcApi.send("download_update");
             closeSnackbar(key);
-            setNewUpdateSnackbarKey(null);
+
+            newUpdateSnackbarKey.current = null;
+            // setNewUpdateSnackbarKey(null);
             showDownloadingUpdateSnackbar();
           }}
         >
@@ -93,18 +85,37 @@ export const AutoUpdater = () => {
       }
     );
 
-    setNewUpdateSnackbarKey(key);
+    newUpdateSnackbarKey.current = key;
+    // setNewUpdateSnackbarKey(key);
   };
 
   /**
+   * 2.
+   * Show snackbar when downloading the update
+   */
+  const showDownloadingUpdateSnackbar = () => {
+    const key = enqueueSnackbar("Downloading new update...", {
+      variant: "info",
+      content: (key, message) => <DownloadingUpdate id={key} message={message} />,
+      autoHideDuration: null // Wait for download to finish
+    });
+
+    downloadSnackbarKey.current = key;
+    // setDownloadSnackbarKey(key);
+  };
+
+  /**
+   * 3.
    * Show snackbar when the update is downloaded
    */
   const showUpdateDownloadedSnackbar = (releaseNotes, releaseName, releaseDate) => {
     console.log("Release info", releaseNotes, releaseName, releaseDate);
 
-    closeSnackbar(downloadSnackbarKey);
-    setDownloadSnackbarKey(null);
-    setNewUpdateSnackbarKey(null);
+    closeSnackbar(downloadSnackbarKey.current);
+    downloadSnackbarKey.current = null;
+    newUpdateSnackbarKey.current = null;
+    // setDownloadSnackbarKey(null);
+    // setNewUpdateSnackbarKey(null);
 
     enqueueSnackbar(
       <div>
@@ -142,7 +153,8 @@ export const AutoUpdater = () => {
   //     <Button
   //       onClick={() => {
   //         closeSnackbar(downloadSnackbarKey);
-  //         setDownloadSnackbarKey(null);
+  //         downloadSnackbarKey.current = null;
+  //         // setDownloadSnackbarKey(null);
   //       }}
   //     >
   //       Close snackbar
