@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { MainView } from "./MainView";
 import { useWallet } from "./context/WalletProvider";
-import { Box, CircularProgress, makeStyles, Typography, Button } from "@material-ui/core";
+import { Box, CircularProgress, makeStyles, Typography } from "@material-ui/core";
 import { useSettings } from "./context/SettingsProvider";
 import { Route, useHistory } from "react-router-dom";
 import { BetaBanner } from "./components/BetaBanner";
