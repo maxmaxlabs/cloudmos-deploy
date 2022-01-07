@@ -14,7 +14,7 @@ Sentry.init({
 });
 
 // whitelist channels
-const validChannels = ["update_available", "update_downloaded", "download_update", "restart_app", "show_notification"];
+const validChannels = ["update_available", "update_downloaded", "download_update", "restart_app", "show_notification", "check_update"];
 
 // All of the Node.js APIs are available in the preload process.
 // It has the same sandbox as a Chrome extension.

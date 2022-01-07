@@ -21,7 +21,7 @@ Sentry.init({
 
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = "info";
-// autoUpdater.autoDownload = false;
+autoUpdater.autoDownload = false;
 // autoUpdater.autoInstallOnAppQuit = false;
 
 // Set the app user model id for the notifications
@@ -80,15 +80,15 @@ function createWindow() {
     // Event handlers
     // Auto update
     autoUpdater.on("update-available", (event) => {
-      console.log("update available");
+      logger.info("update available");
       mainWindow.webContents.send("update_available", event);
     });
     autoUpdater.on("update-downloaded", (event) => {
       mainWindow.webContents.send("update_downloaded", event);
     });
     autoUpdater.on("error", (message) => {
-      console.error("There was a problem updating the application");
-      console.error(message);
+      logger.error("There was a problem updating the application");
+      logger.error(message);
     });
     // Custom events
     ipcMain.on("download_update", () => {
@@ -103,6 +103,9 @@ function createWindow() {
     ipcMain.on("show_notification", (event, notif) => {
       new Notification(notif).show();
     });
+    ipcMain.on("show_notification", (event, notif) => {
+      autoUpdater.checkForUpdatesAndNotify();
+    });
   } catch (error) {
     logger.error(error);
   }
@@ -116,7 +119,10 @@ app.whenReady().then(() => {
 
   createWindow();
 
-  autoUpdater.checkForUpdatesAndNotify();
+  // setTimeout(() => {
+  //   autoUpdater.checkForUpdatesAndNotify();
+  //   autoUpdater.checkForUpdates();
+  // }, 1000);
 
   app.on("activate", function () {
     // On macOS it's common to re-create a window in the app when the

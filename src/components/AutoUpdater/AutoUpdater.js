@@ -30,6 +30,7 @@ const useStyles = makeStyles((theme) => ({
 export const AutoUpdater = () => {
   const classes = useStyles();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const [newUpdateSnackbarKey, setNewUpdateSnackbarKey] = useState(null);
   const [downloadSnackbarKey, setDownloadSnackbarKey] = useState(null);
 
   useEffect(() => {
@@ -38,7 +39,7 @@ export const AutoUpdater = () => {
 
       console.log("Update available", event);
 
-      showDownloadingUpdateSnackbar();
+      showNewUpdateSnackbar(event.releaseNotes, event.releaseName, event.releaseDate);
     });
     ipcApi.receive("update_downloaded", (event) => {
       ipcApi.removeAllListeners("update_downloaded");
@@ -47,13 +48,15 @@ export const AutoUpdater = () => {
 
       showUpdateDownloadedSnackbar(event.releaseNotes, event.releaseName, event.releaseDate);
     });
+
+    ipcApi.send("check_update");
   }, []);
 
   /**
    * Show snackbar when downloading the update
    */
   const showDownloadingUpdateSnackbar = () => {
-    const key = enqueueSnackbar("A new update is available! Downloading now...", {
+    const key = enqueueSnackbar("Downloading new update...", {
       variant: "info",
       content: (key, message) => <DownloadingUpdate id={key} message={message} />,
       autoHideDuration: null // Wait for download to finish
@@ -65,29 +68,33 @@ export const AutoUpdater = () => {
   /**
    * Show snackbar when there's a new update to download
    */
-  // const showNewUpdateSnackbar = () => {
-  //   enqueueSnackbar(
-  //     <div>
-  //       <Box marginBottom=".5rem">
-  //         <strong>A new update is available!</strong> Downloading now...
-  //       </Box>
-  //       <Button
-  //         size="small"
-  //         variant="contained"
-  //         onClick={() => {
-  //           ipcApi.send("download_update");
-  //           showDownloadingUpdateSnackbar();
-  //         }}
-  //       >
-  //         Download
-  //       </Button>
-  //     </div>,
-  //     {
-  //       variant: "info",
-  //       autoHideDuration: 5 * 60 * 1000 // 10 minutes
-  //     }
-  //   );
-  // };
+  const showNewUpdateSnackbar = (releaseNotes, releaseName, releaseDate) => {
+    const key = enqueueSnackbar(
+      <div>
+        <Box marginBottom=".5rem">
+          <strong>A new update {releaseName} is available!</strong> Downloading now...
+        </Box>
+        <Button
+          size="small"
+          variant="contained"
+          onClick={() => {
+            ipcApi.send("download_update");
+            closeSnackbar(key);
+            setNewUpdateSnackbarKey(null);
+            showDownloadingUpdateSnackbar();
+          }}
+        >
+          Download
+        </Button>
+      </div>,
+      {
+        variant: "info",
+        autoHideDuration: null
+      }
+    );
+
+    setNewUpdateSnackbarKey(key);
+  };
 
   /**
    * Show snackbar when the update is downloaded
@@ -97,6 +104,7 @@ export const AutoUpdater = () => {
 
     closeSnackbar(downloadSnackbarKey);
     setDownloadSnackbarKey(null);
+    setNewUpdateSnackbarKey(null);
 
     enqueueSnackbar(
       <div>
@@ -128,9 +136,9 @@ export const AutoUpdater = () => {
   return null;
   // return (
   //   <>
-  //     <Button onClick={showDownloadingUpdateSnackbar}>Update available</Button>
+  //     <Button onClick={showNewUpdateSnackbar}>Update available</Button>
   //     <Button onClick={showUpdateDownloadedSnackbar}>Update downloaded</Button>
-  //     {/* <Button onClick={showDownloadingUpdateSnackbar}>Downloading Update</Button>
+  //     <Button onClick={showDownloadingUpdateSnackbar}>Downloading Update</Button>
   //     <Button
   //       onClick={() => {
   //         closeSnackbar(downloadSnackbarKey);
@@ -138,7 +146,7 @@ export const AutoUpdater = () => {
   //       }}
   //     >
   //       Close snackbar
-  //     </Button> */}
+  //     </Button>
   //   </>
   // );
 };
