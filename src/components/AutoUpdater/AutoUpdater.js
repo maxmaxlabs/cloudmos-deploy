@@ -1,4 +1,4 @@
-import { useState, useEffect, forwardRef, useCallback, useRef } from "react";
+import { useEffect, forwardRef, useCallback, useRef } from "react";
 import { Box, makeStyles, Button, Typography, CircularProgress, CardContent, Card, CardActions, IconButton } from "@material-ui/core";
 import { SnackbarContent, useSnackbar } from "notistack";
 import CloseIcon from "@material-ui/icons/Close";
@@ -32,8 +32,6 @@ export const AutoUpdater = () => {
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const newUpdateSnackbarKey = useRef(null);
   const downloadSnackbarKey = useRef(null);
-  // const [newUpdateSnackbarKey, setNewUpdateSnackbarKey] = useState(null);
-  // const [downloadSnackbarKey, setDownloadSnackbarKey] = useState(null);
 
   useEffect(() => {
     ipcApi.receive("update_available", (event) => {
@@ -62,7 +60,7 @@ export const AutoUpdater = () => {
     const key = enqueueSnackbar(
       <div>
         <Box marginBottom=".5rem">
-          <strong>A new update {releaseName} is available!</strong> Downloading now...
+          <strong>A new update {releaseName} is available!</strong> Download now?
         </Box>
         <Button
           size="small"
@@ -72,7 +70,6 @@ export const AutoUpdater = () => {
             closeSnackbar(key);
 
             newUpdateSnackbarKey.current = null;
-            // setNewUpdateSnackbarKey(null);
             showDownloadingUpdateSnackbar();
           }}
         >
@@ -86,7 +83,6 @@ export const AutoUpdater = () => {
     );
 
     newUpdateSnackbarKey.current = key;
-    // setNewUpdateSnackbarKey(key);
   };
 
   /**
@@ -101,7 +97,6 @@ export const AutoUpdater = () => {
     });
 
     downloadSnackbarKey.current = key;
-    // setDownloadSnackbarKey(key);
   };
 
   /**
@@ -114,8 +109,6 @@ export const AutoUpdater = () => {
     closeSnackbar(downloadSnackbarKey.current);
     downloadSnackbarKey.current = null;
     newUpdateSnackbarKey.current = null;
-    // setDownloadSnackbarKey(null);
-    // setNewUpdateSnackbarKey(null);
 
     enqueueSnackbar(
       <div>
