@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
-import { mainNetNodes } from "../../shared/contants";
+import { mainNetNodes } from "../../shared/constants";
 import { queryClient } from "../../queries";
 
 const SettingsProviderContext = React.createContext({});
@@ -177,8 +177,6 @@ export const SettingsProvider = ({ children }) => {
       let nodes = settings.nodes;
       let customNode = settings.customNode;
       const _isCustomNode = typeof isCustomNode === "boolean" ? isCustomNode : settings.isCustomNode;
-
-      console.log("Is custom node?", _isCustomNode);
 
       if (_isCustomNode) {
         const nodeStatus = await loadNodeStatus(settings.apiEndpoint);

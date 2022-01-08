@@ -30,6 +30,8 @@ import { useStyles } from "./TransactionModal.styles";
 import { useSettings } from "../SettingsProvider";
 import { Snackbar } from "../../shared/components/Snackbar";
 import { analytics } from "../../shared/utils/analyticsUtils";
+import { transactionLink } from "../../shared/constants";
+import { BroadcastingError } from "../../shared/utils/errors";
 
 const a11yPrefix = "transaction-tab";
 
@@ -68,14 +70,17 @@ export function TransactionModal(props) {
 
       const fee = isSettingCustomFee ? createCustomFee(aktToUakt(customFee), gas, messages.length) : createFee(currentFee, gas, messages.length);
       const response = await client.signAndBroadcast(address, messages, fee, memo);
+      const transactionHash = response.transactionHash;
+      const isError = response.code !== 0;
+      // const snackTitle = isError ? "Tx failed" : "Tx succeeds!";
+      // const snackSubtitle = isError ? "Error has occured 🙁" : "Congratulations 🎉";
+      // const snackVariant = isError ? "error" : "success";
 
       console.log(response);
 
-      if (response.code !== 0) {
-        throw new Error("Code " + response.code + " : " + response.rawLog);
+      if (isError) {
+        throw new BroadcastingError("Code " + response.code + " : " + response.rawLog, transactionHash);
       }
-
-      enqueueSnackbar(<Snackbar title="Tx succeeds!" subTitle="Congratulations 🎉" />, { variant: "success" });
 
       await analytics.event("deploy", "successful transaction");
 
@@ -134,6 +139,26 @@ export function TransactionModal(props) {
       closeSnackbar(pendingSnackbarKey);
     }
   }
+
+  const showTransactionSnackbar = (snackTitle, snackMessage, transactionHash, snackVariant) => {
+    enqueueSnackbar(
+      <Snackbar
+        title={snackTitle}
+        subTitle={
+          <>
+            {snackMessage}
+            <br />
+            {transactionHash && (
+              <a href="#" onClick={() => window.electron.openUrl(transactionLink(transactionHash))}>
+                View transaction
+              </a>
+            )}
+          </>
+        }
+      />,
+      { variant: snackVariant, autoHideDuration: 15_000 }
+    );
+  };
 
   const handleTabChange = (event, newValue) => {
     setTabIndex(newValue);

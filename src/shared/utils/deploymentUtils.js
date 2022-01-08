@@ -398,7 +398,8 @@ export async function NewDeploymentData(apiEndpoint, yamlJson, dseq, fromAddress
   const ver = await ManifestVersion(mani);
   const id = {
     owner: fromAddress,
-    dseq: dseq
+    // dseq: dseq
+    dseq: 213048932132
   };
   const _deposit = DepositFromFlags(deposit);
 
