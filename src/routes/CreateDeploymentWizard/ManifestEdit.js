@@ -149,7 +149,7 @@ export function ManifestEdit(props) {
       <Box pb={2}>
         <Typography>
           You may use the sample deployment file as-is or modify it for your own needs as desscribed in the{" "}
-          <a href="#" onClick={(ev) => handleDocClick(ev, "https://docs.akash.network/reference/sdl")}>
+          <a href="#" onClick={(ev) => handleDocClick(ev, "https://docs.akash.network/intro-to-akash/stack-definition-language")}>
             SDL (Stack Definition Language)
           </a>{" "}
           documentation. A typical modification would be to reference your own image instead of the demo app image.
