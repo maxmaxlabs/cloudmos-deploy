@@ -21,8 +21,8 @@ export const DeploymentNameModal = ({ dseq, onClose, onSaved, getDeploymentName 
   }
 
   return (
-    <Dialog open={!!dseq} onClose={onClose} aria-labelledby="simple-modal-title" aria-describedby="simple-modal-description">
-      <DialogTitle id="simple-dialog-title">Change Deployment Name ({dseq})</DialogTitle>
+    <Dialog open={!!dseq} onClose={onClose}>
+      <DialogTitle>Change Deployment Name ({dseq})</DialogTitle>
       <DialogContent dividers>
         <div>
           <form onSubmit={handleSubmit}>

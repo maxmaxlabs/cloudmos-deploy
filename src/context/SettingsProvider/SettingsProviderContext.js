@@ -43,7 +43,21 @@ export const SettingsProvider = ({ children }) => {
         defaultRpcNode = settings.rpcEndpoint;
         selectedNode = settings.selectedNode;
 
-        updateSettings({ ...settings, apiEndpoint: defaultApiNode, rpcEndpoint: defaultRpcNode, selectedNode });
+        let customNode;
+
+        if (settings.isCustomNode) {
+          const nodeStatus = await loadNodeStatus(settings.apiEndpoint);
+          const customNodeUrl = new URL(settings.apiEndpoint);
+
+          customNode = {
+            status: nodeStatus.status,
+            latency: nodeStatus.latency,
+            nodeInfo: nodeStatus.nodeInfo,
+            id: customNodeUrl.hostname
+          };
+        }
+
+        updateSettings({ ...settings, apiEndpoint: defaultApiNode, rpcEndpoint: defaultRpcNode, selectedNode, customNode });
         setIsLoadingSettings(false);
 
         // update the node statuses asynchronously
@@ -155,43 +169,63 @@ export const SettingsProvider = ({ children }) => {
    * Refresh the nodes status and latency
    * @returns
    */
-  const refreshNodeStatuses = useCallback(async () => {
-    setIsRefreshingNodeStatus(true);
-    let nodes = settings.nodes;
+  const refreshNodeStatuses = useCallback(
+    async (isCustomNode) => {
+      if (isRefreshingNodeStatus) return;
 
-    nodes = await Promise.all(
-      nodes.map(async (node) => {
-        const nodeStatus = await loadNodeStatus(node.api);
+      setIsRefreshingNodeStatus(true);
+      let nodes = settings.nodes;
+      let customNode = settings.customNode;
+      const _isCustomNode = typeof isCustomNode === "boolean" ? isCustomNode : settings.isCustomNode;
 
-        return {
-          ...node,
+      console.log("Is custom node?", _isCustomNode);
+
+      if (_isCustomNode) {
+        const nodeStatus = await loadNodeStatus(settings.apiEndpoint);
+        const customNodeUrl = new URL(settings.apiEndpoint);
+
+        customNode = {
           status: nodeStatus.status,
           latency: nodeStatus.latency,
-          nodeInfo: nodeStatus.nodeInfo
+          nodeInfo: nodeStatus.nodeInfo,
+          id: customNodeUrl.hostname
         };
-      })
-    );
+      } else {
+        nodes = await Promise.all(
+          nodes.map(async (node) => {
+            const nodeStatus = await loadNodeStatus(node.api);
 
-    setIsRefreshingNodeStatus(false);
+            return {
+              ...node,
+              status: nodeStatus.status,
+              latency: nodeStatus.latency,
+              nodeInfo: nodeStatus.nodeInfo
+            };
+          })
+        );
+      }
 
-    // Update the settings with callback to avoid stale state settings
-    setSettings((prevSettings) => {
-      const selectedNode = nodes.find((node) => node.id === prevSettings.selectedNode.id);
+      setIsRefreshingNodeStatus(false);
 
-      const newSettings = {
-        ...prevSettings,
-        nodes,
-        selectedNode
-      };
+      // Update the settings with callback to avoid stale state settings
+      setSettings((prevSettings) => {
+        const selectedNode = nodes.find((node) => node.id === prevSettings.selectedNode.id);
 
-      clearQueries(prevSettings, newSettings);
-      localStorage.setItem("settings", JSON.stringify(newSettings));
+        const newSettings = {
+          ...prevSettings,
+          nodes,
+          selectedNode,
+          customNode
+        };
 
-      return newSettings;
-    });
+        clearQueries(prevSettings, newSettings);
+        localStorage.setItem("settings", JSON.stringify(newSettings));
 
-    // updateSettings({ ...settings, nodes, selectedNode });
-  }, [settings?.selectedNode?.id]);
+        return newSettings;
+      });
+    },
+    [settings?.selectedNode?.id, settings?.isCustomNode, isRefreshingNodeStatus]
+  );
 
   return (
     <SettingsProviderContext.Provider value={{ settings, setSettings: updateSettings, isLoadingSettings, refreshNodeStatuses, isRefreshingNodeStatus }}>

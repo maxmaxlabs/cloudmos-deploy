@@ -1,10 +1,9 @@
-import { makeStyles, AppBar, Toolbar, Box, CircularProgress, IconButton, Typography, Button } from "@material-ui/core";
+import { makeStyles, AppBar, Toolbar, Box, CircularProgress, Typography, Button } from "@material-ui/core";
 import { NodeStatus } from "../../shared/components/NodeStatus";
 import { useSettings } from "../../context/SettingsProvider";
-import { Link } from "react-router-dom";
-import { UrlService } from "../../shared/utils/urlUtils";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import GitHubIcon from "@material-ui/icons/GitHub";
+import { SettingsModal } from "../../shared/components/SettingsModal";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: {
@@ -34,7 +33,9 @@ const useStyles = makeStyles((theme) => ({
 export const NodeStatusBar = () => {
   const classes = useStyles();
   const { settings, isRefreshingNodeStatus, refreshNodeStatuses } = useSettings();
-  const { selectedNode } = settings;
+  const { selectedNode, isCustomNode, customNode } = settings;
+  const shownNode = isCustomNode ? customNode : selectedNode;
+  const [isEditingSettings, setIsEditingSettings] = useState(false);
 
   useEffect(() => {
     const refreshNodeIntervalId = setInterval(async () => {
@@ -46,17 +47,28 @@ export const NodeStatusBar = () => {
     };
   }, []);
 
+  const onSettingsModalClose = () => {
+    refreshNodeStatuses(isCustomNode);
+    setIsEditingSettings(false)
+  }
+
   return (
     <AppBar position="static" color="default">
+      {isEditingSettings && <SettingsModal onClose={onSettingsModalClose} />}
+
       <Toolbar variant="dense" className={classes.toolbar}>
         <Box display="flex" alignItems="center" width="100%">
-          <Link to={UrlService.settings()} className={classes.link}>
-            Node:
-            <Box marginLeft=".5rem">{selectedNode.id}</Box>
-            <Box marginLeft="1rem">
-              <NodeStatus latency={Math.floor(selectedNode.latency)} status={selectedNode.status} variant="dense" />
-            </Box>
-          </Link>
+          {shownNode && (
+            <a href="#" onClick={() => setIsEditingSettings(true)} className={classes.link}>
+              Node:
+              <Box marginLeft=".5rem">{shownNode?.id}</Box>
+              <Box marginLeft="1rem">
+                <NodeStatus latency={Math.floor(shownNode?.latency)} status={shownNode?.status} variant="dense" />
+              </Box>
+            </a>
+          )}
+
+          {!shownNode && isCustomNode && <>Custom node...</>}
 
           {isRefreshingNodeStatus && (
             <Box marginLeft="1rem">

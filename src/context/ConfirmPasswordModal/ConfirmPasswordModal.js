@@ -36,8 +36,8 @@ export function ConfirmPasswordModal(props) {
   }
 
   return (
-    <Dialog open={props.isOpen} onClose={props.onClose} aria-labelledby="simple-modal-title" aria-describedby="simple-modal-description">
-      <DialogTitle id="simple-dialog-title">Confirm your password</DialogTitle>
+    <Dialog open={props.isOpen} onClose={props.onClose}>
+      <DialogTitle>Confirm your password</DialogTitle>
       <DialogContent dividers>
         <div>
           <form onSubmit={handleSubmit}>

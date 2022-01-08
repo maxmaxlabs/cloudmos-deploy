@@ -80,6 +80,8 @@ export function Settings(props) {
     reset();
 
     setSettings({ ...settings, isCustomNode: isChecked, apiEndpoint, rpcEndpoint });
+
+    refreshNodeStatuses(isChecked);
   };
 
   const onNodeChange = (event, newNodeId) => {
@@ -94,9 +96,15 @@ export function Settings(props) {
     await refreshNodeStatuses();
   };
 
+  /**
+   *  Update the custom settings
+   * @param {Object} data {apiEndpoint: string, rpcEndpoint: string}
+   */
   const onSubmit = (data) => {
     setSettings({ ...settings, ...data });
     setIsEditing(false);
+
+    refreshNodeStatuses(true);
   };
 
   return (
@@ -161,7 +169,7 @@ export function Settings(props) {
 
           <FormControlLabel
             className={classes.switch}
-            control={<Switch checked={settings.isCustomNode} onChange={onIsCustomNodeChange} color="primary" />}
+            control={<Switch checked={!!settings.isCustomNode} onChange={onIsCustomNodeChange} color="primary" />}
             label="Custom node"
           />
         </FormGroup>
