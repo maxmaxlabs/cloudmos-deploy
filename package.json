@@ -1,12 +1,12 @@
 {
   "name": "akashlytics-deploy",
-  "version": "0.4.0",
-  "private": true,
+  "version": "0.5.0",
+  "private": false,
   "repository": {
     "type": "git",
     "url": "https://github.com/Akashlytics/akashlytics-deploy-tool.git"
   },
-  "description": "Akashlytics deploy.",
+  "description": "Akashlytics deploy tool.",
   "author": {
     "name": "Akashlytics",
     "email": "admin@akashlytics.com",
@@ -24,7 +24,7 @@
     "build-mac": "cross-env GENERATE_SOURCEMAP=false react-app-rewired build && electron-builder --mac",
     "build-linux": "cross-env GENERATE_SOURCEMAP=false react-app-rewired build && electron-builder --linux",
     "dist-mac": "cross-env DEBUG=electron-builder electron-builder --mac",
-    "release": "electron-builder --windows --publish always"
+    "release": "react-app-rewired build && electron-builder --windows --publish always"
   },
   "eslintConfig": {
     "extends": [
@@ -62,6 +62,7 @@
     "date-fns": "^2.22.1",
     "electron-google-analytics": "^1.0.2",
     "electron-is-dev": "^2.0.0",
+    "electron-log": "^4.4.4",
     "electron-updater": "^4.3.9",
     "json-stable-stringify": "^1.0.1",
     "jsrsasign": "^10.2.0",

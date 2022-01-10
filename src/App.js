@@ -18,8 +18,6 @@ import { queryClient } from "./queries";
 import { AppContainer } from "./AppContainer";
 import { legitPaths } from "./shared/utils/urlUtils";
 
-// const ipcApi = window.electron.api;
-
 let history = createMemoryHistory({
   initialEntries: ["/"],
   initialIndex: 1
@@ -30,8 +28,7 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: "300px"
   },
   snackbarClose: {
-    color: "#ffffff",
-    paddingLeft: 0
+    color: "#ffffff"
   },
   footer: {
     top: "auto",
@@ -70,20 +67,6 @@ function App() {
     const firstPath = pathname.split("/")[1];
     return legitPaths.includes(firstPath) || firstPath === "";
   };
-
-  // useEffect(() => {
-  // ipcApi.receive("update_available", () => {
-  //   ipcApi.removeAllListeners("update_available");
-  //   console.log("A new update is available. Downloading now...");
-  //   // TODO show a toast for update
-  // });
-  // ipcApi.receive("update_downloaded", () => {
-  //   ipcApi.removeAllListeners("update_downloaded");
-  //   console.log("Update Downloaded. It will be installed on restart. Restart now?");
-  //   // TODO Handle click button to send restart
-  //   // ipcRenderer.send('restart_app');
-  // });
-  // }, [])
 
   return (
     <Router history={history}>

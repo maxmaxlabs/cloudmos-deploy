@@ -8,7 +8,6 @@ export function ConfirmPasswordModal(props) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
   const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {

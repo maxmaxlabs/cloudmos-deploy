@@ -1,0 +1,1 @@
+export { AutoUpdater } from "./AutoUpdater";

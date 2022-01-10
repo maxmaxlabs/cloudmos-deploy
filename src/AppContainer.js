@@ -13,6 +13,7 @@ import { WalletImport } from "./routes/WalletImport";
 import { ErrorFallback } from "./shared/components/ErrorFallback";
 import { ErrorBoundary } from "react-error-boundary";
 import { NodeStatusBar } from "./components/NodeStatusBar";
+import { AutoUpdater } from "./components/AutoUpdater";
 
 const useStyles = makeStyles((theme) => ({
   footer: {
@@ -48,6 +49,8 @@ export const AppContainer = () => {
 
   return (
     <>
+      <AutoUpdater />
+      
       {isLoadingSettings ? (
         <Box display="flex" alignItems="center" justifyContent="center" height="100%" width="100%" flexDirection="column">
           <Box paddingBottom="1rem">

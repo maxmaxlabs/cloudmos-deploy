@@ -1,10 +1,11 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, Notification } = require("electron");
 const path = require("path");
 const winston = require("winston");
 const url = require("url");
 const isDev = require("electron-is-dev");
-// const { autoUpdater } = require("electron-updater");
+const { autoUpdater } = require("electron-updater");
+const log = require("electron-log");
 
 const Sentry = require("@sentry/electron");
 
@@ -18,9 +19,13 @@ Sentry.init({
   release: appVersion
 });
 
-// app.on("ready", () => {
-//   autoUpdater.checkForUpdatesAndNotify();
-// });
+autoUpdater.logger = log;
+autoUpdater.logger.transports.file.level = "info";
+autoUpdater.autoDownload = false;
+// autoUpdater.autoInstallOnAppQuit = false;
+
+// Set the app user model id for the notifications
+app.setAppUserModelId("Akashlytics Deploy");
 
 const logger = winston.createLogger({
   level: "info",
@@ -72,19 +77,34 @@ function createWindow() {
 
     mainWindow.loadURL(startUrl);
 
-    // autoUpdater.on("update-available", () => {
-    //   mainWindow.webContents.send("update_available");
-    // });
-    // autoUpdater.on("update-downloaded", () => {
-    //   mainWindow.webContents.send("update_downloaded");
-    // });
-
-    // ipcMain.on("restart_app", () => {
-    //   autoUpdater.quitAndInstall();
-    // });
-
+    // Event handlers
+    // Auto update
+    autoUpdater.on("update-available", (event) => {
+      logger.info("update available");
+      mainWindow.webContents.send("update_available", event);
+    });
+    autoUpdater.on("update-downloaded", (event) => {
+      mainWindow.webContents.send("update_downloaded", event);
+    });
+    autoUpdater.on("error", (message) => {
+      logger.error("There was a problem updating the application");
+      logger.error(message);
+    });
+    // Custom events
+    ipcMain.on("download_update", () => {
+      autoUpdater.downloadUpdate();
+    });
+    ipcMain.on("restart_app", () => {
+      autoUpdater.quitAndInstall();
+    });
     ipcMain.on("isDev", (event, arg) => {
       event.reply("isDev", isDev);
+    });
+    ipcMain.on("show_notification", (event, notif) => {
+      new Notification(notif).show();
+    });
+    ipcMain.on("check_update", (event, notif) => {
+      autoUpdater.checkForUpdatesAndNotify();
     });
   } catch (error) {
     logger.error(error);
@@ -112,6 +132,3 @@ app.whenReady().then(() => {
 app.on("window-all-closed", function () {
   if (process.platform !== "darwin") app.quit();
 });
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
