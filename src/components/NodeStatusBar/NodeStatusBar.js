@@ -49,8 +49,8 @@ export const NodeStatusBar = () => {
 
   const onSettingsModalClose = () => {
     refreshNodeStatuses(isCustomNode);
-    setIsEditingSettings(false)
-  }
+    setIsEditingSettings(false);
+  };
 
   return (
     <AppBar position="static" color="default">
@@ -78,6 +78,12 @@ export const NodeStatusBar = () => {
         </Box>
 
         <Box display="flex" alignItems="center" whiteSpace="nowrap">
+          <Button onClick={() => window.electron.openUrl("https://github.com/Akashlytics/akashlytics-deploy/issues")} size="small">
+            <Typography variant="caption" className={classes.caption}>
+              Submit an issue
+            </Typography>
+          </Button>
+          <Box>|</Box>
           <Button onClick={() => window.electron.openUrl("https://github.com/Akashlytics/akashlytics-deploy")} size="small">
             <Typography variant="caption" className={classes.caption}>
               Fork me!

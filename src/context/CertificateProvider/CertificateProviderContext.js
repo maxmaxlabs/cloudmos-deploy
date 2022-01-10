@@ -14,7 +14,6 @@ export const CertificateProvider = ({ children }) => {
   const [isLocalCertMatching, setIsLocalCertMatching] = useState(false);
   const { settings } = useSettings();
   const { enqueueSnackbar } = useSnackbar();
-
   const { address } = useWallet();
 
   const loadValidCertificates = useCallback(
@@ -66,6 +65,8 @@ export const CertificateProvider = ({ children }) => {
     if (certificate && localCert) {
       isMatching = atob(certificate.certificate.cert) === localCert.certPem;
     }
+
+    // TODO fix cert bug
     setIsLocalCertMatching(isMatching);
   }, [certificate, localCert]);
 
