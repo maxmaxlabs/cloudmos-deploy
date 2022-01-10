@@ -1,0 +1,7 @@
+[
+   {
+      "id":"testnet-1.ewr1.aksh.pw",
+      "api":"http://api.testnet-1.ewr1.aksh.pw:1317",
+      "rpc":"http://rpc.testnet-1.ewr1.aksh.pw:26657"
+   }
+]
