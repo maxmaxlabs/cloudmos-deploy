@@ -66,7 +66,6 @@ export const CertificateProvider = ({ children }) => {
       isMatching = atob(certificate.certificate.cert) === localCert.certPem;
     }
 
-    // TODO fix cert bug
     setIsLocalCertMatching(isMatching);
   }, [certificate, localCert]);
 

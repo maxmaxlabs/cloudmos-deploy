@@ -29,6 +29,7 @@ import { Helmet } from "react-helmet-async";
 import { analytics } from "../../shared/utils/analyticsUtils";
 import { useProviders } from "../../queries";
 import CloseIcon from "@material-ui/icons/Close";
+import { Snackbar } from "../../shared/components/Snackbar";
 
 const yaml = require("js-yaml");
 
@@ -96,7 +97,7 @@ export function CreateLease({ dseq }) {
 
       return response;
     } catch (err) {
-      enqueueSnackbar(`Error while sending manifest to provider. ${err}`, { variant: "error", autoHideDuration: null });
+      enqueueSnackbar(<Snackbar title="Error" subTitle={`Error while sending manifest to provider. ${err}`} />, { variant: "error", autoHideDuration: null });
       throw err;
     }
   }

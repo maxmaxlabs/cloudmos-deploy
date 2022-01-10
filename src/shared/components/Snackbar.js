@@ -7,7 +7,8 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: "bold"
   },
   snackBarSubTitle: {
-    fontSize: ".9rem"
+    fontSize: ".9rem",
+    wordBreak: "break-word"
   }
 }));
 

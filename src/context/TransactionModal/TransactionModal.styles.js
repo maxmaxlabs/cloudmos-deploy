@@ -61,5 +61,8 @@ export const useStyles = makeStyles((theme) => ({
   actionButton: {
     flexGrow: 1,
     flexBasis: "50%"
+  },
+  transactionLinkIcon: {
+    fontSize: "1rem"
   }
 }));

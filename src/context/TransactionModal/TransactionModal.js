@@ -32,6 +32,7 @@ import { Snackbar } from "../../shared/components/Snackbar";
 import { analytics } from "../../shared/utils/analyticsUtils";
 import { transactionLink } from "../../shared/constants";
 import { BroadcastingError } from "../../shared/utils/errors";
+import OpenInNew from "@material-ui/icons/OpenInNew";
 
 const a11yPrefix = "transaction-tab";
 
@@ -72,15 +73,14 @@ export function TransactionModal(props) {
       const response = await client.signAndBroadcast(address, messages, fee, memo);
       const transactionHash = response.transactionHash;
       const isError = response.code !== 0;
-      // const snackTitle = isError ? "Tx failed" : "Tx succeeds!";
-      // const snackSubtitle = isError ? "Error has occured 🙁" : "Congratulations 🎉";
-      // const snackVariant = isError ? "error" : "success";
 
       console.log(response);
 
       if (isError) {
         throw new BroadcastingError("Code " + response.code + " : " + response.rawLog, transactionHash);
       }
+
+      showTransactionSnackbar("Tx succeeds!", "Congratulations 🎉", transactionHash, "success");
 
       await analytics.event("deploy", "successful transaction");
 
@@ -91,6 +91,7 @@ export function TransactionModal(props) {
     } catch (err) {
       console.error(err);
 
+      const transactionHash = err.txHash;
       let errorMsg = "An error has occured";
 
       await analytics.event("deploy", "failed transaction");
@@ -132,7 +133,7 @@ export function TransactionModal(props) {
         }
       }
 
-      enqueueSnackbar(<Snackbar title="Tx has failed..." subTitle={errorMsg} />, { variant: "error" });
+      showTransactionSnackbar("Tx has failed...", errorMsg, transactionHash, "error");
 
       setIsSendingTransaction(false);
     } finally {
@@ -141,23 +142,10 @@ export function TransactionModal(props) {
   }
 
   const showTransactionSnackbar = (snackTitle, snackMessage, transactionHash, snackVariant) => {
-    enqueueSnackbar(
-      <Snackbar
-        title={snackTitle}
-        subTitle={
-          <>
-            {snackMessage}
-            <br />
-            {transactionHash && (
-              <a href="#" onClick={() => window.electron.openUrl(transactionLink(transactionHash))}>
-                View transaction
-              </a>
-            )}
-          </>
-        }
-      />,
-      { variant: snackVariant, autoHideDuration: 15_000 }
-    );
+    enqueueSnackbar(<Snackbar title={snackTitle} subTitle={<TransactionSnackbarContent snackMessage={snackMessage} transactionHash={transactionHash} />} />, {
+      variant: snackVariant,
+      autoHideDuration: 15_000
+    });
   };
 
   const handleTabChange = (event, newValue) => {
@@ -343,3 +331,25 @@ export function TransactionModal(props) {
     </Dialog>
   );
 }
+
+const TransactionSnackbarContent = ({ snackMessage, transactionHash }) => {
+  const classes = useStyles();
+
+  return (
+    <>
+      {snackMessage}
+      <br />
+      {transactionHash && (
+        <Box
+          component="a"
+          display="flex"
+          alignItems="center"
+          href="#"
+          onClick={() => window.electron.openUrl(transactionLink(transactionHash))}
+        >
+          View transaction <OpenInNew className={classes.transactionLinkIcon} />
+        </Box>
+      )}
+    </>
+  );
+};
