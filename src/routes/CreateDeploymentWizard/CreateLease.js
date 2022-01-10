@@ -29,7 +29,7 @@ import { Helmet } from "react-helmet-async";
 import { analytics } from "../../shared/utils/analyticsUtils";
 import { useProviders } from "../../queries";
 import CloseIcon from "@material-ui/icons/Close";
-import { Snackbar } from "../../shared/components/Snackbar";
+import { ManifestErrorSnackbar } from "../../shared/components/ManifestErrorSnackbar";
 
 const yaml = require("js-yaml");
 
@@ -91,13 +91,13 @@ export function CreateLease({ dseq }) {
     setSelectedBids({ ...selectedBids, [bid.gseq]: bid });
   };
 
-  async function sendManifest(providerInfo, manifestStr) {
+  async function sendManifest(providerInfo, manifest) {
     try {
-      const response = await sendManifestToProvider(providerInfo, manifestStr, dseq, localCert);
+      const response = await sendManifestToProvider(providerInfo, manifest, dseq, localCert);
 
       return response;
     } catch (err) {
-      enqueueSnackbar(<Snackbar title="Error" subTitle={`Error while sending manifest to provider. ${err}`} />, { variant: "error", autoHideDuration: null });
+      enqueueSnackbar(<ManifestErrorSnackbar err={err} />, { variant: "error", autoHideDuration: null });
       throw err;
     }
   }
@@ -105,6 +105,7 @@ export function CreateLease({ dseq }) {
   async function handleNext() {
     console.log("Accepting bids...");
 
+    // Create the lease
     try {
       const messages = Object.keys(selectedBids)
         .map((gseq) => selectedBids[gseq])
@@ -122,6 +123,7 @@ export function CreateLease({ dseq }) {
 
     const deploymentData = getDeploymentLocalData(dseq);
     if (deploymentData && deploymentData.manifest) {
+      // Send the manifest
       try {
         const provider = providers.find((x) => x.owner === selectedBids[Object.keys(selectedBids)[0]].provider);
         const yamlJson = yaml.load(deploymentData.manifest);

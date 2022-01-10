@@ -16,6 +16,7 @@ import { useLocalNotes } from "../../context/LocalNoteProvider";
 import { DeploymentLogs } from "./DeploymentLogs";
 import { useCertificate } from "../../context/CertificateProvider";
 import Alert from "@material-ui/lab/Alert";
+import { getDeploymentLocalData } from "../../shared/utils/deploymentLocalDataUtils";
 
 export function DeploymentDetail(props) {
   const [deployment, setDeployment] = useState(null);
@@ -35,6 +36,7 @@ export function DeploymentDetail(props) {
   const hasLeases = leases && leases.length > 0;
   const [leaseRefs, setLeaseRefs] = useState([]);
   const { certificate, isLocalCertMatching, localCert } = useCertificate();
+  const [deploymentManifest, setDeploymentManifest] = useState(null);
 
   const deploymentName = getDeploymentName(dseq);
 
@@ -61,6 +63,9 @@ export function DeploymentDetail(props) {
     if (deployment) {
       loadLeases();
       getCurrentBlock();
+
+      const deploymentData = getDeploymentLocalData(dseq);
+      setDeploymentManifest(deploymentData?.manifest);
     }
   }, [deployment, loadLeases]);
 
@@ -154,7 +159,10 @@ export function DeploymentDetail(props) {
             <Typography variant="h6" gutterBottom className={classes.title}>
               Leases
             </Typography>
-            {leases && leases.map((lease, i) => <LeaseRow key={lease.id} lease={lease} setActiveTab={setActiveTab} ref={leaseRefs[i]} />)}
+            {leases &&
+              leases.map((lease, i) => (
+                <LeaseRow key={lease.id} lease={lease} setActiveTab={setActiveTab} ref={leaseRefs[i]} deploymentManifest={deploymentManifest} dseq={dseq} />
+              ))}
             {!hasLeases && !isLoadingLeases && !isLoadingDeployment && <>This deployment doesn't have any leases</>}
 
             {leases && certificate && (!localCert || !isLocalCertMatching) && (
