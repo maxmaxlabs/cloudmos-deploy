@@ -12,14 +12,14 @@ const defaultSettings = {
   isCustomNode: false,
   nodes: [],
   selectedNode: null,
-  customNode: null,
-  selectedNetworkId: 1
+  customNode: null
 };
 
 export const SettingsProvider = ({ children }) => {
   const [settings, setSettings] = useState(defaultSettings);
   const [isLoadingSettings, setIsLoadingSettings] = useState(true);
   const [isRefreshingNodeStatus, setIsRefreshingNodeStatus] = useState(false);
+  const [selectedNetworkId, setSelectedNetworkId] = useState(parseInt(localStorage.getItem("selectedNetworkId")) || 1);
 
   // load settings from localStorage or set default values
   useEffect(() => {
@@ -240,7 +240,9 @@ export const SettingsProvider = ({ children }) => {
   );
 
   return (
-    <SettingsProviderContext.Provider value={{ settings, setSettings: updateSettings, isLoadingSettings, refreshNodeStatuses, isRefreshingNodeStatus }}>
+    <SettingsProviderContext.Provider
+      value={{ settings, setSettings: updateSettings, isLoadingSettings, refreshNodeStatuses, isRefreshingNodeStatus, selectedNetworkId, setSelectedNetworkId }}
+    >
       {children}
     </SettingsProviderContext.Provider>
   );

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   makeStyles,
   Button,
@@ -19,6 +19,8 @@ import { networks } from "../../shared/networks";
 import { useSettings } from "../../context/SettingsProvider";
 import { Alert } from "@material-ui/lab";
 
+const ipcApi = window.electron.api;
+
 const useStyles = makeStyles((theme) => ({
   list: {},
   dialogContent: {
@@ -32,17 +34,27 @@ const useStyles = makeStyles((theme) => ({
   },
   version: {
     fontWeight: "bold"
+  },
+  alert: {
+    marginBottom: "1rem"
   }
 }));
 
 export const SelectNetworkModal = ({ onClose }) => {
   const classes = useStyles();
-  const { settings, setSettings } = useSettings();
-  const { selectedNetworkId } = settings;
+  const { selectedNetworkId, setSelectedNetworkId } = useSettings();
   const [localSelectedNetworkId, setLocalSelectedNetworkId] = useState(selectedNetworkId);
 
   const handleSelectNetwork = (network) => {
     setLocalSelectedNetworkId(network.id);
+  };
+
+  const handleSaveChanges = () => {
+    // TODO
+    // Set in the settings and local storage
+    localStorage.setItem("selectedNetworkId", localSelectedNetworkId);
+    // Reset the ui to reload the settings for the currently selected network
+    ipcApi.send("relaunch");
   };
 
   return (
@@ -79,7 +91,7 @@ export const SelectNetworkModal = ({ onClose }) => {
           })}
         </List>
 
-        <Alert variant="outlined" severity="warning">
+        <Alert variant="outlined" severity="warning" className={classes.alert}>
           <Typography variant="body1">
             <strong>Warning</strong>
           </Typography>
@@ -91,10 +103,18 @@ export const SelectNetworkModal = ({ onClose }) => {
         <Button variant="contained" onClick={onClose} type="button" autoFocus>
           Close
         </Button>
-        <Button variant="contained" onClick={onClose} color="primary" type="button">
+        <Button variant="contained" onClick={handleSaveChanges} color="primary" type="button">
           Save
         </Button>
       </DialogActions>
     </Dialog>
   );
 };
+
+// Export
+// JSON.stringify(localStorage)
+
+// Import
+// Object.keys(data).forEach(key => {
+//   localStorage.setItem(key, data[key])
+// })

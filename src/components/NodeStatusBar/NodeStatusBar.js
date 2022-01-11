@@ -51,8 +51,8 @@ export const NodeStatusBar = () => {
   const classes = useStyles();
   const [isEditingSettings, setIsEditingSettings] = useState(false);
   const [isSelectingNetwork, setIsSelectingNetwork] = useState(false);
-  const { settings, isRefreshingNodeStatus, refreshNodeStatuses } = useSettings();
-  const { selectedNode, isCustomNode, customNode, selectedNetworkId } = settings;
+  const { settings, isRefreshingNodeStatus, refreshNodeStatuses, selectedNetworkId } = useSettings();
+  const { selectedNode, isCustomNode, customNode } = settings;
   const shownNode = isCustomNode ? customNode : selectedNode;
   const selectedNetwork = networks.find((n) => n.id === selectedNetworkId);
 

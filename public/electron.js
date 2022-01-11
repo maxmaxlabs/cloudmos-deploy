@@ -106,6 +106,10 @@ function createWindow() {
     ipcMain.on("check_update", (event, notif) => {
       autoUpdater.checkForUpdatesAndNotify();
     });
+    ipcMain.on("relaunch", () => {
+      app.relaunch();
+      app.exit();
+    });
   } catch (error) {
     logger.error(error);
   }
