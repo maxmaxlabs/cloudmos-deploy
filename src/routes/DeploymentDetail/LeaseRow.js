@@ -159,6 +159,7 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
 
         {isLeaseActive &&
           leaseStatus &&
+          leaseStatus.services &&
           servicesNames
             .map((n) => leaseStatus.services[n])
             .map((service, i) => (

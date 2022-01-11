@@ -1,12 +1,23 @@
 import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
-import { mainNetNodes } from "../../shared/constants";
+import { mainnetNodes } from "../../shared/constants";
+import { initiateNetworkData } from "../../shared/networks";
 import { queryClient } from "../../queries";
 
 const SettingsProviderContext = React.createContext({});
 
+const defaultSettings = {
+  apiEndpoint: "",
+  rpcEndpoint: "",
+  isCustomNode: false,
+  nodes: [],
+  selectedNode: null,
+  customNode: null,
+  selectedNetworkId: 1
+};
+
 export const SettingsProvider = ({ children }) => {
-  const [settings, setSettings] = useState({ apiEndpoint: "", rpcEndpoint: "", isCustomNode: false, nodes: [], selectedNode: null });
+  const [settings, setSettings] = useState(defaultSettings);
   const [isLoadingSettings, setIsLoadingSettings] = useState(true);
   const [isRefreshingNodeStatus, setIsRefreshingNodeStatus] = useState(false);
 
@@ -15,12 +26,15 @@ export const SettingsProvider = ({ children }) => {
     const initiateSettings = async () => {
       setIsLoadingSettings(true);
 
+      // Set the versions and metadata of available networks
+      await initiateNetworkData();
+
       const settingsStr = localStorage.getItem("settings");
-      const settings = JSON.parse(settingsStr) || {};
+      const settings = { ...defaultSettings, ...JSON.parse(settingsStr) } || {};
       let defaultApiNode, defaultRpcNode, selectedNode;
 
       // Set the available nodes list and default endpoints
-      const response = await axios.get(mainNetNodes);
+      const response = await axios.get(mainnetNodes);
       let nodes = response.data;
 
       const hasSettings =
@@ -170,8 +184,8 @@ export const SettingsProvider = ({ children }) => {
    * @returns
    */
   const refreshNodeStatuses = useCallback(
-    async (isCustomNode) => {
-      if (isRefreshingNodeStatus) return;
+    async (isCustomNode, forceRefresh) => {
+      if (isRefreshingNodeStatus && !forceRefresh) return;
 
       setIsRefreshingNodeStatus(true);
       let nodes = settings.nodes;
