@@ -4,6 +4,7 @@ import { useWallet } from "../../context/WalletProvider";
 import { CodeSnippet } from "../../shared/components/CodeSnippet";
 import { analytics } from "../../shared/utils/analyticsUtils";
 import { Alert } from "@material-ui/lab";
+import { useLocalStorage } from "../../hooks/useLocalStorage";
 
 const useStyles = makeStyles((theme) => ({
   label: {
@@ -15,11 +16,12 @@ export function ExportCertificate(props) {
   const { address } = useWallet();
   const [certData, setCertData] = useState(null);
   const classes = useStyles();
+  const { getLocalStorageItem } = useLocalStorage();
 
   useEffect(() => {
     async function init() {
-      const crtpem = localStorage.getItem(address + ".crt");
-      const encryptedKey = localStorage.getItem(address + ".key");
+      const crtpem = getLocalStorageItem(address + ".crt");
+      const encryptedKey = getLocalStorageItem(address + ".key");
 
       await analytics.event("deploy", "export certificate");
 

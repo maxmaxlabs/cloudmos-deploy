@@ -16,6 +16,7 @@ import {
   Box
 } from "@material-ui/core";
 import { networks } from "../../shared/networks";
+import { mainnetId } from "../../shared/constants";
 import { useSettings } from "../../context/SettingsProvider";
 import { Alert } from "@material-ui/lab";
 
@@ -42,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
 
 export const SelectNetworkModal = ({ onClose }) => {
   const classes = useStyles();
-  const { selectedNetworkId, setSelectedNetworkId } = useSettings();
+  const { selectedNetworkId } = useSettings();
   const [localSelectedNetworkId, setLocalSelectedNetworkId] = useState(selectedNetworkId);
 
   const handleSelectNetwork = (network) => {
@@ -79,9 +80,7 @@ export const SelectNetworkModal = ({ onClose }) => {
                           {network.version}
                         </Typography>
                       </span>
-                      {(network.title === "Testnet" || network.title === "Edgenet") && (
-                        <Chip label="Experimental" size="small" color="secondary" className={classes.experimentalChip} />
-                      )}
+                      {network.id !== mainnetId && <Chip label="Experimental" size="small" color="secondary" className={classes.experimentalChip} />}
                     </Box>
                   }
                   secondary={network.description}
@@ -91,13 +90,15 @@ export const SelectNetworkModal = ({ onClose }) => {
           })}
         </List>
 
-        <Alert variant="outlined" severity="warning" className={classes.alert}>
-          <Typography variant="body1">
-            <strong>Warning</strong>
-          </Typography>
+        {localSelectedNetworkId !== mainnetId && (
+          <Alert variant="outlined" severity="warning" className={classes.alert}>
+            <Typography variant="body1">
+              <strong>Warning</strong>
+            </Typography>
 
-          <Typography variant="body2">Changing networks will restart the ui and is still experimental.</Typography>
-        </Alert>
+            <Typography variant="body2">Changing networks will restart the app and some features are experimental.</Typography>
+          </Alert>
+        )}
       </DialogContent>
       <DialogActions>
         <Button variant="contained" onClick={onClose} type="button" autoFocus>
@@ -110,9 +111,6 @@ export const SelectNetworkModal = ({ onClose }) => {
     </Dialog>
   );
 };
-
-// Export
-// JSON.stringify(localStorage)
 
 // Import
 // Object.keys(data).forEach(key => {

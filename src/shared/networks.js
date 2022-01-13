@@ -1,9 +1,9 @@
-import { mainnetNodes, testnetNodes, edgenetNodes } from "./constants";
+import { mainnetNodes, testnetNodes, edgenetNodes, mainnetId, testnetId, edgenetId } from "./constants";
 import axios from "axios";
 
 export let networks = [
   {
-    id: 1,
+    id: mainnetId,
     title: "Mainnet",
     description: "Akash Network mainnet network.",
     nodesUrl: mainnetNodes,
@@ -12,7 +12,7 @@ export let networks = [
     version: null // Set asynchronously
   },
   {
-    id: 2,
+    id: testnetId,
     title: "Testnet",
     description: "Testnet of the current mainnet version.",
     nodesUrl: testnetNodes,
@@ -21,7 +21,7 @@ export let networks = [
     version: null // Set asynchronously
   },
   {
-    id: 3,
+    id: edgenetId,
     title: "Edgenet",
     description: "Testnet of the next mainnet version.",
     nodesUrl: edgenetNodes,
@@ -31,6 +31,9 @@ export let networks = [
   }
 ];
 
+/**
+ * Get the actual versions and metadata of the available networks
+ */
 export const initiateNetworkData = async () => {
   networks = await Promise.all(
     networks.map(async (network) => {

@@ -64,7 +64,7 @@ export const NodeStatusBar = () => {
     return () => {
       clearInterval(refreshNodeIntervalId);
     };
-  }, []);
+  }, [refreshNodeStatuses]);
 
   const onSettingsModalClose = () => {
     refreshNodeStatuses(isCustomNode, true);

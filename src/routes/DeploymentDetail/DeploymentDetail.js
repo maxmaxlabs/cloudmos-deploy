@@ -57,6 +57,7 @@ export function DeploymentDetail(props) {
           .map((_, i) => elRefs[i] || createRef())
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deployment, hasLeases, isLoadingLeases, leases, dseq]);
 
   useEffect(() => {
@@ -67,6 +68,7 @@ export function DeploymentDetail(props) {
       const deploymentData = getDeploymentLocalData(dseq);
       setDeploymentManifest(deploymentData?.manifest);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deployment, loadLeases]);
 
   useEffect(() => {
@@ -82,6 +84,7 @@ export function DeploymentDetail(props) {
     } else {
       loadDeploymentDetail();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function loadDeploymentDetail() {

@@ -4,6 +4,7 @@ import { openCert } from "../../shared/utils/certificateUtils";
 import { useSettings } from "../SettingsProvider";
 import { useWallet } from "../WalletProvider";
 import { Snackbar } from "../../shared/components/Snackbar";
+import { useLocalStorage } from "../../hooks/useLocalStorage";
 
 const CertificateProviderContext = React.createContext({});
 
@@ -15,6 +16,7 @@ export const CertificateProvider = ({ children }) => {
   const { settings } = useSettings();
   const { enqueueSnackbar } = useSnackbar();
   const { address } = useWallet();
+  const { getLocalStorageItem } = useLocalStorage();
 
   const loadValidCertificates = useCallback(
     async (showSnackbar) => {
@@ -53,7 +55,10 @@ export const CertificateProvider = ({ children }) => {
   }, [address, loadValidCertificates]);
 
   const loadLocalCert = async (address, password) => {
-    const cert = await openCert(address, password);
+    const certPem = getLocalStorageItem(address + ".crt");
+    const encryptedKeyPem = getLocalStorageItem(address + ".key");
+
+    const cert = await openCert(password, certPem, encryptedKeyPem);
 
     setLocalCert(cert);
   };

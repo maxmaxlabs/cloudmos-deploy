@@ -1,8 +1,10 @@
 import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
-import { mainnetNodes } from "../../shared/constants";
+import { mainnetId, mainnetNodes } from "../../shared/constants";
 import { initiateNetworkData } from "../../shared/networks";
+import { migrateLocalStorage } from "../../shared/utils/localStorage";
 import { queryClient } from "../../queries";
+import { useLocalStorage } from "../../hooks/useLocalStorage";
 
 const SettingsProviderContext = React.createContext({});
 
@@ -19,7 +21,9 @@ export const SettingsProvider = ({ children }) => {
   const [settings, setSettings] = useState(defaultSettings);
   const [isLoadingSettings, setIsLoadingSettings] = useState(true);
   const [isRefreshingNodeStatus, setIsRefreshingNodeStatus] = useState(false);
-  const [selectedNetworkId, setSelectedNetworkId] = useState(parseInt(localStorage.getItem("selectedNetworkId")) || 1);
+  const { getLocalStorageItem, setLocalStorageItem } = useLocalStorage();
+  const [selectedNetworkId, setSelectedNetworkId] = useState(localStorage.getItem("selectedNetworkId") || mainnetId);
+  const { isCustomNode, customNode, selectedNode } = settings;
 
   // load settings from localStorage or set default values
   useEffect(() => {
@@ -28,8 +32,10 @@ export const SettingsProvider = ({ children }) => {
 
       // Set the versions and metadata of available networks
       await initiateNetworkData();
+      // Apply local storage migrations
+      migrateLocalStorage();
 
-      const settingsStr = localStorage.getItem("settings");
+      const settingsStr = getLocalStorageItem("settings");
       const settings = { ...defaultSettings, ...JSON.parse(settingsStr) } || {};
       let defaultApiNode, defaultRpcNode, selectedNode;
 
@@ -163,7 +169,7 @@ export const SettingsProvider = ({ children }) => {
   const updateSettings = (newSettings) => {
     setSettings((prevSettings) => {
       clearQueries(prevSettings, newSettings);
-      localStorage.setItem("settings", JSON.stringify(newSettings));
+      setLocalStorageItem("settings", JSON.stringify(newSettings));
 
       return newSettings;
     });
@@ -183,61 +189,57 @@ export const SettingsProvider = ({ children }) => {
    * Refresh the nodes status and latency
    * @returns
    */
-  const refreshNodeStatuses = useCallback(
-    async (isCustomNode, forceRefresh) => {
-      if (isRefreshingNodeStatus && !forceRefresh) return;
+  const refreshNodeStatuses = useCallback(async () => {
+    if (isRefreshingNodeStatus) return;
 
-      setIsRefreshingNodeStatus(true);
-      let nodes = settings.nodes;
-      let customNode = settings.customNode;
-      const _isCustomNode = typeof isCustomNode === "boolean" ? isCustomNode : settings.isCustomNode;
+    setIsRefreshingNodeStatus(true);
+    let nodes = settings.nodes;
+    let _customNode = customNode;
 
-      if (_isCustomNode) {
-        const nodeStatus = await loadNodeStatus(settings.apiEndpoint);
-        const customNodeUrl = new URL(settings.apiEndpoint);
+    if (isCustomNode) {
+      const nodeStatus = await loadNodeStatus(settings.apiEndpoint);
+      const customNodeUrl = new URL(settings.apiEndpoint);
 
-        customNode = {
-          status: nodeStatus.status,
-          latency: nodeStatus.latency,
-          nodeInfo: nodeStatus.nodeInfo,
-          id: customNodeUrl.hostname
-        };
-      } else {
-        nodes = await Promise.all(
-          nodes.map(async (node) => {
-            const nodeStatus = await loadNodeStatus(node.api);
+      _customNode = {
+        status: nodeStatus.status,
+        latency: nodeStatus.latency,
+        nodeInfo: nodeStatus.nodeInfo,
+        id: customNodeUrl.hostname
+      };
+    } else {
+      nodes = await Promise.all(
+        nodes.map(async (node) => {
+          const nodeStatus = await loadNodeStatus(node.api);
 
-            return {
-              ...node,
-              status: nodeStatus.status,
-              latency: nodeStatus.latency,
-              nodeInfo: nodeStatus.nodeInfo
-            };
-          })
-        );
-      }
+          return {
+            ...node,
+            status: nodeStatus.status,
+            latency: nodeStatus.latency,
+            nodeInfo: nodeStatus.nodeInfo
+          };
+        })
+      );
+    }
 
-      setIsRefreshingNodeStatus(false);
+    setIsRefreshingNodeStatus(false);
 
-      // Update the settings with callback to avoid stale state settings
-      setSettings((prevSettings) => {
-        const selectedNode = nodes.find((node) => node.id === prevSettings.selectedNode.id);
+    // Update the settings with callback to avoid stale state settings
+    setSettings((prevSettings) => {
+      const selectedNode = nodes.find((node) => node.id === prevSettings.selectedNode.id);
 
-        const newSettings = {
-          ...prevSettings,
-          nodes,
-          selectedNode,
-          customNode
-        };
+      const newSettings = {
+        ...prevSettings,
+        nodes,
+        selectedNode,
+        customNode: _customNode
+      };
 
-        clearQueries(prevSettings, newSettings);
-        localStorage.setItem("settings", JSON.stringify(newSettings));
+      clearQueries(prevSettings, newSettings);
+      setLocalStorageItem("settings", JSON.stringify(newSettings));
 
-        return newSettings;
-      });
-    },
-    [settings?.selectedNode?.id, settings?.isCustomNode, isRefreshingNodeStatus]
-  );
+      return newSettings;
+    });
+  }, [settings, settings?.selectedNode?.id, isCustomNode, isRefreshingNodeStatus]);
 
   return (
     <SettingsProviderContext.Provider
