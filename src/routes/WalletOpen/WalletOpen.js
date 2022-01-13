@@ -8,6 +8,7 @@ import { analytics } from "../../shared/utils/analyticsUtils";
 import { DeleteWalletConfirm } from "../../shared/components/DeleteWalletConfirm";
 import { UrlService } from "../../shared/utils/urlUtils";
 import { useHistory } from "react-router-dom";
+import { Snackbar } from "../../shared/components/Snackbar";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -66,10 +67,10 @@ export function WalletOpen() {
       history.push(UrlService.dashboard());
     } catch (err) {
       if (err.message === "ciphertext cannot be decrypted using that key") {
-        enqueueSnackbar("Invalid password", { variant: "error" });
+        enqueueSnackbar(<Snackbar title="Invalid password" />, { variant: "error" });
       } else {
         console.error(err);
-        enqueueSnackbar("Error while decrypting wallet", { variant: "error" });
+        enqueueSnackbar(<Snackbar title="Error while decrypting wallet" />, { variant: "error" });
       }
       setIsLoading(false);
     }

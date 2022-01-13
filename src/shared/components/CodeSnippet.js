@@ -4,6 +4,7 @@ import { copyTextToClipboard } from "../utils/copyClipboard";
 import FileCopyIcon from "@material-ui/icons/FileCopy";
 import { useRef } from "react";
 import { selectText } from "../utils/stringUtils";
+import { Snackbar } from "../../shared/components/Snackbar";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -30,7 +31,7 @@ export const CodeSnippet = ({ code }) => {
 
   const onCopyClick = () => {
     copyTextToClipboard(code);
-    enqueueSnackbar("Copied to clipboard!", { variant: "success", autoHideDuration: 1500 });
+    enqueueSnackbar(<Snackbar title="Copied to clipboard!" />, { variant: "success", autoHideDuration: 1500 });
   };
 
   const onCodeClick = () => {

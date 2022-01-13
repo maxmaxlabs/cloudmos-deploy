@@ -3,6 +3,7 @@ import { Button, TextField, Dialog, DialogTitle, DialogContent, DialogActions, C
 import Alert from "@material-ui/lab/Alert";
 import { openWallet } from "../../shared/utils/walletUtils";
 import { useSnackbar } from "notistack";
+import { Snackbar } from "../../shared/components/Snackbar";
 
 export function ConfirmPasswordModal(props) {
   const [password, setPassword] = useState("");
@@ -25,10 +26,10 @@ export function ConfirmPasswordModal(props) {
       props.onConfirmPassword(password);
     } catch (err) {
       if (err.message === "ciphertext cannot be decrypted using that key") {
-        enqueueSnackbar("Invalid password", { variant: "error" });
+        enqueueSnackbar(<Snackbar title="Invalid password" />, { variant: "error" });
       } else {
         console.error(err);
-        enqueueSnackbar("Error while decrypting wallet", { variant: "error" });
+        enqueueSnackbar(<Snackbar title="Error while decrypting wallet" />, { variant: "error" });
       }
     } finally {
       setIsLoading(false);
