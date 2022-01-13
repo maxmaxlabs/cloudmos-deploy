@@ -49,6 +49,7 @@ export function ManifestEdit(props) {
         clearTimeout(timeoutId);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editedManifest]);
 
   async function createAndValidateDeploymentData(yamlStr, dseq = null, deposit = defaultInitialDeposit) {

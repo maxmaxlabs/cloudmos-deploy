@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { updateDeploymentLocalData } from "../../shared/utils/deploymentLocalDataUtils";
-import { Button, TextField, Dialog, DialogTitle, DialogContent, DialogActions, CircularProgress } from "@material-ui/core";
+import { Button, TextField, Dialog, DialogTitle, DialogContent, DialogActions } from "@material-ui/core";
 
 export const DeploymentNameModal = ({ dseq, onClose, onSaved, getDeploymentName }) => {
   const [currentName, setCurrentName] = useState("");
@@ -10,6 +10,7 @@ export const DeploymentNameModal = ({ dseq, onClose, onSaved, getDeploymentName 
       const name = getDeploymentName(dseq);
       setCurrentName(name || "");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dseq]);
 
   function handleSubmit(ev) {

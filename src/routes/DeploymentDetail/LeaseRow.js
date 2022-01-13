@@ -67,6 +67,7 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
 
   useEffect(() => {
     loadLeaseStatus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lease, providerInfo, localCert]);
 
   function loadLeaseStatus() {
@@ -92,7 +93,7 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
       const doc = yaml.load(deploymentManifest);
       const manifest = Manifest(doc);
 
-      const response = await sendManifestToProvider(providerInfo, manifest, dseq, localCert);
+      await sendManifestToProvider(providerInfo, manifest, dseq, localCert);
 
       enqueueSnackbar(<Snackbar title="Manifest sent!" />, { variant: "success", autoHideDuration: 10_000 });
     } catch (err) {

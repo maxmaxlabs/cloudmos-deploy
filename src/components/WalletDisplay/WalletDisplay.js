@@ -35,6 +35,7 @@ export function WalletDisplay() {
 
   useEffect(() => {
     refreshBalance();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settings.apiEndpoint]);
 
   function deleteWalletClick() {

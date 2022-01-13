@@ -58,16 +58,17 @@ export const NodeStatusBar = () => {
 
   useEffect(() => {
     const refreshNodeIntervalId = setInterval(async () => {
-      await refreshNodeStatuses(isCustomNode);
+      await refreshNodeStatuses();
     }, 60_000); // refresh every 1min
 
     return () => {
       clearInterval(refreshNodeIntervalId);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshNodeStatuses]);
 
   const onSettingsModalClose = () => {
-    refreshNodeStatuses(isCustomNode, true);
+    refreshNodeStatuses();
     setIsEditingSettings(false);
   };
 

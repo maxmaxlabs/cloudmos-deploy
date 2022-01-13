@@ -44,6 +44,7 @@ export const WalletProvider = ({ children }) => {
         return 0;
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [address, settings.apiEndpoint]
   );
 
@@ -63,12 +64,14 @@ export const WalletProvider = ({ children }) => {
     } else {
       setAddress(null);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedWallet]);
 
   useEffect(() => {
     if (address) {
       refreshBalance();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address, refreshBalance]);
 
   return (

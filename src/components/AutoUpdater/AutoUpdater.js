@@ -28,7 +28,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export const AutoUpdater = () => {
-  const classes = useStyles();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const newUpdateSnackbarKey = useRef(null);
   const downloadSnackbarKey = useRef(null);
@@ -50,6 +49,7 @@ export const AutoUpdater = () => {
     });
 
     ipcApi.send("check_update");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /**

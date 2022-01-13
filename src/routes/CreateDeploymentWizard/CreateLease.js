@@ -67,7 +67,6 @@ export function CreateLease({ dseq }) {
     initialData: [],
     refetchInterval: REFRESH_BIDS_INTERVAL,
     onSuccess: (bids) => {
-      console.log("Success", bids);
       setNumberOfRequests((prev) => ++prev);
     },
     enabled: !maxRequestsReached
@@ -78,10 +77,6 @@ export function CreateLease({ dseq }) {
   }, {});
   const dseqList = Object.keys(groupedBids);
   const allClosed = bids.length > 0 && bids.every((bid) => bid.state === "closed");
-
-  useEffect(() => {
-    console.log("number of requests", numberOfRequests);
-  }, [numberOfRequests]);
 
   // Filter bids by search
   useEffect(() => {
@@ -103,6 +98,7 @@ export function CreateLease({ dseq }) {
     } else {
       setFilteredBids(bids?.map((b) => b.id) || []);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, bids]);
 
   const handleBidSelected = (bid) => {
@@ -130,7 +126,7 @@ export function CreateLease({ dseq }) {
         .map((bid) => TransactionMessageData.getCreateLeaseMsg(bid));
       const response = await sendTransaction(messages);
 
-      if (!response) throw "Rejected transaction";
+      if (!response) throw new Error("Rejected transaction");
 
       await analytics.event("deploy", "create lease");
     } catch (error) {

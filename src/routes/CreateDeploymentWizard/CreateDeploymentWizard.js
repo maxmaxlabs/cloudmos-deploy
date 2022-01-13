@@ -6,7 +6,6 @@ import { CreateLease } from "./CreateLease";
 import { useHistory, useParams } from "react-router";
 import { PrerequisiteList } from "./PrerequisiteList";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-import { UrlService } from "../../shared/utils/urlUtils";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -60,21 +59,6 @@ export function CreateDeploymentWizard() {
         return 3;
       default:
         return 0;
-    }
-  }
-
-  function getStepRouteByIndex(step) {
-    switch (step) {
-      case 0:
-        return UrlService.createDeployment();
-      case 1:
-        return UrlService.createDeploymentStepTemplate();
-      case 2:
-        return UrlService.createDeploymentStepManifest();
-      case 4:
-        return UrlService.createDeploymentStepBids();
-      default:
-        return UrlService.createDeployment();
     }
   }
 

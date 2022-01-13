@@ -41,7 +41,6 @@ export function TransactionModal(props) {
   const { settings } = useSettings();
   const { address, selectedWallet, refreshBalance } = useWallet();
   const [isSendingTransaction, setIsSendingTransaction] = useState(false);
-  const [error, setError] = useState("");
   const [tabIndex, setTabIndex] = useState(0);
   const [memo, setMemo] = useState("");
   const [gas, setGas] = useState(baseGas);
@@ -58,7 +57,6 @@ export function TransactionModal(props) {
 
   async function handleSubmit(ev) {
     ev.preventDefault();
-    setError("");
     setIsSendingTransaction(true);
 
     let pendingSnackbarKey = enqueueSnackbar(<Snackbar title="Tx is pending..." subTitle="Please wait a few seconds" />, { variant: "info" });

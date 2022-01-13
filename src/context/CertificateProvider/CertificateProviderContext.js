@@ -43,6 +43,7 @@ export const CertificateProvider = ({ children }) => {
         return "Certificate error.";
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [address, settings.apiEndpoint]
   );
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   makeStyles,
   Button,
@@ -51,7 +51,6 @@ export const SelectNetworkModal = ({ onClose }) => {
   };
 
   const handleSaveChanges = () => {
-    // TODO
     // Set in the settings and local storage
     localStorage.setItem("selectedNetworkId", localSelectedNetworkId);
     // Reset the ui to reload the settings for the currently selected network
@@ -111,8 +110,3 @@ export const SelectNetworkModal = ({ onClose }) => {
     </Dialog>
   );
 };
-
-// Import
-// Object.keys(data).forEach(key => {
-//   localStorage.setItem(key, data[key])
-// })

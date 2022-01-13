@@ -81,7 +81,7 @@ export function Settings(props) {
 
     setSettings({ ...settings, isCustomNode: isChecked, apiEndpoint, rpcEndpoint });
 
-    refreshNodeStatuses(isChecked);
+    refreshNodeStatuses();
   };
 
   const onNodeChange = (event, newNodeId) => {
@@ -104,7 +104,7 @@ export function Settings(props) {
     setSettings({ ...settings, ...data });
     setIsEditing(false);
 
-    refreshNodeStatuses(true);
+    refreshNodeStatuses();
   };
 
   return (

@@ -23,7 +23,7 @@ export const SettingsProvider = ({ children }) => {
   const [isRefreshingNodeStatus, setIsRefreshingNodeStatus] = useState(false);
   const { getLocalStorageItem, setLocalStorageItem } = useLocalStorage();
   const [selectedNetworkId, setSelectedNetworkId] = useState(localStorage.getItem("selectedNetworkId") || mainnetId);
-  const { isCustomNode, customNode, selectedNode } = settings;
+  const { isCustomNode, customNode } = settings;
 
   // load settings from localStorage or set default values
   useEffect(() => {
@@ -111,6 +111,7 @@ export const SettingsProvider = ({ children }) => {
     };
 
     initiateSettings();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /**
@@ -240,6 +241,7 @@ export const SettingsProvider = ({ children }) => {
 
       return newSettings;
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settings, settings?.selectedNode?.id, isCustomNode, isRefreshingNodeStatus]);
 
   return (

@@ -4,7 +4,6 @@ import axios from "axios";
 import { ApiUrlService } from "../shared/utils/apiUtils";
 import { deploymentToDto } from "../shared/utils/deploymentDetailUtils";
 import { useSettings } from "../context/SettingsProvider";
-import { deploymentGroupResourceSum } from "../shared/utils/deploymentDetailUtils";
 
 // Deployment list
 async function getDeploymentList(apiEndpoint, address) {

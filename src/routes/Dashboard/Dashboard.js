@@ -39,6 +39,7 @@ export function Dashboard({ deployments, isLoadingDeployments, refreshDeployment
 
   useEffect(() => {
     refreshDeployments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const orderedDeployments = deployments ? [...deployments].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)).filter((d) => d.state === "active") : [];

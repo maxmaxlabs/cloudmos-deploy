@@ -29,6 +29,7 @@ export function ExportCertificate(props) {
     }
 
     init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

@@ -41,6 +41,7 @@ export function PrerequisiteList({ selectedTemplate, setSelectedTemplate }) {
         setSelectedTemplate(template);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -55,6 +56,7 @@ export function PrerequisiteList({ selectedTemplate, setSelectedTemplate }) {
     }
 
     loadPrerequisites();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshBalance, loadValidCertificates, localCert, isLocalCertMatching]);
 
   const classes = useStyles();
