@@ -4,7 +4,7 @@ import { mainnetId } from "../constants";
 const migrations = {
   // Migrate local storage keys to have prefixed network id
   "0.6.0": () => {
-    const ignoredKeys = ["ga_user_id"];
+    const ignoredKeys = ["ga_user_id", "isBetaBannerSeen", "latestUpdatedVersion"];
     const updatedStorage = {};
 
     Object.keys(localStorage).forEach((key) => {

@@ -30,6 +30,7 @@ export const AppContainer = () => {
   const { address, selectedWallet } = useWallet();
   const { isLoadingSettings } = useSettings();
   const { addresses } = useStorageWalletAddresses();
+  const [showBetaBanner, setShowBetaBanner] = useState(false);
   const history = useHistory();
 
   const walletExists = addresses?.length > 0;
@@ -44,6 +45,8 @@ export const AppContainer = () => {
       }
     }
 
+    const isBetaBannerSeen = Boolean(localStorage.getItem("isBetaBannerSeen"));
+    setShowBetaBanner(!isBetaBannerSeen);
     setIsAppInitiated(true);
   }, []);
 
@@ -63,7 +66,7 @@ export const AppContainer = () => {
       ) : (
         <>
           <NodeStatusBar />
-          <BetaBanner />
+          {showBetaBanner && <BetaBanner />}
 
           <Route exact path="/wallet-import">
             <ErrorBoundary FallbackComponent={ErrorFallback}>

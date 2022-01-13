@@ -16,6 +16,12 @@ export const BetaBanner = () => {
   const [isBetaBarVisible, setIsBetaBarVisible] = useState(true);
   const classes = useStyles();
 
+  const onCloseClick = () => {
+    localStorage.setItem("isBetaBannerSeen", true);
+
+    setIsBetaBarVisible(false);
+  };
+
   return (
     <>
       {isBetaBarVisible && (
@@ -30,7 +36,7 @@ export const BetaBanner = () => {
             </div>
 
             <div className={classes.grow} />
-            <IconButton aria-label="Close beta app bar" color="inherit" onClick={() => setIsBetaBarVisible(false)}>
+            <IconButton aria-label="Close beta app bar" color="inherit" onClick={onCloseClick}>
               <CloseIcon />
             </IconButton>
           </Toolbar>
