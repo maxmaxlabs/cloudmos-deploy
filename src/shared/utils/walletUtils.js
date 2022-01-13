@@ -17,18 +17,20 @@ export const useStorageWalletAddresses = () => {
 };
 
 export function getWalletAddresses() {
+  const selectedNetworkId = localStorage.getItem("selectedNetworkId");
   return Object.keys(localStorage)
-    .filter((key) => key.endsWith(".wallet"))
-    .map((key) => key.replace(".wallet", ""));
+    .filter((key) => key.startsWith(selectedNetworkId) && key.endsWith(".wallet"))
+    .map((key) => key.replace(".wallet", "").replace(`${selectedNetworkId}/`, ""));
 }
 
 export function deleteWalletFromStorage(address, deleteDeployments) {
-  localStorage.removeItem(address + ".wallet");
-  localStorage.removeItem(address + ".crt");
-  localStorage.removeItem(address + ".key");
+  const selectedNetworkId = localStorage.getItem("selectedNetworkId");
+  localStorage.removeItem(`${selectedNetworkId}/${address}.wallet`);
+  localStorage.removeItem(`${selectedNetworkId}/${address}.crt`);
+  localStorage.removeItem(`${selectedNetworkId}/${address}.key`);
 
   if (deleteDeployments) {
-    const deploymentKeys = Object.keys(localStorage).filter((key) => key.startsWith("deployments/"));
+    const deploymentKeys = Object.keys(localStorage).filter((key) => key.startsWith(`${selectedNetworkId}/deployments/`));
     for (const deploymentKey of deploymentKeys) {
       localStorage.removeItem(deploymentKey);
     }
@@ -46,8 +48,9 @@ export async function importWallet(mnemonic, name, password) {
   const serializedWallet = await wallet.serializeWithEncryptionKey(keyArray, basicPasswordHashingOptions);
   const address = (await wallet.getAccounts())[0].address;
 
+  const selectedNetworkId = localStorage.getItem("selectedNetworkId");
   localStorage.setItem(
-    address + ".wallet",
+    `${selectedNetworkId}/${address}.wallet`,
     JSON.stringify({
       name: name,
       address: address,
@@ -60,7 +63,8 @@ export async function importWallet(mnemonic, name, password) {
 
 export async function openWallet(password) {
   const walletAddress = getWalletAddresses()[0];
-  const walletInfo = JSON.parse(localStorage.getItem(walletAddress + ".wallet"));
+  const selectedNetworkId = localStorage.getItem("selectedNetworkId");
+  const walletInfo = JSON.parse(localStorage.getItem(`${selectedNetworkId}/${walletAddress}.wallet`));
 
   const kdfConf = extractKdfConfiguration(walletInfo.serializedWallet);
 
@@ -74,7 +78,8 @@ export async function openWallet(password) {
 
 export function getCurrentWalletFromStorage() {
   const walletAddress = getWalletAddresses()[0];
-  const walletInfo = JSON.parse(localStorage.getItem(walletAddress + ".wallet"));
+  const selectedNetworkId = localStorage.getItem("selectedNetworkId");
+  const walletInfo = JSON.parse(localStorage.getItem(`${selectedNetworkId}/${walletAddress}.wallet`));
 
   return walletInfo;
 }

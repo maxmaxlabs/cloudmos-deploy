@@ -144,7 +144,7 @@ export function TransactionModal(props) {
   const showTransactionSnackbar = (snackTitle, snackMessage, transactionHash, snackVariant) => {
     enqueueSnackbar(<Snackbar title={snackTitle} subTitle={<TransactionSnackbarContent snackMessage={snackMessage} transactionHash={transactionHash} />} />, {
       variant: snackVariant,
-      autoHideDuration: 15_000
+      autoHideDuration: 15000
     });
   };
 
@@ -340,13 +340,7 @@ const TransactionSnackbarContent = ({ snackMessage, transactionHash }) => {
       {snackMessage}
       <br />
       {transactionHash && (
-        <Box
-          component="a"
-          display="flex"
-          alignItems="center"
-          href="#"
-          onClick={() => window.electron.openUrl(transactionLink(transactionHash))}
-        >
+        <Box component="a" display="flex" alignItems="center" href="#" onClick={() => window.electron.openUrl(transactionLink(transactionHash))}>
           View transaction <OpenInNew className={classes.transactionLinkIcon} />
         </Box>
       )}

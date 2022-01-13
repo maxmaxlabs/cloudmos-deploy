@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { mainnetId, mainnetNodes } from "../../shared/constants";
-import { initiateNetworkData } from "../../shared/networks";
+import { initiateNetworkData, networks } from "../../shared/networks";
 import { migrateLocalStorage } from "../../shared/utils/localStorage";
 import { queryClient } from "../../queries";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
@@ -40,7 +40,8 @@ export const SettingsProvider = ({ children }) => {
       let defaultApiNode, defaultRpcNode, selectedNode;
 
       // Set the available nodes list and default endpoints
-      const response = await axios.get(mainnetNodes);
+      const currentNetwork = networks.find((x) => x.id === selectedNetworkId) || mainnetNodes;
+      const response = await axios.get(currentNetwork.nodesUrl);
       let nodes = response.data;
 
       const hasSettings =

@@ -40,6 +40,13 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+// Refresh bids every 7 seconds;
+const REFRESH_BIDS_INTERVAL = 7000;
+// Request every 7 seconds to a max of 5 minutes before deployments closes
+const MAX_NUM_OF_BID_REQUESTS = Math.floor((5 * 60 * 1000) / REFRESH_BIDS_INTERVAL);
+// Show a warning after 1 minute
+const WARNING_NUM_OF_BID_REQUESTS = Math.round((60 * 1000) / REFRESH_BIDS_INTERVAL);
+
 export function CreateLease({ dseq }) {
   const [isSendingManifest, setIsSendingManifest] = useState(false);
   const [selectedBids, setSelectedBids] = useState({});
@@ -53,10 +60,17 @@ export function CreateLease({ dseq }) {
   const { data: providers } = useProviders();
   const [anchorEl, setAnchorEl] = useState(null);
   const classes = useStyles();
+  const [numberOfRequests, setNumberOfRequests] = useState(0);
+  const warningRequestsReached = numberOfRequests > WARNING_NUM_OF_BID_REQUESTS;
+  const maxRequestsReached = numberOfRequests > MAX_NUM_OF_BID_REQUESTS;
   const { data: bids, isLoading: isLoadingBids } = useBidList(address, dseq, {
     initialData: [],
-    initialStale: true,
-    refetchInterval: 7000
+    refetchInterval: REFRESH_BIDS_INTERVAL,
+    onSuccess: (bids) => {
+      console.log("Success", bids);
+      setNumberOfRequests((prev) => ++prev);
+    },
+    enabled: !maxRequestsReached
   });
   const groupedBids = bids.reduce((a, b) => {
     a[b.gseq] = [...(a[b.gseq] || []), b];
@@ -64,6 +78,10 @@ export function CreateLease({ dseq }) {
   }, {});
   const dseqList = Object.keys(groupedBids);
   const allClosed = bids.length > 0 && bids.every((bid) => bid.state === "closed");
+
+  useEffect(() => {
+    console.log("number of requests", numberOfRequests);
+  }, [numberOfRequests]);
 
   // Filter bids by search
   useEffect(() => {
@@ -174,15 +192,30 @@ export function CreateLease({ dseq }) {
 
       {isSendingManifest && <LinearProgress />}
 
-      {isLoadingBids ||
-        (bids.length === 0 && (
-          <Box textAlign="center">
-            <CircularProgress />
-            <Box paddingTop="1rem">
-              <Typography variant="body1">Waiting for bids...</Typography>
-            </Box>
+      {(isLoadingBids || bids.length === 0) && !maxRequestsReached && (
+        <Box textAlign="center">
+          <CircularProgress />
+          <Box paddingTop="1rem">
+            <Typography variant="body1">Waiting for bids...</Typography>
           </Box>
-        ))}
+        </Box>
+      )}
+
+      {warningRequestsReached && !maxRequestsReached && (
+        <Box padding="1rem">
+          <Alert variant="standard" severity="info">
+            There should be bids by now... You can wait longer in case a bid shows up or close the deployment and try again with a different configuration.
+          </Alert>
+        </Box>
+      )}
+
+      {maxRequestsReached && (
+        <Box padding="1rem">
+          <Alert variant="standard" severity="warning">
+            There's no bid for the current deployment. You can close the deployment and try again with a different configuration.
+          </Alert>
+        </Box>
+      )}
 
       {!isLoadingBids && bids.length > 0 && (
         <Box display="flex" justifyContent="flex-end">
