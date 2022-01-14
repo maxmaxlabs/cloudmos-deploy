@@ -41,6 +41,7 @@ export function PrerequisiteList({ selectedTemplate, setSelectedTemplate }) {
         setSelectedTemplate(template);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

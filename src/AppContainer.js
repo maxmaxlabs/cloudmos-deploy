@@ -30,6 +30,7 @@ export const AppContainer = () => {
   const { address, selectedWallet } = useWallet();
   const { isLoadingSettings } = useSettings();
   const { addresses } = useStorageWalletAddresses();
+  const [showBetaBanner, setShowBetaBanner] = useState(false);
   const history = useHistory();
 
   const walletExists = addresses?.length > 0;
@@ -44,13 +45,16 @@ export const AppContainer = () => {
       }
     }
 
+    const isBetaBannerSeen = Boolean(localStorage.getItem("isBetaBannerSeen"));
+    setShowBetaBanner(!isBetaBannerSeen);
     setIsAppInitiated(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <>
       <AutoUpdater />
-      
+
       {isLoadingSettings ? (
         <Box display="flex" alignItems="center" justifyContent="center" height="100%" width="100%" flexDirection="column">
           <Box paddingBottom="1rem">
@@ -62,7 +66,8 @@ export const AppContainer = () => {
         </Box>
       ) : (
         <>
-          <BetaBanner />
+          <NodeStatusBar />
+          {showBetaBanner && <BetaBanner />}
 
           <Route exact path="/wallet-import">
             <ErrorBoundary FallbackComponent={ErrorFallback}>
@@ -77,7 +82,6 @@ export const AppContainer = () => {
 
           {isAppInitiated && selectedWallet && address && (
             <>
-              <NodeStatusBar />
               <MainView />
             </>
           )}

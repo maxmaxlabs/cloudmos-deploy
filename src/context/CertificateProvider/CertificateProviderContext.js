@@ -4,6 +4,7 @@ import { openCert } from "../../shared/utils/certificateUtils";
 import { useSettings } from "../SettingsProvider";
 import { useWallet } from "../WalletProvider";
 import { Snackbar } from "../../shared/components/Snackbar";
+import { useLocalStorage } from "../../hooks/useLocalStorage";
 
 const CertificateProviderContext = React.createContext({});
 
@@ -14,15 +15,16 @@ export const CertificateProvider = ({ children }) => {
   const [isLocalCertMatching, setIsLocalCertMatching] = useState(false);
   const { settings } = useSettings();
   const { enqueueSnackbar } = useSnackbar();
-
   const { address } = useWallet();
+  const { getLocalStorageItem } = useLocalStorage();
+  const { apiEndpoint } = settings;
 
   const loadValidCertificates = useCallback(
     async (showSnackbar) => {
       setIsLoadingCertificates(true);
 
       try {
-        const response = await fetch(settings.apiEndpoint + "/akash/cert/v1beta1/certificates/list?filter.state=valid&filter.owner=" + address);
+        const response = await fetch(apiEndpoint + "/akash/cert/v1beta1/certificates/list?filter.state=valid&filter.owner=" + address);
         const data = await response.json();
 
         setValidCertificates(data.certificates);
@@ -42,7 +44,7 @@ export const CertificateProvider = ({ children }) => {
         return "Certificate error.";
       }
     },
-    [address, settings.apiEndpoint]
+    [address, apiEndpoint, enqueueSnackbar]
   );
 
   useEffect(() => {
@@ -54,7 +56,10 @@ export const CertificateProvider = ({ children }) => {
   }, [address, loadValidCertificates]);
 
   const loadLocalCert = async (address, password) => {
-    const cert = await openCert(address, password);
+    const certPem = getLocalStorageItem(address + ".crt");
+    const encryptedKeyPem = getLocalStorageItem(address + ".key");
+
+    const cert = await openCert(password, certPem, encryptedKeyPem);
 
     setLocalCert(cert);
   };
@@ -66,6 +71,7 @@ export const CertificateProvider = ({ children }) => {
     if (certificate && localCert) {
       isMatching = atob(certificate.certificate.cert) === localCert.certPem;
     }
+
     setIsLocalCertMatching(isMatching);
   }, [certificate, localCert]);
 

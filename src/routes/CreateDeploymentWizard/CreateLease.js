@@ -29,6 +29,7 @@ import { Helmet } from "react-helmet-async";
 import { analytics } from "../../shared/utils/analyticsUtils";
 import { useProviders } from "../../queries";
 import CloseIcon from "@material-ui/icons/Close";
+import { ManifestErrorSnackbar } from "../../shared/components/ManifestErrorSnackbar";
 
 const yaml = require("js-yaml");
 
@@ -38,6 +39,13 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: "1rem"
   }
 }));
+
+// Refresh bids every 7 seconds;
+const REFRESH_BIDS_INTERVAL = 7000;
+// Request every 7 seconds to a max of 5 minutes before deployments closes
+const MAX_NUM_OF_BID_REQUESTS = Math.floor((5 * 60 * 1000) / REFRESH_BIDS_INTERVAL);
+// Show a warning after 1 minute
+const WARNING_NUM_OF_BID_REQUESTS = Math.round((60 * 1000) / REFRESH_BIDS_INTERVAL);
 
 export function CreateLease({ dseq }) {
   const [isSendingManifest, setIsSendingManifest] = useState(false);
@@ -52,10 +60,16 @@ export function CreateLease({ dseq }) {
   const { data: providers } = useProviders();
   const [anchorEl, setAnchorEl] = useState(null);
   const classes = useStyles();
+  const [numberOfRequests, setNumberOfRequests] = useState(0);
+  const warningRequestsReached = numberOfRequests > WARNING_NUM_OF_BID_REQUESTS;
+  const maxRequestsReached = numberOfRequests > MAX_NUM_OF_BID_REQUESTS;
   const { data: bids, isLoading: isLoadingBids } = useBidList(address, dseq, {
     initialData: [],
-    initialStale: true,
-    refetchInterval: 7000
+    refetchInterval: REFRESH_BIDS_INTERVAL,
+    onSuccess: (bids) => {
+      setNumberOfRequests((prev) => ++prev);
+    },
+    enabled: !maxRequestsReached
   });
   const groupedBids = bids.reduce((a, b) => {
     a[b.gseq] = [...(a[b.gseq] || []), b];
@@ -84,19 +98,19 @@ export function CreateLease({ dseq }) {
     } else {
       setFilteredBids(bids?.map((b) => b.id) || []);
     }
-  }, [search, bids]);
+  }, [search, bids, providers]);
 
   const handleBidSelected = (bid) => {
     setSelectedBids({ ...selectedBids, [bid.gseq]: bid });
   };
 
-  async function sendManifest(providerInfo, manifestStr) {
+  async function sendManifest(providerInfo, manifest) {
     try {
-      const response = await sendManifestToProvider(providerInfo, manifestStr, dseq, localCert);
+      const response = await sendManifestToProvider(providerInfo, manifest, dseq, localCert);
 
       return response;
     } catch (err) {
-      enqueueSnackbar(`Error while sending manifest to provider. ${err}`, { variant: "error", autoHideDuration: null });
+      enqueueSnackbar(<ManifestErrorSnackbar err={err} />, { variant: "error", autoHideDuration: null });
       throw err;
     }
   }
@@ -104,13 +118,14 @@ export function CreateLease({ dseq }) {
   async function handleNext() {
     console.log("Accepting bids...");
 
+    // Create the lease
     try {
       const messages = Object.keys(selectedBids)
         .map((gseq) => selectedBids[gseq])
         .map((bid) => TransactionMessageData.getCreateLeaseMsg(bid));
       const response = await sendTransaction(messages);
 
-      if (!response) throw "Rejected transaction";
+      if (!response) throw new Error("Rejected transaction");
 
       await analytics.event("deploy", "create lease");
     } catch (error) {
@@ -121,6 +136,7 @@ export function CreateLease({ dseq }) {
 
     const deploymentData = getDeploymentLocalData(dseq);
     if (deploymentData && deploymentData.manifest) {
+      // Send the manifest
       try {
         const provider = providers.find((x) => x.owner === selectedBids[Object.keys(selectedBids)[0]].provider);
         const yamlJson = yaml.load(deploymentData.manifest);
@@ -171,15 +187,30 @@ export function CreateLease({ dseq }) {
 
       {isSendingManifest && <LinearProgress />}
 
-      {isLoadingBids ||
-        (bids.length === 0 && (
-          <Box textAlign="center">
-            <CircularProgress />
-            <Box paddingTop="1rem">
-              <Typography variant="body1">Waiting for bids...</Typography>
-            </Box>
+      {(isLoadingBids || bids.length === 0) && !maxRequestsReached && (
+        <Box textAlign="center">
+          <CircularProgress />
+          <Box paddingTop="1rem">
+            <Typography variant="body1">Waiting for bids...</Typography>
           </Box>
-        ))}
+        </Box>
+      )}
+
+      {warningRequestsReached && !maxRequestsReached && (
+        <Box padding="1rem">
+          <Alert variant="standard" severity="info">
+            There should be bids by now... You can wait longer in case a bid shows up or close the deployment and try again with a different configuration.
+          </Alert>
+        </Box>
+      )}
+
+      {maxRequestsReached && (
+        <Box padding="1rem">
+          <Alert variant="standard" severity="warning">
+            There's no bid for the current deployment. You can close the deployment and try again with a different configuration.
+          </Alert>
+        </Box>
+      )}
 
       {!isLoadingBids && bids.length > 0 && (
         <Box display="flex" justifyContent="flex-end">

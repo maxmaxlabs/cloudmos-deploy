@@ -16,6 +16,7 @@ import { useLocalNotes } from "../../context/LocalNoteProvider";
 import { DeploymentLogs } from "./DeploymentLogs";
 import { useCertificate } from "../../context/CertificateProvider";
 import Alert from "@material-ui/lab/Alert";
+import { getDeploymentLocalData } from "../../shared/utils/deploymentLocalDataUtils";
 
 export function DeploymentDetail(props) {
   const [deployment, setDeployment] = useState(null);
@@ -35,6 +36,7 @@ export function DeploymentDetail(props) {
   const hasLeases = leases && leases.length > 0;
   const [leaseRefs, setLeaseRefs] = useState([]);
   const { certificate, isLocalCertMatching, localCert } = useCertificate();
+  const [deploymentManifest, setDeploymentManifest] = useState(null);
 
   const deploymentName = getDeploymentName(dseq);
 
@@ -55,13 +57,18 @@ export function DeploymentDetail(props) {
           .map((_, i) => elRefs[i] || createRef())
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deployment, hasLeases, isLoadingLeases, leases, dseq]);
 
   useEffect(() => {
     if (deployment) {
       loadLeases();
       getCurrentBlock();
+
+      const deploymentData = getDeploymentLocalData(dseq);
+      setDeploymentManifest(deploymentData?.manifest);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deployment, loadLeases]);
 
   useEffect(() => {
@@ -77,6 +84,7 @@ export function DeploymentDetail(props) {
     } else {
       loadDeploymentDetail();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function loadDeploymentDetail() {
@@ -154,7 +162,10 @@ export function DeploymentDetail(props) {
             <Typography variant="h6" gutterBottom className={classes.title}>
               Leases
             </Typography>
-            {leases && leases.map((lease, i) => <LeaseRow key={lease.id} lease={lease} setActiveTab={setActiveTab} ref={leaseRefs[i]} />)}
+            {leases &&
+              leases.map((lease, i) => (
+                <LeaseRow key={lease.id} lease={lease} setActiveTab={setActiveTab} ref={leaseRefs[i]} deploymentManifest={deploymentManifest} dseq={dseq} />
+              ))}
             {!hasLeases && !isLoadingLeases && !isLoadingDeployment && <>This deployment doesn't have any leases</>}
 
             {leases && certificate && (!localCert || !isLocalCertMatching) && (

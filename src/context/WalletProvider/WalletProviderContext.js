@@ -15,6 +15,7 @@ export const WalletProvider = ({ children }) => {
   const [isRefreshingBalance, setIsRefreshingBalance] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
   const history = useHistory();
+  const { apiEndpoint } = settings;
 
   const refreshBalance = useCallback(
     async (showSnackbar) => {
@@ -23,7 +24,7 @@ export const WalletProvider = ({ children }) => {
       setIsRefreshingBalance(true);
 
       try {
-        const response = await fetch(settings.apiEndpoint + "/cosmos/bank/v1beta1/balances/" + address);
+        const response = await fetch(apiEndpoint + "/cosmos/bank/v1beta1/balances/" + address);
         const data = await response.json();
         const balance = data.balances.length > 0 && data.balances.some((b) => b.denom === "uakt") ? data.balances.find((b) => b.denom === "uakt").amount : 0;
 
@@ -44,7 +45,7 @@ export const WalletProvider = ({ children }) => {
         return 0;
       }
     },
-    [address, settings.apiEndpoint]
+    [address, apiEndpoint, enqueueSnackbar]
   );
 
   const deleteWallet = (address) => {

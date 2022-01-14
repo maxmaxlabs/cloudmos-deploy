@@ -32,10 +32,11 @@ export function WalletDisplay() {
   const classes = useStyles();
   const { settings } = useSettings();
   const history = useHistory();
+  const { apiEndpoint } = settings;
 
   useEffect(() => {
     refreshBalance();
-  }, [settings.apiEndpoint]);
+  }, [apiEndpoint, refreshBalance]);
 
   function deleteWalletClick() {
     handleCloseMenu();

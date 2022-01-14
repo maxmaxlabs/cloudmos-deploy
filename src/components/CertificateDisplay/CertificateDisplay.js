@@ -16,6 +16,7 @@ import { analytics } from "../../shared/utils/analyticsUtils";
 import { generateCertificate } from "../../shared/utils/certificateUtils";
 import { ExportCertificate } from "./ExportCertificate";
 import GetAppIcon from "@material-ui/icons/GetApp";
+import { useLocalStorage } from "../../hooks/useLocalStorage";
 
 const useStyles = makeStyles({
   root: {
@@ -41,6 +42,8 @@ export function CertificateDisplay() {
   const { sendTransaction } = useTransactionModal();
   const { address } = useWallet();
   const [isExportingCert, setIsExportingCert] = useState(false);
+  const { removeLocalStorageItem, setLocalStorageItem } = useLocalStorage();
+  const [anchorEl, setAnchorEl] = useState(null);
 
   /**
    * Revoke certificate
@@ -54,8 +57,8 @@ export function CertificateDisplay() {
       const response = await sendTransaction([message]);
 
       if (response) {
-        localStorage.removeItem(address + ".crt");
-        localStorage.removeItem(address + ".key");
+        removeLocalStorageItem(address + ".crt");
+        removeLocalStorageItem(address + ".key");
 
         await loadValidCertificates();
 
@@ -64,7 +67,7 @@ export function CertificateDisplay() {
     } catch (error) {
       throw error;
     }
-  }, [certificate]);
+  }, [address, loadValidCertificates, removeLocalStorageItem, sendTransaction, certificate]);
 
   /**
    * Create certificate
@@ -82,8 +85,8 @@ export function CertificateDisplay() {
       const response = await sendTransaction([message]);
 
       if (response) {
-        localStorage.setItem(address + ".crt", crtpem);
-        localStorage.setItem(address + ".key", encryptedKey);
+        setLocalStorageItem(address + ".crt", crtpem);
+        setLocalStorageItem(address + ".key", encryptedKey);
 
         loadValidCertificates();
         loadLocalCert(address, password);
@@ -112,8 +115,8 @@ export function CertificateDisplay() {
       const response = await sendTransaction([revokeCertMsg, createCertMsg]);
 
       if (response) {
-        localStorage.setItem(address + ".crt", crtpem);
-        localStorage.setItem(address + ".key", encryptedKey);
+        setLocalStorageItem(address + ".crt", crtpem);
+        setLocalStorageItem(address + ".key", encryptedKey);
 
         loadValidCertificates();
         loadLocalCert(address, password);
@@ -124,8 +127,6 @@ export function CertificateDisplay() {
       throw error;
     }
   }
-
-  const [anchorEl, setAnchorEl] = useState(null);
 
   function handleMenuClick(ev) {
     setAnchorEl(ev.currentTarget);
@@ -173,7 +174,6 @@ export function CertificateDisplay() {
 
               {certificate && !isLocalCertMatching && (
                 <Tooltip
-                  title="Add"
                   classes={{ tooltip: classes.tooltip }}
                   arrow
                   title="The local cert doesn't match the one on the blockchain. You can revoke it and create a new one."

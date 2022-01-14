@@ -30,6 +30,9 @@ import { useStyles } from "./TransactionModal.styles";
 import { useSettings } from "../SettingsProvider";
 import { Snackbar } from "../../shared/components/Snackbar";
 import { analytics } from "../../shared/utils/analyticsUtils";
+import { transactionLink } from "../../shared/constants";
+import { BroadcastingError } from "../../shared/utils/errors";
+import OpenInNew from "@material-ui/icons/OpenInNew";
 
 const a11yPrefix = "transaction-tab";
 
@@ -38,7 +41,6 @@ export function TransactionModal(props) {
   const { settings } = useSettings();
   const { address, selectedWallet, refreshBalance } = useWallet();
   const [isSendingTransaction, setIsSendingTransaction] = useState(false);
-  const [error, setError] = useState("");
   const [tabIndex, setTabIndex] = useState(0);
   const [memo, setMemo] = useState("");
   const [gas, setGas] = useState(baseGas);
@@ -55,7 +57,6 @@ export function TransactionModal(props) {
 
   async function handleSubmit(ev) {
     ev.preventDefault();
-    setError("");
     setIsSendingTransaction(true);
 
     let pendingSnackbarKey = enqueueSnackbar(<Snackbar title="Tx is pending..." subTitle="Please wait a few seconds" />, { variant: "info" });
@@ -68,14 +69,16 @@ export function TransactionModal(props) {
 
       const fee = isSettingCustomFee ? createCustomFee(aktToUakt(customFee), gas, messages.length) : createFee(currentFee, gas, messages.length);
       const response = await client.signAndBroadcast(address, messages, fee, memo);
+      const transactionHash = response.transactionHash;
+      const isError = response.code !== 0;
 
       console.log(response);
 
-      if (response.code !== 0) {
-        throw new Error("Code " + response.code + " : " + response.rawLog);
+      if (isError) {
+        throw new BroadcastingError("Code " + response.code + " : " + response.rawLog, transactionHash);
       }
 
-      enqueueSnackbar(<Snackbar title="Tx succeeds!" subTitle="Congratulations 🎉" />, { variant: "success" });
+      showTransactionSnackbar("Tx succeeds!", "Congratulations 🎉", transactionHash, "success");
 
       await analytics.event("deploy", "successful transaction");
 
@@ -86,6 +89,7 @@ export function TransactionModal(props) {
     } catch (err) {
       console.error(err);
 
+      const transactionHash = err.txHash;
       let errorMsg = "An error has occured";
 
       await analytics.event("deploy", "failed transaction");
@@ -127,13 +131,20 @@ export function TransactionModal(props) {
         }
       }
 
-      enqueueSnackbar(<Snackbar title="Tx has failed..." subTitle={errorMsg} />, { variant: "error" });
+      showTransactionSnackbar("Tx has failed...", errorMsg, transactionHash, "error");
 
       setIsSendingTransaction(false);
     } finally {
       closeSnackbar(pendingSnackbarKey);
     }
   }
+
+  const showTransactionSnackbar = (snackTitle, snackMessage, transactionHash, snackVariant) => {
+    enqueueSnackbar(<Snackbar title={snackTitle} subTitle={<TransactionSnackbarContent snackMessage={snackMessage} transactionHash={transactionHash} />} />, {
+      variant: snackVariant,
+      autoHideDuration: 15000
+    });
+  };
 
   const handleTabChange = (event, newValue) => {
     setTabIndex(newValue);
@@ -318,3 +329,19 @@ export function TransactionModal(props) {
     </Dialog>
   );
 }
+
+const TransactionSnackbarContent = ({ snackMessage, transactionHash }) => {
+  const classes = useStyles();
+
+  return (
+    <>
+      {snackMessage}
+      <br />
+      {transactionHash && (
+        <Box component="a" display="flex" alignItems="center" href="#" onClick={() => window.electron.openUrl(transactionLink(transactionHash))}>
+          View transaction <OpenInNew className={classes.transactionLinkIcon} />
+        </Box>
+      )}
+    </>
+  );
+};

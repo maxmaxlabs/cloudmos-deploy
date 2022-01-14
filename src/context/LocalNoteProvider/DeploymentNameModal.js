@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { updateDeploymentLocalData } from "../../shared/utils/deploymentLocalDataUtils";
-import { Button, TextField, Dialog, DialogTitle, DialogContent, DialogActions, CircularProgress } from "@material-ui/core";
+import { Button, TextField, Dialog, DialogTitle, DialogContent, DialogActions } from "@material-ui/core";
 
 export const DeploymentNameModal = ({ dseq, onClose, onSaved, getDeploymentName }) => {
   const [currentName, setCurrentName] = useState("");
@@ -10,7 +10,7 @@ export const DeploymentNameModal = ({ dseq, onClose, onSaved, getDeploymentName 
       const name = getDeploymentName(dseq);
       setCurrentName(name || "");
     }
-  }, [dseq]);
+  }, [dseq, getDeploymentName]);
 
   function handleSubmit(ev) {
     ev.preventDefault();
@@ -21,8 +21,8 @@ export const DeploymentNameModal = ({ dseq, onClose, onSaved, getDeploymentName 
   }
 
   return (
-    <Dialog open={!!dseq} onClose={onClose} aria-labelledby="simple-modal-title" aria-describedby="simple-modal-description">
-      <DialogTitle id="simple-dialog-title">Change Deployment Name ({dseq})</DialogTitle>
+    <Dialog open={!!dseq} onClose={onClose}>
+      <DialogTitle>Change Deployment Name ({dseq})</DialogTitle>
       <DialogContent dividers>
         <div>
           <form onSubmit={handleSubmit}>

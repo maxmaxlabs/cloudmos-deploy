@@ -1,26 +1,47 @@
 import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
-import { mainNetNodes } from "../../shared/contants";
+import { mainnetId, mainnetNodes } from "../../shared/constants";
+import { initiateNetworkData, networks } from "../../shared/networks";
+import { migrateLocalStorage } from "../../shared/utils/localStorage";
 import { queryClient } from "../../queries";
+import { useLocalStorage } from "../../hooks/useLocalStorage";
 
 const SettingsProviderContext = React.createContext({});
 
+const defaultSettings = {
+  apiEndpoint: "",
+  rpcEndpoint: "",
+  isCustomNode: false,
+  nodes: [],
+  selectedNode: null,
+  customNode: null
+};
+
 export const SettingsProvider = ({ children }) => {
-  const [settings, setSettings] = useState({ apiEndpoint: "", rpcEndpoint: "", isCustomNode: false, nodes: [], selectedNode: null });
+  const [settings, setSettings] = useState(defaultSettings);
   const [isLoadingSettings, setIsLoadingSettings] = useState(true);
   const [isRefreshingNodeStatus, setIsRefreshingNodeStatus] = useState(false);
+  const { getLocalStorageItem, setLocalStorageItem } = useLocalStorage();
+  const [selectedNetworkId, setSelectedNetworkId] = useState(localStorage.getItem("selectedNetworkId") || mainnetId);
+  const { isCustomNode, customNode, nodes, apiEndpoint } = settings;
 
   // load settings from localStorage or set default values
   useEffect(() => {
     const initiateSettings = async () => {
       setIsLoadingSettings(true);
 
-      const settingsStr = localStorage.getItem("settings");
-      const settings = JSON.parse(settingsStr) || {};
+      // Set the versions and metadata of available networks
+      await initiateNetworkData();
+      // Apply local storage migrations
+      migrateLocalStorage();
+
+      const settingsStr = getLocalStorageItem("settings");
+      const settings = { ...defaultSettings, ...JSON.parse(settingsStr) } || {};
       let defaultApiNode, defaultRpcNode, selectedNode;
 
       // Set the available nodes list and default endpoints
-      const response = await axios.get(mainNetNodes);
+      const currentNetwork = networks.find((x) => x.id === selectedNetworkId) || mainnetNodes;
+      const response = await axios.get(currentNetwork.nodesUrl);
       let nodes = response.data;
 
       const hasSettings =
@@ -43,7 +64,21 @@ export const SettingsProvider = ({ children }) => {
         defaultRpcNode = settings.rpcEndpoint;
         selectedNode = settings.selectedNode;
 
-        updateSettings({ ...settings, apiEndpoint: defaultApiNode, rpcEndpoint: defaultRpcNode, selectedNode });
+        let customNode;
+
+        if (settings.isCustomNode) {
+          const nodeStatus = await loadNodeStatus(settings.apiEndpoint);
+          const customNodeUrl = new URL(settings.apiEndpoint);
+
+          customNode = {
+            status: nodeStatus.status,
+            latency: nodeStatus.latency,
+            nodeInfo: nodeStatus.nodeInfo,
+            id: customNodeUrl.hostname
+          };
+        }
+
+        updateSettings({ ...settings, apiEndpoint: defaultApiNode, rpcEndpoint: defaultRpcNode, selectedNode, customNode });
         setIsLoadingSettings(false);
 
         // update the node statuses asynchronously
@@ -76,6 +111,7 @@ export const SettingsProvider = ({ children }) => {
     };
 
     initiateSettings();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /**
@@ -135,7 +171,7 @@ export const SettingsProvider = ({ children }) => {
   const updateSettings = (newSettings) => {
     setSettings((prevSettings) => {
       clearQueries(prevSettings, newSettings);
-      localStorage.setItem("settings", JSON.stringify(newSettings));
+      setLocalStorageItem("settings", JSON.stringify(newSettings));
 
       return newSettings;
     });
@@ -156,45 +192,61 @@ export const SettingsProvider = ({ children }) => {
    * @returns
    */
   const refreshNodeStatuses = useCallback(async () => {
+    if (isRefreshingNodeStatus) return;
+
     setIsRefreshingNodeStatus(true);
-    let nodes = settings.nodes;
+    let _nodes = nodes;
+    let _customNode = customNode;
 
-    nodes = await Promise.all(
-      nodes.map(async (node) => {
-        const nodeStatus = await loadNodeStatus(node.api);
+    if (isCustomNode) {
+      const nodeStatus = await loadNodeStatus(apiEndpoint);
+      const customNodeUrl = new URL(apiEndpoint);
 
-        return {
-          ...node,
-          status: nodeStatus.status,
-          latency: nodeStatus.latency,
-          nodeInfo: nodeStatus.nodeInfo
-        };
-      })
-    );
+      _customNode = {
+        status: nodeStatus.status,
+        latency: nodeStatus.latency,
+        nodeInfo: nodeStatus.nodeInfo,
+        id: customNodeUrl.hostname
+      };
+    } else {
+      _nodes = await Promise.all(
+        _nodes.map(async (node) => {
+          const nodeStatus = await loadNodeStatus(node.api);
+
+          return {
+            ...node,
+            status: nodeStatus.status,
+            latency: nodeStatus.latency,
+            nodeInfo: nodeStatus.nodeInfo
+          };
+        })
+      );
+    }
 
     setIsRefreshingNodeStatus(false);
 
     // Update the settings with callback to avoid stale state settings
     setSettings((prevSettings) => {
-      const selectedNode = nodes.find((node) => node.id === prevSettings.selectedNode.id);
+      const selectedNode = _nodes.find((node) => node.id === prevSettings.selectedNode.id);
 
       const newSettings = {
         ...prevSettings,
-        nodes,
-        selectedNode
+        nodes: _nodes,
+        selectedNode,
+        customNode: _customNode
       };
 
       clearQueries(prevSettings, newSettings);
-      localStorage.setItem("settings", JSON.stringify(newSettings));
+      setLocalStorageItem("settings", JSON.stringify(newSettings));
 
       return newSettings;
     });
-
-    // updateSettings({ ...settings, nodes, selectedNode });
-  }, [settings?.selectedNode?.id]);
+  }, [isCustomNode, isRefreshingNodeStatus, customNode, setLocalStorageItem, apiEndpoint, nodes]);
 
   return (
-    <SettingsProviderContext.Provider value={{ settings, setSettings: updateSettings, isLoadingSettings, refreshNodeStatuses, isRefreshingNodeStatus }}>
+    <SettingsProviderContext.Provider
+      value={{ settings, setSettings: updateSettings, isLoadingSettings, refreshNodeStatuses, isRefreshingNodeStatus, selectedNetworkId, setSelectedNetworkId }}
+    >
       {children}
     </SettingsProviderContext.Provider>
   );

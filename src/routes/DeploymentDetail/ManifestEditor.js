@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Box, Typography } from "@material-ui/core";
+import { Button, Box, Typography, LinearProgress } from "@material-ui/core";
 import { getDeploymentLocalData, saveDeploymentManifest } from "../../shared/utils/deploymentLocalDataUtils";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
 import { NewDeploymentData, Manifest, sendManifestToProvider } from "../../shared/utils/deploymentUtils";
@@ -13,12 +13,15 @@ import { useSettings } from "../../context/SettingsProvider";
 import { useSnackbar } from "notistack";
 import { analytics } from "../../shared/utils/analyticsUtils";
 import { useProviders } from "../../queries";
+import { ManifestErrorSnackbar } from "../../shared/components/ManifestErrorSnackbar";
+import { LinkTo } from "../../shared/components/LinkTo";
 
 const yaml = require("js-yaml");
 
 export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
   const [parsingError, setParsingError] = useState(null);
   const [editedManifest, setEditedManifest] = useState("");
+  const [isSendingManifest, setIsSendingManifest] = useState(false);
   const [showOutsideDeploymentMessage, setShowOutsideDeploymentMessage] = useState(false);
   const { settings } = useSettings();
   const classes = useStyles();
@@ -37,10 +40,9 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
     }
   }, [deployment]);
 
-  async function handleTextChange(value) {
-    setEditedManifest(value);
-  }
-
+  /**
+   * Validate the manifest periodically
+   */
   useEffect(() => {
     async function createAndValidateDeploymentData(yamlStr, dseq) {
       try {
@@ -72,10 +74,14 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
     };
   }, [editedManifest, deployment.dseq, settings.apiEndpoint, address]);
 
+  function handleTextChange(value) {
+    setEditedManifest(value);
+  }
+
   function handleUpdateDocClick(ev) {
     ev.preventDefault();
 
-    window.electron.openUrl("https://docs.akash.network/guides/deployment#update-your-deployment");
+    window.electron.openUrl("https://docs.akash.network/guides/cli#part-11.-update-the-deployment");
   }
 
   const options = {
@@ -86,29 +92,29 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
     }
   };
 
-  async function sendManifest(providerInfo, mani) {
+  async function sendManifest(providerInfo, manifest) {
     try {
-      const response = await sendManifestToProvider(providerInfo, mani, deployment.dseq, localCert);
+      const response = await sendManifestToProvider(providerInfo, manifest, deployment.dseq, localCert);
 
       return response;
     } catch (err) {
-      enqueueSnackbar(`Error while sending manifest to provider. ${err}`, { variant: "error", autoHideDuration: null });
+      enqueueSnackbar(<ManifestErrorSnackbar err={err} />, { variant: "error", autoHideDuration: null });
       throw err;
     }
   }
 
   async function handleUpdateClick() {
     const doc = yaml.load(editedManifest);
-
     const dd = await NewDeploymentData(settings.apiEndpoint, doc, parseInt(deployment.dseq), address); // TODO Flags
     const mani = Manifest(doc);
 
     try {
       const message = TransactionMessageData.getUpdateDeploymentMsg(dd);
-
       const response = await sendTransaction([message]);
 
       if (response) {
+        setIsSendingManifest(true);
+
         saveDeploymentManifest(dd.deploymentId.dseq, editedManifest, dd.version, address);
 
         const leaseProviders = leases.map((lease) => lease.provider).filter((v, i, s) => s.indexOf(v) === i);
@@ -120,9 +126,12 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
 
         await analytics.event("deploy", "update deployment");
 
+        setIsSendingManifest(false);
+
         closeManifestEditor();
       }
     } catch (error) {
+      setIsSendingManifest(false);
       throw error;
     }
   }
@@ -151,21 +160,29 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
             <Alert severity="info">
               Akash Groups are translated into Kubernetes Deployments, this means that only a few fields from the Akash SDL are mutable. For example image,
               command, args, env and exposed ports can be modified, but compute resources and placement criteria cannot. (
-              <a href="!#" onClick={handleUpdateDocClick}>
+              <LinkTo onClick={handleUpdateDocClick}>
                 View doc
-              </a>
+              </LinkTo>
               )
             </Alert>
             <br />
             <MonacoEditor height="600" language="yaml" theme="vs-dark" value={editedManifest} onChange={handleTextChange} options={options} />
+
+            {isSendingManifest && <LinearProgress />}
           </Box>
+
           {parsingError && <Alert severity="warning">{parsingError}</Alert>}
 
           <Box pt={2}>
             {!localCert || !isLocalCertMatching ? (
               <Alert severity="warning">You do not have a valid certificate. You need to create a new one to update an existing deployment.</Alert>
             ) : (
-              <Button variant="contained" color="primary" disabled={!!parsingError || !editedManifest || !providers} onClick={() => handleUpdateClick()}>
+              <Button
+                variant="contained"
+                color="primary"
+                disabled={!!parsingError || !editedManifest || !providers || isSendingManifest}
+                onClick={() => handleUpdateClick()}
+              >
                 Update Deployment
               </Button>
             )}

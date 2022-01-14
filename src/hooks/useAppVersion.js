@@ -1,6 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
-
-const ipcApi = window.electron.api;
+import { useState, useEffect } from "react";
 
 export const useAppVersion = () => {
   const [appVersion, setAppVersion] = useState(null);

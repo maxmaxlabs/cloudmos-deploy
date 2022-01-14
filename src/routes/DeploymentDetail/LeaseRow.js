@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+import React, { useCallback } from "react";
+import { useEffect, useState } from "react";
 import {
   makeStyles,
   IconButton,
@@ -12,7 +13,8 @@ import {
   ListItem,
   ListItemText,
   ListItemSecondaryAction,
-  CircularProgress
+  CircularProgress,
+  Button
 } from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
 import FileCopyIcon from "@material-ui/icons/FileCopy";
@@ -25,7 +27,12 @@ import { copyTextToClipboard } from "../../shared/utils/copyClipboard";
 import { useSnackbar } from "notistack";
 import { useLeaseStatus } from "../../queries/useLeaseQuery";
 import { useProviders } from "../../queries";
-import React from "react";
+import { sendManifestToProvider, Manifest } from "../../shared/utils/deploymentUtils";
+import { ManifestErrorSnackbar } from "../../shared/components/ManifestErrorSnackbar";
+import { Snackbar } from "../../shared/components/Snackbar";
+import { LinkTo } from "../../shared/components/LinkTo";
+
+const yaml = require("js-yaml");
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -38,7 +45,7 @@ const useStyles = makeStyles((theme) => ({
   title: {}
 }));
 
-export const LeaseRow = React.forwardRef(({ lease, setActiveTab }, ref) => {
+export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManifest, dseq }, ref) => {
   const { enqueueSnackbar } = useSnackbar();
   const { data: providers } = useProviders();
   const providerInfo = providers?.find((p) => p.owner === lease?.provider);
@@ -53,20 +60,21 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab }, ref) => {
   const isLeaseNotFound = error && error.includes && error.includes("lease not found") && isLeaseActive;
   const servicesNames = leaseStatus ? Object.keys(leaseStatus.services) : [];
   const classes = useStyles();
+  const [isSendingManifest, setIsSendingManifest] = useState(false);
 
   React.useImperativeHandle(ref, () => ({
     getLeaseStatus: loadLeaseStatus
   }));
 
-  useEffect(() => {
-    loadLeaseStatus();
-  }, [lease, providerInfo, localCert]);
-
-  function loadLeaseStatus() {
+  const loadLeaseStatus = useCallback(() => {
     if (isLeaseActive && providerInfo && localCert) {
       getLeaseStatus();
     }
-  }
+  }, [isLeaseActive, providerInfo, localCert, getLeaseStatus]);
+
+  useEffect(() => {
+    loadLeaseStatus();
+  }, [lease, providerInfo, localCert, loadLeaseStatus]);
 
   function handleExternalUrlClick(ev, externalUrl) {
     ev.preventDefault();
@@ -77,6 +85,21 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab }, ref) => {
   function handleEditManifestClick(ev) {
     ev.preventDefault();
     setActiveTab("EDIT");
+  }
+
+  async function sendManifest() {
+    setIsSendingManifest(true);
+    try {
+      const doc = yaml.load(deploymentManifest);
+      const manifest = Manifest(doc);
+
+      await sendManifestToProvider(providerInfo, manifest, dseq, localCert);
+
+      enqueueSnackbar(<Snackbar title="Manifest sent!" />, { variant: "success", autoHideDuration: 10_000 });
+    } catch (err) {
+      enqueueSnackbar(<ManifestErrorSnackbar err={err} />, { variant: "error", autoHideDuration: null });
+    }
+    setIsSendingManifest(false);
   }
 
   return (
@@ -116,10 +139,17 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab }, ref) => {
         {isLeaseNotFound && (
           <Alert severity="warning">
             The lease was not found on this provider. This can happen if no manifest was sent to the provider. To send one you can update your deployment in the{" "}
-            <a href="#" onClick={handleEditManifestClick}>
-              VIEW / EDIT MANIFEST
-            </a>{" "}
-            tab.
+            <LinkTo onClick={handleEditManifestClick}>VIEW / EDIT MANIFEST</LinkTo> tab.
+            {deploymentManifest && (
+              <>
+                <Box margin="1rem 0">
+                  <strong>OR</strong>
+                </Box>
+                <Button variant="contained" color="primary" disabled={isSendingManifest} onClick={sendManifest}>
+                  {isSendingManifest ? <CircularProgress size="1.5rem" /> : <span>Send manifest manually</span>}
+                </Button>
+              </>
+            )}
           </Alert>
         )}
 
@@ -127,6 +157,7 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab }, ref) => {
 
         {isLeaseActive &&
           leaseStatus &&
+          leaseStatus.services &&
           servicesNames
             .map((n) => leaseStatus.services[n])
             .map((service, i) => (

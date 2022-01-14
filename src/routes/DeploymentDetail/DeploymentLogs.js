@@ -62,7 +62,7 @@ export function DeploymentLogs({ leases }) {
       setServices(Object.keys(leaseStatus.services));
       setSelectedServices(Object.keys(leaseStatus.services));
     })();
-  }, [selectedLease, providers]);
+  }, [selectedLease, providers, localCert?.certPem, localCert?.keyPem]);
 
   useEffect(() => {
     if (!providers) return;
@@ -104,7 +104,7 @@ export function DeploymentLogs({ leases }) {
     return () => {
       socket.close();
     };
-  }, [leases, providers, isLocalCertMatching, selectedMode, selectedLease, selectedServices]);
+  }, [leases, providers, isLocalCertMatching, selectedMode, selectedLease, selectedServices, localCert.certPem, localCert.keyPem, services?.length]);
 
   const logText = logs.map((x) => x.message).join("\n");
 

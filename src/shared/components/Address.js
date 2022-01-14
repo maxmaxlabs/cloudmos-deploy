@@ -3,6 +3,7 @@ import FileCopy from "@material-ui/icons/FileCopy";
 import clsx from "clsx";
 import { copyTextToClipboard } from "../../shared/utils/copyClipboard";
 import { useSnackbar } from "notistack";
+import { Snackbar } from "../../shared/components/Snackbar";
 
 const useStyles = makeStyles((theme) => ({
   root: { display: "inline-flex", alignItems: "center" },
@@ -26,7 +27,7 @@ export const Address = ({ address, isCopyable, ...rest }) => {
   const onClick = () => {
     if (isCopyable) {
       copyTextToClipboard(address);
-      enqueueSnackbar("Address copied to clipboard!", {
+      enqueueSnackbar(<Snackbar title="Address copied to clipboard!" />, {
         variant: "success",
         autoHideDuration: 2000
       });

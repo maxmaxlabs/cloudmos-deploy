@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Route } from "react-router-dom";
 import { CreateDeploymentWizard } from "../../routes/CreateDeploymentWizard";
 import { DeploymentList } from "../../routes/DeploymentList";

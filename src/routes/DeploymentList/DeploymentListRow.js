@@ -57,12 +57,7 @@ export function DeploymentListRow({ deployment }) {
   const history = useHistory();
   const { getDeploymentName } = useLocalNotes();
   const { address } = useWallet();
-  const {
-    data: leases,
-    isLoading: isLoadingLeases,
-    refetch: getLeases,
-    remove: removeLeases
-  } = useLeaseList(deployment, address, { enabled: !!deployment && deployment.state === "active" });
+  const { data: leases, isLoading: isLoadingLeases } = useLeaseList(deployment, address, { enabled: !!deployment && deployment.state === "active" });
 
   function viewDeployment(deployment) {
     history.push("/deployment/" + deployment.dseq);
@@ -99,7 +94,7 @@ export function DeploymentListRow({ deployment }) {
               {humanFileSize(deployment.storageAmount)}
             </Box>
 
-            {leases && leases.length && (
+            {leases && !!leases.length && (
               <Box display="flex" alignItems="center">
                 Leases:{" "}
                 {leases?.map((lease) => (
