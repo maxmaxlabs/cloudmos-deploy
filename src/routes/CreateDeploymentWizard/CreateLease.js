@@ -98,8 +98,7 @@ export function CreateLease({ dseq }) {
     } else {
       setFilteredBids(bids?.map((b) => b.id) || []);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, bids]);
+  }, [search, bids, providers]);
 
   const handleBidSelected = (bid) => {
     setSelectedBids({ ...selectedBids, [bid.gseq]: bid });

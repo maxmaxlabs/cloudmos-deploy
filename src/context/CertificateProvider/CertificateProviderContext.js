@@ -17,13 +17,14 @@ export const CertificateProvider = ({ children }) => {
   const { enqueueSnackbar } = useSnackbar();
   const { address } = useWallet();
   const { getLocalStorageItem } = useLocalStorage();
+  const { apiEndpoint } = settings;
 
   const loadValidCertificates = useCallback(
     async (showSnackbar) => {
       setIsLoadingCertificates(true);
 
       try {
-        const response = await fetch(settings.apiEndpoint + "/akash/cert/v1beta1/certificates/list?filter.state=valid&filter.owner=" + address);
+        const response = await fetch(apiEndpoint + "/akash/cert/v1beta1/certificates/list?filter.state=valid&filter.owner=" + address);
         const data = await response.json();
 
         setValidCertificates(data.certificates);
@@ -43,8 +44,7 @@ export const CertificateProvider = ({ children }) => {
         return "Certificate error.";
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [address, settings.apiEndpoint]
+    [address, apiEndpoint, enqueueSnackbar]
   );
 
   useEffect(() => {

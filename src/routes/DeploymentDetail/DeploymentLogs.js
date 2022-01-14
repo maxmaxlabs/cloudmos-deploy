@@ -46,7 +46,6 @@ export function DeploymentLogs({ leases }) {
     if (!leases || leases.length === 0) return;
 
     setSelectedLease(leases[0]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [leases]);
 
   useEffect(() => {
@@ -63,8 +62,7 @@ export function DeploymentLogs({ leases }) {
       setServices(Object.keys(leaseStatus.services));
       setSelectedServices(Object.keys(leaseStatus.services));
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedLease, providers]);
+  }, [selectedLease, providers, localCert?.certPem, localCert?.keyPem]);
 
   useEffect(() => {
     if (!providers) return;
@@ -106,8 +104,7 @@ export function DeploymentLogs({ leases }) {
     return () => {
       socket.close();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [leases, providers, isLocalCertMatching, selectedMode, selectedLease, selectedServices]);
+  }, [leases, providers, isLocalCertMatching, selectedMode, selectedLease, selectedServices, localCert.certPem, localCert.keyPem, services?.length]);
 
   const logText = logs.map((x) => x.message).join("\n");
 

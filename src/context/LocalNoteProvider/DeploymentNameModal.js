@@ -10,8 +10,7 @@ export const DeploymentNameModal = ({ dseq, onClose, onSaved, getDeploymentName 
       const name = getDeploymentName(dseq);
       setCurrentName(name || "");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dseq]);
+  }, [dseq, getDeploymentName]);
 
   function handleSubmit(ev) {
     ev.preventDefault();

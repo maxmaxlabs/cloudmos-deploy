@@ -23,7 +23,7 @@ export const SettingsProvider = ({ children }) => {
   const [isRefreshingNodeStatus, setIsRefreshingNodeStatus] = useState(false);
   const { getLocalStorageItem, setLocalStorageItem } = useLocalStorage();
   const [selectedNetworkId, setSelectedNetworkId] = useState(localStorage.getItem("selectedNetworkId") || mainnetId);
-  const { isCustomNode, customNode } = settings;
+  const { isCustomNode, customNode, nodes, apiEndpoint } = settings;
 
   // load settings from localStorage or set default values
   useEffect(() => {
@@ -195,12 +195,12 @@ export const SettingsProvider = ({ children }) => {
     if (isRefreshingNodeStatus) return;
 
     setIsRefreshingNodeStatus(true);
-    let nodes = settings.nodes;
+    let _nodes = nodes;
     let _customNode = customNode;
 
     if (isCustomNode) {
-      const nodeStatus = await loadNodeStatus(settings.apiEndpoint);
-      const customNodeUrl = new URL(settings.apiEndpoint);
+      const nodeStatus = await loadNodeStatus(apiEndpoint);
+      const customNodeUrl = new URL(apiEndpoint);
 
       _customNode = {
         status: nodeStatus.status,
@@ -209,8 +209,8 @@ export const SettingsProvider = ({ children }) => {
         id: customNodeUrl.hostname
       };
     } else {
-      nodes = await Promise.all(
-        nodes.map(async (node) => {
+      _nodes = await Promise.all(
+        _nodes.map(async (node) => {
           const nodeStatus = await loadNodeStatus(node.api);
 
           return {
@@ -227,11 +227,11 @@ export const SettingsProvider = ({ children }) => {
 
     // Update the settings with callback to avoid stale state settings
     setSettings((prevSettings) => {
-      const selectedNode = nodes.find((node) => node.id === prevSettings.selectedNode.id);
+      const selectedNode = _nodes.find((node) => node.id === prevSettings.selectedNode.id);
 
       const newSettings = {
         ...prevSettings,
-        nodes,
+        nodes: _nodes,
         selectedNode,
         customNode: _customNode
       };
@@ -241,8 +241,7 @@ export const SettingsProvider = ({ children }) => {
 
       return newSettings;
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settings, settings?.selectedNode?.id, isCustomNode, isRefreshingNodeStatus]);
+  }, [isCustomNode, isRefreshingNodeStatus, customNode, setLocalStorageItem, apiEndpoint, nodes]);
 
   return (
     <SettingsProviderContext.Provider

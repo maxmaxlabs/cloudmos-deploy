@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { useEffect, useState } from "react";
 import {
   makeStyles,
@@ -66,16 +66,15 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
     getLeaseStatus: loadLeaseStatus
   }));
 
-  useEffect(() => {
-    loadLeaseStatus();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lease, providerInfo, localCert]);
-
-  function loadLeaseStatus() {
+  const loadLeaseStatus = useCallback(() => {
     if (isLeaseActive && providerInfo && localCert) {
       getLeaseStatus();
     }
-  }
+  }, [isLeaseActive, providerInfo, localCert, getLeaseStatus]);
+
+  useEffect(() => {
+    loadLeaseStatus();
+  }, [lease, providerInfo, localCert, loadLeaseStatus]);
 
   function handleExternalUrlClick(ev, externalUrl) {
     ev.preventDefault();

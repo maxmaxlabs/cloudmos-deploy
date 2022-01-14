@@ -67,8 +67,7 @@ export function CertificateDisplay() {
     } catch (error) {
       throw error;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [certificate]);
+  }, [address, loadValidCertificates, removeLocalStorageItem, sendTransaction, certificate]);
 
   /**
    * Create certificate

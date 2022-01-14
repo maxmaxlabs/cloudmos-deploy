@@ -56,7 +56,6 @@ export function PrerequisiteList({ selectedTemplate, setSelectedTemplate }) {
     }
 
     loadPrerequisites();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshBalance, loadValidCertificates, localCert, isLocalCertMatching]);
 
   const classes = useStyles();

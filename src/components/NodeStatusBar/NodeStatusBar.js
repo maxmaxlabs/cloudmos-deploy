@@ -67,7 +67,6 @@ export const NodeStatusBar = () => {
     return () => {
       clearInterval(refreshNodeIntervalId);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshNodeStatuses]);
 
   const onSettingsModalClose = () => {
