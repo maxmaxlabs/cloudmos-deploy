@@ -30,6 +30,7 @@ import { useProviders } from "../../queries";
 import { sendManifestToProvider, Manifest } from "../../shared/utils/deploymentUtils";
 import { ManifestErrorSnackbar } from "../../shared/components/ManifestErrorSnackbar";
 import { Snackbar } from "../../shared/components/Snackbar";
+import { LinkTo } from "../../shared/components/LinkTo";
 
 const yaml = require("js-yaml");
 
@@ -139,10 +140,7 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
         {isLeaseNotFound && (
           <Alert severity="warning">
             The lease was not found on this provider. This can happen if no manifest was sent to the provider. To send one you can update your deployment in the{" "}
-            <a href="#" onClick={handleEditManifestClick}>
-              VIEW / EDIT MANIFEST
-            </a>{" "}
-            tab.
+            <LinkTo onClick={handleEditManifestClick}>VIEW / EDIT MANIFEST</LinkTo> tab.
             {deploymentManifest && (
               <>
                 <Box margin="1rem 0">

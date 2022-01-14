@@ -14,6 +14,7 @@ import { useSnackbar } from "notistack";
 import { analytics } from "../../shared/utils/analyticsUtils";
 import { useProviders } from "../../queries";
 import { ManifestErrorSnackbar } from "../../shared/components/ManifestErrorSnackbar";
+import { LinkTo } from "../../shared/components/LinkTo";
 
 const yaml = require("js-yaml");
 
@@ -159,9 +160,9 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
             <Alert severity="info">
               Akash Groups are translated into Kubernetes Deployments, this means that only a few fields from the Akash SDL are mutable. For example image,
               command, args, env and exposed ports can be modified, but compute resources and placement criteria cannot. (
-              <a href="!#" onClick={handleUpdateDocClick}>
+              <LinkTo onClick={handleUpdateDocClick}>
                 View doc
-              </a>
+              </LinkTo>
               )
             </Alert>
             <br />

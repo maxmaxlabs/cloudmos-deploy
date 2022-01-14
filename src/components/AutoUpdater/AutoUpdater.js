@@ -2,6 +2,7 @@ import { useEffect, forwardRef, useCallback, useRef } from "react";
 import { Box, makeStyles, Button, Typography, CircularProgress, CardContent, Card, CardActions, IconButton } from "@material-ui/core";
 import { SnackbarContent, useSnackbar } from "notistack";
 import CloseIcon from "@material-ui/icons/Close";
+import { LinkTo } from "../../shared/components/LinkTo";
 
 const ipcApi = window.electron.api;
 
@@ -115,9 +116,9 @@ export const AutoUpdater = () => {
         <Box marginBottom=".5rem">
           <strong>Update {releaseName} Downloaded!</strong> It will be installed on restart.
           <br />
-          <a href="#" onClick={() => window.electron.openUrl("https://github.com/Akashlytics/akashlytics-deploy/releases")}>
+          <LinkTo onClick={() => window.electron.openUrl("https://github.com/Akashlytics/akashlytics-deploy/releases")}>
             View release notes
-          </a>
+          </LinkTo>
           <Typography variant="h6">Restart now?</Typography>
         </Box>
         <Button

@@ -7,6 +7,7 @@ import { SettingsModal } from "../../shared/components/SettingsModal";
 import { networks } from "../../shared/networks";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 import { SelectNetworkModal } from "../SelectNetworkModal";
+import { LinkTo } from "../../shared/components/LinkTo";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: {
@@ -17,17 +18,19 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "space-between"
   },
   link: {
-    textDecoration: "none",
-    color: "inherit",
-    display: "inline-flex",
-    fontSize: ".75rem",
-    alignItems: "center",
-    padding: "1px 2px",
-    borderRadius: "4px",
-    height: "20px",
-    transition: "all .3s ease",
-    "&:hover": {
-      backgroundColor: theme.palette.grey["300"]
+    "&&": {
+      textDecoration: "none",
+      color: "inherit",
+      display: "inline-flex",
+      fontSize: ".75rem",
+      alignItems: "center",
+      padding: "1px 2px",
+      borderRadius: "4px",
+      height: "20px",
+      transition: "all .3s ease",
+      "&:hover": {
+        backgroundColor: theme.palette.grey["300"]
+      }
     }
   },
   icon: {
@@ -84,7 +87,7 @@ export const NodeStatusBar = () => {
       <Toolbar variant="dense" className={classes.toolbar}>
         <Box className={classes.flexAlign}>
           <Box className={classes.flexAlign}>
-            <a href="#" onClick={() => setIsSelectingNetwork(true)} className={classes.link}>
+            <LinkTo onClick={() => setIsSelectingNetwork(true)} className={classes.link}>
               <Box component="span" fontWeight="bold">
                 Network:
               </Box>
@@ -92,12 +95,12 @@ export const NodeStatusBar = () => {
                 {selectedNetwork?.title}
               </Box>
               <ExpandMore className={classes.icon} />
-            </a>
+            </LinkTo>
           </Box>
 
           <Box marginLeft="1rem" className={classes.flexAlign}>
             {shownNode && (
-              <a href="#" onClick={() => setIsEditingSettings(true)} className={classes.link}>
+              <LinkTo onClick={() => setIsEditingSettings(true)} className={classes.link}>
                 <Box component="span" fontWeight="bold">
                   Node:
                 </Box>
@@ -107,13 +110,13 @@ export const NodeStatusBar = () => {
                 <Box marginLeft=".5rem">
                   <NodeStatus latency={Math.floor(shownNode?.latency)} status={shownNode?.status} variant="dense" />
                 </Box>
-              </a>
+              </LinkTo>
             )}
 
             {!shownNode && isCustomNode && (
-              <a href="#" onClick={() => setIsEditingSettings(true)} className={classes.link}>
+              <LinkTo onClick={() => setIsEditingSettings(true)} className={classes.link}>
                 Custom node...
-              </a>
+              </LinkTo>
             )}
 
             {isRefreshingNodeStatus && (

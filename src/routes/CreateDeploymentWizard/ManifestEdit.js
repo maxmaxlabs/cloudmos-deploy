@@ -12,6 +12,7 @@ import { useSettings } from "../../context/SettingsProvider";
 import { Helmet } from "react-helmet-async";
 import { analytics } from "../../shared/utils/analyticsUtils";
 import { DeploymentDeposit } from "../DeploymentDetail/DeploymentDeposit";
+import { LinkTo } from "../../shared/components/LinkTo";
 
 const yaml = require("js-yaml");
 
@@ -150,9 +151,9 @@ export function ManifestEdit(props) {
       <Box pb={2}>
         <Typography>
           You may use the sample deployment file as-is or modify it for your own needs as desscribed in the{" "}
-          <a href="#" onClick={(ev) => handleDocClick(ev, "https://docs.akash.network/intro-to-akash/stack-definition-language")}>
+          <LinkTo onClick={(ev) => handleDocClick(ev, "https://docs.akash.network/intro-to-akash/stack-definition-language")}>
             SDL (Stack Definition Language)
-          </a>{" "}
+          </LinkTo>{" "}
           documentation. A typical modification would be to reference your own image instead of the demo app image.
         </Typography>
         <MonacoEditor height="600" language="yaml" theme="vs-dark" value={editedManifest} onChange={handleTextChange} options={options} />
@@ -190,9 +191,9 @@ export function ManifestEdit(props) {
           <Alert severity="info" className={classes.alert}>
             <Typography variant="caption">
               To create a deployment you need a minimum of <strong>5AKT</strong> for the{" "}
-              <a href="#" onClick={(ev) => handleDocClick(ev, "https://docs.akash.network/glossary/escrow#escrow-accounts")}>
+              <LinkTo onClick={(ev) => handleDocClick(ev, "https://docs.akash.network/glossary/escrow#escrow-accounts")}>
                 <strong>escrow account.</strong>
-              </a>{" "}
+              </LinkTo>{" "}
               Escrow accounts are a mechanism that allow for time-based payments from one bank account to another without block-by-block micropayments. If your
               escrow account runs out, your deployment will automatically close. You can still add more funds to your deployment escrow once it's created.
             </Typography>
