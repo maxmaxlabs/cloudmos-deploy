@@ -5,12 +5,16 @@ import RefreshIcon from "@material-ui/icons/Refresh";
 import IconButton from "@material-ui/core/IconButton";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
+import SendIcon from "@material-ui/icons/Send";
 import { useWallet } from "../../context/WalletProvider";
 import { useSettings } from "../../context/SettingsProvider";
 import { DeleteWalletConfirm } from "../../shared/components/DeleteWalletConfirm";
 import { useHistory } from "react-router-dom";
 import { UrlService } from "../../shared/utils/urlUtils";
 import { Address } from "../../shared/components/Address";
+import { SendModal } from "../SendModal";
+import { useTransactionModal } from "../../context/TransactionModal";
+import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
 
 const useStyles = makeStyles({
   root: {
@@ -28,7 +32,9 @@ const useStyles = makeStyles({
 export function WalletDisplay() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [isShowingConfirmationModal, setIsShowingConfirmationModal] = useState(false);
+  const [isShowingSendModal, setIsShowingSendModal] = useState(false);
   const { address, balance, refreshBalance, isRefreshingBalance, deleteWallet } = useWallet();
+  const { sendTransaction } = useTransactionModal();
   const classes = useStyles();
   const { settings } = useSettings();
   const history = useHistory();
@@ -51,14 +57,31 @@ export function WalletDisplay() {
     setAnchorEl(ev.currentTarget);
   }
 
-  function handleCancel() {
-    setIsShowingConfirmationModal(false);
-  }
-
   function handleConfirmDelete(deleteDeployments) {
     deleteWallet(address, deleteDeployments);
     history.push(UrlService.walletImport());
   }
+
+  const sendClick = () => {
+    handleCloseMenu();
+    setIsShowingSendModal(true);
+  };
+
+  const onSendTransaction = async (recipient, amount) => {
+    setIsShowingSendModal(false);
+
+    try {
+      const message = TransactionMessageData.getSendTokensMsg(address, recipient, amount);
+
+      const response = await sendTransaction([message]);
+
+      if (response) {
+        refreshBalance();
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
 
   return (
     <>
@@ -101,6 +124,10 @@ export function WalletDisplay() {
             horizontal: "right"
           }}
         >
+          <MenuItem onClick={() => sendClick()}>
+            <SendIcon />
+            &nbsp;Send
+          </MenuItem>
           <MenuItem onClick={() => deleteWalletClick()}>
             <DeleteForeverIcon />
             &nbsp;Delete Wallet
@@ -112,9 +139,10 @@ export function WalletDisplay() {
         isOpen={isShowingConfirmationModal}
         address={address}
         balance={balance}
-        handleCancel={handleCancel}
+        handleCancel={() => setIsShowingConfirmationModal(false)}
         handleConfirmDelete={handleConfirmDelete}
       />
+      {isShowingSendModal && <SendModal onClose={() => setIsShowingSendModal(false)} onSendTransaction={onSendTransaction} />}
     </>
   );
 }

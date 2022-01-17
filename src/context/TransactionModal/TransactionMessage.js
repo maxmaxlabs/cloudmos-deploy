@@ -6,6 +6,7 @@ import PublishIcon from "@material-ui/icons/Publish";
 import ReceiptIcon from "@material-ui/icons/Receipt";
 import CancelIcon from "@material-ui/icons/Cancel";
 import AddBoxIcon from "@material-ui/icons/AddBox";
+import SendIcon from "@material-ui/icons/Send";
 import { uaktToAKT } from "../../shared/utils/priceUtils";
 
 const useStyles = makeStyles((theme) => ({
@@ -149,6 +150,25 @@ const getMessage = (message, classes) => {
             </Avatar>
           </ListItemAvatar>
           <ListItemText primary="Revoke Certificate" secondary={`Serial: ${message.value.id.serial}`} classes={{ primary: classes.listItemPrimaryText }} />
+        </>
+      );
+    case TransactionMessageData.Types.MSG_SEND_TOKENS:
+      return (
+        <>
+          <ListItemAvatar>
+            <Avatar classes={{ root: classes.avatarRoot }}>
+              <SendIcon classes={{ root: classes.avatarIcon }} />
+            </Avatar>
+          </ListItemAvatar>
+          <ListItemText
+            primary="Send"
+            secondary={
+              <>
+                <strong>{message.value.toAddress}</strong> will receive <strong>{uaktToAKT(message.value.amount[0].amount, 6)}AKT</strong>
+              </>
+            }
+            classes={{ primary: classes.listItemPrimaryText }}
+          />
         </>
       );
 
