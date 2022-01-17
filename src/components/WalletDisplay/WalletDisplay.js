@@ -4,6 +4,7 @@ import AccountBalanceWalletIcon from "@material-ui/icons/AccountBalanceWallet";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import IconButton from "@material-ui/core/IconButton";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
+import MoreHorizIcon from "@material-ui/icons/MoreHoriz";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import SendIcon from "@material-ui/icons/Send";
 import { useWallet } from "../../context/WalletProvider";
@@ -22,10 +23,13 @@ const useStyles = makeStyles({
     height: "100%",
     borderRadius: 0,
     border: "none",
-    minHeight: 110
+    minHeight: 80
   },
   headerAction: {
     margin: 0
+  },
+  headerRoot: {
+    padding: "8px 16px 12px"
   }
 });
 
@@ -87,12 +91,7 @@ export function WalletDisplay() {
     <>
       <Card className={classes.root} variant="outlined">
         <CardHeader
-          classes={{ action: classes.headerAction }}
-          action={
-            <IconButton aria-label="settings" onClick={handleMenuClick}>
-              <MoreVertIcon />
-            </IconButton>
-          }
+          classes={{ action: classes.headerAction, root: classes.headerRoot }}
           title={
             <Box display="flex" alignItems="center">
               <AccountBalanceWalletIcon />
@@ -100,8 +99,13 @@ export function WalletDisplay() {
                 {balance / 1000000} AKT
               </Box>
               <Box marginLeft="1rem">
-                <IconButton onClick={() => refreshBalance(true)} aria-label="refresh" disabled={isRefreshingBalance}>
+                <IconButton onClick={() => refreshBalance(true)} aria-label="refresh" disabled={isRefreshingBalance} size="small">
                   {isRefreshingBalance ? <CircularProgress size="1.5rem" /> : <RefreshIcon />}
+                </IconButton>
+              </Box>
+              <Box marginLeft=".5rem">
+                <IconButton aria-label="settings" onClick={handleMenuClick} size="small">
+                  <MoreHorizIcon fontSize="large" />
                 </IconButton>
               </Box>
             </Box>

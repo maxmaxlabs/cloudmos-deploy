@@ -7,6 +7,7 @@ import VerifiedUserIcon from "@material-ui/icons/VerifiedUser";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
+import MoreHorizIcon from "@material-ui/icons/MoreHoriz";
 import WarningIcon from "@material-ui/icons/Warning";
 import AutorenewIcon from "@material-ui/icons/Autorenew";
 import { Button, IconButton, Card, CardHeader, Tooltip, CircularProgress, MenuItem, Menu } from "@material-ui/core";
@@ -21,7 +22,7 @@ import { useLocalStorage } from "../../hooks/useLocalStorage";
 const useStyles = makeStyles({
   root: {
     minWidth: 275,
-    minHeight: 104,
+    minHeight: 80,
     height: "100%",
     borderRadius: 0,
     border: "none",
@@ -32,6 +33,9 @@ const useStyles = makeStyles({
   },
   headerAction: {
     margin: 0
+  },
+  headerRoot: {
+    padding: "8px 16px 12px"
   }
 });
 
@@ -140,14 +144,7 @@ export function CertificateDisplay() {
     <>
       <Card className={classes.root} variant="outlined">
         <CardHeader
-          classes={{ action: classes.headerAction }}
-          action={
-            certificate && (
-              <IconButton aria-label="settings" aria-haspopup="true" onClick={handleMenuClick}>
-                <MoreVertIcon />
-              </IconButton>
-            )
-          }
+          classes={{ action: classes.headerAction, root: classes.headerRoot }}
           title={
             <Box display="flex" alignItems="center">
               <VerifiedUserIcon />
@@ -155,10 +152,17 @@ export function CertificateDisplay() {
                 Certificate
               </Box>
               <Box marginLeft="1rem">
-                <IconButton onClick={() => loadValidCertificates(true)} aria-label="refresh" disabled={isLoadingCertificates}>
+                <IconButton onClick={() => loadValidCertificates(true)} aria-label="refresh" disabled={isLoadingCertificates} size="small">
                   {isLoadingCertificates ? <CircularProgress size="1.5rem" /> : <RefreshIcon />}
                 </IconButton>
               </Box>
+              {certificate && (
+                <Box marginLeft=".1rem">
+                  <IconButton aria-label="settings" aria-haspopup="true" onClick={handleMenuClick} size="small">
+                    <MoreHorizIcon fontSize="large" />
+                  </IconButton>
+                </Box>
+              )}
               {!isLoadingCertificates && !certificate && (
                 <Box marginLeft="1rem">
                   <Button variant="contained" color="primary" size="small" onClick={() => createCertificate()}>
