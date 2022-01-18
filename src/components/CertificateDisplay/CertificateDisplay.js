@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { makeStyles, Box } from "@material-ui/core";
+import { makeStyles, Box, Typography, Button, IconButton, Card, CardHeader, Tooltip, CircularProgress, MenuItem, Menu } from "@material-ui/core";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
 import { usePasswordConfirmationModal } from "../../context/ConfirmPasswordModal";
 import { useTransactionModal } from "../../context/TransactionModal";
@@ -9,7 +9,6 @@ import RefreshIcon from "@material-ui/icons/Refresh";
 import MoreHorizIcon from "@material-ui/icons/MoreHoriz";
 import WarningIcon from "@material-ui/icons/Warning";
 import AutorenewIcon from "@material-ui/icons/Autorenew";
-import { Button, IconButton, Card, CardHeader, Tooltip, CircularProgress, MenuItem, Menu } from "@material-ui/core";
 import { useCertificate } from "../../context/CertificateProvider";
 import { useWallet } from "../../context/WalletProvider";
 import { analytics } from "../../shared/utils/analyticsUtils";
@@ -173,7 +172,7 @@ export function CertificateDisplay() {
           }
           subheader={
             <>
-              {certificate && "Serial: " + certificate.serial}
+              {certificate && <Typography variant="caption">Serial: {certificate.serial}</Typography>}
 
               {certificate && !isLocalCertMatching && (
                 <Tooltip
@@ -181,7 +180,7 @@ export function CertificateDisplay() {
                   arrow
                   title="The local cert doesn't match the one on the blockchain. You can revoke it and create a new one."
                 >
-                  <WarningIcon className="certMismatchWarning" />
+                  <WarningIcon className="certMismatchWarning" fontSize="small" color="error" />
                 </Tooltip>
               )}
             </>

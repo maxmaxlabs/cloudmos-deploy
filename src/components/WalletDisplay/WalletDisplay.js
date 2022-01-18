@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { makeStyles, Box, Card, CardHeader, CircularProgress, Menu, MenuItem } from "@material-ui/core";
+import { makeStyles, Box, Card, CardHeader, CircularProgress, Menu, MenuItem, Typography } from "@material-ui/core";
 import AccountBalanceWalletIcon from "@material-ui/icons/AccountBalanceWallet";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import IconButton from "@material-ui/core/IconButton";
@@ -117,7 +117,11 @@ export function WalletDisplay() {
               </Box>
             </Box>
           }
-          subheader={<Address address={address} isCopyable />}
+          subheader={
+            <Typography variant="caption" color="textSecondary">
+              <Address address={address} isCopyable />
+            </Typography>
+          }
         ></CardHeader>
         <Menu
           id="wallet-menu"

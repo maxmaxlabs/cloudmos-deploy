@@ -36,7 +36,7 @@ export const Address = ({ address, isCopyable, ...rest }) => {
 
   return (
     <Box className={clsx(classes.root, { [classes.copy]: isCopyable })} component="span" onClick={onClick} {...rest}>
-      {formattedAddress}
+      <span>{formattedAddress}</span>
 
       {isCopyable && <FileCopy className={classes.copyIcon} />}
     </Box>
