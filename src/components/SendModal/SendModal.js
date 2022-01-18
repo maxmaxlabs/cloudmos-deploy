@@ -63,7 +63,7 @@ export const SendModal = ({ onClose, onSendTransaction }) => {
   };
 
   return (
-    <Dialog disableBackdropClick disableEscapeKeyDown maxWidth="xs" fullWidth aria-labelledby="send-transaction-dialog-title" open={true} onExit={onClose}>
+    <Dialog maxWidth="xs" fullWidth aria-labelledby="send-transaction-dialog-title" open={true} onClose={onClose}>
       <DialogTitle id="send-transaction-dialog-title">Send tokens</DialogTitle>
       <DialogContent dividers>
         <form onSubmit={handleSubmit(onSubmit)} ref={formRef}>

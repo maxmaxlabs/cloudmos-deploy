@@ -14,19 +14,6 @@ const useStyles = makeStyles((theme) => ({
 export const DepositModal = ({ address, onClose, onSendTransaction }) => {
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
-  // const { inputRef } = useQRCode({
-  //   text: address,
-  //   options: {
-  //     level: "M",
-  //     margin: 7,
-  //     scale: 1,
-  //     width: 200,
-  //     color: {
-  //       dark: "#010599FF",
-  //       light: "#FFBF60FF"
-  //     }
-  //   }
-  // });
 
   const onQRClick = () => {
     copyTextToClipboard(address);
@@ -37,7 +24,7 @@ export const DepositModal = ({ address, onClose, onSendTransaction }) => {
   };
 
   return (
-    <Dialog disableBackdropClick disableEscapeKeyDown maxWidth="xs" aria-labelledby="deposit-dialog-title" open={true} onExit={onClose}>
+    <Dialog maxWidth="xs" aria-labelledby="deposit-dialog-title" open={true} onClose={onClose}>
       <DialogTitle id="deposit-dialog-title">Deposit</DialogTitle>
       <DialogContent dividers className={classes.content}>
         <Box fontSize="1rem">

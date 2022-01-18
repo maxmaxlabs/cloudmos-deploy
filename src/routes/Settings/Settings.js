@@ -12,15 +12,18 @@ import {
   FormGroup,
   InputAdornment,
   IconButton,
-  CircularProgress
+  CircularProgress,
+  ClickAwayListener
 } from "@material-ui/core";
 import RefreshIcon from "@material-ui/icons/Refresh";
+import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
 import { useSettings } from "../../context/SettingsProvider";
 import { Controller, useForm } from "react-hook-form";
 import { Helmet } from "react-helmet-async";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import { isUrl } from "../../shared/utils/stringUtils";
 import { NodeStatus } from "../../shared/components/NodeStatus";
+import clsx from "clsx";
 
 const useStyles = makeStyles((theme) => ({
   root: { padding: "1rem" },
@@ -56,11 +59,15 @@ const useStyles = makeStyles((theme) => ({
   },
   nodeInput: {
     paddingRight: "1rem !important"
+  },
+  inputClickable: {
+    cursor: "pointer"
   }
 }));
 
 export function Settings(props) {
   const [isEditing, setIsEditing] = useState(false);
+  const [isNodesOpen, setIsNodesOpen] = useState(false);
   const classes = useStyles();
   const { settings, setSettings, refreshNodeStatuses, isRefreshingNodeStatus } = useSettings();
   const {
@@ -124,6 +131,7 @@ export function Settings(props) {
               <FormControl>
                 <Autocomplete
                   disableClearable
+                  open={isNodesOpen}
                   options={nodes.map((n) => n.id)}
                   style={{ width: 300 }}
                   value={settings.selectedNode.id}
@@ -131,20 +139,26 @@ export function Settings(props) {
                   getOptionSelected={(option, value) => option === value}
                   onChange={onNodeChange}
                   renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Node"
-                      variant="outlined"
-                      InputProps={{
-                        ...params.InputProps,
-                        classes: { root: classes.nodeInput },
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            <NodeStatus latency={Math.floor(selectedNode.latency)} status={selectedNode.status} />
-                          </InputAdornment>
-                        )
-                      }}
-                    />
+                    <ClickAwayListener onClickAway={() => setIsNodesOpen(false)}>
+                      <TextField
+                        {...params}
+                        label="Node"
+                        variant="outlined"
+                        onClick={() => setIsNodesOpen((prev) => !prev)}
+                        InputProps={{
+                          ...params.InputProps,
+                          classes: { root: clsx(classes.nodeInput, classes.inputClickable), input: classes.inputClickable },
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <Box marginRight=".5rem" display="inline-flex">
+                                <KeyboardArrowDownIcon fontSize="small" />
+                              </Box>
+                              <NodeStatus latency={Math.floor(selectedNode.latency)} status={selectedNode.status} />
+                            </InputAdornment>
+                          )
+                        }}
+                      />
+                    </ClickAwayListener>
                   )}
                   renderOption={(option) => {
                     const node = nodes.find((n) => n.id === option);
