@@ -6,7 +6,6 @@ import { useTransactionModal } from "../../context/TransactionModal";
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import RefreshIcon from "@material-ui/icons/Refresh";
-import MoreVertIcon from "@material-ui/icons/MoreVert";
 import MoreHorizIcon from "@material-ui/icons/MoreHoriz";
 import WarningIcon from "@material-ui/icons/Warning";
 import AutorenewIcon from "@material-ui/icons/Autorenew";

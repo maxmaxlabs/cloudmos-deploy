@@ -3,7 +3,7 @@ import { makeStyles, Box, Card, CardHeader, CircularProgress, Menu, MenuItem } f
 import AccountBalanceWalletIcon from "@material-ui/icons/AccountBalanceWallet";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import IconButton from "@material-ui/core/IconButton";
-import MoreVertIcon from "@material-ui/icons/MoreVert";
+import MoveToInboxIcon from "@material-ui/icons/MoveToInbox";
 import MoreHorizIcon from "@material-ui/icons/MoreHoriz";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import SendIcon from "@material-ui/icons/Send";
@@ -16,6 +16,7 @@ import { Address } from "../../shared/components/Address";
 import { SendModal } from "../SendModal";
 import { useTransactionModal } from "../../context/TransactionModal";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
+import { DepositModal } from "../DepositModal";
 
 const useStyles = makeStyles({
   root: {
@@ -37,6 +38,7 @@ export function WalletDisplay() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [isShowingConfirmationModal, setIsShowingConfirmationModal] = useState(false);
   const [isShowingSendModal, setIsShowingSendModal] = useState(false);
+  const [isShowingDepositModal, setIsShowingDepositModal] = useState(false);
   const { address, balance, refreshBalance, isRefreshingBalance, deleteWallet } = useWallet();
   const { sendTransaction } = useTransactionModal();
   const classes = useStyles();
@@ -69,6 +71,11 @@ export function WalletDisplay() {
   const sendClick = () => {
     handleCloseMenu();
     setIsShowingSendModal(true);
+  };
+
+  const depositClick = () => {
+    handleCloseMenu();
+    setIsShowingDepositModal(true);
   };
 
   const onSendTransaction = async (recipient, amount) => {
@@ -132,6 +139,10 @@ export function WalletDisplay() {
             <SendIcon />
             &nbsp;Send
           </MenuItem>
+          <MenuItem onClick={() => depositClick()}>
+            <MoveToInboxIcon />
+            &nbsp;Deposit
+          </MenuItem>
           <MenuItem onClick={() => deleteWalletClick()}>
             <DeleteForeverIcon />
             &nbsp;Delete Wallet
@@ -147,6 +158,7 @@ export function WalletDisplay() {
         handleConfirmDelete={handleConfirmDelete}
       />
       {isShowingSendModal && <SendModal onClose={() => setIsShowingSendModal(false)} onSendTransaction={onSendTransaction} />}
+      {isShowingDepositModal && address && <DepositModal address={address} onClose={() => setIsShowingDepositModal(false)} />}
     </>
   );
 }
