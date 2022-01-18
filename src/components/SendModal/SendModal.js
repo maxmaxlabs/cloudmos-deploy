@@ -1,21 +1,10 @@
-import { useState } from "react";
-import {
-  makeStyles,
-  Box,
-  Button,
-  Dialog,
-  DialogContent,
-  DialogActions,
-  DialogTitle,
-  FormControl,
-  InputLabel,
-  OutlinedInput,
-  InputAdornment
-} from "@material-ui/core";
+import { useState, useRef } from "react";
+import { makeStyles, Box, Button, Dialog, DialogContent, DialogActions, DialogTitle, FormControl, InputAdornment, TextField, Chip } from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
 import { uaktToAKT, aktToUakt } from "../../shared/utils/priceUtils";
 import { LinkTo } from "../../shared/components/LinkTo";
 import { useWallet } from "../../context/WalletProvider";
+import { Controller, useForm } from "react-hook-form";
 
 const useStyles = makeStyles((theme) => ({
   alert: {
@@ -25,21 +14,34 @@ const useStyles = makeStyles((theme) => ({
 
 export const SendModal = ({ onClose, onSendTransaction }) => {
   const classes = useStyles();
-  const [recipient, setRecipient] = useState("");
-  const [sendAmount, setSendAmount] = useState(0);
+  const formRef = useRef();
   const [isBalanceClicked, setIsBalanceClicked] = useState(false);
   const [error, setError] = useState("");
   const { balance } = useWallet();
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+    watch,
+    setValue,
+    clearErrors
+  } = useForm({
+    defaultValues: {
+      recipient: "",
+      sendAmount: 0
+    }
+  });
+  const { sendAmount, recipient } = watch();
 
   const onBalanceClick = () => {
     setIsBalanceClicked((prev) => !prev);
-    setSendAmount(uaktToAKT(balance, 6));
     setError("");
+    clearErrors();
+    setValue("sendAmount", uaktToAKT(balance, 6));
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    setError("");
+  const onSubmit = (data) => {
+    clearErrors();
     const amount = aktToUakt(sendAmount);
 
     if (!recipient) {
@@ -55,43 +57,78 @@ export const SendModal = ({ onClose, onSendTransaction }) => {
     onSendTransaction(recipient, amount);
   };
 
+  const onContinueClick = (event) => {
+    event.preventDefault();
+    formRef.current.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
+  };
+
   return (
     <Dialog disableBackdropClick disableEscapeKeyDown maxWidth="xs" fullWidth aria-labelledby="send-transaction-dialog-title" open={true} onExit={onClose}>
       <DialogTitle id="send-transaction-dialog-title">Send tokens</DialogTitle>
       <DialogContent dividers>
-        <form onSubmit={handleSubmit}>
-          <FormControl fullWidth variant="outlined">
-            <InputLabel htmlFor="send-transaction-recipient">Recipient</InputLabel>
-            <OutlinedInput
-              id="send-transaction-recipient"
-              value={recipient}
-              onChange={(ev) => {
-                setError("");
-                setRecipient(ev.target.value);
+        <form onSubmit={handleSubmit(onSubmit)} ref={formRef}>
+          <FormControl error={!errors.recipient} className={classes.formControl} fullWidth>
+            <Controller
+              control={control}
+              name="recipient"
+              rules={{
+                required: true
               }}
-              labelWidth={60}
-              autoFocus
+              render={({ fieldState, field }) => {
+                const helperText = "Recipient is required.";
+
+                return (
+                  <TextField
+                    {...field}
+                    type="text"
+                    variant="outlined"
+                    label="Recipient"
+                    error={!!fieldState.invalid}
+                    helperText={fieldState.invalid && helperText}
+                    className={classes.formValue}
+                  />
+                );
+              }}
             />
           </FormControl>
 
           <Box marginBottom=".5rem" marginTop=".5rem" textAlign="right">
             <LinkTo onClick={() => onBalanceClick()}>Balance: {uaktToAKT(balance, 6)} AKT</LinkTo>
           </Box>
-          <FormControl fullWidth variant="outlined">
-            <InputLabel htmlFor="send-transaction-amount">Amount</InputLabel>
-            <OutlinedInput
-              id="send-transaction-amount"
-              value={sendAmount}
-              onChange={(ev) => {
-                setError("");
-                setSendAmount(ev.target.value);
+
+          <FormControl error={!errors.sendAmount} className={classes.formControl} fullWidth>
+            <Controller
+              control={control}
+              name="sendAmount"
+              rules={{
+                required: true,
+                validate: (value) => value > 0 && value < balance
               }}
-              startAdornment={<InputAdornment position="start">AKT</InputAdornment>}
-              labelWidth={60}
-              type="number"
-              inputProps={{ min: 0, step: 0.000001 }}
-              disabled={isBalanceClicked}
-              autoFocus
+              render={({ fieldState, field }) => {
+                const helperText = fieldState.error?.type === "validate" ? "Invalid amount." : "Amount is required.";
+
+                return (
+                  <TextField
+                    {...field}
+                    type="number"
+                    variant="outlined"
+                    label="Amount"
+                    error={!!fieldState.invalid}
+                    helperText={fieldState.invalid && helperText}
+                    className={classes.formValue}
+                    inputProps={{ min: 0, step: 0.000001 }}
+                    InputProps={{
+                      startAdornment: <InputAdornment position="start">AKT</InputAdornment>,
+                      endAdornment: isBalanceClicked && (
+                        <InputAdornment position="end">
+                          <Chip label="MAX" size="small" color="primary" />
+                        </InputAdornment>
+                      )
+                    }}
+                    disabled={isBalanceClicked}
+                  />
+                );
+              }}
             />
           </FormControl>
           {error && (
@@ -105,7 +142,7 @@ export const SendModal = ({ onClose, onSendTransaction }) => {
         <Button autoFocus onClick={onClose} color="primary">
           Cancel
         </Button>
-        <Button onClick={handleSubmit} disabled={!sendAmount || !!error} variant="contained" color="secondary">
+        <Button onClick={onContinueClick} disabled={!!errors.sendAmount || !!errors.recipient} variant="contained" color="secondary">
           Continue
         </Button>
       </DialogActions>
