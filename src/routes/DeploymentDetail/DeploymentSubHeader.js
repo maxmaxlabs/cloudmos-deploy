@@ -141,7 +141,7 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address, loadD
         />
       </Grid>
       <Grid item xs={4}>
-        <LabelValue label="~Cost/Month:" value={`${getAvgCostPerMonth(deploymentCost)}AKT`} />
+        <LabelValue label="Cost/Month:" value={`~${getAvgCostPerMonth(deploymentCost)}AKT`} />
       </Grid>
 
       {deployment.state === "active" && (
