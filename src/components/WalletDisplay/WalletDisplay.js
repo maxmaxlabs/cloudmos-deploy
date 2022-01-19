@@ -17,6 +17,8 @@ import { SendModal } from "../SendModal";
 import { useTransactionModal } from "../../context/TransactionModal";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
 import { DepositModal } from "../DepositModal";
+import { usePrice } from "../../context/PriceProvider";
+import { FormattedNumber } from "react-intl";
 
 const useStyles = makeStyles({
   root: {
@@ -45,6 +47,7 @@ export function WalletDisplay() {
   const { settings } = useSettings();
   const history = useHistory();
   const { apiEndpoint } = settings;
+  const { priceData } = usePrice();
 
   useEffect(() => {
     refreshBalance();
@@ -102,7 +105,7 @@ export function WalletDisplay() {
           title={
             <Box display="flex" alignItems="center">
               <AccountBalanceWalletIcon />
-              <Box component="span" marginLeft="5px">
+              <Box component="span" marginLeft="5px" fontWeight="900">
                 {balance / 1000000} AKT
               </Box>
               <Box marginLeft="1rem">
@@ -118,9 +121,19 @@ export function WalletDisplay() {
             </Box>
           }
           subheader={
-            <Typography variant="caption" color="textSecondary">
-              <Address address={address} isCopyable />
-            </Typography>
+            <Box display="flex" alignItems="center">
+              <Box fontWeight="lighter">Balance:</Box>
+              <Box marginRight=".5rem" fontWeight="bold">
+                <Typography variant="body">
+                  <FormattedNumber value={(balance / 1000000) * priceData.price} style="currency" currency="USD" />
+                </Typography>
+              </Box>
+              <Box marginLeft="1rem">
+                <Typography variant="body" color="textSecondary">
+                  <Address address={address} isCopyable />
+                </Typography>
+              </Box>
+            </Box>
           }
         ></CardHeader>
         <Menu

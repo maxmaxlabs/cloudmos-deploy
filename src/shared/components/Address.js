@@ -1,4 +1,4 @@
-import { makeStyles, Box } from "@material-ui/core";
+import { makeStyles, Box, Tooltip } from "@material-ui/core";
 import FileCopy from "@material-ui/icons/FileCopy";
 import clsx from "clsx";
 import { copyTextToClipboard } from "../../shared/utils/copyClipboard";
@@ -16,6 +16,9 @@ const useStyles = makeStyles((theme) => ({
   copyIcon: {
     fontSize: "1rem",
     marginLeft: ".5rem"
+  },
+  tooltip: {
+    fontSize: ".8rem"
   }
 }));
 
@@ -35,10 +38,12 @@ export const Address = ({ address, isCopyable, ...rest }) => {
   };
 
   return (
-    <Box className={clsx(classes.root, { [classes.copy]: isCopyable })} component="span" onClick={onClick} {...rest}>
-      <span>{formattedAddress}</span>
+    <Tooltip classes={{ tooltip: classes.tooltip }} arrow title={address}>
+      <Box className={clsx(classes.root, { [classes.copy]: isCopyable })} component="span" onClick={onClick} {...rest}>
+        <span>{formattedAddress}</span>
 
-      {isCopyable && <FileCopy className={classes.copyIcon} />}
-    </Box>
+        {isCopyable && <FileCopy className={classes.copyIcon} />}
+      </Box>
+    </Tooltip>
   );
 };
