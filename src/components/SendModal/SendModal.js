@@ -54,7 +54,7 @@ export const SendModal = ({ onClose, onSendTransaction }) => {
       return;
     }
 
-    onSendTransaction(recipient, amount);
+    onSendTransaction(recipient.trim(), amount);
   };
 
   const onContinueClick = (event) => {
