@@ -86,9 +86,9 @@ export function Settings(props) {
 
     reset();
 
-    setSettings({ ...settings, isCustomNode: isChecked, apiEndpoint, rpcEndpoint });
-
-    refreshNodeStatuses();
+    setSettings({ ...settings, isCustomNode: isChecked, apiEndpoint, rpcEndpoint }, (newSettings) => {
+      refreshNodeStatuses(newSettings);
+    });
   };
 
   const onNodeChange = (event, newNodeId) => {
@@ -108,10 +108,11 @@ export function Settings(props) {
    * @param {Object} data {apiEndpoint: string, rpcEndpoint: string}
    */
   const onSubmit = (data) => {
-    setSettings({ ...settings, ...data });
+    const customNodeUrl = new URL(data.apiEndpoint);
     setIsEditing(false);
-
-    refreshNodeStatuses();
+    setSettings({ ...settings, ...data, customNode: { ...settings.customNode, id: customNodeUrl.hostname } }, (newSettings) => {
+      refreshNodeStatuses(newSettings);
+    });
   };
 
   return (

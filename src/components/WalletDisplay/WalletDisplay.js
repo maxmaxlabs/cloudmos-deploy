@@ -105,7 +105,7 @@ export function WalletDisplay() {
           title={
             <Box display="flex" alignItems="center">
               <AccountBalanceWalletIcon />
-              <Box component="span" marginLeft="5px" fontWeight="900">
+              <Box component="span" marginLeft="5px">
                 {balance / 1000000} AKT
               </Box>
               <Box marginLeft="1rem">
