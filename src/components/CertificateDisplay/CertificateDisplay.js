@@ -180,7 +180,7 @@ export function CertificateDisplay() {
                   arrow
                   title="The local cert doesn't match the one on the blockchain. You can revoke it and create a new one."
                 >
-                  <WarningIcon className="certMismatchWarning" fontSize="small" color="error" />
+                  <WarningIcon fontSize="small" color="error" />
                 </Tooltip>
               )}
             </>

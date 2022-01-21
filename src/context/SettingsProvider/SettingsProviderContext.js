@@ -246,7 +246,7 @@ export const SettingsProvider = ({ children }) => {
         return newSettings;
       });
     },
-    [isCustomNode, isRefreshingNodeStatus, customNode, setLocalStorageItem, apiEndpoint, nodes]
+    [isCustomNode, isRefreshingNodeStatus, customNode, setLocalStorageItem, apiEndpoint, nodes, setSettings]
   );
 
   return (

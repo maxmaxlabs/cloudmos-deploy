@@ -35,6 +35,10 @@ export function TemplateList(props) {
     <>
       <Helmet title="Create Deployment - Template List" />
 
+      <Button variant="contained" color="primary" disabled={!selectedTemplate} onClick={handleNextClick} size="small">
+        Continue
+      </Button>
+
       {categories.map((category) => (
         <List key={category} className={classes.root} subheader={<ListSubheader>{category}</ListSubheader>}>
           {templates

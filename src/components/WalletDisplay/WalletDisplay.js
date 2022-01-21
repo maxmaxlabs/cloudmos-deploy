@@ -17,8 +17,8 @@ import { SendModal } from "../SendModal";
 import { useTransactionModal } from "../../context/TransactionModal";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
 import { DepositModal } from "../DepositModal";
-import { usePrice } from "../../context/PriceProvider";
-import { FormattedNumber } from "react-intl";
+import { uaktToAKT } from "../../shared/utils/priceUtils";
+import { PriceValue } from "../../shared/components/PriceValue";
 
 const useStyles = makeStyles({
   root: {
@@ -47,7 +47,6 @@ export function WalletDisplay() {
   const { settings } = useSettings();
   const history = useHistory();
   const { apiEndpoint } = settings;
-  const { priceData } = usePrice();
 
   useEffect(() => {
     refreshBalance();
@@ -126,7 +125,7 @@ export function WalletDisplay() {
                 <Typography variant="caption">
                   Balance:
                   <strong>
-                    <FormattedNumber value={(balance / 1000000) * priceData?.price} style="currency" currency="USD" />
+                    <PriceValue value={uaktToAKT(balance, 6)} />
                   </strong>
                 </Typography>
               </Box>

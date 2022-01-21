@@ -37,6 +37,9 @@ const useStyles = makeStyles((theme) => ({
   root: {},
   alert: {
     marginBottom: "1rem"
+  },
+  title: {
+    fontSize: "1.5rem"
   }
 }));
 
@@ -71,10 +74,12 @@ export function CreateLease({ dseq }) {
     },
     enabled: !maxRequestsReached
   });
-  const groupedBids = bids.reduce((a, b) => {
-    a[b.gseq] = [...(a[b.gseq] || []), b];
-    return a;
-  }, {});
+  const groupedBids = bids
+    .sort((a, b) => (a.price.amount < b.price.amount ? -1 : 0))
+    .reduce((a, b) => {
+      a[b.gseq] = [...(a[b.gseq] || []), b];
+      return a;
+    }, {});
   const dseqList = Object.keys(groupedBids);
   const allClosed = bids.length > 0 && bids.every((bid) => bid.state === "closed");
 
@@ -152,7 +157,7 @@ export function CreateLease({ dseq }) {
 
     await analytics.event("deploy", "send manifest");
 
-    history.push(UrlService.deploymentDetails(dseq));
+    history.replace(UrlService.deploymentDetails(dseq));
   }
 
   async function handleCloseDeployment() {
@@ -161,7 +166,7 @@ export function CreateLease({ dseq }) {
       const response = await sendTransaction([message]);
 
       if (response) {
-        history.push(UrlService.deploymentList());
+        history.replace(UrlService.deploymentList());
       }
     } catch (error) {
       throw error;
@@ -185,7 +190,11 @@ export function CreateLease({ dseq }) {
     <>
       <Helmet title="Create Deployment - Create Lease" />
 
-      {isSendingManifest && <LinearProgress />}
+      {isSendingManifest && (
+        <Box marginBottom=".5rem">
+          <LinearProgress />
+        </Box>
+      )}
 
       {(isLoadingBids || bids.length === 0) && !maxRequestsReached && (
         <Box textAlign="center">
@@ -196,7 +205,7 @@ export function CreateLease({ dseq }) {
         </Box>
       )}
 
-      {warningRequestsReached && !maxRequestsReached && (
+      {warningRequestsReached && !maxRequestsReached && bids.length === 0 && (
         <Box padding="1rem">
           <Alert variant="standard" severity="info">
             There should be bids by now... You can wait longer in case a bid shows up or close the deployment and try again with a different configuration.
@@ -204,7 +213,7 @@ export function CreateLease({ dseq }) {
         </Box>
       )}
 
-      {maxRequestsReached && (
+      {maxRequestsReached && bids.length === 0 && (
         <Box padding="1rem">
           <Alert variant="standard" severity="warning">
             There's no bid for the current deployment. You can close the deployment and try again with a different configuration.
@@ -213,7 +222,10 @@ export function CreateLease({ dseq }) {
       )}
 
       {!isLoadingBids && bids.length > 0 && (
-        <Box display="flex" justifyContent="flex-end">
+        <Box display="flex" justifyContent="space-between" marginBottom="1rem">
+          <Typography variant="h3" className={classes.title}>
+            Choose a provider:
+          </Typography>
           <TextField
             label="Search by attribute..."
             disabled={bids.length === 0}
@@ -290,7 +302,7 @@ export function CreateLease({ dseq }) {
       )}
       <>
         {!isLoadingBids && allClosed && (
-          <Alert severity="info">
+          <Alert severity="warning">
             All bids for this deployment are closed. This can happen if no bids are accepted for more than 5 minutes after the deployment creation. You can
             close this deployment and create a new one.
           </Alert>

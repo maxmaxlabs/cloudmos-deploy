@@ -228,7 +228,7 @@ export function TransactionModal(props) {
                 <Box>Low</Box>
                 <Box>
                   <Typography variant="caption">
-                    <PriceValue value={uaktToAKT(lowFee.amount[0].amount, 4)} />
+                    <PriceValue value={uaktToAKT(lowFee.amount[0].amount, 4)} showLt />
                   </Typography>
                 </Box>
                 <div className={clsx(classes.feeButtonLabelAmount, { [classes.textWhite]: currentFee === "low" })}>
@@ -244,7 +244,7 @@ export function TransactionModal(props) {
                 <Box>Avg</Box>
                 <Box>
                   <Typography variant="caption">
-                    <PriceValue value={uaktToAKT(avgFee.amount[0].amount, 4)} />
+                    <PriceValue value={uaktToAKT(avgFee.amount[0].amount, 4)} showLt />
                   </Typography>
                 </Box>
                 <div className={clsx(classes.feeButtonLabelAmount, { [classes.textWhite]: currentFee === "avg" })}>
@@ -260,7 +260,7 @@ export function TransactionModal(props) {
                 <Box>High</Box>
                 <Box>
                   <Typography variant="caption">
-                    <PriceValue value={uaktToAKT(highFee.amount[0].amount, 4)} />
+                    <PriceValue value={uaktToAKT(highFee.amount[0].amount, 4)} showLt />
                   </Typography>
                 </Box>
                 <div className={clsx(classes.feeButtonLabelAmount, { [classes.textWhite]: currentFee === "high" })}>
