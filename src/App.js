@@ -87,23 +87,23 @@ function App() {
               classes={{ root: classes.snackbarRoot }}
               dense
             >
-              <SettingsProvider>
-                <WalletProvider>
-                  <TransactionModalProvider>
-                    <PasswordConfirmationModalProvider>
-                      <CertificateProvider>
-                        <LocalNoteProvider>
-                          <PriceProvider>
+              <PriceProvider>
+                <SettingsProvider>
+                  <WalletProvider>
+                    <TransactionModalProvider>
+                      <PasswordConfirmationModalProvider>
+                        <CertificateProvider>
+                          <LocalNoteProvider>
                             <Helmet defaultTitle="Akashlytics Deploy" titleTemplate="Akashlytics Deploy - %s" />
 
                             <AppContainer />
-                          </PriceProvider>
-                        </LocalNoteProvider>
-                      </CertificateProvider>
-                    </PasswordConfirmationModalProvider>
-                  </TransactionModalProvider>
-                </WalletProvider>
-              </SettingsProvider>
+                          </LocalNoteProvider>
+                        </CertificateProvider>
+                      </PasswordConfirmationModalProvider>
+                    </TransactionModalProvider>
+                  </WalletProvider>
+                </SettingsProvider>
+              </PriceProvider>
             </SnackbarProvider>
           </QueryClientProvider>
         </HelmetProvider>

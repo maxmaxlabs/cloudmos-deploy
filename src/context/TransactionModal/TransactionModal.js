@@ -33,6 +33,7 @@ import { analytics } from "../../shared/utils/analyticsUtils";
 import { transactionLink } from "../../shared/constants";
 import { BroadcastingError } from "../../shared/utils/errors";
 import OpenInNew from "@material-ui/icons/OpenInNew";
+import { PriceValue } from "../../shared/components/PriceValue";
 
 const a11yPrefix = "transaction-tab";
 
@@ -225,7 +226,11 @@ export function TransactionModal(props) {
                 onClick={() => setCurrentFee("low")}
               >
                 <Box>Low</Box>
-                {/* TODO <div>Price</div> */}
+                <Box>
+                  <Typography variant="caption">
+                    <PriceValue value={uaktToAKT(lowFee.amount[0].amount, 4)} />
+                  </Typography>
+                </Box>
                 <div className={clsx(classes.feeButtonLabelAmount, { [classes.textWhite]: currentFee === "low" })}>
                   {uaktToAKT(lowFee.amount[0].amount, 4)}AKT
                 </div>
@@ -237,7 +242,11 @@ export function TransactionModal(props) {
                 onClick={() => setCurrentFee("avg")}
               >
                 <Box>Avg</Box>
-                {/* TODO <div>Price</div> */}
+                <Box>
+                  <Typography variant="caption">
+                    <PriceValue value={uaktToAKT(avgFee.amount[0].amount, 4)} />
+                  </Typography>
+                </Box>
                 <div className={clsx(classes.feeButtonLabelAmount, { [classes.textWhite]: currentFee === "avg" })}>
                   {uaktToAKT(avgFee.amount[0].amount, 4)}AKT
                 </div>
@@ -249,7 +258,11 @@ export function TransactionModal(props) {
                 onClick={() => setCurrentFee("high")}
               >
                 <Box>High</Box>
-                {/* TODO <div>Price</div> */}
+                <Box>
+                  <Typography variant="caption">
+                    <PriceValue value={uaktToAKT(highFee.amount[0].amount, 4)} />
+                  </Typography>
+                </Box>
                 <div className={clsx(classes.feeButtonLabelAmount, { [classes.textWhite]: currentFee === "high" })}>
                   {uaktToAKT(highFee.amount[0].amount, 4)}AKT
                 </div>

@@ -122,14 +122,16 @@ export function WalletDisplay() {
           }
           subheader={
             <Box display="flex" alignItems="center">
-              <Box fontWeight="lighter">Balance:</Box>
               <Box marginRight=".5rem" fontWeight="bold">
-                <Typography variant="body">
-                  <FormattedNumber value={(balance / 1000000) * priceData.price} style="currency" currency="USD" />
+                <Typography variant="caption">
+                  Balance:
+                  <strong>
+                    <FormattedNumber value={(balance / 1000000) * priceData?.price} style="currency" currency="USD" />
+                  </strong>
                 </Typography>
               </Box>
               <Box marginLeft="1rem">
-                <Typography variant="body" color="textSecondary">
+                <Typography variant="caption" color="textSecondary">
                   <Address address={address} isCopyable />
                 </Typography>
               </Box>
