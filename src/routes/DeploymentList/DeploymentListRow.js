@@ -1,8 +1,5 @@
 import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
 import CloudIcon from "@material-ui/icons/Cloud";
-import MemoryIcon from "@material-ui/icons/Memory";
-import StorageIcon from "@material-ui/icons/Storage";
-import SpeedIcon from "@material-ui/icons/Speed";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import {
   makeStyles,
@@ -17,20 +14,17 @@ import {
   CircularProgress
 } from "@material-ui/core";
 import { useHistory } from "react-router";
-import { humanFileSize } from "../../shared/utils/unitUtils";
 import { useLocalNotes } from "../../context/LocalNoteProvider";
 import { useLeaseList } from "../../queries";
 import { useWallet } from "../../context/WalletProvider";
 import { StatusPill } from "../../shared/components/StatusPill";
+import { SpecDetail } from "../../shared/components/SpecDetail";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     padding: "1rem",
     "& .MuiListItemText-secondary .MuiSvgIcon-root:not(:first-child)": {
       marginLeft: "5px"
-    },
-    "& .MuiListItemText-secondary .MuiSvgIcon-root": {
-      fontSize: "20px"
     }
   },
   titleContainer: {
@@ -85,13 +79,15 @@ export function DeploymentListRow({ deployment }) {
         secondaryTypographyProps={{ component: "div" }}
         secondary={
           <>
-            <Box display="flex" alignItems="center">
-              <SpeedIcon />
-              {deployment.cpuAmount + "vcpu"}
-              <MemoryIcon title="Memory" />
-              {humanFileSize(deployment.memoryAmount)}
-              <StorageIcon />
-              {humanFileSize(deployment.storageAmount)}
+            <Box display="flex" alignItems="center" marginBottom="4px">
+              <SpecDetail
+                cpuAmount={deployment.cpuAmount}
+                memoryAmount={deployment.memoryAmount}
+                storageAmount={deployment.storageAmount}
+                size="small"
+                color={deployment.state === "active" ? "primary" : "default"}
+                gutterSize="small"
+              />
             </Box>
 
             {leases && !!leases.length && (

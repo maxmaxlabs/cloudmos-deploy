@@ -30,6 +30,7 @@ import { analytics } from "../../shared/utils/analyticsUtils";
 import { useProviders } from "../../queries";
 import CloseIcon from "@material-ui/icons/Close";
 import { ManifestErrorSnackbar } from "../../shared/components/ManifestErrorSnackbar";
+import { useDeploymentDetail } from "../../queries";
 
 const yaml = require("js-yaml");
 
@@ -39,7 +40,9 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: "1rem"
   },
   title: {
-    fontSize: "1.5rem"
+    fontSize: "1.5rem",
+    display: "flex",
+    alignItems: "center"
   }
 }));
 
@@ -69,11 +72,15 @@ export function CreateLease({ dseq }) {
   const { data: bids, isLoading: isLoadingBids } = useBidList(address, dseq, {
     initialData: [],
     refetchInterval: REFRESH_BIDS_INTERVAL,
-    onSuccess: (bids) => {
+    onSuccess: () => {
       setNumberOfRequests((prev) => ++prev);
     },
     enabled: !maxRequestsReached
   });
+  const {
+    data: deploymentDetail,
+    refetch: getDeploymentDetail
+  } = useDeploymentDetail(address, dseq, { refetchOnMount: false, enabled: false });
   const groupedBids = bids
     .sort((a, b) => a.price.amount - b.price.amount)
     .reduce((a, b) => {
@@ -82,6 +89,10 @@ export function CreateLease({ dseq }) {
     }, {});
   const dseqList = Object.keys(groupedBids);
   const allClosed = bids.length > 0 && bids.every((bid) => bid.state === "closed");
+
+  useEffect(() => {
+    getDeploymentDetail();
+  }, [getDeploymentDetail]);
 
   // Filter bids by search
   useEffect(() => {
@@ -224,27 +235,30 @@ export function CreateLease({ dseq }) {
       {!isLoadingBids && bids.length > 0 && (
         <Box display="flex" justifyContent="space-between" marginBottom="1rem">
           <Typography variant="h3" className={classes.title}>
-            Choose a provider:
+            Choose a provider
           </Typography>
-          <TextField
-            label="Search by attribute..."
-            disabled={bids.length === 0 || isSendingManifest}
-            value={search}
-            onChange={onSearchChange}
-            type="text"
-            variant="outlined"
-            autoFocus
-            size="small"
-            InputProps={{
-              endAdornment: search && (
-                <InputAdornment position="end">
-                  <IconButton size="small" onClick={() => setSearch("")}>
-                    <CloseIcon />
-                  </IconButton>
-                </InputAdornment>
-              )
-            }}
-          />
+          <Box flexGrow={1} marginLeft={2}>
+            <TextField
+              label="Search by attribute..."
+              disabled={bids.length === 0 || isSendingManifest}
+              value={search}
+              onChange={onSearchChange}
+              type="text"
+              variant="outlined"
+              autoFocus
+              fullWidth
+              size="medium"
+              InputProps={{
+                endAdornment: search && (
+                  <InputAdornment position="end">
+                    <IconButton size="small" onClick={() => setSearch("")}>
+                      <CloseIcon />
+                    </IconButton>
+                  </InputAdornment>
+                )
+              }}
+            />
+          </Box>
         </Box>
       )}
 
@@ -258,6 +272,7 @@ export function CreateLease({ dseq }) {
           disabled={isSendingManifest}
           providers={providers}
           filteredBids={filteredBids}
+          deploymentDetail={deploymentDetail}
         />
       ))}
 

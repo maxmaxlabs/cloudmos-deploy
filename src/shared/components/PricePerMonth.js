@@ -9,7 +9,7 @@ export const PricePerMonth = ({ perBlockValue, typoVariant = "body" }) => {
       <strong>
         ~<PriceValue value={perBlockValue * (60 / averageBlockTime) * 60 * 24 * averageDaysInMonth} />
       </strong>{" "}
-      per month
+      / month
     </Typography>
   );
 };

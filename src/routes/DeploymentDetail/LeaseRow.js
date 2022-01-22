@@ -41,7 +41,9 @@ import { ProviderAttributes } from "../../shared/components/ProviderAttributes";
 const yaml = require("js-yaml");
 
 const useStyles = makeStyles((theme) => ({
-  root: {},
+  root: {
+    marginBottom: "1rem"
+  },
   cardHeader: {
     borderBottom: "1px solid rgba(0,0,0,0.1)"
   },
@@ -79,10 +81,9 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
     data: leaseStatus,
     error,
     refetch: getLeaseStatus,
-    isLoading: isLoadingLeaseStatus,
-    isFetching: isFetchingLeaseStatus
+    isLoading: isLoadingLeaseStatus
   } = useLeaseStatus(providerInfo?.host_uri, lease, {
-    enabled: !isServicesAvailable && !!providerInfo?.host_uri,
+    enabled: lease.state === "active" && !isServicesAvailable && !!providerInfo?.host_uri,
     refetchInterval: 7000,
     onSuccess: (leaseStatus) => {
       if (leaseStatus) {

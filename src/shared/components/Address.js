@@ -4,6 +4,7 @@ import clsx from "clsx";
 import { copyTextToClipboard } from "../../shared/utils/copyClipboard";
 import { useSnackbar } from "notistack";
 import { Snackbar } from "../../shared/components/Snackbar";
+import { useState } from "react";
 
 const useStyles = makeStyles((theme) => ({
   root: { display: "inline-flex", alignItems: "center" },
@@ -23,6 +24,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export const Address = ({ address, isCopyable, ...rest }) => {
+  const [isOver, setIsOver] = useState(false);
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
   const formattedAddress = [address?.slice(0, 10), ".....", address?.slice(address?.length - 10)].join("");
@@ -39,10 +41,17 @@ export const Address = ({ address, isCopyable, ...rest }) => {
 
   return (
     <Tooltip classes={{ tooltip: classes.tooltip }} arrow title={address}>
-      <Box className={clsx(classes.root, { [classes.copy]: isCopyable })} component="span" onClick={onClick} {...rest}>
+      <Box
+        className={clsx(classes.root, { [classes.copy]: isCopyable })}
+        component="span"
+        onClick={onClick}
+        onMouseOver={() => setIsOver(true)}
+        onMouseOut={() => setIsOver(false)}
+        {...rest}
+      >
         <span>{formattedAddress}</span>
 
-        {isCopyable && <FileCopy className={classes.copyIcon} />}
+        {isCopyable && isOver && <FileCopy className={classes.copyIcon} />}
       </Box>
     </Tooltip>
   );
