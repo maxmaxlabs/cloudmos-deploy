@@ -284,7 +284,8 @@ services:
       - "POOL=pool.hashvault.pro:80"
       - "ALGO=rx/0"
       - "WORKER=akash"
-      - "RANDOMX_MODE=auto" #accepts auto-fast-light
+      - "DONATE_LEVEL=0"
+      - "RANDOMX_MODE=fast" #accepts auto-fast-light
       - "RANDOMX_1GB=true"
       - "TLS=true" #If supported by pool
       - "TLS_FINGERPRINT=420c7850e09b7c0bdcf748a7da9eb3647daf8515718f36d9ccfdd6b9ff834b14" #Can be blank
@@ -293,22 +294,22 @@ profiles:
     xmrig:
       resources:
         cpu:
-          units: 1.0
+          units: 10.0
         memory:
-          size: 1Gi
+          size: 2.5Gi #Requires at least 2.5Gi
         storage:
-          size: 1Gi
+          size: 2Gi #Requires at least 2Gi
   placement:
     akash:
       pricing:
         xmrig:
           denom: uakt
-          amount: 2
+          amount: 100
 deployment:
   xmrig:
     akash:
       profile: xmrig
-      count: 1`
+      count: 1 #max 2 count`
   },
   {
     title: "Raptoreum",
@@ -316,7 +317,7 @@ deployment:
     category: "Mining",
     description: "A miner for Raptoreum, vist https://raptoreum.com/ for more info.",
     githubUrl: "https://github.com/ovrclk/awesome-akash/blob/master/raptoreum-miner/deploy.yaml",
-    valuesToChange: [{ field: "env", initialValue: "<RTM_Wallet>" }],
+    valuesToChange: [{ field: "env", initialValue: "<RTM_WALLET>" }],
     content: `---
 version: "2.0"
 
@@ -330,7 +331,7 @@ services:
         to:
           - global: true
     env:
-      - "ADDRESS=<RTM_Wallet>"
+      - "ADDRESS=<RTM_WALLET>"
       - "POOL=suprnova"
       - "WORKER=akash"
       - "TUNE=no-tune"
@@ -340,22 +341,22 @@ profiles:
     raptoreum:
       resources:
         cpu:
-          units: 1.0
+          units: 10.0
         memory:
-          size: 256Mi
+          size: 512Mi
         storage:
-          size: 128Mi
+          size: 256Mi
   placement:
     akash:
       pricing:
         raptoreum:
           denom: uakt
-          amount: 2
+          amount: 100
 deployment:
   raptoreum:
     akash:
       profile: raptoreum
-      count: 1`
+      count: 1 #max 2 count`
   },
   {
     title: "Chia Plotting",
@@ -365,10 +366,11 @@ deployment:
     githubUrl: "https://github.com/ovrclk/awesome-akash/blob/master/chia/deploy.yaml",
     valuesToChange: [
       { field: "env", initialValue: "<CONTRACT>" },
-      { field: "env", initialValue: "<FARMERYKEY>" },
+      { field: "env", initialValue: "<FARMERKEY>" },
       { field: "env", initialValue: "<REMOTE_HOST>" },
       { field: "env", initialValue: "<REMOTE_PORT>" },
       { field: "env", initialValue: "<REMOTE_USER>" },
+      { field: "env", initialValue: "<REMOTE_LOCATION>" },
       { field: "env", initialValue: "<REMOTE_PASS>" }
     ],
     content: `---
@@ -376,7 +378,7 @@ version: "2.0"
 
 services:
   chia:
-    image: cryptoandcoffee/akash-chia:4
+    image: cryptoandcoffee/akash-chia:12
     expose:
       - port: 8444
         as: 8444
@@ -385,10 +387,10 @@ services:
           - global: true
     env:
       - CONTRACT=<CONTRACT>
-      - FARMERKEY=<FARMERYKEY>
+      - FARMERKEY=<FARMERKEY>
       - REMOTE_HOST=<REMOTE_HOST> #SSH upload location
       - REMOTE_PORT=<REMOTE_PORT> #SSH upload port
-      - REMOTE_USER=<REMOTE_USEER> #SSH upload user
+      - REMOTE_USER=<REMOTE_USER> #SSH upload user
       - REMOTE_PASS=<REMOTE_PASS> #SSH upload password
       - REMOTE_LOCATION=<REMOTE_LOCATION> #SSH upload filepath
       - PLOTTER=madmax #Choose your plotter software madmax or blade
@@ -413,7 +415,7 @@ deployment:
   chia:
     akash:
       profile: chia
-      count: 1`
+      count: 1 #max 2 count`
   },
   {
     title: "PKT Miner",
@@ -421,47 +423,47 @@ deployment:
     category: "Mining",
     description: "A miner for PKT. Visit https://pkt.cash/ for more info.",
     githubUrl: "https://github.com/ovrclk/pkt-miner/blob/main/deploy.yaml",
-    valuesToChange: [{ field: "env", initialValue: "<PKT_Wallet>" }],
+    valuesToChange: [{ field: "env", initialValue: "<PKT_WALLET>" }],
     content: `---
 version: "2.0"
 
 services:
   miner:
-    image: chandrastation/pkt_on_akash:v1.0.0
+    image: cryptoandcoffee/akash-pkt-miner:1
     env:
       - WALLET_ADDR=<PKT_Wallet>
-      - POOL1=http://pool.srizbi.com
+      - POOL1=http://pool.srizbi.com 
       - POOL2=http://pool.pktpool.io
-      - POOL3=http://pool.pkt.world
-      - POOL4=http://pool.pkteer.com
-      - POOL5=http://pool.pktco.in
+# Enable only if connection issues with POOL1 and POOL2
+#     - POOL3=http://pool.pkt.world
+#     - POOL4=http://pool.pkteer.com
+#     - POOL5=http://pool.pktco.in
     expose:
       - port: 3000
         as: 80
         to:
           - global: true
-
 profiles:
   compute:
     miner:
       resources:
         cpu:
-          units: 1
+          units: 10
         memory:
-          size: 1Gi
+          size: 512Mi
         storage:
-          size: 1Gi
+          size: 256Mi
   placement:
     miner:
       pricing:
         miner:
           denom: uakt
-          amount: 2
+          amount: 100
 deployment:
   miner:
     miner:
       profile: miner
-      count: 1`
+      count: 1 #max 2 count`
   },
   {
     title: "Minecraft Server",
