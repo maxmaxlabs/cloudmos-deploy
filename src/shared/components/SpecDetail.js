@@ -4,18 +4,28 @@ import SpeedIcon from "@material-ui/icons/Speed";
 import { makeStyles, Box } from "@material-ui/core";
 import clsx from "clsx";
 import { humanFileSize } from "../utils/unitUtils";
+import { Chip } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
     alignItems: "center",
-    padding: "1rem 0"
+  },
+  chipRoot: {
+    padding: "2px 0",
+    height: "auto"
+  },
+  chipLabel: {
+    display: "flex",
+    alignItems: "center",
+    padding: "2px 0"
   },
   specIcon: {
     fontSize: "2rem"
   },
   specDetail: {
-    marginLeft: ".5rem"
+    marginLeft: ".5rem",
+    fontSize: "1rem"
   },
   marginLeft: {
     marginLeft: "1rem"
@@ -26,12 +36,41 @@ export function SpecDetail({ cpuAmount, memoryAmount, storageAmount }) {
   const classes = useStyles();
   return (
     <Box component="div" className={classes.root}>
-      <SpeedIcon className={classes.specIcon} />
-      <Box className={classes.specDetail}>{cpuAmount + "vcpu"}</Box>
-      <MemoryIcon className={clsx(classes.specIcon, classes.marginLeft)} />
-      <Box className={classes.specDetail}>{humanFileSize(memoryAmount)}</Box>
-      <StorageIcon className={clsx(classes.specIcon, classes.marginLeft)} />
-      <Box className={classes.specDetail}>{humanFileSize(storageAmount)}</Box>
+      <Chip
+        variant="outlined"
+        color="primary"
+        classes={{ root: classes.chipRoot }}
+        label={
+          <div className={classes.chipLabel}>
+            <SpeedIcon className={classes.specIcon} />
+            <Box className={classes.specDetail}>{cpuAmount + "vcpu"}</Box>
+          </div>
+        }
+      />
+      <Chip
+        variant="outlined"
+        color="primary"
+        classes={{ root: classes.chipRoot }}
+        className={classes.marginLeft}
+        label={
+          <div className={classes.chipLabel}>
+            <MemoryIcon className={classes.specIcon} />
+            <Box className={classes.specDetail}>{humanFileSize(memoryAmount)}</Box>
+          </div>
+        }
+      />
+      <Chip
+        variant="outlined"
+        color="primary"
+        classes={{ root: classes.chipRoot }}
+        className={classes.marginLeft}
+        label={
+          <div className={classes.chipLabel}>
+            <StorageIcon className={classes.specIcon} />
+            <Box className={classes.specDetail}>{humanFileSize(storageAmount)}</Box>
+          </div>
+        }
+      />
     </Box>
   );
 }

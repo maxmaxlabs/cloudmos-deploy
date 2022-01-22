@@ -75,7 +75,7 @@ export function CreateLease({ dseq }) {
     enabled: !maxRequestsReached
   });
   const groupedBids = bids
-    .sort((a, b) => (a.price.amount < b.price.amount ? -1 : 0))
+    .sort((a, b) => a.price.amount - b.price.amount)
     .reduce((a, b) => {
       a[b.gseq] = [...(a[b.gseq] || []), b];
       return a;

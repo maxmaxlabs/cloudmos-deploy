@@ -1,9 +1,8 @@
 import { makeStyles, ListSubheader, Radio, List, ListItemText, ListItemIcon, ListItem, Box, Typography, Chip } from "@material-ui/core";
 import { Address } from "../../shared/components/Address";
-import { PriceValue } from "../../shared/components/PriceValue";
-import { uaktToAKT, averageBlockTime } from "../../shared/utils/priceUtils";
+import { uaktToAKT } from "../../shared/utils/priceUtils";
 import { PriceEstimateTooltip } from "../../shared/components/PriceEstimateTooltip";
-import { averageDaysInMonth } from "../../shared/utils/date";
+import { PricePerMonth } from "../../shared/components/PricePerMonth";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -72,17 +71,12 @@ export function BidGroup({ bids, gseq, selectedBid, handleBidSelected, disabled,
                 classes={{ secondary: classes.secondaryText }}
                 primary={
                   <>
-                    <Box display="flex" alignItems="center" marginBottom="2px">
-                      <Typography variant="body">
-                        <strong>
-                          ~<PriceValue value={uaktToAKT(bid.price.amount, 6) * (60 / averageBlockTime) * 60 * 24 * averageDaysInMonth} />
-                        </strong>{" "}
-                        per month
-                      </Typography>
+                    <Box marginBottom="2px">
+                      <PricePerMonth perBlockValue={uaktToAKT(bid.price.amount, 6)} />
                     </Box>
 
                     <Box display="flex" alignItems="center">
-                      <Chip label={bid.state} size="small" color={bid.state === "open" ? "primary" : "seconday"} classes={{ root: classes.chip }} />
+                      <Chip label={bid.state} size="small" color={bid.state === "open" ? "default" : "seconday"} classes={{ root: classes.chip }} />
                       <Box component="span" marginLeft=".5rem">
                         {bid.price.amount} uakt / block
                       </Box>

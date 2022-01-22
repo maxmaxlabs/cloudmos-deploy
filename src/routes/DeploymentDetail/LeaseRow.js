@@ -20,7 +20,7 @@ import Alert from "@material-ui/lab/Alert";
 import FileCopyIcon from "@material-ui/icons/FileCopy";
 import { StatusPill } from "../../shared/components/StatusPill";
 import { LabelValue } from "../../shared/components/LabelValue";
-import { getAvgCostPerMonth } from "../../shared/utils/priceUtils";
+import { getAvgCostPerMonth, uaktToAKT } from "../../shared/utils/priceUtils";
 import { SpecDetail } from "../../shared/components/SpecDetail";
 import { useCertificate } from "../../context/CertificateProvider";
 import { copyTextToClipboard } from "../../shared/utils/copyClipboard";
@@ -31,6 +31,11 @@ import { sendManifestToProvider, Manifest } from "../../shared/utils/deploymentU
 import { ManifestErrorSnackbar } from "../../shared/components/ManifestErrorSnackbar";
 import { Snackbar } from "../../shared/components/Snackbar";
 import { LinkTo } from "../../shared/components/LinkTo";
+import { PricePerMonth } from "../../shared/components/PricePerMonth";
+import { PriceEstimateTooltip } from "../../shared/components/PriceEstimateTooltip";
+import { Address } from "../../shared/components/Address";
+import LaunchIcon from "@material-ui/icons/Launch";
+import { ProviderAttributes } from "../../shared/components/ProviderAttributes";
 
 const yaml = require("js-yaml");
 
@@ -42,7 +47,13 @@ const useStyles = makeStyles((theme) => ({
   cardHeaderTitle: {
     fontSize: "18px"
   },
-  title: {}
+  listItem: {
+    borderBottom: `1px solid ${theme.palette.grey[300]}`
+  },
+  link: {
+    display: "flex",
+    alignItems: "center"
+  }
 }));
 
 export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManifest, dseq }, ref) => {
@@ -71,6 +82,10 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
       getLeaseStatus();
     }
   }, [isLeaseActive, providerInfo, localCert, getLeaseStatus]);
+
+  useEffect(() => {
+    // Interval to get the available > 0 then stop
+  }, []);
 
   useEffect(() => {
     loadLeaseStatus();
@@ -103,38 +118,48 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
   }
 
   return (
-    <Card className={classes.root}>
+    <Card className={classes.root} elevation={4}>
       <CardHeader
         classes={{ title: classes.cardHeaderTitle, root: classes.cardHeader }}
         title={
           <Box display="flex">
-            <LabelValue label="GSEQ:" value={lease.gseq} />
-            <LabelValue label="OSEQ:" value={lease.oseq} marginLeft="1rem" />
             <LabelValue
               label="Status:"
               value={
                 <>
                   <div>{lease.state}</div>
-                  <StatusPill state={lease.state} />
+                  <StatusPill state={lease.state} size="small" />
                 </>
               }
-              marginLeft="1rem"
             />
+            <LabelValue label="GSEQ:" value={lease.gseq} marginLeft="1rem" fontSize="1rem" />
+            <LabelValue label="OSEQ:" value={lease.oseq} marginLeft="1rem" fontSize="1rem" />
           </Box>
         }
       />
       <CardContent>
+        <Box paddingBottom="1rem">
+          <SpecDetail cpuAmount={lease.cpuAmount} memoryAmount={lease.memoryAmount} storageAmount={lease.storageAmount} />
+        </Box>
         <LabelValue
           label="Price:"
           value={
             <>
               {lease.price.amount}uakt ({`~${getAvgCostPerMonth(lease.price.amount)}akt/month`})
+              <Box component="span" marginLeft=".5rem" color="dimgray">
+                <PricePerMonth perBlockValue={uaktToAKT(lease.price.amount, 6)} />
+              </Box>
+              <PriceEstimateTooltip value={uaktToAKT(lease.price.amount, 6)} />
             </>
           }
         />
-        <LabelValue label="Provider:" value={lease.provider} marginTop="5px" />
+        <LabelValue label="Provider:" value={<Address address={lease.provider} isCopyable />} marginTop="5px" marginBottom=".5rem" />
 
-        <SpecDetail cpuAmount={lease.cpuAmount} memoryAmount={lease.memoryAmount} storageAmount={lease.storageAmount} />
+        {providerInfo && (
+          <Box marginBottom="1rem">
+            <ProviderAttributes provider={providerInfo} />
+          </Box>
+        )}
 
         {isLeaseNotFound && (
           <Alert severity="warning">
@@ -162,9 +187,7 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
             .map((n) => leaseStatus.services[n])
             .map((service, i) => (
               <Box mb={2} key={`${service.name}_${i}`}>
-                <Typography variant="h6" className={classes.title}>
-                  Group "{service.name}"
-                </Typography>
+                <LabelValue label="Group:" value={service.name} fontSize="1rem" />
                 Available: {service.available}
                 <br />
                 Ready Replicas: {service.available}
@@ -189,30 +212,42 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
                   </>
                 )}
                 {service.uris?.length > 0 && (
-                  <List dense>
-                    {service.uris.map((uri) => {
-                      return (
-                        <ListItem key={uri} component="a" button onClick={(ev) => handleExternalUrlClick(ev, uri)}>
-                          <ListItemText primary={uri} />
-                          <ListItemSecondaryAction>
-                            <IconButton
-                              edge="end"
-                              aria-label="uri"
-                              onClick={(ev) => {
-                                copyTextToClipboard(uri);
-                                enqueueSnackbar("Uri copied to clipboard!", {
-                                  variant: "success",
-                                  autoHideDuration: 2000
-                                });
-                              }}
-                            >
-                              <FileCopyIcon />
-                            </IconButton>
-                          </ListItemSecondaryAction>
-                        </ListItem>
-                      );
-                    })}
-                  </List>
+                  <>
+                    <Box marginTop=".5rem">
+                      <LabelValue label="Uris:" />
+                      <List dense>
+                        {service.uris.map((uri) => {
+                          return (
+                            <ListItem key={uri} className={classes.listItem}>
+                              <ListItemText
+                                primary={
+                                  <LinkTo className={classes.link} onClick={(ev) => handleExternalUrlClick(ev, uri)}>
+                                    {uri} <LaunchIcon fontSize="small" />
+                                  </LinkTo>
+                                }
+                              />
+                              <ListItemSecondaryAction>
+                                <IconButton
+                                  edge="end"
+                                  aria-label="uri"
+                                  size="small"
+                                  onClick={(ev) => {
+                                    copyTextToClipboard(uri);
+                                    enqueueSnackbar("Uri copied to clipboard!", {
+                                      variant: "success",
+                                      autoHideDuration: 2000
+                                    });
+                                  }}
+                                >
+                                  <FileCopyIcon fontSize="small" />
+                                </IconButton>
+                              </ListItemSecondaryAction>
+                            </ListItem>
+                          );
+                        })}
+                      </List>
+                    </Box>
+                  </>
                 )}
               </Box>
             ))}

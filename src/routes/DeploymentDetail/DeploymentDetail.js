@@ -130,7 +130,7 @@ export function DeploymentDetail(props) {
             <DeploymentSubHeader
               deployment={deployment}
               block={currentBlock}
-              deploymentCost={hasLeases ? leases.reduce((prev, current) => prev + current.price.amount, []) : 0}
+              deploymentCost={hasLeases ? Number(leases.reduce((prev, current) => prev + current.price.amount, [])) : 0}
               address={address}
               loadDeploymentDetail={loadDeploymentDetail}
               removeLeases={removeLeases}
@@ -159,7 +159,7 @@ export function DeploymentDetail(props) {
         )}
         {activeTab === "DETAILS" && (
           <>
-            <Typography variant="h6" gutterBottom className={classes.title}>
+            <Typography variant="h6" className={classes.title}>
               Leases
             </Typography>
             {leases &&
