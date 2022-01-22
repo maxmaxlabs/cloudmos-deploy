@@ -228,7 +228,7 @@ export function CreateLease({ dseq }) {
           </Typography>
           <TextField
             label="Search by attribute..."
-            disabled={bids.length === 0}
+            disabled={bids.length === 0 || isSendingManifest}
             value={search}
             onChange={onSearchChange}
             type="text"

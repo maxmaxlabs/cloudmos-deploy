@@ -13,7 +13,8 @@ import {
   ListItemText,
   ListItemSecondaryAction,
   CircularProgress,
-  Button
+  Button,
+  Tooltip
 } from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
 import FileCopyIcon from "@material-ui/icons/FileCopy";
@@ -34,6 +35,7 @@ import { PricePerMonth } from "../../shared/components/PricePerMonth";
 import { PriceEstimateTooltip } from "../../shared/components/PriceEstimateTooltip";
 import { Address } from "../../shared/components/Address";
 import LaunchIcon from "@material-ui/icons/Launch";
+import InfoIcon from "@material-ui/icons/Info";
 import { ProviderAttributes } from "../../shared/components/ProviderAttributes";
 
 const yaml = require("js-yaml");
@@ -52,6 +54,17 @@ const useStyles = makeStyles((theme) => ({
   link: {
     display: "flex",
     alignItems: "center"
+  },
+  tooltip: {
+    fontSize: "1rem"
+  },
+  tooltipIcon: {
+    fontSize: "1rem",
+    color: theme.palette.grey[600]
+  },
+  whiteLink: {
+    fontWeight: "bold",
+    color: theme.palette.common.white
   }
 }));
 
@@ -61,12 +74,22 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
   const providerInfo = providers?.find((p) => p.owner === lease?.provider);
   const { localCert } = useCertificate();
   const isLeaseActive = lease.state === "active";
+  const [isServicesAvailable, setIsServicesAvailable] = useState(false);
   const {
     data: leaseStatus,
     error,
     refetch: getLeaseStatus,
-    isLoading: isLoadingLeaseStatus
-  } = useLeaseStatus(providerInfo?.host_uri, lease, { enabled: false });
+    isLoading: isLoadingLeaseStatus,
+    isFetching: isFetchingLeaseStatus
+  } = useLeaseStatus(providerInfo?.host_uri, lease, {
+    enabled: !isServicesAvailable && !!providerInfo?.host_uri,
+    refetchInterval: 7000,
+    onSuccess: (leaseStatus) => {
+      if (leaseStatus) {
+        checkIfServicesAreAvailable(leaseStatus);
+      }
+    }
+  });
   const isLeaseNotFound = error && error.includes && error.includes("lease not found") && isLeaseActive;
   const servicesNames = leaseStatus ? Object.keys(leaseStatus.services) : [];
   const classes = useStyles();
@@ -82,9 +105,18 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
     }
   }, [isLeaseActive, providerInfo, localCert, getLeaseStatus]);
 
-  useEffect(() => {
-    // Interval to get the available > 0 then stop
-  }, []);
+  const checkIfServicesAreAvailable = (leaseStatus) => {
+    const servicesNames = leaseStatus ? Object.keys(leaseStatus.services) : [];
+    const isServicesAvailable =
+      servicesNames.length > 0
+        ? servicesNames
+            .map((n) => leaseStatus.services[n])
+            .every((service, i) => {
+              return service.available > 0;
+            })
+        : false;
+    setIsServicesAvailable(isServicesAvailable);
+  };
 
   useEffect(() => {
     loadLeaseStatus();
@@ -190,8 +222,35 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
           servicesNames
             .map((n) => leaseStatus.services[n])
             .map((service, i) => (
-              <Box mb={2} key={`${service.name}_${i}`}>
-                <LabelValue label="Group:" value={service.name} fontSize="1rem" />
+              <Box mb={1} key={`${service.name}_${i}`}>
+                <Box display="flex" alignItems="center">
+                  <LabelValue label="Group:" value={service.name} fontSize="1rem" />
+                  {isLoadingLeaseStatus || !isServicesAvailable ? (
+                    <Box display="inline-flex" marginLeft="1rem">
+                      <CircularProgress size="1rem" />
+                    </Box>
+                  ) : (
+                    <Box display="inline-flex" marginLeft=".5rem">
+                      <Tooltip
+                        classes={{ tooltip: classes.tooltip }}
+                        arrow
+                        interactive
+                        title={
+                          <>
+                            Workloads can take some time to spin up. If you see an error when browsing the uri, it is recommended to refresh and wait a bit.
+                            Check the{" "}
+                            <LinkTo onClick={() => setActiveTab("LOGS")} className={classes.whiteLink}>
+                              logs
+                            </LinkTo>{" "}
+                            for more information.
+                          </>
+                        }
+                      >
+                        <InfoIcon className={classes.tooltipIcon} fontSize="small" />
+                      </Tooltip>
+                    </Box>
+                  )}
+                </Box>
                 Available: {service.available}
                 <br />
                 Ready Replicas: {service.available}
