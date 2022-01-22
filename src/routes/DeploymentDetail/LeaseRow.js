@@ -8,7 +8,6 @@ import {
   CardContent,
   CardHeader,
   Chip,
-  Typography,
   List,
   ListItem,
   ListItemText,
@@ -139,7 +138,12 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
       />
       <CardContent>
         <Box paddingBottom="1rem">
-          <SpecDetail cpuAmount={lease.cpuAmount} memoryAmount={lease.memoryAmount} storageAmount={lease.storageAmount} />
+          <SpecDetail
+            cpuAmount={lease.cpuAmount}
+            memoryAmount={lease.memoryAmount}
+            storageAmount={lease.storageAmount}
+            color={lease.state === "active" ? "primary" : "default"}
+          />
         </Box>
         <LabelValue
           label="Price:"

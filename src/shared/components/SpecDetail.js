@@ -2,14 +2,13 @@ import MemoryIcon from "@material-ui/icons/Memory";
 import StorageIcon from "@material-ui/icons/Storage";
 import SpeedIcon from "@material-ui/icons/Speed";
 import { makeStyles, Box } from "@material-ui/core";
-import clsx from "clsx";
 import { humanFileSize } from "../utils/unitUtils";
 import { Chip } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
-    alignItems: "center",
+    alignItems: "center"
   },
   chipRoot: {
     padding: "2px 0",
@@ -32,13 +31,13 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function SpecDetail({ cpuAmount, memoryAmount, storageAmount }) {
+export function SpecDetail({ cpuAmount, memoryAmount, storageAmount, color }) {
   const classes = useStyles();
   return (
     <Box component="div" className={classes.root}>
       <Chip
         variant="outlined"
-        color="primary"
+        color={color}
         classes={{ root: classes.chipRoot }}
         label={
           <div className={classes.chipLabel}>
@@ -49,7 +48,7 @@ export function SpecDetail({ cpuAmount, memoryAmount, storageAmount }) {
       />
       <Chip
         variant="outlined"
-        color="primary"
+        color={color}
         classes={{ root: classes.chipRoot }}
         className={classes.marginLeft}
         label={
@@ -61,7 +60,7 @@ export function SpecDetail({ cpuAmount, memoryAmount, storageAmount }) {
       />
       <Chip
         variant="outlined"
-        color="primary"
+        color={color}
         classes={{ root: classes.chipRoot }}
         className={classes.marginLeft}
         label={
