@@ -135,7 +135,6 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address, loadD
         <Box display="flex" alignItems="center">
           <LabelValue
             label="Escrow Balance:"
-            // value={`${deployment.escrowBalance.amount}${deployment.escrowBalance.denom}`}
             value={
               <>
                 {uaktToAKT(deployment.escrowBalance.amount, 6)}AKT{" "}
@@ -163,7 +162,6 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address, loadD
       <Grid item xs={5}>
         <LabelValue
           label="Amount spent:"
-          // value={`${deployment.transferred.amount}${deployment.transferred.denom}`}
           value={`${uaktToAKT(deployment.transferred.amount, 6)}AKT`}
         />
 

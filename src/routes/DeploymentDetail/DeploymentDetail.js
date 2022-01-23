@@ -130,7 +130,7 @@ export function DeploymentDetail(props) {
             <DeploymentSubHeader
               deployment={deployment}
               block={currentBlock}
-              deploymentCost={hasLeases ? Number(leases.reduce((prev, current) => prev + current.price.amount, [])) : 0}
+              deploymentCost={hasLeases ? leases.reduce((prev, current) => prev + current.price.amount, 0) : 0}
               address={address}
               loadDeploymentDetail={loadDeploymentDetail}
               removeLeases={removeLeases}

@@ -10,6 +10,7 @@ import { useWallet } from "../../context/WalletProvider";
 import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
 import { useTransactionModal } from "../../context/TransactionModal";
+import { useSettings } from "../../context/SettingsProvider";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -44,11 +45,12 @@ export function Dashboard({ deployments, isLoadingDeployments, refreshDeployment
   const [selectedDeploymentDseqs, setSelectedDeploymentDseqs] = useState([]);
   const { address } = useWallet();
   const { sendTransaction } = useTransactionModal();
+  const { settings } = useSettings();
+  const { apiEndpoint } = settings;
 
   useEffect(() => {
     refreshDeployments();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [refreshDeployments, apiEndpoint]);
 
   const onSelectDeployment = (checked, dseq) => {
     setSelectedDeploymentDseqs((prev) => {

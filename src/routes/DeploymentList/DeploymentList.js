@@ -7,6 +7,7 @@ import { DeploymentListRow } from "./DeploymentListRow";
 import Pagination from "@material-ui/lab/Pagination";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import AddIcon from "@material-ui/icons/Add";
+import { useSettings } from "../../context/SettingsProvider";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -38,10 +39,12 @@ const useStyles = makeStyles((theme) => ({
 export function DeploymentList({ deployments, isLoadingDeployments, refreshDeployments }) {
   const [page, setPage] = useState(1);
   const classes = useStyles();
+  const { settings } = useSettings();
+  const { apiEndpoint } = settings;
 
   useEffect(() => {
     refreshDeployments();
-  }, [refreshDeployments]);
+  }, [refreshDeployments, apiEndpoint]);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);

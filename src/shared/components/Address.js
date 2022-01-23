@@ -7,7 +7,7 @@ import { Snackbar } from "../../shared/components/Snackbar";
 import { useState } from "react";
 
 const useStyles = makeStyles((theme) => ({
-  root: { display: "inline-flex", alignItems: "center" },
+  root: { display: "inline-flex", alignItems: "center", transition: "all .3s ease" },
   copy: {
     cursor: "pointer",
     "&:hover": {
@@ -16,7 +16,12 @@ const useStyles = makeStyles((theme) => ({
   },
   copyIcon: {
     fontSize: "1rem",
-    marginLeft: ".5rem"
+    marginLeft: ".5rem",
+    opacity: 0,
+    transition: "all .3s ease"
+  },
+  showIcon: {
+    opacity: 100
   },
   tooltip: {
     fontSize: ".8rem"
@@ -40,7 +45,7 @@ export const Address = ({ address, isCopyable, ...rest }) => {
   };
 
   return (
-    <Tooltip classes={{ tooltip: classes.tooltip }} arrow title={address}>
+    <Tooltip classes={{ tooltip: classes.tooltip }} arrow title={address} interactive>
       <Box
         className={clsx(classes.root, { [classes.copy]: isCopyable })}
         component="span"
@@ -51,7 +56,7 @@ export const Address = ({ address, isCopyable, ...rest }) => {
       >
         <span>{formattedAddress}</span>
 
-        {isCopyable && isOver && <FileCopy className={classes.copyIcon} />}
+        {isCopyable && <FileCopy className={clsx(classes.copyIcon, { [classes.showIcon]: isOver })} />}
       </Box>
     </Tooltip>
   );

@@ -3,7 +3,7 @@ import { PriceValue } from "./PriceValue";
 import { averageBlockTime } from "../utils/priceUtils";
 import { averageDaysInMonth } from "../utils/date";
 
-export const PricePerMonth = ({ perBlockValue, typoVariant = "body" }) => {
+export const PricePerMonth = ({ perBlockValue, typoVariant = "body1" }) => {
   return (
     <Typography variant={typoVariant}>
       <strong>

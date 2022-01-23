@@ -84,7 +84,7 @@ export function DeploymentListRow({ deployment, isSelectable, onSelectDeployment
               <Typography className={classes.dseq}> - {deployment.dseq}</Typography>
             </>
           ) : (
-            <Typography variant="body">{deployment.dseq}</Typography>
+            <Typography variant="body1">{deployment.dseq}</Typography>
           )
         }
         secondaryTypographyProps={{ component: "div" }}
