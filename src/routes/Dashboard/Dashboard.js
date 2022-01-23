@@ -65,6 +65,8 @@ export function Dashboard({ deployments, isLoadingDeployments, refreshDeployment
     } catch (error) {
       console.log(error);
     }
+
+    setSelectedDeploymentDseqs([]);
   };
 
   return (
