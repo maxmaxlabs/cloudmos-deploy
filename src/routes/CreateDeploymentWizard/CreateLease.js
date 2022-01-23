@@ -30,6 +30,7 @@ import { analytics } from "../../shared/utils/analyticsUtils";
 import { useProviders } from "../../queries";
 import CloseIcon from "@material-ui/icons/Close";
 import { ManifestErrorSnackbar } from "../../shared/components/ManifestErrorSnackbar";
+import { useDeploymentDetail } from "../../queries";
 
 const yaml = require("js-yaml");
 
@@ -37,6 +38,11 @@ const useStyles = makeStyles((theme) => ({
   root: {},
   alert: {
     marginBottom: "1rem"
+  },
+  title: {
+    fontSize: "1.5rem",
+    display: "flex",
+    alignItems: "center"
   }
 }));
 
@@ -66,17 +72,24 @@ export function CreateLease({ dseq }) {
   const { data: bids, isLoading: isLoadingBids } = useBidList(address, dseq, {
     initialData: [],
     refetchInterval: REFRESH_BIDS_INTERVAL,
-    onSuccess: (bids) => {
+    onSuccess: () => {
       setNumberOfRequests((prev) => ++prev);
     },
     enabled: !maxRequestsReached
   });
-  const groupedBids = bids.reduce((a, b) => {
-    a[b.gseq] = [...(a[b.gseq] || []), b];
-    return a;
-  }, {});
+  const { data: deploymentDetail, refetch: getDeploymentDetail } = useDeploymentDetail(address, dseq, { refetchOnMount: false, enabled: false });
+  const groupedBids = bids
+    .sort((a, b) => a.price.amount - b.price.amount)
+    .reduce((a, b) => {
+      a[b.gseq] = [...(a[b.gseq] || []), b];
+      return a;
+    }, {});
   const dseqList = Object.keys(groupedBids);
   const allClosed = bids.length > 0 && bids.every((bid) => bid.state === "closed");
+
+  useEffect(() => {
+    getDeploymentDetail();
+  }, [getDeploymentDetail]);
 
   // Filter bids by search
   useEffect(() => {
@@ -117,12 +130,11 @@ export function CreateLease({ dseq }) {
 
   async function handleNext() {
     console.log("Accepting bids...");
+    const bidKeys = Object.keys(selectedBids);
 
     // Create the lease
     try {
-      const messages = Object.keys(selectedBids)
-        .map((gseq) => selectedBids[gseq])
-        .map((bid) => TransactionMessageData.getCreateLeaseMsg(bid));
+      const messages = bidKeys.map((gseq) => selectedBids[gseq]).map((bid) => TransactionMessageData.getCreateLeaseMsg(bid));
       const response = await sendTransaction(messages);
 
       if (!response) throw new Error("Rejected transaction");
@@ -137,12 +149,16 @@ export function CreateLease({ dseq }) {
     const deploymentData = getDeploymentLocalData(dseq);
     if (deploymentData && deploymentData.manifest) {
       // Send the manifest
+
       try {
-        const provider = providers.find((x) => x.owner === selectedBids[Object.keys(selectedBids)[0]].provider);
         const yamlJson = yaml.load(deploymentData.manifest);
         const mani = Manifest(yamlJson);
 
-        await sendManifest(provider, mani);
+        for (let i = 0; i < bidKeys.length; i++) {
+          const currentBid = selectedBids[bidKeys[i]];
+          const provider = providers.find((x) => x.owner === currentBid.provider);
+          await sendManifest(provider, mani);
+        }
       } catch (err) {
         console.error(err);
       }
@@ -152,7 +168,7 @@ export function CreateLease({ dseq }) {
 
     await analytics.event("deploy", "send manifest");
 
-    history.push(UrlService.deploymentDetails(dseq));
+    history.replace(UrlService.deploymentDetails(dseq));
   }
 
   async function handleCloseDeployment() {
@@ -161,7 +177,7 @@ export function CreateLease({ dseq }) {
       const response = await sendTransaction([message]);
 
       if (response) {
-        history.push(UrlService.deploymentList());
+        history.replace(UrlService.deploymentList());
       }
     } catch (error) {
       throw error;
@@ -185,7 +201,11 @@ export function CreateLease({ dseq }) {
     <>
       <Helmet title="Create Deployment - Create Lease" />
 
-      {isSendingManifest && <LinearProgress />}
+      {isSendingManifest && (
+        <Box marginBottom=".5rem">
+          <LinearProgress />
+        </Box>
+      )}
 
       {(isLoadingBids || bids.length === 0) && !maxRequestsReached && (
         <Box textAlign="center">
@@ -196,7 +216,7 @@ export function CreateLease({ dseq }) {
         </Box>
       )}
 
-      {warningRequestsReached && !maxRequestsReached && (
+      {warningRequestsReached && !maxRequestsReached && bids.length === 0 && (
         <Box padding="1rem">
           <Alert variant="standard" severity="info">
             There should be bids by now... You can wait longer in case a bid shows up or close the deployment and try again with a different configuration.
@@ -204,7 +224,7 @@ export function CreateLease({ dseq }) {
         </Box>
       )}
 
-      {maxRequestsReached && (
+      {maxRequestsReached && bids.length === 0 && (
         <Box padding="1rem">
           <Alert variant="standard" severity="warning">
             There's no bid for the current deployment. You can close the deployment and try again with a different configuration.
@@ -213,26 +233,32 @@ export function CreateLease({ dseq }) {
       )}
 
       {!isLoadingBids && bids.length > 0 && (
-        <Box display="flex" justifyContent="flex-end">
-          <TextField
-            label="Search by attribute..."
-            disabled={bids.length === 0}
-            value={search}
-            onChange={onSearchChange}
-            type="text"
-            variant="outlined"
-            autoFocus
-            size="small"
-            InputProps={{
-              endAdornment: search && (
-                <InputAdornment position="end">
-                  <IconButton size="small" onClick={() => setSearch("")}>
-                    <CloseIcon />
-                  </IconButton>
-                </InputAdornment>
-              )
-            }}
-          />
+        <Box display="flex" justifyContent="space-between" marginBottom="1rem">
+          <Typography variant="h3" className={classes.title}>
+            Choose a provider
+          </Typography>
+          <Box flexGrow={1} marginLeft={2}>
+            <TextField
+              label="Search by attribute..."
+              disabled={bids.length === 0 || isSendingManifest}
+              value={search}
+              onChange={onSearchChange}
+              type="text"
+              variant="outlined"
+              autoFocus
+              fullWidth
+              size="medium"
+              InputProps={{
+                endAdornment: search && (
+                  <InputAdornment position="end">
+                    <IconButton size="small" onClick={() => setSearch("")}>
+                      <CloseIcon />
+                    </IconButton>
+                  </InputAdornment>
+                )
+              }}
+            />
+          </Box>
         </Box>
       )}
 
@@ -246,6 +272,7 @@ export function CreateLease({ dseq }) {
           disabled={isSendingManifest}
           providers={providers}
           filteredBids={filteredBids}
+          deploymentDetail={deploymentDetail}
         />
       ))}
 
@@ -290,7 +317,7 @@ export function CreateLease({ dseq }) {
       )}
       <>
         {!isLoadingBids && allClosed && (
-          <Alert severity="info">
+          <Alert severity="warning">
             All bids for this deployment are closed. This can happen if no bids are accepted for more than 5 minutes after the deployment creation. You can
             close this deployment and create a new one.
           </Alert>

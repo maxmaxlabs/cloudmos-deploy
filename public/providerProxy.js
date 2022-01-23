@@ -121,8 +121,9 @@ function getProxyFilePath() {
   switch (process.platform) {
     case "win32":
       return "./tools/akashlytics-provider-proxy.exe";
-    case "darwin":
     case "linux":
+      return "./tools/akashlytics-provider-proxy-lin";
+    case "darwin":
       return "./tools/akashlytics-provider-proxy";
     default:
       throw new Error("Unsupported platform: " + process.platform);

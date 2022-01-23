@@ -1,4 +1,5 @@
 import { Registry } from "@cosmjs/proto-signing";
+import { MsgSend } from "@cosmjs/stargate/build/codec/cosmos/bank/v1beta1/tx";
 import {
   MsgCloseDeployment,
   MsgRevokeCertificate,
@@ -18,6 +19,7 @@ registery.register(TransactionMessageData.Types.MSG_DEPOSIT_DEPLOYMENT, MsgDepos
 registery.register(TransactionMessageData.Types.MSG_CREATE_LEASE, MsgCreateLease);
 registery.register(TransactionMessageData.Types.MSG_REVOKE_CERTIFICATE, MsgRevokeCertificate);
 registery.register(TransactionMessageData.Types.MSG_CREATE_CERTIFICATE, MsgCreateCertificate);
+registery.register(TransactionMessageData.Types.MSG_SEND_TOKENS, MsgSend);
 
 export const customRegistry = registery;
 

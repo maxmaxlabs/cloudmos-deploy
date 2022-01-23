@@ -2,36 +2,148 @@ import MemoryIcon from "@material-ui/icons/Memory";
 import StorageIcon from "@material-ui/icons/Storage";
 import SpeedIcon from "@material-ui/icons/Speed";
 import { makeStyles, Box } from "@material-ui/core";
-import clsx from "clsx";
 import { humanFileSize } from "../utils/unitUtils";
+import { Chip } from "@material-ui/core";
+import clsx from "clsx";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
-    alignItems: "center",
-    padding: "1rem 0"
+    alignItems: "center"
   },
-  specIcon: {
+  chipRoot: {
+    padding: "2px 0",
+    height: "auto"
+  },
+  chipLabel: {
+    display: "flex",
+    alignItems: "center",
+    padding: "2px 0"
+  },
+  specIconSmall: {
+    fontSize: "1rem"
+  },
+  specIconMedium: {
+    fontSize: "1.5rem"
+  },
+  specIconLarge: {
     fontSize: "2rem"
   },
   specDetail: {
     marginLeft: ".5rem"
   },
-  marginLeft: {
+  specDetailSmall: {
+    fontSize: ".8rem",
+    lineHeight: ".8rem"
+  },
+  specDetailMedium: {
+    fontSize: ".9rem",
+    lineHeight: ".8rem"
+  },
+  specDetailLarge: {
+    fontSize: "1rem",
+    lineHeight: ".8rem"
+  },
+  gutterSmall: {
+    marginLeft: ".5rem"
+  },
+  gutterMedium: {
+    marginLeft: ".75rem"
+  },
+  gutterLarge: {
     marginLeft: "1rem"
   }
 }));
 
-export function SpecDetail({ cpuAmount, memoryAmount, storageAmount }) {
+export function SpecDetail({ cpuAmount, memoryAmount, storageAmount, color, size = "large", gutterSize = "large" }) {
   const classes = useStyles();
   return (
     <Box component="div" className={classes.root}>
-      <SpeedIcon className={classes.specIcon} />
-      <Box className={classes.specDetail}>{cpuAmount + "vcpu"}</Box>
-      <MemoryIcon className={clsx(classes.specIcon, classes.marginLeft)} />
-      <Box className={classes.specDetail}>{humanFileSize(memoryAmount)}</Box>
-      <StorageIcon className={clsx(classes.specIcon, classes.marginLeft)} />
-      <Box className={classes.specDetail}>{humanFileSize(storageAmount)}</Box>
+      <Chip
+        variant="outlined"
+        color={color}
+        classes={{ root: classes.chipRoot }}
+        label={
+          <div className={classes.chipLabel}>
+            <SpeedIcon
+              className={clsx({
+                [classes.specIconSmall]: size === "small",
+                [classes.specIconMedium]: size === "medium",
+                [classes.specIconLarge]: size === "large"
+              })}
+            />
+            <Box
+              className={clsx(classes.specDetail, {
+                [classes.specDetailSmall]: size === "small",
+                [classes.specDetailMedium]: size === "medium",
+                [classes.specDetailLarge]: size === "large"
+              })}
+            >
+              {cpuAmount + "vcpu"}
+            </Box>
+          </div>
+        }
+      />
+      <Chip
+        variant="outlined"
+        color={color}
+        classes={{ root: classes.chipRoot }}
+        className={clsx({
+          [classes.gutterSmall]: gutterSize === "small",
+          [classes.gutterMedium]: gutterSize === "medium",
+          [classes.gutterLarge]: gutterSize === "large"
+        })}
+        label={
+          <div className={classes.chipLabel}>
+            <MemoryIcon
+              className={clsx({
+                [classes.specIconSmall]: size === "small",
+                [classes.specIconMedium]: size === "medium",
+                [classes.specIconLarge]: size === "large"
+              })}
+            />
+            <Box
+              className={clsx(classes.specDetail, {
+                [classes.specDetailSmall]: size === "small",
+                [classes.specDetailMedium]: size === "medium",
+                [classes.specDetailLarge]: size === "large"
+              })}
+            >
+              {humanFileSize(memoryAmount)}
+            </Box>
+          </div>
+        }
+      />
+      <Chip
+        variant="outlined"
+        color={color}
+        classes={{ root: classes.chipRoot }}
+        className={clsx({
+          [classes.gutterSmall]: gutterSize === "small",
+          [classes.gutterMedium]: gutterSize === "medium",
+          [classes.gutterLarge]: gutterSize === "large"
+        })}
+        label={
+          <div className={classes.chipLabel}>
+            <StorageIcon
+              className={clsx({
+                [classes.specIconSmall]: size === "small",
+                [classes.specIconMedium]: size === "medium",
+                [classes.specIconLarge]: size === "large"
+              })}
+            />
+            <Box
+              className={clsx(classes.specDetail, {
+                [classes.specDetailSmall]: size === "small",
+                [classes.specDetailMedium]: size === "medium",
+                [classes.specDetailLarge]: size === "large"
+              })}
+            >
+              {humanFileSize(storageAmount)}
+            </Box>
+          </div>
+        }
+      />
     </Box>
   );
 }

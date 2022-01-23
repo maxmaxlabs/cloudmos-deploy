@@ -160,10 +160,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
             <Alert severity="info">
               Akash Groups are translated into Kubernetes Deployments, this means that only a few fields from the Akash SDL are mutable. For example image,
               command, args, env and exposed ports can be modified, but compute resources and placement criteria cannot. (
-              <LinkTo onClick={handleUpdateDocClick}>
-                View doc
-              </LinkTo>
-              )
+              <LinkTo onClick={handleUpdateDocClick}>View doc</LinkTo>)
             </Alert>
             <br />
             <MonacoEditor height="600" language="yaml" theme="vs-dark" value={editedManifest} onChange={handleTextChange} options={options} />
@@ -180,7 +177,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
               <Button
                 variant="contained"
                 color="primary"
-                disabled={!!parsingError || !editedManifest || !providers || isSendingManifest}
+                disabled={!!parsingError || !editedManifest || !providers || isSendingManifest || deployment.state !== "active"}
                 onClick={() => handleUpdateClick()}
               >
                 Update Deployment

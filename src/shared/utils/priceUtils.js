@@ -1,6 +1,7 @@
 import add from "date-fns/add";
+import { averageDaysInMonth } from "./date";
 
-const averageBlockTime = 6.174;
+export const averageBlockTime = 6.174;
 
 export function uaktToAKT(amount, precision = 3) {
   return Math.round((amount / 1000000 + Number.EPSILON) * Math.pow(10, precision)) / Math.pow(10, precision);
@@ -11,7 +12,7 @@ export function aktToUakt(amount) {
 }
 
 export function getAvgCostPerMonth(pricePerBlock) {
-  const averagePrice = (pricePerBlock * 31 * 24 * 60 * 60) / averageBlockTime;
+  const averagePrice = (pricePerBlock * averageDaysInMonth * 24 * 60 * 60) / averageBlockTime;
   return uaktToAKT(averagePrice);
 }
 

@@ -24,6 +24,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export function ManifestEdit(props) {
+  const { editedManifest, setEditedManifest, selectedTemplate } = props;
   const [parsingError, setParsingError] = useState(null);
   const [deploymentName, setDeploymentName] = useState("");
   const [isCreatingDeployment, setIsCreatingDeployment] = useState(false);
@@ -33,8 +34,6 @@ export function ManifestEdit(props) {
   const [isDepositingDeployment, setIsDepositingDeployment] = useState(false);
   const history = useHistory();
   const classes = useStyles();
-
-  const { editedManifest, setEditedManifest, selectedTemplate } = props;
 
   async function handleTextChange(value) {
     setEditedManifest(value);

@@ -5,6 +5,7 @@ import { initiateNetworkData, networks } from "../../shared/networks";
 import { migrateLocalStorage } from "../../shared/utils/localStorage";
 import { queryClient } from "../../queries";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
+import { useStateWithCallbackLazy } from "use-state-with-callback";
 
 const SettingsProviderContext = React.createContext({});
 
@@ -18,7 +19,7 @@ const defaultSettings = {
 };
 
 export const SettingsProvider = ({ children }) => {
-  const [settings, setSettings] = useState(defaultSettings);
+  const [settings, setSettings] = useStateWithCallbackLazy(defaultSettings);
   const [isLoadingSettings, setIsLoadingSettings] = useState(true);
   const [isRefreshingNodeStatus, setIsRefreshingNodeStatus] = useState(false);
   const { getLocalStorageItem, setLocalStorageItem } = useLocalStorage();
@@ -168,13 +169,13 @@ export const SettingsProvider = ({ children }) => {
     return fastestNode;
   };
 
-  const updateSettings = (newSettings) => {
+  const updateSettings = (newSettings, callback) => {
     setSettings((prevSettings) => {
       clearQueries(prevSettings, newSettings);
       setLocalStorageItem("settings", JSON.stringify(newSettings));
 
       return newSettings;
-    });
+    }, callback);
   };
 
   const clearQueries = (prevSettings, newSettings) => {
@@ -191,57 +192,62 @@ export const SettingsProvider = ({ children }) => {
    * Refresh the nodes status and latency
    * @returns
    */
-  const refreshNodeStatuses = useCallback(async () => {
-    if (isRefreshingNodeStatus) return;
+  const refreshNodeStatuses = useCallback(
+    async (settingsOverride) => {
+      if (isRefreshingNodeStatus) return;
 
-    setIsRefreshingNodeStatus(true);
-    let _nodes = nodes;
-    let _customNode = customNode;
+      setIsRefreshingNodeStatus(true);
+      let _nodes = settingsOverride ? settingsOverride.nodes : nodes;
+      let _customNode = settingsOverride ? settingsOverride.customNode : customNode;
+      let _isCustomNode = settingsOverride ? settingsOverride.isCustomNode : isCustomNode;
+      let _apiEndpoint = settingsOverride ? settingsOverride.apiEndpoint : apiEndpoint;
 
-    if (isCustomNode) {
-      const nodeStatus = await loadNodeStatus(apiEndpoint);
-      const customNodeUrl = new URL(apiEndpoint);
+      if (_isCustomNode) {
+        const nodeStatus = await loadNodeStatus(_apiEndpoint);
+        const customNodeUrl = new URL(_apiEndpoint);
 
-      _customNode = {
-        status: nodeStatus.status,
-        latency: nodeStatus.latency,
-        nodeInfo: nodeStatus.nodeInfo,
-        id: customNodeUrl.hostname
-      };
-    } else {
-      _nodes = await Promise.all(
-        _nodes.map(async (node) => {
-          const nodeStatus = await loadNodeStatus(node.api);
+        _customNode = {
+          status: nodeStatus.status,
+          latency: nodeStatus.latency,
+          nodeInfo: nodeStatus.nodeInfo,
+          id: customNodeUrl.hostname
+        };
+      } else {
+        _nodes = await Promise.all(
+          _nodes.map(async (node) => {
+            const nodeStatus = await loadNodeStatus(node.api);
 
-          return {
-            ...node,
-            status: nodeStatus.status,
-            latency: nodeStatus.latency,
-            nodeInfo: nodeStatus.nodeInfo
-          };
-        })
-      );
-    }
+            return {
+              ...node,
+              status: nodeStatus.status,
+              latency: nodeStatus.latency,
+              nodeInfo: nodeStatus.nodeInfo
+            };
+          })
+        );
+      }
 
-    setIsRefreshingNodeStatus(false);
+      setIsRefreshingNodeStatus(false);
 
-    // Update the settings with callback to avoid stale state settings
-    setSettings((prevSettings) => {
-      const selectedNode = _nodes.find((node) => node.id === prevSettings.selectedNode.id);
+      // Update the settings with callback to avoid stale state settings
+      setSettings((prevSettings) => {
+        const selectedNode = _nodes.find((node) => node.id === prevSettings.selectedNode.id);
 
-      const newSettings = {
-        ...prevSettings,
-        nodes: _nodes,
-        selectedNode,
-        customNode: _customNode
-      };
+        const newSettings = {
+          ...prevSettings,
+          nodes: _nodes,
+          selectedNode,
+          customNode: _customNode
+        };
 
-      clearQueries(prevSettings, newSettings);
-      setLocalStorageItem("settings", JSON.stringify(newSettings));
+        clearQueries(prevSettings, newSettings);
+        setLocalStorageItem("settings", JSON.stringify(newSettings));
 
-      return newSettings;
-    });
-  }, [isCustomNode, isRefreshingNodeStatus, customNode, setLocalStorageItem, apiEndpoint, nodes]);
+        return newSettings;
+      });
+    },
+    [isCustomNode, isRefreshingNodeStatus, customNode, setLocalStorageItem, apiEndpoint, nodes, setSettings]
+  );
 
   return (
     <SettingsProviderContext.Provider

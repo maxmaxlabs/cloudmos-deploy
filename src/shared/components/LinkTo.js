@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
 export const LinkTo = ({ children, ...rest }) => {
   const classes = useStyles();
   return (
-    <button {...rest} className={clsx(rest?.className, classes.root)}>
+    <button type="button" {...rest} className={clsx(rest?.className, classes.root)}>
       {children}
     </button>
   );

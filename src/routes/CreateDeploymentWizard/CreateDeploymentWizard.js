@@ -6,6 +6,7 @@ import { CreateLease } from "./CreateLease";
 import { useHistory, useParams } from "react-router";
 import { PrerequisiteList } from "./PrerequisiteList";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import { UrlService } from "../../shared/utils/urlUtils";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -27,6 +28,12 @@ const useStyles = makeStyles((theme) => ({
   },
   stepContainer: {
     width: "100%"
+  },
+  cardContent: {
+    paddingTop: 0
+  },
+  stepperRoot: {
+    padding: "1rem 0 2rem"
   }
 }));
 
@@ -44,7 +51,21 @@ export function CreateDeploymentWizard() {
   }, [selectedTemplate]);
 
   function handleBackClick() {
-    history.goBack();
+    let route = "";
+    switch (step) {
+      case "chooseTemplate":
+        route = UrlService.createDeployment();
+        break;
+      case "editManifest":
+        route = UrlService.createDeploymentStepTemplate();
+        break;
+      case "acceptBids":
+        route = UrlService.createDeploymentStepManifest();
+        break;
+      default:
+        break;
+    }
+    history.replace(route);
   }
 
   let activeStep = getStepIndexByParam(step);
@@ -78,9 +99,9 @@ export function CreateDeploymentWizard() {
           </>
         }
       />
-      <CardContent>
+      <CardContent className={classes.cardContent}>
         <div className={classes.stepContainer}>
-          <Stepper alternativeLabel activeStep={activeStep}>
+          <Stepper alternativeLabel activeStep={activeStep} classes={{ root: classes.stepperRoot }}>
             {steps.map((label, index) => {
               const stepProps = {};
               const buttonProps = {};

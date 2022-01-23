@@ -19,7 +19,10 @@ export class TransactionMessageData {
     // TODO MsgStartGroup
     MSG_CREATE_LEASE: "/akash.market.v1beta1.MsgCreateLease",
     MSG_REVOKE_CERTIFICATE: "/akash.cert.v1beta1.MsgRevokeCertificate",
-    MSG_CREATE_CERTIFICATE: "/akash.cert.v1beta1.MsgCreateCertificate"
+    MSG_CREATE_CERTIFICATE: "/akash.cert.v1beta1.MsgCreateCertificate",
+
+    // Cosmos
+    MSG_SEND_TOKENS: "/cosmos.bank.v1beta1.MsgSend"
   };
 
   static getRevokeCertificateMsg(address, serial) {
@@ -149,6 +152,24 @@ export class TransactionMessageData {
     const err = MsgCloseDeployment.verify(txData.value);
 
     if (err) throw err;
+
+    return txData;
+  }
+
+  static getSendTokensMsg(address, recipient, amount) {
+    const txData = {
+      typeUrl: TransactionMessageData.Types.MSG_SEND_TOKENS,
+      value: {
+        fromAddress: address,
+        toAddress: recipient,
+        amount: [
+          {
+            denom: "uakt",
+            amount: amount.toString()
+          }
+        ]
+      }
+    };
 
     return txData;
   }

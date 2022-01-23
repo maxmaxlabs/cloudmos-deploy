@@ -51,8 +51,6 @@ export function DeploymentDeposit({ isDepositingDeployment, handleCancel, onDepl
 
   return (
     <Dialog
-      disableBackdropClick
-      disableEscapeKeyDown
       maxWidth="xs"
       fullWidth
       aria-labelledby="deposit-deployment-dialog-title"

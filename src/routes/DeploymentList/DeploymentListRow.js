@@ -1,8 +1,5 @@
 import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
 import CloudIcon from "@material-ui/icons/Cloud";
-import MemoryIcon from "@material-ui/icons/Memory";
-import StorageIcon from "@material-ui/icons/Storage";
-import SpeedIcon from "@material-ui/icons/Speed";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import {
   makeStyles,
@@ -14,30 +11,36 @@ import {
   ListItemSecondaryAction,
   Typography,
   Chip,
-  CircularProgress
+  CircularProgress,
+  Checkbox
 } from "@material-ui/core";
 import { useHistory } from "react-router";
-import { humanFileSize } from "../../shared/utils/unitUtils";
 import { useLocalNotes } from "../../context/LocalNoteProvider";
 import { useLeaseList } from "../../queries";
 import { useWallet } from "../../context/WalletProvider";
 import { StatusPill } from "../../shared/components/StatusPill";
+import { SpecDetail } from "../../shared/components/SpecDetail";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    padding: "1rem",
-    "& .MuiListItemText-secondary .MuiSvgIcon-root:not(:first-child)": {
-      marginLeft: "5px"
-    },
-    "& .MuiListItemText-secondary .MuiSvgIcon-root": {
-      fontSize: "20px"
-    }
+    paddingTop: 0,
+    paddingBottom: 0,
+    borderBottom: `1px solid ${theme.palette.grey[300]}`
   },
   titleContainer: {
     paddingBottom: "1rem",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between"
+  },
+  listItemText: {
+    margin: 0,
+    padding: ".8rem .5rem",
+    cursor: "pointer",
+    transition: ".3s all ease",
+    "&:hover": {
+      backgroundColor: theme.palette.grey[100]
+    }
   },
   title: {
     fontSize: "2rem",
@@ -52,26 +55,28 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function DeploymentListRow({ deployment }) {
+export function DeploymentListRow({ deployment, isSelectable, onSelectDeployment, checked }) {
   const classes = useStyles();
   const history = useHistory();
   const { getDeploymentName } = useLocalNotes();
   const { address } = useWallet();
   const { data: leases, isLoading: isLoadingLeases } = useLeaseList(deployment, address, { enabled: !!deployment && deployment.state === "active" });
 
-  function viewDeployment(deployment) {
+  function viewDeployment() {
     history.push("/deployment/" + deployment.dseq);
   }
 
   const name = getDeploymentName(deployment.dseq);
 
   return (
-    <ListItem key={deployment.dseq} button onClick={() => viewDeployment(deployment)}>
+    <ListItem key={deployment.dseq} classes={{ root: classes.root }}>
       <ListItemIcon>
         {deployment.state === "active" && <CloudIcon color="primary" />}
         {deployment.state === "closed" && <CancelPresentationIcon />}
       </ListItemIcon>
       <ListItemText
+        className={classes.listItemText}
+        onClick={viewDeployment}
         primary={
           name ? (
             <>
@@ -79,19 +84,21 @@ export function DeploymentListRow({ deployment }) {
               <Typography className={classes.dseq}> - {deployment.dseq}</Typography>
             </>
           ) : (
-            deployment.dseq
+            <Typography variant="body1">{deployment.dseq}</Typography>
           )
         }
         secondaryTypographyProps={{ component: "div" }}
         secondary={
           <>
-            <Box display="flex" alignItems="center">
-              <SpeedIcon />
-              {deployment.cpuAmount + "vcpu"}
-              <MemoryIcon title="Memory" />
-              {humanFileSize(deployment.memoryAmount)}
-              <StorageIcon />
-              {humanFileSize(deployment.storageAmount)}
+            <Box display="flex" alignItems="center" marginBottom="4px">
+              <SpecDetail
+                cpuAmount={deployment.cpuAmount}
+                memoryAmount={deployment.memoryAmount}
+                storageAmount={deployment.storageAmount}
+                size="small"
+                color={deployment.state === "active" ? "primary" : "default"}
+                gutterSize="small"
+              />
             </Box>
 
             {leases && !!leases.length && (
@@ -124,7 +131,17 @@ export function DeploymentListRow({ deployment }) {
         }
       />
       <ListItemSecondaryAction>
-        <IconButton edge="end" onClick={() => viewDeployment(deployment)}>
+        {isSelectable && (
+          <Checkbox
+            checked={checked}
+            size="medium"
+            onChange={(event) => {
+              onSelectDeployment(event.target.checked, deployment.dseq);
+            }}
+          />
+        )}
+
+        <IconButton edge="end" onClick={viewDeployment}>
           <ChevronRightIcon />
         </IconButton>
       </ListItemSecondaryAction>

@@ -1,10 +1,22 @@
-import { makeStyles, ListSubheader, Radio, List, ListItemText, ListItemIcon, ListItem, Box, Typography } from "@material-ui/core";
+import { makeStyles, ListSubheader, Radio, List, ListItemText, ListItemIcon, ListItem, Box, Typography, Chip, Paper } from "@material-ui/core";
 import { Address } from "../../shared/components/Address";
+import { uaktToAKT } from "../../shared/utils/priceUtils";
+import { PriceEstimateTooltip } from "../../shared/components/PriceEstimateTooltip";
+import { PricePerMonth } from "../../shared/components/PricePerMonth";
+import { useEffect, useState } from "react";
+import { deploymentGroupResourceSum } from "../../shared/utils/deploymentDetailUtils";
+import { SpecDetail } from "../../shared/components/SpecDetail";
+import { LabelValue } from "../../shared/components/LabelValue";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    width: "100%",
-    backgroundColor: theme.palette.background.paper
+    padding: ".5rem 0",
+    marginBottom: "1rem"
+  },
+  subHeader: {
+    display: "flex",
+    alignItems: "center",
+    paddingBottom: "6px"
   },
   secondaryText: {
     fontSize: ".8rem"
@@ -27,64 +39,125 @@ const useStyles = makeStyles((theme) => ({
   attributeText: {
     lineHeight: "1rem",
     letterSpacing: 0
+  },
+  chip: {
+    height: "16px"
+  },
+  priceTooltip: {
+    display: "flex",
+    alignItems: "center",
+    color: theme.palette.grey[600]
   }
 }));
 
-export function BidGroup({ bids, gseq, selectedBid, handleBidSelected, disabled, providers, filteredBids }) {
+export function BidGroup({ bids, gseq, selectedBid, handleBidSelected, disabled, providers, filteredBids, deploymentDetail }) {
   const classes = useStyles();
+  const [resources, setResources] = useState();
+  const allBidsClosed = bids.every((b) => b.state === "closed");
+
+  useEffect(() => {
+    const currentGroup = deploymentDetail?.groups.find((g) => g.group_id.gseq === Number(gseq));
+    if (currentGroup) {
+      const resourcesSum = {
+        cpuAmount: deploymentGroupResourceSum(currentGroup, (r) => parseInt(r.cpu.units.val) / 1000),
+        memoryAmount: deploymentGroupResourceSum(currentGroup, (r) => parseInt(r.memory.quantity.val)),
+        storageAmount: deploymentGroupResourceSum(currentGroup, (r) => parseInt(r.storage.quantity.val))
+      };
+      setResources(resourcesSum);
+    }
+  }, [deploymentDetail, gseq]);
 
   return (
-    <List className={classes.root} subheader={<ListSubheader component="div">GSEQ: {gseq}</ListSubheader>}>
-      {bids
-        .filter((bid) => filteredBids.includes(bid.id))
-        .map((bid) => {
-          const provider = providers && providers.find((x) => x.owner === bid.provider);
-          return (
-            <ListItem disabled={bid.state !== "open"} key={bid.id} dense button onClick={() => handleBidSelected(bid)}>
-              <ListItemIcon>
-                <Radio
-                  checked={selectedBid?.id === bid.id}
-                  //onChange={handleChange}
-                  value={bid.id}
-                  name="radio-button-demo"
-                  disabled={disabled}
-                />
-              </ListItemIcon>
-              <ListItemText
-                id={`checkbox-list-label-${bid.id}`}
-                classes={{ secondary: classes.secondaryText }}
-                primary={
-                  <>
-                    {bid.price.amount} uakt / block ({bid.state})
-                  </>
-                }
-                secondary={<Address address={bid.provider} isCopyable />}
-              />
+    <Paper elevation={4} className={classes.root}>
+      <List
+        subheader={
+          <ListSubheader component="div" className={classes.subHeader}>
+            <Typography variant="h6">
+              <LabelValue label="GSEQ:" value={gseq} />
+            </Typography>
 
-              {provider && (
-                <Box className={classes.attributesContainer}>
-                  <Typography variant="body2" className={classes.attributeTitle}>
-                    <strong>Attributes</strong>
-                  </Typography>
-                  {provider.attributes.map((a) => (
-                    <Box className={classes.attributeRow} key={a.key}>
-                      <Box>
-                        <Typography variant="caption" className={classes.attributeText}>
-                          {a.key}:
-                        </Typography>
+            {resources && (
+              <Box marginLeft={2}>
+                <SpecDetail
+                  cpuAmount={resources.cpuAmount}
+                  memoryAmount={resources.memoryAmount}
+                  storageAmount={resources.storageAmount}
+                  color={allBidsClosed ? "default" : "primary"}
+                  size="small"
+                />
+              </Box>
+            )}
+          </ListSubheader>
+        }
+      >
+        {bids
+          .filter((bid) => filteredBids.includes(bid.id))
+          .map((bid) => {
+            const provider = providers && providers.find((x) => x.owner === bid.provider);
+            return (
+              <ListItem disabled={bid.state !== "open" || disabled} key={bid.id} dense button onClick={() => handleBidSelected(bid)}>
+                <ListItemIcon>
+                  <Radio
+                    checked={selectedBid?.id === bid.id}
+                    //onChange={handleChange}
+                    value={bid.id}
+                    name="radio-button-demo"
+                    disabled={disabled}
+                  />
+                </ListItemIcon>
+                <ListItemText
+                  id={`checkbox-list-label-${bid.id}`}
+                  classes={{ secondary: classes.secondaryText }}
+                  primary={
+                    <>
+                      <Box marginBottom="2px" fontSize="1.1rem">
+                        <PricePerMonth perBlockValue={uaktToAKT(bid.price.amount, 6)} />
                       </Box>
-                      <Box marginLeft="1rem">
-                        <Typography variant="caption" className={classes.attributeText}>
-                          {a.value}
-                        </Typography>
+
+                      <Box display="flex" alignItems="center">
+                        <Chip
+                          label={bid.state}
+                          size="small"
+                          color={bid.state === "open" ? "default" : bid.state === "active" ? "primary" : "secondary"}
+                          classes={{ root: classes.chip }}
+                        />
+                        <Box component="span" marginLeft=".5rem">
+                          {bid.price.amount} uakt / block
+                        </Box>
+                        <Box className={classes.priceTooltip}>
+                          <PriceEstimateTooltip value={uaktToAKT(bid.price.amount, 6)} />
+                        </Box>
                       </Box>
-                    </Box>
-                  ))}
-                </Box>
-              )}
-            </ListItem>
-          );
-        })}
-    </List>
+                    </>
+                  }
+                  secondary={<Address address={bid.provider} isCopyable />}
+                />
+
+                {provider && (
+                  <Box className={classes.attributesContainer}>
+                    <Typography variant="body2" className={classes.attributeTitle}>
+                      <strong>Attributes</strong>
+                    </Typography>
+                    {provider.attributes.map((a) => (
+                      <Box className={classes.attributeRow} key={a.key}>
+                        <Box>
+                          <Typography variant="caption" className={classes.attributeText}>
+                            {a.key}:
+                          </Typography>
+                        </Box>
+                        <Box marginLeft="1rem">
+                          <Typography variant="caption" className={classes.attributeText}>
+                            {a.value}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    ))}
+                  </Box>
+                )}
+              </ListItem>
+            );
+          })}
+      </List>
+    </Paper>
   );
 }

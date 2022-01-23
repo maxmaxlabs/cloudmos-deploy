@@ -17,6 +17,8 @@ import { analytics, HOSTNAME } from "./shared/utils/analyticsUtils";
 import { queryClient } from "./queries";
 import { AppContainer } from "./AppContainer";
 import { legitPaths } from "./shared/utils/urlUtils";
+import { PriceProvider } from "./context/PriceProvider";
+import { IntlProvider } from "react-intl";
 
 let history = createMemoryHistory({
   initialEntries: ["/"],
@@ -69,40 +71,44 @@ function App() {
   };
 
   return (
-    <Router history={history}>
-      <HelmetProvider>
-        <QueryClientProvider client={queryClient}>
-          <SnackbarProvider
-            maxSnack={3}
-            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-            ref={notistackRef}
-            action={(key) => (
-              <IconButton onClick={onClickDismiss(key)} className={classes.snackbarClose}>
-                <CloseIcon />
-              </IconButton>
-            )}
-            classes={{ root: classes.snackbarRoot }}
-            dense
-          >
-            <SettingsProvider>
-              <WalletProvider>
-                <TransactionModalProvider>
-                  <PasswordConfirmationModalProvider>
-                    <CertificateProvider>
-                      <LocalNoteProvider>
-                        <Helmet defaultTitle="Akashlytics Deploy" titleTemplate="Akashlytics Deploy - %s" />
+    <IntlProvider locale="en">
+      <Router history={history}>
+        <HelmetProvider>
+          <QueryClientProvider client={queryClient}>
+            <SnackbarProvider
+              maxSnack={3}
+              anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+              ref={notistackRef}
+              action={(key) => (
+                <IconButton onClick={onClickDismiss(key)} className={classes.snackbarClose}>
+                  <CloseIcon />
+                </IconButton>
+              )}
+              classes={{ root: classes.snackbarRoot }}
+              dense
+            >
+              <PriceProvider>
+                <SettingsProvider>
+                  <WalletProvider>
+                    <TransactionModalProvider>
+                      <PasswordConfirmationModalProvider>
+                        <CertificateProvider>
+                          <LocalNoteProvider>
+                            <Helmet defaultTitle="Akashlytics Deploy" titleTemplate="Akashlytics Deploy - %s" />
 
-                        <AppContainer />
-                      </LocalNoteProvider>
-                    </CertificateProvider>
-                  </PasswordConfirmationModalProvider>
-                </TransactionModalProvider>
-              </WalletProvider>
-            </SettingsProvider>
-          </SnackbarProvider>
-        </QueryClientProvider>
-      </HelmetProvider>
-    </Router>
+                            <AppContainer />
+                          </LocalNoteProvider>
+                        </CertificateProvider>
+                      </PasswordConfirmationModalProvider>
+                    </TransactionModalProvider>
+                  </WalletProvider>
+                </SettingsProvider>
+              </PriceProvider>
+            </SnackbarProvider>
+          </QueryClientProvider>
+        </HelmetProvider>
+      </Router>
+    </IntlProvider>
   );
 }
 
