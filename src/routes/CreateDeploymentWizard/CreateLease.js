@@ -77,10 +77,7 @@ export function CreateLease({ dseq }) {
     },
     enabled: !maxRequestsReached
   });
-  const {
-    data: deploymentDetail,
-    refetch: getDeploymentDetail
-  } = useDeploymentDetail(address, dseq, { refetchOnMount: false, enabled: false });
+  const { data: deploymentDetail, refetch: getDeploymentDetail } = useDeploymentDetail(address, dseq, { refetchOnMount: false, enabled: false });
   const groupedBids = bids
     .sort((a, b) => a.price.amount - b.price.amount)
     .reduce((a, b) => {
@@ -133,12 +130,11 @@ export function CreateLease({ dseq }) {
 
   async function handleNext() {
     console.log("Accepting bids...");
+    const bidKeys = Object.keys(selectedBids);
 
     // Create the lease
     try {
-      const messages = Object.keys(selectedBids)
-        .map((gseq) => selectedBids[gseq])
-        .map((bid) => TransactionMessageData.getCreateLeaseMsg(bid));
+      const messages = bidKeys.map((gseq) => selectedBids[gseq]).map((bid) => TransactionMessageData.getCreateLeaseMsg(bid));
       const response = await sendTransaction(messages);
 
       if (!response) throw new Error("Rejected transaction");
@@ -153,12 +149,16 @@ export function CreateLease({ dseq }) {
     const deploymentData = getDeploymentLocalData(dseq);
     if (deploymentData && deploymentData.manifest) {
       // Send the manifest
+
       try {
-        const provider = providers.find((x) => x.owner === selectedBids[Object.keys(selectedBids)[0]].provider);
         const yamlJson = yaml.load(deploymentData.manifest);
         const mani = Manifest(yamlJson);
 
-        await sendManifest(provider, mani);
+        for (let i = 0; i < bidKeys.length; i++) {
+          const currentBid = selectedBids[bidKeys[i]];
+          const provider = providers.find((x) => x.owner === currentBid.provider);
+          await sendManifest(provider, mani);
+        }
       } catch (err) {
         console.error(err);
       }

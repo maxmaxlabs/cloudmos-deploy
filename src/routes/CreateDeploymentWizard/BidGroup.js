@@ -115,7 +115,12 @@ export function BidGroup({ bids, gseq, selectedBid, handleBidSelected, disabled,
                       </Box>
 
                       <Box display="flex" alignItems="center">
-                        <Chip label={bid.state} size="small" color={bid.state === "open" ? "default" : "seconday"} classes={{ root: classes.chip }} />
+                        <Chip
+                          label={bid.state}
+                          size="small"
+                          color={bid.state === "open" ? "default" : bid.state === "active" ? "primary" : "secondary"}
+                          classes={{ root: classes.chip }}
+                        />
                         <Box component="span" marginLeft=".5rem">
                           {bid.price.amount} uakt / block
                         </Box>

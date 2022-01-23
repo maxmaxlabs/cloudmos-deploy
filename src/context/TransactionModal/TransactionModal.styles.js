@@ -21,7 +21,7 @@ export const useStyles = makeStyles((theme) => ({
   label: { fontSize: ".9rem", fontWeight: "bold" },
   tabPanel: { overflowY: "auto", padding: ".5rem" },
   messages: {
-    maxHeight: 100,
+    maxHeight: 125,
     overflowY: "auto"
   },
   messagesData: {

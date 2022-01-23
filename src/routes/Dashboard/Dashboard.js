@@ -5,7 +5,11 @@ import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkel
 import { Helmet } from "react-helmet-async";
 import { DeploymentListRow } from "../DeploymentList/DeploymentListRow";
 import RefreshIcon from "@material-ui/icons/Refresh";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useWallet } from "../../context/WalletProvider";
+import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
+import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
+import { useTransactionModal } from "../../context/TransactionModal";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -36,13 +40,32 @@ const useStyles = makeStyles((theme) => ({
 
 export function Dashboard({ deployments, isLoadingDeployments, refreshDeployments }) {
   const classes = useStyles();
+  const orderedDeployments = deployments ? [...deployments].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)).filter((d) => d.state === "active") : [];
+  const [selectedDeploymentDseqs, setSelectedDeploymentDseqs] = useState([]);
+  const { address } = useWallet();
+  const { sendTransaction } = useTransactionModal();
 
   useEffect(() => {
     refreshDeployments();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const orderedDeployments = deployments ? [...deployments].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)).filter((d) => d.state === "active") : [];
+  const onSelectDeployment = (checked, dseq) => {
+    setSelectedDeploymentDseqs((prev) => {
+      return checked ? prev.concat([dseq]) : prev.filter((x) => x !== dseq);
+    });
+  };
+
+  const onCloseSelectedDeployments = async () => {
+    try {
+      const messages = selectedDeploymentDseqs.map((dseq) => TransactionMessageData.getCloseDeploymentMsg(address, dseq));
+      await sendTransaction(messages);
+
+      refreshDeployments();
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <>
@@ -60,6 +83,12 @@ export function Dashboard({ deployments, isLoadingDeployments, refreshDeployment
             </IconButton>
           </Box>
 
+          <Box>
+            <IconButton aria-label="Close" disabled={selectedDeploymentDseqs.length === 0} onClick={onCloseSelectedDeployments}>
+              <CancelPresentationIcon />
+            </IconButton>
+          </Box>
+
           {orderedDeployments.length > 0 && (
             <Button className={classes.createBtn} variant="contained" size="medium" color="primary" component={Link} to="/createDeployment">
               <AddIcon />
@@ -70,7 +99,15 @@ export function Dashboard({ deployments, isLoadingDeployments, refreshDeployment
 
         <Box>
           {orderedDeployments.length > 0 ? (
-            orderedDeployments.map((deployment) => <DeploymentListRow key={deployment.dseq} deployment={deployment} />)
+            orderedDeployments.map((deployment) => (
+              <DeploymentListRow
+                key={deployment.dseq}
+                deployment={deployment}
+                isSelectable
+                onSelectDeployment={onSelectDeployment}
+                checked={selectedDeploymentDseqs.some((x) => x === deployment.dseq)}
+              />
+            ))
           ) : (
             <Box textAlign="center" padding="4rem">
               {isLoadingDeployments ? (

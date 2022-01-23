@@ -11,7 +11,8 @@ import {
   ListItemSecondaryAction,
   Typography,
   Chip,
-  CircularProgress
+  CircularProgress,
+  Checkbox
 } from "@material-ui/core";
 import { useHistory } from "react-router";
 import { useLocalNotes } from "../../context/LocalNoteProvider";
@@ -22,16 +23,24 @@ import { SpecDetail } from "../../shared/components/SpecDetail";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    padding: "1rem",
-    "& .MuiListItemText-secondary .MuiSvgIcon-root:not(:first-child)": {
-      marginLeft: "5px"
-    }
+    paddingTop: 0,
+    paddingBottom: 0,
+    borderBottom: `1px solid ${theme.palette.grey[300]}`
   },
   titleContainer: {
     paddingBottom: "1rem",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between"
+  },
+  listItemText: {
+    margin: 0,
+    padding: ".8rem .5rem",
+    cursor: "pointer",
+    transition: ".3s all ease",
+    "&:hover": {
+      backgroundColor: theme.palette.grey[100]
+    }
   },
   title: {
     fontSize: "2rem",
@@ -46,26 +55,28 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function DeploymentListRow({ deployment }) {
+export function DeploymentListRow({ deployment, isSelectable, onSelectDeployment, checked }) {
   const classes = useStyles();
   const history = useHistory();
   const { getDeploymentName } = useLocalNotes();
   const { address } = useWallet();
   const { data: leases, isLoading: isLoadingLeases } = useLeaseList(deployment, address, { enabled: !!deployment && deployment.state === "active" });
 
-  function viewDeployment(deployment) {
+  function viewDeployment() {
     history.push("/deployment/" + deployment.dseq);
   }
 
   const name = getDeploymentName(deployment.dseq);
 
   return (
-    <ListItem key={deployment.dseq} button onClick={() => viewDeployment(deployment)}>
+    <ListItem key={deployment.dseq} classes={{ root: classes.root }}>
       <ListItemIcon>
         {deployment.state === "active" && <CloudIcon color="primary" />}
         {deployment.state === "closed" && <CancelPresentationIcon />}
       </ListItemIcon>
       <ListItemText
+        className={classes.listItemText}
+        onClick={viewDeployment}
         primary={
           name ? (
             <>
@@ -73,7 +84,7 @@ export function DeploymentListRow({ deployment }) {
               <Typography className={classes.dseq}> - {deployment.dseq}</Typography>
             </>
           ) : (
-            deployment.dseq
+            <Typography variant="body">{deployment.dseq}</Typography>
           )
         }
         secondaryTypographyProps={{ component: "div" }}
@@ -120,7 +131,17 @@ export function DeploymentListRow({ deployment }) {
         }
       />
       <ListItemSecondaryAction>
-        <IconButton edge="end" onClick={() => viewDeployment(deployment)}>
+        {isSelectable && (
+          <Checkbox
+            checked={checked}
+            size="medium"
+            onChange={(event) => {
+              onSelectDeployment(event.target.checked, deployment.dseq);
+            }}
+          />
+        )}
+
+        <IconButton edge="end" onClick={viewDeployment}>
           <ChevronRightIcon />
         </IconButton>
       </ListItemSecondaryAction>
