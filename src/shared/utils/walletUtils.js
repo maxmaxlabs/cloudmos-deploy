@@ -1,4 +1,5 @@
 import { DirectSecp256k1HdWallet, extractKdfConfiguration } from "@cosmjs/proto-signing";
+import { useCustomLocalStorage } from "../../hooks/useLocalStorage";
 
 // default cosmojs KdfConfiguration
 const basicPasswordHashingOptions = {
@@ -76,10 +77,10 @@ export async function openWallet(password) {
   return wallet;
 }
 
-export function getCurrentWalletFromStorage() {
+export function useCurrentWalletFromStorage() {
+  const [selectedNetworkId] = useCustomLocalStorage("selectedNetworkId", "mainnet");
   const walletAddress = getWalletAddresses()[0];
-  const selectedNetworkId = localStorage.getItem("selectedNetworkId");
-  const walletInfo = JSON.parse(localStorage.getItem(`${selectedNetworkId}/${walletAddress}.wallet`));
+  const [walletInfo] = useCustomLocalStorage(`${selectedNetworkId}/${walletAddress}.wallet`, "{}");
 
   return walletInfo;
 }

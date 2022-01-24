@@ -15,7 +15,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { Helmet } from "react-helmet-async";
 import { analytics, HOSTNAME } from "./shared/utils/analyticsUtils";
 import { queryClient } from "./queries";
-import { AppContainer } from "./AppContainer";
+import { AppSettingsContainer } from "./AppSettingsContainer";
 import { legitPaths } from "./shared/utils/urlUtils";
 import { PriceProvider } from "./context/PriceProvider";
 import { IntlProvider } from "react-intl";
@@ -96,7 +96,7 @@ function App() {
                           <LocalNoteProvider>
                             <Helmet defaultTitle="Akashlytics Deploy" titleTemplate="Akashlytics Deploy - %s" />
 
-                            <AppContainer />
+                            <AppSettingsContainer />
                           </LocalNoteProvider>
                         </CertificateProvider>
                       </PasswordConfirmationModalProvider>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Box, TextField, Container, Button, CircularProgress, makeStyles, Paper, Typography } from "@material-ui/core";
-import { getCurrentWalletFromStorage, openWallet } from "../../shared/utils/walletUtils";
+import { useCurrentWalletFromStorage, openWallet } from "../../shared/utils/walletUtils";
 import { useCertificate } from "../../context/CertificateProvider";
 import { useWallet } from "../../context/WalletProvider";
 import { useSnackbar } from "notistack";
@@ -47,7 +47,7 @@ export function WalletOpen() {
   const { setSelectedWallet, deleteWallet } = useWallet();
   const { loadLocalCert } = useCertificate();
   const { enqueueSnackbar } = useSnackbar();
-  const currentWallet = getCurrentWalletFromStorage();
+  const currentWallet = useCurrentWalletFromStorage();
   const history = useHistory();
 
   async function onOpenClick(ev) {

@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { MainView } from "./MainView";
 import { useWallet } from "./context/WalletProvider";
-import { Box, CircularProgress, makeStyles, Typography } from "@material-ui/core";
-import { useSettings } from "./context/SettingsProvider";
+import { makeStyles, Typography } from "@material-ui/core";
 import { Route, useHistory } from "react-router-dom";
 import { BetaBanner } from "./components/BetaBanner";
 import { useAppVersion } from "./hooks/useAppVersion";
@@ -13,7 +12,6 @@ import { WalletImport } from "./routes/WalletImport";
 import { ErrorFallback } from "./shared/components/ErrorFallback";
 import { ErrorBoundary } from "react-error-boundary";
 import { NodeStatusBar } from "./components/NodeStatusBar";
-import { AutoUpdater } from "./components/AutoUpdater";
 
 const useStyles = makeStyles((theme) => ({
   footer: {
@@ -28,7 +26,6 @@ export const AppContainer = () => {
   const { appVersion } = useAppVersion();
   const [isAppInitiated, setIsAppInitiated] = useState(false);
   const { address, selectedWallet } = useWallet();
-  const { isLoadingSettings } = useSettings();
   const { addresses } = useStorageWalletAddresses();
   const [showBetaBanner, setShowBetaBanner] = useState(false);
   const history = useHistory();
@@ -53,47 +50,32 @@ export const AppContainer = () => {
 
   return (
     <>
-      <AutoUpdater />
+      <NodeStatusBar />
+      {showBetaBanner && <BetaBanner />}
 
-      {isLoadingSettings ? (
-        <Box display="flex" alignItems="center" justifyContent="center" height="100%" width="100%" flexDirection="column">
-          <Box paddingBottom="1rem">
-            <CircularProgress size="3rem" />
-          </Box>
-          <div>
-            <Typography variant="h5">Loading settings...</Typography>
-          </div>
-        </Box>
-      ) : (
+      <Route exact path="/wallet-import">
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
+          <WalletImport />
+        </ErrorBoundary>
+      </Route>
+      <Route exact path="/wallet-open">
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
+          <WalletOpen />
+        </ErrorBoundary>
+      </Route>
+
+      {isAppInitiated && selectedWallet && address && (
         <>
-          <NodeStatusBar />
-          {showBetaBanner && <BetaBanner />}
-
-          <Route exact path="/wallet-import">
-            <ErrorBoundary FallbackComponent={ErrorFallback}>
-              <WalletImport />
-            </ErrorBoundary>
-          </Route>
-          <Route exact path="/wallet-open">
-            <ErrorBoundary FallbackComponent={ErrorFallback}>
-              <WalletOpen />
-            </ErrorBoundary>
-          </Route>
-
-          {isAppInitiated && selectedWallet && address && (
-            <>
-              <MainView />
-            </>
-          )}
-
-          {appVersion && (
-            <footer className={classes.footer}>
-              <Typography variant="caption">
-                Version: <strong>v{appVersion}</strong>
-              </Typography>
-            </footer>
-          )}
+          <MainView />
         </>
+      )}
+
+      {appVersion && (
+        <footer className={classes.footer}>
+          <Typography variant="caption">
+            Version: <strong>v{appVersion}</strong>
+          </Typography>
+        </footer>
       )}
     </>
   );

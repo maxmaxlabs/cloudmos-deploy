@@ -21,6 +21,9 @@ const migrations = {
 
     localStorage.setItem("selectedNetworkId", mainnetId);
 
+    // notify local storage hooks to update their values
+    window.dispatchEvent(new Event("local-storage"));
+
     console.log(`Migration for version 0.6.0:`, updatedStorage);
   }
 };

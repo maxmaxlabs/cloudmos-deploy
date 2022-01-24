@@ -82,6 +82,7 @@
     "react-scripts": "4.0.3",
     "semver": "^7.3.5",
     "use-state-with-callback": "^2.0.3",
+    "usehooks-ts": "^2.2.1",
     "web-vitals": "^1.1.2",
     "winston": "^3.3.3"
   },
