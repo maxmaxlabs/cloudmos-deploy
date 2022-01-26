@@ -183,7 +183,7 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
           value={
             <>
               {lease.price.amount}uakt ({`~${getAvgCostPerMonth(lease.price.amount)}akt/month`})
-              <Box component="span" marginLeft=".5rem" color="dimgray">
+              <Box component="span" marginLeft=".5rem">
                 <PricePerMonth perBlockValue={uaktToAKT(lease.price.amount, 6)} />
               </Box>
               <PriceEstimateTooltip value={uaktToAKT(lease.price.amount, 6)} />

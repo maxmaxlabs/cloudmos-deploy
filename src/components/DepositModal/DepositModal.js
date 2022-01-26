@@ -11,7 +11,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export const DepositModal = ({ address, onClose, onSendTransaction }) => {
+export const DepositModal = ({ address, onClose }) => {
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
 

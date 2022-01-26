@@ -6,13 +6,13 @@ import { ceilDecimal } from "../utils/math";
 export const PriceValue = ({ value, showLt }) => {
   const { priceData, isLoadingPriceData } = usePrice();
   const _value = Number(value) * priceData?.price;
-  const computedValue = ceilDecimal(_value);
+  const computedValue = _value > 0 ? ceilDecimal(_value) : 0;
 
   return (
     <>
-      {isLoadingPriceData && !priceData && <CircularProgress size="1rem" />}
-      {showLt && priceData && _value !== computedValue && "< "}
-      {priceData && (
+      {isLoadingPriceData && !priceData?.price && <CircularProgress size=".8rem" />}
+      {showLt && priceData?.price && _value !== computedValue && "< "}
+      {priceData?.price && (
         <FormattedNumber
           value={computedValue}
           // eslint-disable-next-line react/style-prop-object
