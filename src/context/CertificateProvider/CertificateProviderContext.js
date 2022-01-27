@@ -5,6 +5,7 @@ import { useSettings } from "../SettingsProvider";
 import { useWallet } from "../WalletProvider";
 import { Snackbar } from "../../shared/components/Snackbar";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
+import axios from "axios";
 
 const CertificateProviderContext = React.createContext({});
 
@@ -24,10 +25,10 @@ export const CertificateProvider = ({ children }) => {
       setIsLoadingCertificates(true);
 
       try {
-        const response = await fetch(apiEndpoint + "/akash/cert/v1beta1/certificates/list?filter.state=valid&filter.owner=" + address);
-        const data = await response.json();
+        const response = await axios.get(apiEndpoint + "/akash/cert/v1beta1/certificates/list?filter.state=valid&filter.owner=" + address);
+        const data = response.data;
 
-        setValidCertificates(data.certificates);
+        setValidCertificates(data.certificates || []);
         setIsLoadingCertificates(false);
 
         if (showSnackbar) {

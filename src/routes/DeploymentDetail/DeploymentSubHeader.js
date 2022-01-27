@@ -160,20 +160,19 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address, loadD
         <LabelValue label="DSEQ:" value={deployment.dseq} />
       </Grid>
       <Grid item xs={5}>
-        <LabelValue
-          label="Amount spent:"
-          value={`${uaktToAKT(deployment.transferred.amount, 6)}AKT`}
-        />
+        <LabelValue label="Amount spent:" value={`${uaktToAKT(deployment.transferred.amount, 6)}AKT`} />
 
-        <strong>
-          ~<PriceValue value={uaktToAKT(deployment.transferred.amount, 6)} />
-        </strong>
+        {deployment.transferred.amount && (
+          <strong>
+            ~<PriceValue value={uaktToAKT(deployment.transferred.amount, 6)} />
+          </strong>
+        )}
       </Grid>
       <Grid item xs={4}>
         <LabelValue label="Cost/Month:" value={`~${avgCost}AKT`} />
         <Box display="flex" alignItems="center">
-          <PricePerMonth perBlockValue={uaktToAKT(deploymentCost, 6)} />
-          <PriceEstimateTooltip value={uaktToAKT(deploymentCost, 6)} />
+          {deploymentCost && <PricePerMonth perBlockValue={uaktToAKT(deploymentCost, 6)} />}
+          {deploymentCost && <PriceEstimateTooltip value={uaktToAKT(deploymentCost, 6)} />}
         </Box>
       </Grid>
 

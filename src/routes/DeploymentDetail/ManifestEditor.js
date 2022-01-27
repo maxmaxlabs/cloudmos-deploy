@@ -81,7 +81,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
   function handleUpdateDocClick(ev) {
     ev.preventDefault();
 
-    window.electron.openUrl("https://docs.akash.network/guides/cli#part-11.-update-the-deployment");
+    window.electron.openUrl("https://docs.akash.network/guides/cli/part-11.-update-the-deployment");
   }
 
   const options = {

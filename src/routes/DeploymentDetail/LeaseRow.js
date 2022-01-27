@@ -33,10 +33,11 @@ import { Snackbar } from "../../shared/components/Snackbar";
 import { LinkTo } from "../../shared/components/LinkTo";
 import { PricePerMonth } from "../../shared/components/PricePerMonth";
 import { PriceEstimateTooltip } from "../../shared/components/PriceEstimateTooltip";
-import { Address } from "../../shared/components/Address";
 import LaunchIcon from "@material-ui/icons/Launch";
 import InfoIcon from "@material-ui/icons/Info";
 import { ProviderAttributes } from "../../shared/components/ProviderAttributes";
+import { ProviderDetail } from "../../components/ProviderDetail/ProviderDetail";
+import { useProviderStatus } from "../../queries/useProvidersQuery";
 
 const yaml = require("js-yaml");
 
@@ -77,6 +78,7 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
   const { localCert } = useCertificate();
   const isLeaseActive = lease.state === "active";
   const [isServicesAvailable, setIsServicesAvailable] = useState(false);
+  const [isViewingProviderDetail, setIsViewingProviderDetail] = useState(false);
   const {
     data: leaseStatus,
     error,
@@ -91,6 +93,14 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
       }
     }
   });
+  const {
+    data: providerStatus,
+    isLoading: isLoadingProviderStatus,
+    refetch: getProviderStatus
+  } = useProviderStatus(providerInfo?.host_uri, {
+    enabled: false,
+    retry: false
+  });
   const isLeaseNotFound = error && error.includes && error.includes("lease not found") && isLeaseActive;
   const servicesNames = leaseStatus ? Object.keys(leaseStatus.services) : [];
   const classes = useStyles();
@@ -103,8 +113,9 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
   const loadLeaseStatus = useCallback(() => {
     if (isLeaseActive && providerInfo && localCert) {
       getLeaseStatus();
+      getProviderStatus();
     }
-  }, [isLeaseActive, providerInfo, localCert, getLeaseStatus]);
+  }, [isLeaseActive, providerInfo, localCert, getLeaseStatus, getProviderStatus]);
 
   const checkIfServicesAreAvailable = (leaseStatus) => {
     const servicesNames = leaseStatus ? Object.keys(leaseStatus.services) : [];
@@ -150,172 +161,195 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
   }
 
   return (
-    <Card className={classes.root} elevation={4}>
-      <CardHeader
-        classes={{ title: classes.cardHeaderTitle, root: classes.cardHeader }}
-        title={
-          <Box display="flex">
-            <LabelValue
-              label="Status:"
-              value={
-                <>
-                  <div>{lease.state}</div>
-                  <StatusPill state={lease.state} size="small" />
-                </>
-              }
-            />
-            <LabelValue label="GSEQ:" value={lease.gseq} marginLeft="1rem" fontSize="1rem" />
-            <LabelValue label="OSEQ:" value={lease.oseq} marginLeft="1rem" fontSize="1rem" />
-          </Box>
-        }
-      />
-      <CardContent>
-        <Box paddingBottom="1rem">
-          <SpecDetail
-            cpuAmount={lease.cpuAmount}
-            memoryAmount={lease.memoryAmount}
-            storageAmount={lease.storageAmount}
-            color={lease.state === "active" ? "primary" : "default"}
-          />
-        </Box>
-        <LabelValue
-          label="Price:"
-          value={
-            <>
-              {lease.price.amount}uakt ({`~${getAvgCostPerMonth(lease.price.amount)}akt/month`})
-              <Box component="span" marginLeft=".5rem" color="dimgray">
-                <PricePerMonth perBlockValue={uaktToAKT(lease.price.amount, 6)} />
-              </Box>
-              <PriceEstimateTooltip value={uaktToAKT(lease.price.amount, 6)} />
-            </>
+    <>
+      {isViewingProviderDetail && <ProviderDetail provider={providerStatus} onClose={() => setIsViewingProviderDetail(false)} />}
+
+      <Card className={classes.root} elevation={4}>
+        <CardHeader
+          classes={{ title: classes.cardHeaderTitle, root: classes.cardHeader }}
+          title={
+            <Box display="flex">
+              <LabelValue
+                label="Status:"
+                value={
+                  <>
+                    <div>{lease.state}</div>
+                    <StatusPill state={lease.state} size="small" />
+                  </>
+                }
+              />
+              <LabelValue label="GSEQ:" value={lease.gseq} marginLeft="1rem" fontSize="1rem" />
+              <LabelValue label="OSEQ:" value={lease.oseq} marginLeft="1rem" fontSize="1rem" />
+            </Box>
           }
         />
-        <LabelValue label="Provider:" value={<Address address={lease.provider} isCopyable />} marginTop="5px" marginBottom=".5rem" />
-
-        {providerInfo && (
-          <Box marginBottom="1rem">
-            <ProviderAttributes provider={providerInfo} />
+        <CardContent>
+          <Box paddingBottom="1rem">
+            <SpecDetail
+              cpuAmount={lease.cpuAmount}
+              memoryAmount={lease.memoryAmount}
+              storageAmount={lease.storageAmount}
+              color={lease.state === "active" ? "primary" : "default"}
+            />
           </Box>
-        )}
-
-        {isLeaseNotFound && (
-          <Alert severity="warning">
-            The lease was not found on this provider. This can happen if no manifest was sent to the provider. To send one you can update your deployment in the{" "}
-            <LinkTo onClick={handleEditManifestClick}>VIEW / EDIT MANIFEST</LinkTo> tab.
-            {deploymentManifest && (
+          <LabelValue
+            label="Price:"
+            value={
               <>
-                <Box margin="1rem 0">
-                  <strong>OR</strong>
+                {lease.price.amount}uakt ({`~${getAvgCostPerMonth(lease.price.amount)}akt/month`})
+                <Box component="span" marginLeft=".5rem">
+                  <PricePerMonth perBlockValue={uaktToAKT(lease.price.amount, 6)} />
                 </Box>
-                <Button variant="contained" color="primary" disabled={isSendingManifest} onClick={sendManifest}>
-                  {isSendingManifest ? <CircularProgress size="1.5rem" /> : <span>Send manifest manually</span>}
-                </Button>
+                <PriceEstimateTooltip value={uaktToAKT(lease.price.amount, 6)} />
               </>
-            )}
-          </Alert>
-        )}
+            }
+          />
 
-        {!leaseStatus && isLoadingLeaseStatus && <CircularProgress size="1rem" />}
+          <LabelValue
+            label="Provider:"
+            value={
+              <>
+                {isLoadingProviderStatus && <CircularProgress size="1rem" />}
+                {providerStatus && (
+                  <>
+                    {providerStatus.name}
 
-        {isLeaseActive &&
-          leaseStatus &&
-          leaseStatus.services &&
-          servicesNames
-            .map((n) => leaseStatus.services[n])
-            .map((service, i) => (
-              <Box mb={1} key={`${service.name}_${i}`}>
-                <Box display="flex" alignItems="center">
-                  <LabelValue label="Group:" value={service.name} fontSize="1rem" />
-                  {isLoadingLeaseStatus || !isServicesAvailable ? (
-                    <Box display="inline-flex" marginLeft="1rem">
-                      <CircularProgress size="1rem" />
+                    <Box marginLeft={1}>
+                      <LinkTo onClick={() => setIsViewingProviderDetail(true)}>View details</LinkTo>
                     </Box>
-                  ) : (
-                    <Box display="inline-flex" marginLeft=".5rem">
-                      <Tooltip
-                        classes={{ tooltip: classes.tooltip }}
-                        arrow
-                        interactive
-                        title={
-                          <>
-                            Workloads can take some time to spin up. If you see an error when browsing the uri, it is recommended to refresh and wait a bit.
-                            Check the{" "}
-                            <LinkTo onClick={() => setActiveTab("LOGS")} className={classes.whiteLink}>
-                              logs
-                            </LinkTo>{" "}
-                            for more information.
-                          </>
-                        }
-                      >
-                        <InfoIcon className={classes.tooltipIcon} fontSize="small" />
-                      </Tooltip>
-                    </Box>
+                  </>
+                )}
+              </>
+            }
+            marginTop="5px"
+            marginBottom=".5rem"
+          />
+
+          {providerInfo && (
+            <Box marginBottom="1rem">
+              <ProviderAttributes provider={providerInfo} />
+            </Box>
+          )}
+
+          {isLeaseNotFound && (
+            <Alert severity="warning">
+              The lease was not found on this provider. This can happen if no manifest was sent to the provider. To send one you can update your deployment in
+              the <LinkTo onClick={handleEditManifestClick}>VIEW / EDIT MANIFEST</LinkTo> tab.
+              {deploymentManifest && (
+                <>
+                  <Box margin="1rem 0">
+                    <strong>OR</strong>
+                  </Box>
+                  <Button variant="contained" color="primary" disabled={isSendingManifest} onClick={sendManifest}>
+                    {isSendingManifest ? <CircularProgress size="1.5rem" /> : <span>Send manifest manually</span>}
+                  </Button>
+                </>
+              )}
+            </Alert>
+          )}
+
+          {!leaseStatus && isLoadingLeaseStatus && <CircularProgress size="1rem" />}
+
+          {isLeaseActive &&
+            leaseStatus &&
+            leaseStatus.services &&
+            servicesNames
+              .map((n) => leaseStatus.services[n])
+              .map((service, i) => (
+                <Box mb={1} key={`${service.name}_${i}`}>
+                  <Box display="flex" alignItems="center">
+                    <LabelValue label="Group:" value={service.name} fontSize="1rem" />
+                    {isLoadingLeaseStatus || !isServicesAvailable ? (
+                      <Box display="inline-flex" marginLeft="1rem">
+                        <CircularProgress size="1rem" />
+                      </Box>
+                    ) : (
+                      <Box display="inline-flex" marginLeft=".5rem">
+                        <Tooltip
+                          classes={{ tooltip: classes.tooltip }}
+                          arrow
+                          interactive
+                          title={
+                            <>
+                              Workloads can take some time to spin up. If you see an error when browsing the uri, it is recommended to refresh and wait a bit.
+                              Check the{" "}
+                              <LinkTo onClick={() => setActiveTab("LOGS")} className={classes.whiteLink}>
+                                logs
+                              </LinkTo>{" "}
+                              for more information.
+                            </>
+                          }
+                        >
+                          <InfoIcon className={classes.tooltipIcon} fontSize="small" />
+                        </Tooltip>
+                      </Box>
+                    )}
+                  </Box>
+                  Available: {service.available}
+                  <br />
+                  Ready Replicas: {service.available}
+                  <br />
+                  Total: {service.available}
+                  <br />
+                  {leaseStatus.forwarded_ports[service.name]?.length > 0 && (
+                    <>
+                      Forwarded Ports:{" "}
+                      {leaseStatus.forwarded_ports[service.name].map((p) => (
+                        <Box key={"port_" + p.externalPort} display="inline" mr={0.5}>
+                          <Chip
+                            variant="outlined"
+                            size="small"
+                            label={`${p.externalPort}:${p.port}`}
+                            disabled={p.available < 1}
+                            component="a"
+                            onClick={(ev) => handleExternalUrlClick(ev, `${p.host}:${p.externalPort}`)}
+                          />
+                        </Box>
+                      ))}
+                    </>
+                  )}
+                  {service.uris?.length > 0 && (
+                    <>
+                      <Box marginTop=".5rem">
+                        <LabelValue label="Uris:" />
+                        <List dense>
+                          {service.uris.map((uri) => {
+                            return (
+                              <ListItem key={uri} className={classes.listItem}>
+                                <ListItemText
+                                  primary={
+                                    <LinkTo className={classes.link} onClick={(ev) => handleExternalUrlClick(ev, uri)}>
+                                      {uri} <LaunchIcon fontSize="small" />
+                                    </LinkTo>
+                                  }
+                                />
+                                <ListItemSecondaryAction>
+                                  <IconButton
+                                    edge="end"
+                                    aria-label="uri"
+                                    size="small"
+                                    onClick={(ev) => {
+                                      copyTextToClipboard(uri);
+                                      enqueueSnackbar("Uri copied to clipboard!", {
+                                        variant: "success",
+                                        autoHideDuration: 2000
+                                      });
+                                    }}
+                                  >
+                                    <FileCopyIcon fontSize="small" />
+                                  </IconButton>
+                                </ListItemSecondaryAction>
+                              </ListItem>
+                            );
+                          })}
+                        </List>
+                      </Box>
+                    </>
                   )}
                 </Box>
-                Available: {service.available}
-                <br />
-                Ready Replicas: {service.available}
-                <br />
-                Total: {service.available}
-                <br />
-                {leaseStatus.forwarded_ports[service.name]?.length > 0 && (
-                  <>
-                    Forwarded Ports:{" "}
-                    {leaseStatus.forwarded_ports[service.name].map((p) => (
-                      <Box key={"port_" + p.externalPort} display="inline" mr={0.5}>
-                        <Chip
-                          variant="outlined"
-                          size="small"
-                          label={`${p.externalPort}:${p.port}`}
-                          disabled={p.available < 1}
-                          component="a"
-                          onClick={(ev) => handleExternalUrlClick(ev, `${p.host}:${p.externalPort}`)}
-                        />
-                      </Box>
-                    ))}
-                  </>
-                )}
-                {service.uris?.length > 0 && (
-                  <>
-                    <Box marginTop=".5rem">
-                      <LabelValue label="Uris:" />
-                      <List dense>
-                        {service.uris.map((uri) => {
-                          return (
-                            <ListItem key={uri} className={classes.listItem}>
-                              <ListItemText
-                                primary={
-                                  <LinkTo className={classes.link} onClick={(ev) => handleExternalUrlClick(ev, uri)}>
-                                    {uri} <LaunchIcon fontSize="small" />
-                                  </LinkTo>
-                                }
-                              />
-                              <ListItemSecondaryAction>
-                                <IconButton
-                                  edge="end"
-                                  aria-label="uri"
-                                  size="small"
-                                  onClick={(ev) => {
-                                    copyTextToClipboard(uri);
-                                    enqueueSnackbar("Uri copied to clipboard!", {
-                                      variant: "success",
-                                      autoHideDuration: 2000
-                                    });
-                                  }}
-                                >
-                                  <FileCopyIcon fontSize="small" />
-                                </IconButton>
-                              </ListItemSecondaryAction>
-                            </ListItem>
-                          );
-                        })}
-                      </List>
-                    </Box>
-                  </>
-                )}
-              </Box>
-            ))}
-      </CardContent>
-    </Card>
+              ))}
+        </CardContent>
+      </Card>
+    </>
   );
 });

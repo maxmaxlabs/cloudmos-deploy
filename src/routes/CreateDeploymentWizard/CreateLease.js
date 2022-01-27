@@ -141,7 +141,8 @@ export function CreateLease({ dseq }) {
 
       await analytics.event("deploy", "create lease");
     } catch (error) {
-      throw error;
+      // Rejected transaction
+      return;
     }
 
     setIsSendingManifest(true);
@@ -262,6 +263,17 @@ export function CreateLease({ dseq }) {
         </Box>
       )}
 
+      {bids.length > 0 && !maxRequestsReached && (
+        <Box lineHeight="1rem" fontSize=".7rem" display="flex" alignItems="center" justifyContent="flex-end">
+          <div style={{ color: "grey" }}>
+            <Typography variant="caption">Waiting for more bids...</Typography>
+          </div>
+          <Box marginLeft=".5rem">
+            <CircularProgress size=".7rem" />
+          </Box>
+        </Box>
+      )}
+
       {dseqList.map((gseq) => (
         <BidGroup
           key={gseq}
@@ -275,6 +287,12 @@ export function CreateLease({ dseq }) {
           deploymentDetail={deploymentDetail}
         />
       ))}
+
+      {isSendingManifest && (
+        <Box marginBottom=".5rem">
+          <LinearProgress />
+        </Box>
+      )}
 
       {!isLoadingBids && bids.length > 0 && !allClosed && (
         <Box mt={1}>

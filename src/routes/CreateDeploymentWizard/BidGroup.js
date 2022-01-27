@@ -1,12 +1,9 @@
-import { makeStyles, ListSubheader, Radio, List, ListItemText, ListItemIcon, ListItem, Box, Typography, Chip, Paper } from "@material-ui/core";
-import { Address } from "../../shared/components/Address";
-import { uaktToAKT } from "../../shared/utils/priceUtils";
-import { PriceEstimateTooltip } from "../../shared/components/PriceEstimateTooltip";
-import { PricePerMonth } from "../../shared/components/PricePerMonth";
+import { makeStyles, ListSubheader, List, Box, Typography, Paper } from "@material-ui/core";
 import { useEffect, useState } from "react";
 import { deploymentGroupResourceSum } from "../../shared/utils/deploymentDetailUtils";
 import { SpecDetail } from "../../shared/components/SpecDetail";
 import { LabelValue } from "../../shared/components/LabelValue";
+import { BidRow } from "./BidRow";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -94,68 +91,7 @@ export function BidGroup({ bids, gseq, selectedBid, handleBidSelected, disabled,
           .filter((bid) => filteredBids.includes(bid.id))
           .map((bid) => {
             const provider = providers && providers.find((x) => x.owner === bid.provider);
-            return (
-              <ListItem disabled={bid.state !== "open" || disabled} key={bid.id} dense button onClick={() => handleBidSelected(bid)}>
-                <ListItemIcon>
-                  <Radio
-                    checked={selectedBid?.id === bid.id}
-                    //onChange={handleChange}
-                    value={bid.id}
-                    name="radio-button-demo"
-                    disabled={disabled}
-                  />
-                </ListItemIcon>
-                <ListItemText
-                  id={`checkbox-list-label-${bid.id}`}
-                  classes={{ secondary: classes.secondaryText }}
-                  primary={
-                    <>
-                      <Box marginBottom="2px" fontSize="1.1rem">
-                        <PricePerMonth perBlockValue={uaktToAKT(bid.price.amount, 6)} />
-                      </Box>
-
-                      <Box display="flex" alignItems="center">
-                        <Chip
-                          label={bid.state}
-                          size="small"
-                          color={bid.state === "open" ? "default" : bid.state === "active" ? "primary" : "secondary"}
-                          classes={{ root: classes.chip }}
-                        />
-                        <Box component="span" marginLeft=".5rem">
-                          {bid.price.amount} uakt / block
-                        </Box>
-                        <Box className={classes.priceTooltip}>
-                          <PriceEstimateTooltip value={uaktToAKT(bid.price.amount, 6)} />
-                        </Box>
-                      </Box>
-                    </>
-                  }
-                  secondary={<Address address={bid.provider} isCopyable />}
-                />
-
-                {provider && (
-                  <Box className={classes.attributesContainer}>
-                    <Typography variant="body2" className={classes.attributeTitle}>
-                      <strong>Attributes</strong>
-                    </Typography>
-                    {provider.attributes.map((a) => (
-                      <Box className={classes.attributeRow} key={a.key}>
-                        <Box>
-                          <Typography variant="caption" className={classes.attributeText}>
-                            {a.key}:
-                          </Typography>
-                        </Box>
-                        <Box marginLeft="1rem">
-                          <Typography variant="caption" className={classes.attributeText}>
-                            {a.value}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    ))}
-                  </Box>
-                )}
-              </ListItem>
-            );
+            return <BidRow key={bid.id} bid={bid} provider={provider} handleBidSelected={handleBidSelected} disabled={disabled} selectedBid={selectedBid} />;
           })}
       </List>
     </Paper>
