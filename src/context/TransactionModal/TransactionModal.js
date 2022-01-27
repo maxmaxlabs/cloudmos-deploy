@@ -79,7 +79,7 @@ export function TransactionModal(props) {
         throw new BroadcastingError("Code " + response.code + " : " + response.rawLog, transactionHash);
       }
 
-      showTransactionSnackbar("Tx succeeds!", transactionHash, "success");
+      showTransactionSnackbar("Tx succeeds!", "", transactionHash, "success");
 
       await analytics.event("deploy", "successful transaction");
 
@@ -349,7 +349,7 @@ const TransactionSnackbarContent = ({ snackMessage, transactionHash }) => {
   return (
     <>
       {snackMessage}
-      <br />
+      {snackMessage && <br />}
       {transactionHash && (
         <Box component="a" display="flex" alignItems="center" href="#" onClick={() => window.electron.openUrl(transactionLink(transactionHash))}>
           View transaction <OpenInNew className={classes.transactionLinkIcon} />
