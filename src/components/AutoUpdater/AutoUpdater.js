@@ -64,8 +64,13 @@ export const AutoUpdater = () => {
   const showNewUpdateSnackbar = (releaseNotes, releaseName, releaseDate) => {
     const key = enqueueSnackbar(
       <div>
-        <Box marginBottom=".5rem">
+        <Box marginBottom={1}>
           <strong>A new update {releaseName} is available!</strong> Download now?
+        </Box>
+        <Box marginBottom="1rem">
+          <LinkTo className={classes.white} onClick={() => window.electron.openUrl("https://github.com/Akashlytics/akashlytics-deploy/releases")}>
+            View release notes
+          </LinkTo>
         </Box>
         <Button
           size="small"

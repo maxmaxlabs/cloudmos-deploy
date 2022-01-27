@@ -79,7 +79,7 @@ export function TransactionModal(props) {
         throw new BroadcastingError("Code " + response.code + " : " + response.rawLog, transactionHash);
       }
 
-      showTransactionSnackbar("Tx succeeds!", "Congratulations 🎉", transactionHash, "success");
+      showTransactionSnackbar("Tx succeeds!", transactionHash, "success");
 
       await analytics.event("deploy", "successful transaction");
 
