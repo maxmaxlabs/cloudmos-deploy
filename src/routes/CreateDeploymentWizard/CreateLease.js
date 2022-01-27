@@ -141,7 +141,8 @@ export function CreateLease({ dseq }) {
 
       await analytics.event("deploy", "create lease");
     } catch (error) {
-      throw error;
+      // Rejected transaction
+      return;
     }
 
     setIsSendingManifest(true);
