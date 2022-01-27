@@ -33,7 +33,6 @@ import { Snackbar } from "../../shared/components/Snackbar";
 import { LinkTo } from "../../shared/components/LinkTo";
 import { PricePerMonth } from "../../shared/components/PricePerMonth";
 import { PriceEstimateTooltip } from "../../shared/components/PriceEstimateTooltip";
-import { Address } from "../../shared/components/Address";
 import LaunchIcon from "@material-ui/icons/Launch";
 import InfoIcon from "@material-ui/icons/Info";
 import { ProviderAttributes } from "../../shared/components/ProviderAttributes";
@@ -116,7 +115,7 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
       getLeaseStatus();
       getProviderStatus();
     }
-  }, [isLeaseActive, providerInfo, localCert, getLeaseStatus]);
+  }, [isLeaseActive, providerInfo, localCert, getLeaseStatus, getProviderStatus]);
 
   const checkIfServicesAreAvailable = (leaseStatus) => {
     const servicesNames = leaseStatus ? Object.keys(leaseStatus.services) : [];
