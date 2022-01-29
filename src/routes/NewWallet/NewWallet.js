@@ -41,6 +41,7 @@ export function NewWallet() {
   const classes = useStyles();
   const [numberOfWords, setNumberOfWords] = useState(12);
   const [newWallet, setNewWallet] = useState(null);
+  const [shuffledMnemonic, setShuffledMnemonic] = useState([]);
   const [isGeneratingNewWallet, setIsGeneratingNewWallet] = useState(false);
   const [isKeyValidating, setIsKeyValidating] = useState(false);
   const [isKeyValidated, setIsKeyValidated] = useState(false);
@@ -62,6 +63,13 @@ export function NewWallet() {
     const wallet = await generateNewWallet(numOfWords);
     setNewWallet(wallet);
     // const accounts = await wallet.getAccounts();
+    const shuffled = wallet.mnemonic
+      .split(" ")
+      .map((value) => ({ value, sort: Math.random() }))
+      .sort((a, b) => a.sort - b.sort)
+      .map(({ value }) => value);
+
+    setShuffledMnemonic(shuffled);
 
     setIsGeneratingNewWallet(false);
   };
@@ -101,6 +109,7 @@ export function NewWallet() {
 
   const onCreateWallet = () => {
     if (isKeyValidated) {
+      // TODO set the wallet in the local storage and context
       history.replace(UrlService.dashboard());
     } else {
       setIsKeyValidating(true);
@@ -117,8 +126,8 @@ export function NewWallet() {
         {isKeyValidating ? (
           <>
             <div>
-              {selectedWords.map((word) => (
-                <Button onClick={() => onWordClick(word, false)} variant="contained" color="primary" className={classes.wordButton}>
+              {selectedWords.map((word,i ) => (
+                <Button onClick={() => onWordClick(word, false)} variant="contained" color="primary" className={classes.wordButton} key={`selected_word_${i}`}>
                   {word}
                 </Button>
               ))}
@@ -127,11 +136,10 @@ export function NewWallet() {
             <hr />
 
             <div>
-              {newWallet.mnemonic
-                .split(" ")
+              {shuffledMnemonic
                 .filter((w) => !selectedWords.some((_) => _ === w))
-                .map((word) => (
-                  <Button onClick={() => onWordClick(word, true)} className={classes.wordButton} variant="outline" size="small">
+                .map((word, i) => (
+                  <Button onClick={() => onWordClick(word, true)} className={classes.wordButton} variant="outlined" size="small" key={`word_${i}`}>
                     {word}
                   </Button>
                 ))}
