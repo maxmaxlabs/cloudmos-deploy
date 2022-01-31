@@ -1,12 +1,19 @@
 productName: "Akashlytics Deploy"
 artifactName: "Akashlytics-Deploy-${version}.${ext}"
 appId: "com.akashlytics.deploy"
+afterPack: "scripts/notarize.js"
 win:
   target: ["NSIS", "zip"]
   icon: "/public/icon.png"
 mac:
   category: public.app-category.developer-tools
   icon: "./build/icon.icns"
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  entitlements: "build/entitlements.mac.plist"
+  entitlementsInherit: "build/entitlements.mac.plist"
+dmg:
+  sign: false
 linux:
   category: "Utility"
   icon: "./build/icon.icns"
