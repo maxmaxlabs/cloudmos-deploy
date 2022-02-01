@@ -1,7 +1,7 @@
 productName: "Akashlytics Deploy"
 artifactName: "Akashlytics-Deploy-${version}.${ext}"
 appId: "com.akashlytics.deploy"
-afterPack: "./scripts/notarize.js"
+afterSign: "./scripts/notarize.js"
 win:
   target: "NSIS"
   icon: "/public/icon.png"
