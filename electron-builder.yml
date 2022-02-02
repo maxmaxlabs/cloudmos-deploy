@@ -1,12 +1,23 @@
 productName: "Akashlytics Deploy"
 artifactName: "Akashlytics-Deploy-${version}.${ext}"
 appId: "com.akashlytics.deploy"
+afterSign: "./scripts/notarize.js"
 win:
-  target: ["NSIS", "zip"]
+  target: "NSIS"
   icon: "/public/icon.png"
+  signingHashAlgorithms: [ 'sha256' ]
+  publisherName: "MaxMax Labs Inc."
+  signAndEditExecutable: true
+  verifyUpdateCodeSignature: true
 mac:
   category: public.app-category.developer-tools
   icon: "./build/icon.icns"
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  entitlements: "./build/entitlements.mac.plist"
+  entitlementsInherit: "./build/entitlements.mac.plist"
+dmg:
+  sign: false
 linux:
   category: "Utility"
   icon: "./build/icon.icns"
