@@ -1,6 +1,6 @@
 import { Button, makeStyles, Container, Typography, ButtonGroup, TextareaAutosize, Box, FormControl, TextField, CircularProgress } from "@material-ui/core";
 import { useEffect, useState, useRef } from "react";
-import { Link, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { UrlService } from "../../shared/utils/urlUtils";
 import { generateNewWallet } from "../../shared/utils/walletUtils";
 import Alert from "@material-ui/lab/Alert";
@@ -9,6 +9,9 @@ import { useForm, Controller } from "react-hook-form";
 import { TitleLogo } from "../../shared/components/TitleLogo";
 import { importWallet } from "../../shared/utils/walletUtils";
 import { analytics } from "../../shared/utils/analyticsUtils";
+import { useSnackbar } from "notistack";
+import { Snackbar } from "../../shared/components/Snackbar";
+import { HdPath } from "../../shared/components/HdPath";
 
 const useStyles = makeStyles((theme) => ({
   root: { padding: "5% 0" },
@@ -25,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: "1rem"
   },
   alert: {
-    marginBottom: "2rem"
+    marginBottom: "1.5rem"
   },
   alertTitle: {
     fontSize: "1rem"
@@ -44,12 +47,17 @@ const useStyles = makeStyles((theme) => ({
   },
   loading: {
     color: "#fff"
+  },
+  wordBox: {
+    minHeight: 100,
+    border: `1px dashed ${theme.palette.grey[400]}`,
+    padding: "4px"
   }
 }));
 
 export function NewWallet() {
   const classes = useStyles();
-  const [error, setError] = useState("");
+  const { enqueueSnackbar } = useSnackbar();
   const [numberOfWords, setNumberOfWords] = useState(12);
   const [newWallet, setNewWallet] = useState(null);
   const [shuffledMnemonic, setShuffledMnemonic] = useState([]);
@@ -58,6 +66,7 @@ export function NewWallet() {
   const [isKeyValidated, setIsKeyValidated] = useState(false);
   const [isCreatingWallet, setIsCreatingWallet] = useState(false);
   const [selectedWords, setSelectedWords] = useState([]);
+  const [hdPath, setHdPath] = useState({ account: 0, change: 0, addressIndex: 0 });
   const formRef = useRef();
   const history = useHistory();
   const {
@@ -65,7 +74,6 @@ export function NewWallet() {
     control,
     formState: { errors },
     watch,
-    setError: setFormError,
     clearErrors
   } = useForm({
     defaultValues: {
@@ -85,6 +93,7 @@ export function NewWallet() {
     if (!isKeyValidating) {
       init();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const genNewWallet = async (numOfWords) => {
@@ -136,6 +145,10 @@ export function NewWallet() {
     }
   };
 
+  const onHdPathChange = (account, change, addressIndex) => {
+    setHdPath({ account, change, addressIndex });
+  };
+
   /**
    * First send to key validation
    * Create new wallet
@@ -143,16 +156,12 @@ export function NewWallet() {
   const onSubmit = async ({ name, password }) => {
     clearErrors();
 
-    if (!password) {
-      setFormError(`You must set a password.`);
-      return;
-    }
-
     if (isKeyValidated) {
       try {
         setIsCreatingWallet(true);
+        const { account, change, addressIndex } = hdPath;
 
-        const importedWallet = await importWallet(newWallet.mnemonic, name, password);
+        const importedWallet = await importWallet(newWallet.mnemonic, name, password, account, change, addressIndex);
         setSelectedWallet(importedWallet);
 
         await analytics.event("deploy", "create wallet");
@@ -160,7 +169,7 @@ export function NewWallet() {
         history.replace(UrlService.dashboard());
       } catch (error) {
         console.error(error);
-        setError(error.message);
+        enqueueSnackbar(<Snackbar title="An error has occured" subTitle={error.message} />, { variant: "error" });
         setIsCreatingWallet(false);
       }
     } else {
@@ -176,7 +185,10 @@ export function NewWallet() {
         <form onSubmit={handleSubmit(onSubmit)} ref={formRef}>
           {isKeyValidating ? (
             <>
-              <div>
+              <Typography variant="h6" color="textSecondary">
+                Click your mnemonic seed in the right order
+              </Typography>
+              <div className={classes.wordBox}>
                 {selectedWords.map((word, i) => (
                   <Button
                     onClick={() => onWordClick(word, false)}
@@ -184,6 +196,7 @@ export function NewWallet() {
                     color="primary"
                     className={classes.wordButton}
                     key={`selected_word_${i}`}
+                    size="small"
                   >
                     {word}
                   </Button>
@@ -305,13 +318,9 @@ export function NewWallet() {
                   }}
                 />
               </FormControl>
-            </>
-          )}
 
-          {error && (
-            <Alert className={classes.alert} severity="warning">
-              {error}
-            </Alert>
+              <HdPath onChange={onHdPathChange} />
+            </>
           )}
 
           <Box display="flex" alignItems="center" justifyContent="space-between" marginTop="1rem">

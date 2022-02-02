@@ -16,12 +16,12 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export const TitleLogo = ({}) => {
+export const TitleLogo = () => {
   const classes = useStyles();
 
   return (
     <Typography variant="h1" className={classes.root}>
-      <img src="./icon.png" />
+      <img src="./icon.png" alt="Akashlytics Logo" />
       Akashlytics Deploy
     </Typography>
   );

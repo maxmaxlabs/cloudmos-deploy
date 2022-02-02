@@ -16,6 +16,9 @@ import { Register } from "./routes/Register";
 import { NewWallet } from "./routes/NewWallet";
 
 const useStyles = makeStyles((theme) => ({
+  body: {
+    marginTop: "30px"
+  },
   footer: {
     top: "auto",
     bottom: 0,
@@ -55,34 +58,36 @@ export const AppContainer = () => {
       <NodeStatusBar />
       {showBetaBanner && <BetaBanner />}
 
-      <ErrorBoundary FallbackComponent={ErrorFallback}>
-        <Route exact path="/register">
-          <Register />
-        </Route>
-        <Route exact path="/new-wallet">
-          <NewWallet />
-        </Route>
-        <Route exact path="/wallet-import">
-          <WalletImport />
-        </Route>
-        <Route exact path="/wallet-open">
-          <WalletOpen />
-        </Route>
-      </ErrorBoundary>
+      <div className={classes.body}>
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
+          <Route exact path="/register">
+            <Register />
+          </Route>
+          <Route exact path="/new-wallet">
+            <NewWallet />
+          </Route>
+          <Route exact path="/wallet-import">
+            <WalletImport />
+          </Route>
+          <Route exact path="/wallet-open">
+            <WalletOpen />
+          </Route>
+        </ErrorBoundary>
 
-      {isAppInitiated && selectedWallet && address && (
-        <>
-          <MainView />
-        </>
-      )}
+        {isAppInitiated && selectedWallet && address && (
+          <>
+            <MainView />
+          </>
+        )}
 
-      {appVersion && (
-        <footer className={classes.footer}>
-          <Typography variant="caption">
-            Version: <strong>v{appVersion}</strong>
-          </Typography>
-        </footer>
-      )}
+        {appVersion && (
+          <footer className={classes.footer}>
+            <Typography variant="caption">
+              Version: <strong>v{appVersion}</strong>
+            </Typography>
+          </footer>
+        )}
+      </div>
     </>
   );
 };

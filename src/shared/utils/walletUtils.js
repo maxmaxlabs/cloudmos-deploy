@@ -47,9 +47,12 @@ export async function generateNewWallet(numberOfWords, password) {
   return wallet;
 }
 
-export async function importWallet(mnemonic, name, password) {
+export async function importWallet(mnemonic, name, password, account = 0, change = 0, addressIndex = 0) {
+  // default cosmos path: m/44'/118'/0'/0/0'
+  const path = stringToPath(`m/44'/118'/${account}'/${change}/${addressIndex}`);
   const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, {
-    prefix: "akash"
+    prefix: "akash",
+    hdPaths: [path]
   });
 
   const key = await window.electron.executeKdf(password, basicPasswordHashingOptions);
@@ -67,6 +70,7 @@ export async function importWallet(mnemonic, name, password) {
       serializedWallet: serializedWallet
     })
   );
+  wallet.name = name;
 
   return wallet;
 }
