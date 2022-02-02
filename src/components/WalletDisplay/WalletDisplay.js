@@ -41,7 +41,7 @@ export function WalletDisplay() {
   const [isShowingConfirmationModal, setIsShowingConfirmationModal] = useState(false);
   const [isShowingSendModal, setIsShowingSendModal] = useState(false);
   const [isShowingDepositModal, setIsShowingDepositModal] = useState(false);
-  const { address, balance, refreshBalance, isRefreshingBalance, deleteWallet } = useWallet();
+  const { address, balance, refreshBalance, isRefreshingBalance, deleteWallet, selectedWallet } = useWallet();
   const { sendTransaction } = useTransactionModal();
   const classes = useStyles();
   const { settings } = useSettings();
@@ -107,6 +107,13 @@ export function WalletDisplay() {
               <Box component="span" marginLeft="5px">
                 {balance / 1000000} AKT
               </Box>
+              {selectedWallet?.name && (
+                <Box marginLeft="1rem">
+                  <Typography variant="caption">
+                    <strong>{selectedWallet?.name}</strong>
+                  </Typography>
+                </Box>
+              )}
               <Box marginLeft="1rem">
                 <IconButton onClick={() => refreshBalance(true)} aria-label="refresh" disabled={isRefreshingBalance} size="small">
                   {isRefreshingBalance ? <CircularProgress size="1.5rem" /> : <RefreshIcon />}

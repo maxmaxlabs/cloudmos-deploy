@@ -1,6 +1,7 @@
 import { makeStyles, Container, Typography, Button } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import { UrlService } from "../../shared/utils/urlUtils";
+import { TitleLogo } from "../../shared/components/TitleLogo";
 
 const useStyles = makeStyles((theme) => ({
   root: { padding: "10% 0" },
@@ -23,9 +24,7 @@ export function Register() {
   const classes = useStyles();
   return (
     <div className={classes.root}>
-      <Typography variant="h1" className={classes.title}>
-        Akashlytics Deploy
-      </Typography>
+      <TitleLogo />
 
       <Container maxWidth="xs" className={classes.container}>
         <Button className={classes.spacing} variant="outlined" component={Link} to={UrlService.newWallet()} color="primary">

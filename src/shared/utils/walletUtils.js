@@ -47,8 +47,6 @@ export async function generateNewWallet(numberOfWords, password) {
   return wallet;
 }
 
-export async function createWallet(wallet) {}
-
 export async function importWallet(mnemonic, name, password) {
   const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, {
     prefix: "akash"
@@ -84,6 +82,7 @@ export async function openWallet(password) {
   const keyArray = Uint8Array.of(...Object.values(key));
 
   const wallet = await DirectSecp256k1HdWallet.deserializeWithEncryptionKey(walletInfo.serializedWallet, keyArray);
+  wallet.name = walletInfo.name;
 
   return wallet;
 }
