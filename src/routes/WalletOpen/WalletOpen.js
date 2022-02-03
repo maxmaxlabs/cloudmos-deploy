@@ -32,6 +32,14 @@ const useStyles = makeStyles((theme) => ({
   },
   formControl: {
     marginBottom: "1rem"
+  },
+  alertRoot: {
+    borderColor: theme.palette.primary.main
+  },
+  alertIcon: {
+    "&&": {
+      color: theme.palette.primary.main
+    }
   }
 }));
 
@@ -105,7 +113,7 @@ export function WalletOpen() {
         </Typography>
 
         <Box marginBottom="2rem">
-          <Alert icon={<AccountBalanceWalletIcon />} variant="outlined" color="info">
+          <Alert icon={<AccountBalanceWalletIcon />} variant="outlined" classes={{ root: classes.alertRoot, icon: classes.alertIcon }}>
             <Typography variant="body1">
               <strong>{currentWallet?.name}</strong>
             </Typography>
@@ -132,6 +140,7 @@ export function WalletOpen() {
                     type="password"
                     variant="outlined"
                     label="Password"
+                    autoFocus
                     error={!!fieldState.invalid}
                     helperText={fieldState.invalid && helperText}
                   />

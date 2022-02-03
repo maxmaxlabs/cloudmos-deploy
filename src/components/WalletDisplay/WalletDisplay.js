@@ -7,6 +7,7 @@ import MoveToInboxIcon from "@material-ui/icons/MoveToInbox";
 import MoreHorizIcon from "@material-ui/icons/MoreHoriz";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import SendIcon from "@material-ui/icons/Send";
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import { useWallet } from "../../context/WalletProvider";
 import { useSettings } from "../../context/SettingsProvider";
 import { DeleteWalletConfirm } from "../../shared/components/DeleteWalletConfirm";
@@ -19,8 +20,9 @@ import { TransactionMessageData } from "../../shared/utils/TransactionMessageDat
 import { DepositModal } from "../DepositModal";
 import { uaktToAKT } from "../../shared/utils/priceUtils";
 import { PriceValue } from "../../shared/components/PriceValue";
+import clsx from "clsx";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   root: {
     minWidth: 275,
     height: "100%",
@@ -33,15 +35,25 @@ const useStyles = makeStyles({
   },
   headerRoot: {
     padding: "8px 16px 12px"
+  },
+  menuItem: {
+    display: "flex",
+    alignItems: "end"
+  },
+  menuItemText: {
+    marginLeft: ".5rem"
+  },
+  delete: {
+    color: theme.palette.secondary.main
   }
-});
+}));
 
 export function WalletDisplay() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [isShowingConfirmationModal, setIsShowingConfirmationModal] = useState(false);
   const [isShowingSendModal, setIsShowingSendModal] = useState(false);
   const [isShowingDepositModal, setIsShowingDepositModal] = useState(false);
-  const { address, balance, refreshBalance, isRefreshingBalance, deleteWallet, selectedWallet } = useWallet();
+  const { address, balance, refreshBalance, isRefreshingBalance, deleteWallet, selectedWallet, setSelectedWallet } = useWallet();
   const { sendTransaction } = useTransactionModal();
   const classes = useStyles();
   const { settings } = useSettings();
@@ -78,6 +90,11 @@ export function WalletDisplay() {
   const depositClick = () => {
     handleCloseMenu();
     setIsShowingDepositModal(true);
+  };
+
+  const onSignOutClick = () => {
+    setSelectedWallet(null);
+    history.replace(UrlService.walletOpen());
   };
 
   const onSendTransaction = async (recipient, amount) => {
@@ -160,17 +177,29 @@ export function WalletDisplay() {
             horizontal: "right"
           }}
         >
-          <MenuItem onClick={() => sendClick()}>
-            <SendIcon />
-            &nbsp;Send
+          <MenuItem onClick={() => sendClick()} className={classes.menuItem}>
+            <SendIcon fontSize="small" />
+            <Typography variant="body1" className={classes.menuItemText}>
+              Send
+            </Typography>
           </MenuItem>
-          <MenuItem onClick={() => depositClick()}>
-            <MoveToInboxIcon />
-            &nbsp;Deposit
+          <MenuItem onClick={() => depositClick()} className={classes.menuItem}>
+            <MoveToInboxIcon fontSize="small" />
+            <Typography variant="body1" className={classes.menuItemText}>
+              Deposit
+            </Typography>
           </MenuItem>
-          <MenuItem onClick={() => deleteWalletClick()}>
-            <DeleteForeverIcon />
-            &nbsp;Delete Wallet
+          <MenuItem onClick={() => onSignOutClick()} className={classes.menuItem}>
+            <ExitToAppIcon fontSize="small" />
+            <Typography variant="body1" className={classes.menuItemText}>
+              Sign out
+            </Typography>
+          </MenuItem>
+          <MenuItem onClick={() => deleteWalletClick()} className={clsx(classes.menuItem, classes.delete)}>
+            <DeleteForeverIcon fontSize="small" />
+            <Typography variant="body1" className={classes.menuItemText}>
+              Delete Wallet
+            </Typography>
           </MenuItem>
         </Menu>
       </Card>

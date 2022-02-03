@@ -1,4 +1,16 @@
-import { Button, makeStyles, Container, Typography, ButtonGroup, TextareaAutosize, Box, FormControl, TextField, CircularProgress } from "@material-ui/core";
+import {
+  Button,
+  makeStyles,
+  Container,
+  Typography,
+  ButtonGroup,
+  TextareaAutosize,
+  Box,
+  FormControl,
+  TextField,
+  CircularProgress,
+  IconButton
+} from "@material-ui/core";
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { UrlService } from "../../shared/utils/urlUtils";
@@ -12,6 +24,8 @@ import { analytics } from "../../shared/utils/analyticsUtils";
 import { useSnackbar } from "notistack";
 import { Snackbar } from "../../shared/components/Snackbar";
 import { HdPath } from "../../shared/components/HdPath";
+import FileCopy from "@material-ui/icons/FileCopy";
+import { copyTextToClipboard } from "../../shared/utils/copyClipboard";
 
 const useStyles = makeStyles((theme) => ({
   root: { padding: "5% 0" },
@@ -27,7 +41,7 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "1.3rem",
     marginBottom: "1rem",
     fontFamily: "inherit",
-    padding: "4px 8px"
+    padding: "4px 16px 4px 8px"
   },
   alert: {
     marginBottom: "1.5rem"
@@ -54,6 +68,11 @@ const useStyles = makeStyles((theme) => ({
     minHeight: 100,
     border: `1px dashed ${theme.palette.grey[400]}`,
     padding: "4px"
+  },
+  copyButton: {
+    position: "absolute",
+    top: 0,
+    right: 0
   }
 }));
 
@@ -150,6 +169,14 @@ export function NewWallet() {
     setHdPath({ account, change, addressIndex });
   };
 
+  const onCopyClick = () => {
+    copyTextToClipboard(newWallet.mnemonic);
+    enqueueSnackbar(<Snackbar title="Mnemonic copied to clipboard!" />, {
+      variant: "success",
+      autoHideDuration: 2000
+    });
+  };
+
   /**
    * First send to key validation
    * Create new wallet
@@ -243,9 +270,13 @@ export function NewWallet() {
                 </ButtonGroup>
               </Box>
 
-              <div>
+              <Box position="relative">
                 <TextareaAutosize value={newWallet?.mnemonic} className={classes.textArea} rowsMin={5} contentEditable={false} />
-              </div>
+
+                <IconButton onClick={onCopyClick} className={classes.copyButton} size="small">
+                  <FileCopy fontSize="small" />
+                </IconButton>
+              </Box>
 
               <FormControl error={!errors.name} className={classes.formControl} fullWidth>
                 <Controller
@@ -263,6 +294,7 @@ export function NewWallet() {
                         type="text"
                         variant="outlined"
                         label="Account name"
+                        autoFocus
                         error={!!fieldState.invalid}
                         helperText={fieldState.invalid && helperText}
                       />

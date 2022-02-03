@@ -108,6 +108,7 @@ export function WalletImport() {
                     variant="outlined"
                     label="Type your mnemonic / private key"
                     multiline
+                    autoFocus
                     rows={4}
                     error={!!fieldState.invalid}
                     helperText={fieldState.invalid && helperText}
