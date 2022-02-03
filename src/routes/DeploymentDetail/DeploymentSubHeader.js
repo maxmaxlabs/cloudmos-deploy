@@ -15,7 +15,7 @@ import { TransactionMessageData } from "../../shared/utils/TransactionMessageDat
 import { UrlService } from "../../shared/utils/urlUtils";
 import { analytics } from "../../shared/utils/analyticsUtils";
 import { useLocalNotes } from "../../context/LocalNoteProvider";
-import { DeploymentDeposit } from "./DeploymentDeposit";
+import { DeploymentDepositModal } from "./DeploymentDepositModal";
 import PublishIcon from "@material-ui/icons/Publish";
 import { PricePerMonth } from "../../shared/components/PricePerMonth";
 import { PriceValue } from "../../shared/components/PriceValue";
@@ -235,7 +235,7 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address, loadD
         </Box>
       )}
 
-      <DeploymentDeposit
+      <DeploymentDepositModal
         isDepositingDeployment={isDepositingDeployment}
         handleCancel={() => setIsDepositingDeployment(false)}
         onDeploymentDeposit={onDeploymentDeposit}

@@ -1,21 +1,47 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 import { updateDeploymentLocalData } from "../../shared/utils/deploymentLocalDataUtils";
-import { Button, TextField, Dialog, DialogTitle, DialogContent, DialogActions } from "@material-ui/core";
+import { makeStyles, FormControl, Button, TextField, Dialog, DialogTitle, DialogContent, DialogActions } from "@material-ui/core";
+import { useForm, Controller } from "react-hook-form";
+import { useSnackbar } from "notistack";
+import { Snackbar } from "../../shared/components/Snackbar";
+
+const useStyles = makeStyles((theme) => ({
+  dialogContent: {
+    padding: "1rem"
+  },
+  dialogActions: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between"
+  }
+}));
 
 export const DeploymentNameModal = ({ dseq, onClose, onSaved, getDeploymentName }) => {
-  const [currentName, setCurrentName] = useState("");
+  const classes = useStyles();
+  const formRef = useRef();
+  const { enqueueSnackbar } = useSnackbar();
+  const { handleSubmit, control, setValue } = useForm({
+    defaultValues: {
+      name: ""
+    }
+  });
 
   useEffect(() => {
     if (dseq) {
       const name = getDeploymentName(dseq);
-      setCurrentName(name || "");
+      setValue("name", name || "");
     }
   }, [dseq, getDeploymentName]);
 
-  function handleSubmit(ev) {
-    ev.preventDefault();
+  const onSaveClick = (event) => {
+    event.preventDefault();
+    formRef.current.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
+  };
 
-    updateDeploymentLocalData(dseq, { name: currentName });
+  function onSubmit({ name }) {
+    updateDeploymentLocalData(dseq, { name: name });
+
+    enqueueSnackbar(<Snackbar title="Deployment name change success!" />, { variant: "success" });
 
     onSaved();
   }
@@ -23,18 +49,22 @@ export const DeploymentNameModal = ({ dseq, onClose, onSaved, getDeploymentName 
   return (
     <Dialog open={!!dseq} onClose={onClose}>
       <DialogTitle>Change Deployment Name ({dseq})</DialogTitle>
-      <DialogContent dividers>
-        <div>
-          <form onSubmit={handleSubmit}>
-            <TextField label="Name" fullWidth value={currentName} onChange={(ev) => setCurrentName(ev.target.value)} type="text" variant="outlined" autoFocus />
-          </form>
-        </div>
+      <DialogContent dividers className={classes.dialogContent}>
+        <form onSubmit={handleSubmit(onSubmit)} ref={formRef}>
+          <FormControl fullWidth>
+            <Controller
+              control={control}
+              name="name"
+              render={({ field }) => {
+                return <TextField {...field} autoFocus type="text" variant="outlined" label="Name" />;
+              }}
+            />
+          </FormControl>
+        </form>
       </DialogContent>
-      <DialogActions>
-        <Button variant="contained" onClick={onClose} type="button">
-          Cancel
-        </Button>
-        <Button variant="contained" color="primary" onClick={handleSubmit}>
+      <DialogActions className={classes.dialogActions}>
+        <Button onClick={onClose}>Close</Button>
+        <Button variant="contained" color="primary" onClick={onSaveClick}>
           Save
         </Button>
       </DialogActions>

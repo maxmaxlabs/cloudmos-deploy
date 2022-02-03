@@ -1,9 +1,21 @@
 import { useState } from "react";
-import { Checkbox, Dialog, DialogTitle, DialogContent, DialogActions, Button, FormControlLabel } from "@material-ui/core";
+import { makeStyles, Checkbox, Dialog, DialogTitle, DialogContent, DialogActions, Button, FormControlLabel } from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
 import { uaktToAKT } from "../../shared/utils/priceUtils";
 
+const useStyles = makeStyles((theme) => ({
+  dialogContent: {
+    padding: "1rem"
+  },
+  dialogActions: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between"
+  }
+}));
+
 export const DeleteWalletConfirm = ({ isOpen, address, balance, handleCancel, handleConfirmDelete }) => {
+  const classes = useStyles();
   const [isConfirmationChecked, setIsConfirmationChecked] = useState(false);
   const [deleteDeployments, setDeleteDeployments] = useState(false);
 
@@ -17,7 +29,7 @@ export const DeleteWalletConfirm = ({ isOpen, address, balance, handleCancel, ha
       onExit={() => setIsConfirmationChecked(false)}
     >
       <DialogTitle id="confirmation-dialog-title">Delete Wallet</DialogTitle>
-      <DialogContent dividers>
+      <DialogContent dividers className={classes.dialogContent}>
         Are you sure you want to delete this wallet?
         <p>
           Address: <strong>{address}</strong>
@@ -42,7 +54,7 @@ export const DeleteWalletConfirm = ({ isOpen, address, balance, handleCancel, ha
           label="I understand the wallet will be completely removed and I have all the backups I need."
         />
       </DialogContent>
-      <DialogActions>
+      <DialogActions className={classes.dialogActions}>
         <Button autoFocus onClick={handleCancel} color="primary">
           Cancel
         </Button>

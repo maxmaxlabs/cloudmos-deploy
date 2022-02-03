@@ -9,6 +9,14 @@ import { Controller, useForm } from "react-hook-form";
 const useStyles = makeStyles((theme) => ({
   alert: {
     marginTop: "1rem"
+  },
+  dialogContent: {
+    padding: "1rem"
+  },
+  dialogActions: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between"
   }
 }));
 
@@ -65,7 +73,7 @@ export const SendModal = ({ onClose, onSendTransaction }) => {
   return (
     <Dialog maxWidth="xs" fullWidth aria-labelledby="send-transaction-dialog-title" open={true} onClose={onClose}>
       <DialogTitle id="send-transaction-dialog-title">Send tokens</DialogTitle>
-      <DialogContent dividers>
+      <DialogContent dividers className={classes.dialogContent}>
         <form onSubmit={handleSubmit(onSubmit)} ref={formRef}>
           <FormControl error={!errors.recipient} className={classes.formControl} fullWidth>
             <Controller
@@ -113,6 +121,7 @@ export const SendModal = ({ onClose, onSendTransaction }) => {
                     type="number"
                     variant="outlined"
                     label="Amount"
+                    autoFocus
                     error={!!fieldState.invalid}
                     helperText={fieldState.invalid && helperText}
                     className={classes.formValue}
@@ -138,11 +147,9 @@ export const SendModal = ({ onClose, onSendTransaction }) => {
           )}
         </form>
       </DialogContent>
-      <DialogActions>
-        <Button autoFocus onClick={onClose} color="primary">
-          Cancel
-        </Button>
-        <Button onClick={onContinueClick} disabled={!!errors.sendAmount || !!errors.recipient} variant="contained" color="secondary">
+      <DialogActions className={classes.dialogActions}>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onContinueClick} disabled={!!errors.sendAmount || !!errors.recipient} variant="contained" color="primary">
           Continue
         </Button>
       </DialogActions>

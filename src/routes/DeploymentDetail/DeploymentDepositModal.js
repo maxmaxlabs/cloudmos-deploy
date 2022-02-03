@@ -16,13 +16,20 @@ import { useWallet } from "../../context/WalletProvider";
 import { aktToUakt, uaktToAKT } from "../../shared/utils/priceUtils";
 
 const useStyles = makeStyles((theme) => ({
-  root: {},
   alert: {
     marginTop: "1rem"
+  },
+  dialogContent: {
+    padding: "1rem"
+  },
+  dialogActions: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between"
   }
 }));
 
-export function DeploymentDeposit({ isDepositingDeployment, handleCancel, onDeploymentDeposit, min = 0, infoText = null }) {
+export function DeploymentDepositModal({ isDepositingDeployment, handleCancel, onDeploymentDeposit, min = 0, infoText = null }) {
   const classes = useStyles();
   const [depositAmount, setDepositAmount] = useState(min);
   const [error, setError] = useState("");
@@ -30,6 +37,7 @@ export function DeploymentDeposit({ isDepositingDeployment, handleCancel, onDepl
 
   const onClose = () => {
     setDepositAmount(min);
+    handleCancel();
   };
 
   const handleSubmit = () => {
@@ -50,15 +58,9 @@ export function DeploymentDeposit({ isDepositingDeployment, handleCancel, onDepl
   };
 
   return (
-    <Dialog
-      maxWidth="xs"
-      fullWidth
-      aria-labelledby="deposit-deployment-dialog-title"
-      open={isDepositingDeployment}
-      onExit={onClose}
-    >
+    <Dialog maxWidth="xs" fullWidth aria-labelledby="deposit-deployment-dialog-title" open={isDepositingDeployment} onClose={onClose}>
       <DialogTitle id="deposit-deployment-dialog-title">Deployment Deposit</DialogTitle>
-      <DialogContent dividers>
+      <DialogContent dividers className={classes.dialogContent}>
         <form onSubmit={handleSubmit}>
           {infoText}
 
@@ -85,11 +87,11 @@ export function DeploymentDeposit({ isDepositingDeployment, handleCancel, onDepl
           )}
         </form>
       </DialogContent>
-      <DialogActions>
-        <Button autoFocus onClick={handleCancel} color="primary">
+      <DialogActions className={classes.dialogActions}>
+        <Button autoFocus onClick={handleCancel}>
           Cancel
         </Button>
-        <Button onClick={handleSubmit} disabled={!depositAmount || !!error} variant="contained" color="secondary">
+        <Button onClick={handleSubmit} disabled={!depositAmount || !!error} variant="contained" color="primary">
           Deposit
         </Button>
       </DialogActions>

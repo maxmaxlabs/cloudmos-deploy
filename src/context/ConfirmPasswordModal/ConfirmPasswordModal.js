@@ -23,6 +23,11 @@ const useStyles = makeStyles((theme) => ({
   dialogContent: {
     padding: "1rem"
   },
+  dialogActions: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between"
+  },
   alertRoot: {
     borderColor: theme.palette.primary.main
   },
@@ -120,7 +125,7 @@ export function ConfirmPasswordModal(props) {
           </FormControl>
         </form>
       </DialogContent>
-      <DialogActions>
+      <DialogActions className={classes.dialogActions}>
         <Button disabled={isLoading} onClick={props.onClose} type="button">
           Cancel
         </Button>

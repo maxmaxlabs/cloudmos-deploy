@@ -14,7 +14,7 @@ export function MnemonicModal(props) {
 
   return (
     <Dialog open={true} onClose={props.onClose} maxWidth="xs" fullWidth>
-      <DialogTitle id="simple-dialog-title">View mnemonic seed</DialogTitle>
+      <DialogTitle>View mnemonic seed</DialogTitle>
       <DialogContent dividers className={classes.dialogContent}>
         <MnemonicTextarea mnemonic={selectedWallet?.mnemonic} />
       </DialogContent>

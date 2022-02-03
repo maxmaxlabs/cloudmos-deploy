@@ -98,3 +98,16 @@ export function useCurrentWalletFromStorage() {
 
   return walletInfo;
 }
+
+export function updateLocalStorageWalletName(address, name) {
+  const selectedNetworkId = localStorage.getItem("selectedNetworkId");
+  const walletInfo = JSON.parse(localStorage.getItem(`${selectedNetworkId}/${address}.wallet`));
+
+  localStorage.setItem(
+    `${selectedNetworkId}/${address}.wallet`,
+    JSON.stringify({
+      ...walletInfo,
+      name: name
+    })
+  );
+}

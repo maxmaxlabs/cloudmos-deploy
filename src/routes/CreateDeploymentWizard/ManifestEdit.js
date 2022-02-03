@@ -11,7 +11,7 @@ import { useTransactionModal } from "../../context/TransactionModal";
 import { useSettings } from "../../context/SettingsProvider";
 import { Helmet } from "react-helmet-async";
 import { analytics } from "../../shared/utils/analyticsUtils";
-import { DeploymentDeposit } from "../DeploymentDetail/DeploymentDeposit";
+import { DeploymentDepositModal } from "../DeploymentDetail/DeploymentDepositModal";
 import { LinkTo } from "../../shared/components/LinkTo";
 
 const yaml = require("js-yaml");
@@ -181,7 +181,7 @@ export function ManifestEdit(props) {
         </Button>
       </Box>
 
-      <DeploymentDeposit
+      <DeploymentDepositModal
         isDepositingDeployment={isDepositingDeployment}
         handleCancel={() => setIsDepositingDeployment(false)}
         onDeploymentDeposit={onDeploymentDeposit}

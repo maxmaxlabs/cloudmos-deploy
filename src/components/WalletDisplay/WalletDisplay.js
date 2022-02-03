@@ -9,6 +9,7 @@ import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import SendIcon from "@material-ui/icons/Send";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import KeyIcon from "@material-ui/icons/VpnKey";
+import EditIcon from "@material-ui/icons/Edit";
 import { useWallet } from "../../context/WalletProvider";
 import { useSettings } from "../../context/SettingsProvider";
 import { DeleteWalletConfirm } from "../../shared/components/DeleteWalletConfirm";
@@ -24,6 +25,7 @@ import { PriceValue } from "../../shared/components/PriceValue";
 import clsx from "clsx";
 import { usePasswordConfirmationModal } from "../../context/ConfirmPasswordModal";
 import { MnemonicModal } from "./MnemonicModal";
+import { ChangeAccountNameModal } from "./ChangeAccountNameModal";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -57,6 +59,7 @@ export function WalletDisplay() {
   const [isShowingSendModal, setIsShowingSendModal] = useState(false);
   const [isShowingDepositModal, setIsShowingDepositModal] = useState(false);
   const [isShowingMnemonicModal, setIsShowingMnemonicModal] = useState(false);
+  const [isShowinChangeAccountNameModal, setIsShowingChangeAccountNameModal] = useState(false);
   const { address, balance, refreshBalance, isRefreshingBalance, deleteWallet, selectedWallet, setSelectedWallet } = useWallet();
   const { sendTransaction } = useTransactionModal();
   const classes = useStyles();
@@ -111,6 +114,11 @@ export function WalletDisplay() {
     }
 
     setIsShowingMnemonicModal(true);
+  };
+
+  const onChangeAccountName = () => {
+    handleCloseMenu();
+    setIsShowingChangeAccountNameModal(true);
   };
 
   const onSendTransaction = async (recipient, amount) => {
@@ -208,13 +216,19 @@ export function WalletDisplay() {
           <MenuItem onClick={() => onViewMnemonic()} className={classes.menuItem}>
             <KeyIcon fontSize="small" />
             <Typography variant="body1" className={classes.menuItemText}>
-              View mnemonic
+              View Mnemonic
+            </Typography>
+          </MenuItem>
+          <MenuItem onClick={() => onChangeAccountName()} className={classes.menuItem}>
+            <EditIcon fontSize="small" />
+            <Typography variant="body1" className={classes.menuItemText}>
+              Change Account Name
             </Typography>
           </MenuItem>
           <MenuItem onClick={() => onSignOutClick()} className={classes.menuItem}>
             <ExitToAppIcon fontSize="small" />
             <Typography variant="body1" className={classes.menuItemText}>
-              Sign out
+              Sign Out
             </Typography>
           </MenuItem>
           <MenuItem onClick={() => onDeleteAccountClick()} className={clsx(classes.menuItem, classes.delete)}>
@@ -236,6 +250,7 @@ export function WalletDisplay() {
       {isShowingSendModal && <SendModal onClose={() => setIsShowingSendModal(false)} onSendTransaction={onSendTransaction} />}
       {isShowingDepositModal && address && <DepositModal address={address} onClose={() => setIsShowingDepositModal(false)} />}
       {isShowingMnemonicModal && <MnemonicModal onClose={() => setIsShowingMnemonicModal(false)} />}
+      {isShowinChangeAccountNameModal && <ChangeAccountNameModal onClose={() => setIsShowingChangeAccountNameModal(false)} />}
     </>
   );
 }
