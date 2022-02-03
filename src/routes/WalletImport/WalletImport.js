@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "column"
   },
   title: {
-    marginBottom: ".5rem",
+    marginBottom: "1rem",
     fontWeight: "bold"
   },
   alert: {

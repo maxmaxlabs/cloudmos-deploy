@@ -1,4 +1,4 @@
-import { makeStyles, Container, Button } from "@material-ui/core";
+import { makeStyles, Container, Button, Box, Typography } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import { UrlService } from "../../shared/utils/urlUtils";
 import { TitleLogo } from "../../shared/components/TitleLogo";
@@ -33,6 +33,12 @@ export function Register() {
         <Button className={classes.spacing} variant="outlined" component={Link} to={UrlService.walletImport()} color="primary">
           Import existing account
         </Button>
+
+        <Box marginTop="1rem" textAlign="center">
+          <Typography variant="caption" color="textSecondary">
+            All sensitive information is stored only on your device.
+          </Typography>
+        </Box>
       </Container>
     </div>
   );

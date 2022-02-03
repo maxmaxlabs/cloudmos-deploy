@@ -25,7 +25,9 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: "100%",
     minWidth: "100%",
     fontSize: "1.3rem",
-    marginBottom: "1rem"
+    marginBottom: "1rem",
+    fontFamily: "inherit",
+    padding: "4px 8px"
   },
   alert: {
     marginBottom: "1.5rem"

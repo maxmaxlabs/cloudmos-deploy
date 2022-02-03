@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Box, TextField, Container, Button, CircularProgress, makeStyles, Paper, Typography } from "@material-ui/core";
+import AccountBalanceWalletIcon from "@material-ui/icons/AccountBalanceWallet";
+import { Box, TextField, Container, Button, CircularProgress, makeStyles, FormControl, Typography } from "@material-ui/core";
 import { useCurrentWalletFromStorage, openWallet } from "../../shared/utils/walletUtils";
 import { useCertificate } from "../../context/CertificateProvider";
 import { useWallet } from "../../context/WalletProvider";
@@ -9,39 +10,33 @@ import { DeleteWalletConfirm } from "../../shared/components/DeleteWalletConfirm
 import { UrlService } from "../../shared/utils/urlUtils";
 import { useHistory } from "react-router-dom";
 import { Snackbar } from "../../shared/components/Snackbar";
+import { TitleLogo } from "../../shared/components/TitleLogo";
+import { Address } from "../../shared/components/Address";
+import { useForm, Controller } from "react-hook-form";
+import Alert from "@material-ui/lab/Alert";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    flexGrow: 1,
-    padding: "4rem 0",
-
-    "& .MuiTextField-root": {
-      marginBottom: "20px"
-    },
-    "& .MuiButton-root": {
-      marginLeft: "5px",
-      marginRight: "5px"
-    }
-  },
-  paper: {
-    padding: theme.spacing(2),
-    color: theme.palette.text.secondary,
-    textAlign: "center"
+  root: { padding: "5% 0" },
+  container: {
+    paddingTop: "2rem",
+    display: "flex",
+    flexDirection: "column"
   },
   title: {
-    fontSize: "2rem",
-    marginBottom: ".5rem",
+    marginBottom: "1rem",
     fontWeight: "bold"
   },
   walletAddress: {
     display: "block",
+    marginBottom: "1rem"
+  },
+  formControl: {
     marginBottom: "1rem"
   }
 }));
 
 export function WalletOpen() {
   const [isShowingConfirmationModal, setIsShowingConfirmationModal] = useState(false);
-  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const classes = useStyles();
   const { setSelectedWallet, deleteWallet } = useWallet();
@@ -49,9 +44,33 @@ export function WalletOpen() {
   const { enqueueSnackbar } = useSnackbar();
   const currentWallet = useCurrentWalletFromStorage();
   const history = useHistory();
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+    clearErrors,
+    watch
+  } = useForm({
+    defaultValues: {
+      password: ""
+    }
+  });
+  const { password } = watch();
 
-  async function onOpenClick(ev) {
-    ev.preventDefault();
+  function handleCancel() {
+    setIsShowingConfirmationModal(false);
+  }
+
+  function handleConfirmDelete(deleteDeployments) {
+    deleteWallet(currentWallet?.address, deleteDeployments);
+    setIsShowingConfirmationModal(false);
+
+    history.replace(UrlService.register());
+  }
+
+  async function onSubmit({ password }) {
+    clearErrors();
+
     setIsLoading(true);
 
     try {
@@ -76,56 +95,68 @@ export function WalletOpen() {
     }
   }
 
-  function handleCancel() {
-    setIsShowingConfirmationModal(false);
-  }
-
-  function handleConfirmDelete(deleteDeployments) {
-    deleteWallet(currentWallet?.address, deleteDeployments);
-    setIsShowingConfirmationModal(false);
-
-    history.replace(UrlService.register());
-  }
-
   return (
     <div className={classes.root}>
-      <Container maxWidth="sm" pt={2}>
-        <Paper className={classes.paper} elevation={5}>
-          <Typography variant="h5" className={classes.title}>
-            Open your wallet
-          </Typography>
+      <TitleLogo />
 
-          <Typography variant="caption" className={classes.walletAddress}>
-            {currentWallet?.address}
-          </Typography>
+      <Container maxWidth="xs" className={classes.container}>
+        <Typography variant="h6" color="textSecondary" className={classes.title}>
+          Open your wallet
+        </Typography>
 
-          <form noValidate autoComplete={"false"} onSubmit={onOpenClick}>
-            <TextField
-              label="Enter your password"
-              fullWidth
-              disabled={isLoading}
-              rows={4}
-              value={password}
-              onChange={(ev) => setPassword(ev.target.value)}
-              type="password"
-              variant="outlined"
-              autoFocus
+        <Box marginBottom="2rem">
+          <Alert icon={<AccountBalanceWalletIcon />} variant="outlined" color="info">
+            <Typography variant="body1">
+              <strong>{currentWallet?.name}</strong>
+            </Typography>
+            <Typography variant="caption">
+              <Address address={currentWallet?.address} />
+            </Typography>
+          </Alert>
+        </Box>
+
+        <form autoComplete={"false"} onSubmit={handleSubmit(onSubmit)}>
+          <FormControl error={!errors.password} className={classes.formControl} fullWidth>
+            <Controller
+              control={control}
+              name="password"
+              rules={{
+                required: true
+              }}
+              render={({ fieldState, field }) => {
+                const helperText = "Password is required.";
+
+                return (
+                  <TextField
+                    {...field}
+                    type="password"
+                    variant="outlined"
+                    label="Password"
+                    error={!!fieldState.invalid}
+                    helperText={fieldState.invalid && helperText}
+                  />
+                );
+              }}
             />
+          </FormControl>
 
-            {isLoading && <CircularProgress />}
+          {isLoading && (
+            <Box textAlign="center">
+              <CircularProgress />
+            </Box>
+          )}
 
-            {!isLoading && (
-              <Box display="flex" justifyContent="space-between" alignItems="center">
-                <Button variant="outlined" color="secondary" onClick={() => setIsShowingConfirmationModal(true)}>
-                  Delete wallet
-                </Button>
-                <Button type="submit" variant="contained" color="primary" disabled={!password}>
-                  Open
-                </Button>
-              </Box>
-            )}
-          </form>
-        </Paper>
+          {!isLoading && (
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+              <Button color="secondary" onClick={() => setIsShowingConfirmationModal(true)}>
+                Delete wallet
+              </Button>
+              <Button type="submit" variant="contained" color="primary" disabled={!password}>
+                Open
+              </Button>
+            </Box>
+          )}
+        </form>
 
         <DeleteWalletConfirm
           isOpen={isShowingConfirmationModal}
