@@ -8,6 +8,7 @@ import MoreHorizIcon from "@material-ui/icons/MoreHoriz";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import SendIcon from "@material-ui/icons/Send";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
+import KeyIcon from "@material-ui/icons/VpnKey";
 import { useWallet } from "../../context/WalletProvider";
 import { useSettings } from "../../context/SettingsProvider";
 import { DeleteWalletConfirm } from "../../shared/components/DeleteWalletConfirm";
@@ -21,6 +22,8 @@ import { DepositModal } from "../DepositModal";
 import { uaktToAKT } from "../../shared/utils/priceUtils";
 import { PriceValue } from "../../shared/components/PriceValue";
 import clsx from "clsx";
+import { usePasswordConfirmationModal } from "../../context/ConfirmPasswordModal";
+import { MnemonicModal } from "./MnemonicModal";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -53,18 +56,20 @@ export function WalletDisplay() {
   const [isShowingConfirmationModal, setIsShowingConfirmationModal] = useState(false);
   const [isShowingSendModal, setIsShowingSendModal] = useState(false);
   const [isShowingDepositModal, setIsShowingDepositModal] = useState(false);
+  const [isShowingMnemonicModal, setIsShowingMnemonicModal] = useState(false);
   const { address, balance, refreshBalance, isRefreshingBalance, deleteWallet, selectedWallet, setSelectedWallet } = useWallet();
   const { sendTransaction } = useTransactionModal();
   const classes = useStyles();
   const { settings } = useSettings();
   const history = useHistory();
   const { apiEndpoint } = settings;
+  const { askForPasswordConfirmation } = usePasswordConfirmationModal();
 
   useEffect(() => {
     refreshBalance();
   }, [apiEndpoint, refreshBalance]);
 
-  function deleteWalletClick() {
+  function onDeleteAccountClick() {
     handleCloseMenu();
     setIsShowingConfirmationModal(true);
   }
@@ -82,12 +87,12 @@ export function WalletDisplay() {
     history.push(UrlService.register());
   }
 
-  const sendClick = () => {
+  const onSendClick = () => {
     handleCloseMenu();
     setIsShowingSendModal(true);
   };
 
-  const depositClick = () => {
+  const omDepositClick = () => {
     handleCloseMenu();
     setIsShowingDepositModal(true);
   };
@@ -95,6 +100,17 @@ export function WalletDisplay() {
   const onSignOutClick = () => {
     setSelectedWallet(null);
     history.replace(UrlService.walletOpen());
+  };
+
+  const onViewMnemonic = async () => {
+    handleCloseMenu();
+
+    const password = await askForPasswordConfirmation();
+    if (!password) {
+      return;
+    }
+
+    setIsShowingMnemonicModal(true);
   };
 
   const onSendTransaction = async (recipient, amount) => {
@@ -177,16 +193,22 @@ export function WalletDisplay() {
             horizontal: "right"
           }}
         >
-          <MenuItem onClick={() => sendClick()} className={classes.menuItem}>
+          <MenuItem onClick={() => onSendClick()} className={classes.menuItem}>
             <SendIcon fontSize="small" />
             <Typography variant="body1" className={classes.menuItemText}>
               Send
             </Typography>
           </MenuItem>
-          <MenuItem onClick={() => depositClick()} className={classes.menuItem}>
+          <MenuItem onClick={() => omDepositClick()} className={classes.menuItem}>
             <MoveToInboxIcon fontSize="small" />
             <Typography variant="body1" className={classes.menuItemText}>
               Deposit
+            </Typography>
+          </MenuItem>
+          <MenuItem onClick={() => onViewMnemonic()} className={classes.menuItem}>
+            <KeyIcon fontSize="small" />
+            <Typography variant="body1" className={classes.menuItemText}>
+              View mnemonic
             </Typography>
           </MenuItem>
           <MenuItem onClick={() => onSignOutClick()} className={classes.menuItem}>
@@ -195,10 +217,10 @@ export function WalletDisplay() {
               Sign out
             </Typography>
           </MenuItem>
-          <MenuItem onClick={() => deleteWalletClick()} className={clsx(classes.menuItem, classes.delete)}>
+          <MenuItem onClick={() => onDeleteAccountClick()} className={clsx(classes.menuItem, classes.delete)}>
             <DeleteForeverIcon fontSize="small" />
             <Typography variant="body1" className={classes.menuItemText}>
-              Delete Wallet
+              Delete Account
             </Typography>
           </MenuItem>
         </Menu>
@@ -213,6 +235,7 @@ export function WalletDisplay() {
       />
       {isShowingSendModal && <SendModal onClose={() => setIsShowingSendModal(false)} onSendTransaction={onSendTransaction} />}
       {isShowingDepositModal && address && <DepositModal address={address} onClose={() => setIsShowingDepositModal(false)} />}
+      {isShowingMnemonicModal && <MnemonicModal onClose={() => setIsShowingMnemonicModal(false)} />}
     </>
   );
 }

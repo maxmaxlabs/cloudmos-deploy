@@ -109,7 +109,7 @@ export function WalletOpen() {
 
       <Container maxWidth="xs" className={classes.container}>
         <Typography variant="h6" color="textSecondary" className={classes.title}>
-          Open your wallet
+          Open account
         </Typography>
 
         <Box marginBottom="2rem">
