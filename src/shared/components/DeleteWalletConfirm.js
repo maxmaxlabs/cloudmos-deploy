@@ -22,7 +22,7 @@ export const DeleteWalletConfirm = ({ isOpen, address, balance, handleCancel, ha
         <p>
           Address: <strong>{address}</strong>
           <br />
-          {balance && (
+          {!!balance && (
             <>
               Balance: <strong>{uaktToAKT(balance)} AKT</strong>
             </>

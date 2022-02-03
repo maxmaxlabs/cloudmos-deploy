@@ -1,5 +1,5 @@
 import { Button, makeStyles, Container, Typography, ButtonGroup, TextareaAutosize, Box, FormControl, TextField, CircularProgress } from "@material-ui/core";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { UrlService } from "../../shared/utils/urlUtils";
 import { generateNewWallet } from "../../shared/utils/walletUtils";
@@ -67,7 +67,6 @@ export function NewWallet() {
   const [isCreatingWallet, setIsCreatingWallet] = useState(false);
   const [selectedWords, setSelectedWords] = useState([]);
   const [hdPath, setHdPath] = useState({ account: 0, change: 0, addressIndex: 0 });
-  const formRef = useRef();
   const history = useHistory();
   const {
     handleSubmit,
@@ -182,7 +181,7 @@ export function NewWallet() {
       <TitleLogo />
 
       <Container maxWidth="xs" className={classes.container}>
-        <form onSubmit={handleSubmit(onSubmit)} ref={formRef}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           {isKeyValidating ? (
             <>
               <Typography variant="h6" color="textSecondary">
@@ -333,7 +332,7 @@ export function NewWallet() {
               disabled={isGeneratingNewWallet || isCreatingWallet || (isKeyValidating && !isKeyValidated)}
               type="submit"
             >
-              {isGeneratingNewWallet || isCreatingWallet ? <CircularProgress size="1.5rem" className={classes.loading} /> : <>Next</>}
+              {isGeneratingNewWallet || isCreatingWallet ? <CircularProgress size="1.5rem" color="primary" /> : <>Next</>}
             </Button>
           </Box>
         </form>

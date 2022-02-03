@@ -4,7 +4,7 @@ import { UrlService } from "../../shared/utils/urlUtils";
 import { TitleLogo } from "../../shared/components/TitleLogo";
 
 const useStyles = makeStyles((theme) => ({
-  root: { padding: "10% 0" },
+  root: { padding: "5% 0" },
   title: {
     fontWeight: "bold",
     fontSize: "3rem",
@@ -28,10 +28,10 @@ export function Register() {
 
       <Container maxWidth="xs" className={classes.container}>
         <Button className={classes.spacing} variant="outlined" component={Link} to={UrlService.newWallet()} color="primary">
-          Create new wallet
+          Create new account
         </Button>
         <Button className={classes.spacing} variant="outlined" component={Link} to={UrlService.walletImport()} color="primary">
-          Import existing wallet
+          Import existing account
         </Button>
       </Container>
     </div>
