@@ -106,7 +106,7 @@ export function WalletImport() {
                     {...field}
                     type="text"
                     variant="outlined"
-                    label="Type your mnemonic / private key"
+                    label="Type your mnemonic"
                     multiline
                     autoFocus
                     rows={4}

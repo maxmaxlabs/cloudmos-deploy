@@ -85,6 +85,8 @@ export const AppContainer = () => {
             <Typography variant="caption">
               Version: <strong>v{appVersion}</strong>
             </Typography>
+
+            {/** Add social media links */}
           </footer>
         )}
       </div>

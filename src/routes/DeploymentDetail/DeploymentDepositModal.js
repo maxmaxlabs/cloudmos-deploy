@@ -1,19 +1,10 @@
-import { useState } from "react";
-import {
-  makeStyles,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  FormControl,
-  InputLabel,
-  OutlinedInput,
-  InputAdornment
-} from "@material-ui/core";
+import { useState, useRef } from "react";
+import { makeStyles, Button, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputAdornment, Box, TextField, Chip } from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
 import { useWallet } from "../../context/WalletProvider";
 import { aktToUakt, uaktToAKT } from "../../shared/utils/priceUtils";
+import { useForm, Controller } from "react-hook-form";
+import { LinkTo } from "../../shared/components/LinkTo";
 
 const useStyles = makeStyles((theme) => ({
   alert: {
@@ -31,20 +22,45 @@ const useStyles = makeStyles((theme) => ({
 
 export function DeploymentDepositModal({ isDepositingDeployment, handleCancel, onDeploymentDeposit, min = 0, infoText = null }) {
   const classes = useStyles();
-  const [depositAmount, setDepositAmount] = useState(min);
+  const formRef = useRef();
   const [error, setError] = useState("");
+  const [isBalanceClicked, setIsBalanceClicked] = useState(false);
   const { balance } = useWallet();
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+    watch,
+    setValue,
+    clearErrors
+  } = useForm({
+    defaultValues: {
+      amount: min
+    }
+  });
+  const { amount } = watch();
 
   const onClose = () => {
-    setDepositAmount(min);
+    setValue("amount", min || 0);
     handleCancel();
   };
 
-  const handleSubmit = () => {
-    setError("");
-    const deposit = aktToUakt(depositAmount);
+  const onBalanceClick = () => {
+    setIsBalanceClicked((prev) => !prev);
+    clearErrors();
+    setValue("amount", uaktToAKT(balance, 6));
+  };
 
-    if (depositAmount < min) {
+  const onDepositClick = (event) => {
+    event.preventDefault();
+    formRef.current.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
+  };
+
+  const onSubmit = ({ amount }) => {
+    clearErrors();
+    const deposit = aktToUakt(amount);
+
+    if (amount < min) {
       setError(`Deposit amount must be greater or equal than ${min}.`);
       return;
     }
@@ -54,6 +70,9 @@ export function DeploymentDepositModal({ isDepositingDeployment, handleCancel, o
       return;
     }
 
+    setValue("amount", 0);
+    setIsBalanceClicked(false);
+
     onDeploymentDeposit(deposit);
   };
 
@@ -61,25 +80,50 @@ export function DeploymentDepositModal({ isDepositingDeployment, handleCancel, o
     <Dialog maxWidth="xs" fullWidth aria-labelledby="deposit-deployment-dialog-title" open={isDepositingDeployment} onClose={onClose}>
       <DialogTitle id="deposit-deployment-dialog-title">Deployment Deposit</DialogTitle>
       <DialogContent dividers className={classes.dialogContent}>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)} ref={formRef}>
           {infoText}
 
-          <FormControl fullWidth variant="outlined">
-            <InputLabel htmlFor="deployment-deposit-amount">Amount</InputLabel>
-            <OutlinedInput
-              id="deployment-deposit-amount"
-              value={depositAmount}
-              onChange={(ev) => {
-                setError("");
-                setDepositAmount(ev.target.value);
+          <Box marginBottom=".5rem" marginTop={infoText ? 0 : ".5rem"} textAlign="right">
+            <LinkTo onClick={() => onBalanceClick()}>Balance: {uaktToAKT(balance, 6)} AKT</LinkTo>
+          </Box>
+
+          <FormControl error={!errors.amount} className={classes.formControl} fullWidth>
+            <Controller
+              control={control}
+              name="amount"
+              rules={{
+                required: true,
+                validate: (value) => value > 0 && value < balance
               }}
-              startAdornment={<InputAdornment position="start">AKT</InputAdornment>}
-              labelWidth={60}
-              type="number"
-              inputProps={{ min: min }}
-              autoFocus
+              render={({ fieldState, field }) => {
+                const helperText = fieldState.error?.type === "validate" ? "Invalid amount." : "Amount is required.";
+
+                return (
+                  <TextField
+                    {...field}
+                    type="number"
+                    variant="outlined"
+                    label="Amount"
+                    autoFocus
+                    error={!!fieldState.invalid}
+                    helperText={fieldState.invalid && helperText}
+                    className={classes.formValue}
+                    inputProps={{ min: min, step: 0.000001, max: uaktToAKT(balance, 6) }}
+                    InputProps={{
+                      startAdornment: <InputAdornment position="start">AKT</InputAdornment>,
+                      endAdornment: isBalanceClicked && (
+                        <InputAdornment position="end">
+                          <Chip label="MAX" size="small" color="primary" />
+                        </InputAdornment>
+                      )
+                    }}
+                    disabled={isBalanceClicked}
+                  />
+                );
+              }}
             />
           </FormControl>
+
           {error && (
             <Alert severity="warning" className={classes.alert}>
               {error}
@@ -88,10 +132,10 @@ export function DeploymentDepositModal({ isDepositingDeployment, handleCancel, o
         </form>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
-        <Button autoFocus onClick={handleCancel}>
+        <Button autoFocus onClick={onClose}>
           Cancel
         </Button>
-        <Button onClick={handleSubmit} disabled={!depositAmount || !!error} variant="contained" color="primary">
+        <Button onClick={onDepositClick} disabled={!amount || !!error || !!errors.amount} variant="contained" color="primary">
           Deposit
         </Button>
       </DialogActions>

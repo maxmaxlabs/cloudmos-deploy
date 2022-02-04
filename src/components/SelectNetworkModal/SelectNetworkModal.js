@@ -38,6 +38,11 @@ const useStyles = makeStyles((theme) => ({
   },
   alert: {
     marginBottom: "1rem"
+  },
+  dialogActions: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between"
   }
 }));
 
@@ -51,10 +56,14 @@ export const SelectNetworkModal = ({ onClose }) => {
   };
 
   const handleSaveChanges = () => {
-    // Set in the settings and local storage
-    localStorage.setItem("selectedNetworkId", localSelectedNetworkId);
-    // Reset the ui to reload the settings for the currently selected network
-    ipcApi.send("relaunch");
+    if (selectedNetworkId !== localSelectedNetworkId) {
+      // Set in the settings and local storage
+      localStorage.setItem("selectedNetworkId", localSelectedNetworkId);
+      // Reset the ui to reload the settings for the currently selected network
+      ipcApi.send("relaunch");
+    } else {
+      onClose();
+    }
   };
 
   return (
@@ -99,8 +108,8 @@ export const SelectNetworkModal = ({ onClose }) => {
           </Alert>
         )}
       </DialogContent>
-      <DialogActions>
-        <Button variant="contained" onClick={onClose} type="button" autoFocus>
+      <DialogActions className={classes.dialogActions}>
+        <Button onClick={onClose} type="button" autoFocus>
           Close
         </Button>
         <Button variant="contained" onClick={handleSaveChanges} color="primary" type="button">

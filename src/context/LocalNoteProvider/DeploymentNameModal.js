@@ -31,6 +31,7 @@ export const DeploymentNameModal = ({ dseq, onClose, onSaved, getDeploymentName 
       const name = getDeploymentName(dseq);
       setValue("name", name || "");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dseq, getDeploymentName]);
 
   const onSaveClick = (event) => {

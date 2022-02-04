@@ -60,7 +60,7 @@ export function ChangeAccountNameModal(props) {
 
   return (
     <Dialog open={true} onClose={props.onClose} maxWidth="xs" fullWidth>
-      <DialogTitle>View mnemonic seed</DialogTitle>
+      <DialogTitle>Change Account Name</DialogTitle>
       <DialogContent dividers className={classes.dialogContent}>
         <FormControl className={classes.formControl} fullWidth>
           <TextField variant="outlined" disabled value={selectedWallet?.name} label="Current Account Name" />
