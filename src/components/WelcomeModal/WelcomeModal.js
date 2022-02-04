@@ -1,12 +1,4 @@
-import {
-  makeStyles,
-  Button,
-  Dialog,
-  DialogContent,
-  DialogActions,
-  Typography,
-  Box
-} from "@material-ui/core";
+import { makeStyles, Button, Dialog, DialogContent, DialogActions, Typography, Box } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import { LinkTo } from "../../shared/components/LinkTo";
 import { Address } from "../../shared/components/Address";
@@ -27,12 +19,12 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export const WelcomeModal = ({ onClose }) => {
+export const WelcomeModal = ({ open, onClose }) => {
   const classes = useStyles();
   const { address } = useWallet();
 
   return (
-    <Dialog open={true} maxWidth="xs" fullWidth>
+    <Dialog open={open} maxWidth="xs" fullWidth>
       <DialogContent className={classes.dialogContent}>
         <Typography variant="h3">
           <strong>Welcome!</strong>
@@ -44,6 +36,9 @@ export const WelcomeModal = ({ onClose }) => {
         <Typography variant="caption">Here are some places to acquire some:</Typography>
 
         <ul className={classes.ul}>
+          <li>
+            <LinkTo onClick={() => window.electron.openUrl("https://drip.akash.network/login ")}>Faucet</LinkTo>
+          </li>
           <li>
             <LinkTo onClick={() => window.electron.openUrl("https://app.osmosis.zone/")}>Osmosis (DEX)</LinkTo>
           </li>

@@ -40,7 +40,7 @@ export function MainView() {
 
   return (
     <div className={classes.root}>
-      {isShowingWelcome && <WelcomeModal onClose={() => setIsShowingWelcome(false)} />}
+      {isShowingWelcome && <WelcomeModal open={isShowingWelcome} onClose={() => setIsShowingWelcome(false)} />}
 
       <Grid container pt={2}>
         <ErrorBoundary FallbackComponent={ErrorFallback}>

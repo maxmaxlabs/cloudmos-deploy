@@ -13,6 +13,7 @@ import { useSnackbar } from "notistack";
 import { Snackbar } from "../../shared/components/Snackbar";
 import { HdPath } from "../../shared/components/HdPath";
 import { MnemonicTextarea } from "../../shared/components/MnemonicTextarea";
+import { arrayEquals } from "../../shared/utils/array";
 
 const useStyles = makeStyles((theme) => ({
   root: { padding: "5% 0" },
@@ -53,6 +54,7 @@ export function NewWallet() {
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
   const [numberOfWords, setNumberOfWords] = useState(12);
+  const [error, setError] = useState("");
   const [newWallet, setNewWallet] = useState(null);
   const [shuffledMnemonic, setShuffledMnemonic] = useState([]);
   const [isGeneratingNewWallet, setIsGeneratingNewWallet] = useState(false);
@@ -93,7 +95,6 @@ export function NewWallet() {
     setIsGeneratingNewWallet(true);
     const wallet = await generateNewWallet(numOfWords);
     setNewWallet(wallet);
-    // const accounts = await wallet.getAccounts();
     const shuffled = wallet.mnemonic
       .split(" ")
       .map((value) => ({ value, sort: Math.random() }))
@@ -119,9 +120,16 @@ export function NewWallet() {
         newWords = prevWords.filter((w) => w !== word);
       }
 
-      if (newWords.length === newWallet.mnemonic.split(" ").length) {
-        // TODO validate the order of the words
-        setIsKeyValidated(true);
+      const originalMnemonic = newWallet.mnemonic.split(" ");
+      if (newWords.length === originalMnemonic.length) {
+        if (arrayEquals(newWords, originalMnemonic)) {
+          setIsKeyValidated(true);
+          setError("");
+        } else {
+          setError("The sequence of words is incorrect.");
+        }
+      } else {
+        setError("");
       }
 
       return newWords;
@@ -207,6 +215,14 @@ export function NewWallet() {
                     </Button>
                   ))}
               </div>
+
+              <Box marginTop="1rem">
+                {error && (
+                  <Alert severity="error" variant="filled">
+                    {error}
+                  </Alert>
+                )}
+              </Box>
             </>
           ) : (
             <>

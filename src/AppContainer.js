@@ -14,6 +14,11 @@ import { ErrorBoundary } from "react-error-boundary";
 import { NodeStatusBar } from "./components/NodeStatusBar";
 import { Register } from "./routes/Register";
 import { NewWallet } from "./routes/NewWallet";
+import YouTubeIcon from "@material-ui/icons/YouTube";
+import TwitterIcon from "@material-ui/icons/Twitter";
+import GitHubIcon from "@material-ui/icons/GitHub";
+import { DiscordIcon } from "./shared/components/DiscordIcon";
+import { LinkTo } from "./shared/components/LinkTo";
 
 const useStyles = makeStyles((theme) => ({
   body: {
@@ -22,7 +27,35 @@ const useStyles = makeStyles((theme) => ({
   footer: {
     top: "auto",
     bottom: 0,
-    padding: "2px 1rem"
+    padding: "2px 1rem",
+    display: "flex",
+    justifyContent: "space-between"
+  },
+  socialLinks: {
+    display: "flex",
+    transition: ".3s all ease",
+    margin: 0,
+    padding: 0,
+    "& li": {
+      margin: "0 .5rem"
+    },
+    "& path": {
+      fill: theme.palette.common.black,
+      transition: ".3s all ease"
+    }
+  },
+  socialIcon: {
+    height: "1.5rem",
+    width: "1.5rem",
+    fontSize: "3rem",
+    display: "block",
+    margin: "0 auto",
+    "&:hover": {
+      color: theme.palette.primary.main,
+      "& path": {
+        fill: theme.palette.primary.main
+      }
+    }
   }
 }));
 
@@ -86,7 +119,31 @@ export const AppContainer = () => {
               Version: <strong>v{appVersion}</strong>
             </Typography>
 
-            {/** Add social media links */}
+            <ul className={classes.socialLinks}>
+              <li>
+                <LinkTo onClick={() => window.electron.openUrl("https://discord.gg/rXDFNYnFwv")} className={classes.socialLink}>
+                  <DiscordIcon className={classes.socialIcon} />
+                </LinkTo>
+              </li>
+              <li>
+                <LinkTo
+                  onClick={() => window.electron.openUrl("https://www.youtube.com/channel/UC1rgl1y8mtcQoa9R_RWO0UA?sub_confirmation=1")}
+                  className={classes.socialLink}
+                >
+                  <YouTubeIcon className={classes.socialIcon} />
+                </LinkTo>
+              </li>
+              <li>
+                <LinkTo onClick={() => window.electron.openUrl("https://twitter.com/akashlytics")} className={classes.socialLink}>
+                  <TwitterIcon className={classes.socialIcon} />
+                </LinkTo>
+              </li>
+              <li>
+                <LinkTo onClick={() => window.electron.openUrl("https://github.com/Akashlytics/akashlytics-deploy")} className={classes.socialLink}>
+                  <GitHubIcon className={classes.socialIcon} />
+                </LinkTo>
+              </li>
+            </ul>
           </footer>
         )}
       </div>
