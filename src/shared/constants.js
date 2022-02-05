@@ -8,6 +8,28 @@ export const edgenetId = "edgenet";
 
 export const transactionLink = (txHash) => `https://www.mintscan.io/akash/txs/${txHash}`;
 
+export let networkVersion;
+
+export function setNetworkVersion() {
+  const selectedNetworkId = localStorage.getItem("selectedNetworkId");
+
+  switch (selectedNetworkId) {
+    case mainnetId:
+      networkVersion = "v1beta1";
+      break;
+    case testnetId:
+      networkVersion = "v1beta1";
+      break;
+    case edgenetId:
+      networkVersion = "v1beta2";
+      break;
+
+    default:
+      networkVersion = "v1beta1";
+      break;
+  }
+}
+
 // UI
 export const statusBarHeight = 30;
 export const accountBarHeight = 58;

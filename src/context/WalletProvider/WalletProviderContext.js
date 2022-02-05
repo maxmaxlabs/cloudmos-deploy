@@ -4,6 +4,7 @@ import { useSettings } from "../SettingsProvider";
 import { Snackbar } from "../../shared/components/Snackbar";
 import { deleteWalletFromStorage } from "../../shared/utils/walletUtils";
 import { useHistory } from "react-router-dom";
+import axios from "axios";
 
 const WalletProviderContext = React.createContext({});
 
@@ -24,11 +25,11 @@ export const WalletProvider = ({ children }) => {
       setIsRefreshingBalance(true);
 
       try {
-        const response = await fetch(apiEndpoint + "/cosmos/bank/v1beta1/balances/" + address);
-        const data = await response.json();
+        const response = await axios.get(`${apiEndpoint}/cosmos/bank/v1beta1/balances/${address}`);
+        const data = response.data;
         const balance = data.balances.length > 0 && data.balances.some((b) => b.denom === "uakt") ? data.balances.find((b) => b.denom === "uakt").amount : 0;
 
-        setBalance(balance);
+        setBalance(Number(balance));
         setIsRefreshingBalance(false);
 
         if (showSnackbar) {

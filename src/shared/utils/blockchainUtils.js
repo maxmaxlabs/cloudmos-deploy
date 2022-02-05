@@ -11,17 +11,21 @@ import {
 } from "../ProtoAkashTypes";
 import { TransactionMessageData } from "./TransactionMessageData";
 
-const registery = new Registry();
-registery.register(TransactionMessageData.Types.MSG_CLOSE_DEPLOYMENT, MsgCloseDeployment);
-registery.register(TransactionMessageData.Types.MSG_CREATE_DEPLOYMENT, MsgCreateDeployment);
-registery.register(TransactionMessageData.Types.MSG_UPDATE_DEPLOYMENT, MsgUpdateDeployment);
-registery.register(TransactionMessageData.Types.MSG_DEPOSIT_DEPLOYMENT, MsgDepositDeployment);
-registery.register(TransactionMessageData.Types.MSG_CREATE_LEASE, MsgCreateLease);
-registery.register(TransactionMessageData.Types.MSG_REVOKE_CERTIFICATE, MsgRevokeCertificate);
-registery.register(TransactionMessageData.Types.MSG_CREATE_CERTIFICATE, MsgCreateCertificate);
-registery.register(TransactionMessageData.Types.MSG_SEND_TOKENS, MsgSend);
+export let customRegistry;
 
-export const customRegistry = registery;
+export function registerTypes() {
+  const registery = new Registry();
+  registery.register(TransactionMessageData.Types.MSG_CLOSE_DEPLOYMENT, MsgCloseDeployment);
+  registery.register(TransactionMessageData.Types.MSG_CREATE_DEPLOYMENT, MsgCreateDeployment);
+  registery.register(TransactionMessageData.Types.MSG_UPDATE_DEPLOYMENT, MsgUpdateDeployment);
+  registery.register(TransactionMessageData.Types.MSG_DEPOSIT_DEPLOYMENT, MsgDepositDeployment);
+  registery.register(TransactionMessageData.Types.MSG_CREATE_LEASE, MsgCreateLease);
+  registery.register(TransactionMessageData.Types.MSG_REVOKE_CERTIFICATE, MsgRevokeCertificate);
+  registery.register(TransactionMessageData.Types.MSG_CREATE_CERTIFICATE, MsgCreateCertificate);
+  registery.register(TransactionMessageData.Types.MSG_SEND_TOKENS, MsgSend);
+
+  customRegistry = registery;
+}
 
 export const baseGas = "600000";
 export const fees = {
