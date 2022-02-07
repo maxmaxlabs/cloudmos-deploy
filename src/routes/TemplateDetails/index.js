@@ -1,0 +1,1 @@
+export { TemplateDetails } from "./TemplateDetails";

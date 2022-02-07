@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
-import { Box, Avatar, makeStyles, Typography, List, ListItem, Link, ListItemText, ListItemAvatar } from "@material-ui/core";
+import { Box, Avatar, makeStyles, Typography, List, ListItem, ListItemText, ListItemAvatar } from "@material-ui/core";
 import { Helmet } from "react-helmet-async";
 import axios from "axios";
 import removeMarkdown from "markdown-to-text";
 import { useTemplates } from "../../context/TemplatesProvider";
+import { Link } from "react-router-dom";
+import { UrlService } from "../../shared/utils/urlUtils";
 
 const useStyles = makeStyles((theme) => ({
   root: { padding: "1rem" },
@@ -53,8 +55,6 @@ export function TemplateGallery(props) {
 
   return (
     <Box className={classes.root}>
-      <Helmet title="Settings" />
-
       <Box className={classes.titleContainer}>
         <Typography variant="h3" className={classes.title}>
           Template Gallery
@@ -72,7 +72,7 @@ export function TemplateGallery(props) {
         {selectedCategory && selectedCategory.templates && (
           <List className={classes.templateList}>
             {selectedCategory.templates.map((template) => (
-              <ListItem button key={template.path} onClick={() => console.log("Template clicked: " + template.title)}>
+              <ListItem button key={template.path} component={Link} to={UrlService.templateDetails(template.path)}>
                 <ListItemAvatar>{template.logoUrl && <Avatar src={template.logoUrl} variant="square" />}</ListItemAvatar>
                 <ListItemText primary={template.name} secondary={getTemplateSummary(template)} />
               </ListItem>

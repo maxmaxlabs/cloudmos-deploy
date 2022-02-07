@@ -18,7 +18,7 @@ export const TemplatesProvider = ({ children }) => {
       setIsLoading(true);
 
       const templateEndpoint =
-        "https://gist.githubusercontent.com/Redm4x/60fee97d622a8d6a97777e29f5e738fd/raw/077da35075f5e4bb2e968ab80e5a7f212b92795d/Test.json";
+        "https://gist.githubusercontent.com/Redm4x/60fee97d622a8d6a97777e29f5e738fd/raw/5fcbccd3c1a8ed5c690c03e9346df6e04e485e7b/Test.json";
       const response = await axios.get(templateEndpoint);
       let categories = response.data.filter((x) => (x.templates || []).length > 0);
       setCategories(categories);

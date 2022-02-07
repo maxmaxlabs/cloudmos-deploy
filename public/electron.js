@@ -1,5 +1,5 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow, ipcMain, Notification } = require("electron");
+const { app, BrowserWindow, ipcMain, Notification, shell } = require("electron");
 const path = require("path");
 const winston = require("winston");
 const url = require("url");
@@ -62,6 +62,11 @@ function createWindow() {
     //mainWindow.removeMenu();
 
     logger.info("Created Browser Window");
+
+    mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+      shell.openExternal(url);
+      return { action: "deny" };
+    });
 
     if (isDev) {
       mainWindow.webContents.openDevTools();

@@ -76,6 +76,7 @@
     "react-helmet-async": "^1.0.9",
     "react-hook-form": "^7.8.4",
     "react-intl": "^5.24.3",
+    "react-markdown": "^8.0.0",
     "react-monaco-editor": "^0.45.0",
     "react-qr-code": "^2.0.3",
     "react-query": "^3.17.0",
