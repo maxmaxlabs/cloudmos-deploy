@@ -2,6 +2,7 @@ import { List, ListItem, ListItemText, makeStyles, ListItemIcon } from "@materia
 import DashboardIcon from "@material-ui/icons/Dashboard";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import SettingsIcon from "@material-ui/icons/Settings";
+import CollectionsIcon from '@material-ui/icons/Collections';
 import { Link, useLocation } from "react-router-dom";
 import { UrlService } from "../../shared/utils/urlUtils";
 
@@ -26,6 +27,7 @@ export const LeftNav = () => {
   const routes = [
     { title: "Dashboard", icon: <DashboardIcon />, url: UrlService.dashboard() },
     { title: "Deployments", icon: <CloudUploadIcon />, url: UrlService.deploymentList() },
+    { title: "Templates", icon: <CollectionsIcon />, url: UrlService.templates() },
     { title: "Settings", icon: <SettingsIcon />, url: UrlService.settings() }
   ];
 

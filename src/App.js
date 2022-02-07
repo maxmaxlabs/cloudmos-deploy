@@ -19,6 +19,7 @@ import { AppSettingsContainer } from "./AppSettingsContainer";
 import { legitPaths } from "./shared/utils/urlUtils";
 import { PriceProvider } from "./context/PriceProvider";
 import { IntlProvider } from "react-intl";
+import { TemplatesProvider } from "./context/TemplatesProvider/TemplatesProviderContext";
 
 let history = createMemoryHistory({
   initialEntries: ["/"],
@@ -94,9 +95,11 @@ function App() {
                       <PasswordConfirmationModalProvider>
                         <CertificateProvider>
                           <LocalNoteProvider>
-                            <Helmet defaultTitle="Akashlytics Deploy" titleTemplate="Akashlytics Deploy - %s" />
+                            <TemplatesProvider>
+                              <Helmet defaultTitle="Akashlytics Deploy" titleTemplate="Akashlytics Deploy - %s" />
 
-                            <AppSettingsContainer />
+                              <AppSettingsContainer />
+                            </TemplatesProvider>
                           </LocalNoteProvider>
                         </CertificateProvider>
                       </PasswordConfirmationModalProvider>

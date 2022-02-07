@@ -7,6 +7,7 @@ export class UrlService {
   static dashboard = () => "/";
   static deploymentList = () => `/deployments`;
   static deploymentDetails = (dseq) => `/deployment/${dseq}`;
+  static templates = () => `/templates`;
   static settings = () => "/settings";
 
   static createDeployment = (dseq) => `/createDeployment${dseq ? "?redeploy=" + dseq : ""}`;
