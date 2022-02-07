@@ -91,7 +91,8 @@ export class TransactionMessageData {
         id: deploymentData.deploymentId,
         groups: deploymentData.groups,
         version: deploymentData.version,
-        deposit: deploymentData.deposit
+        deposit: deploymentData.deposit,
+        depositor: deploymentData.depositor
       }
     };
 

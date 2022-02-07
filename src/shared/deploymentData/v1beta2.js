@@ -312,6 +312,7 @@ export async function NewDeploymentData(apiEndpoint, yamlJson, dseq, fromAddress
     orderId: [],
     leaseId: [],
     version: ver,
-    deposit: _deposit
+    deposit: _deposit,
+    depositor: fromAddress // TODO
   };
 }
