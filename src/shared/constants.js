@@ -6,6 +6,9 @@ export const mainnetId = "mainnet";
 export const testnetId = "testnet";
 export const edgenetId = "edgenet";
 
+// 5AKT aka 5000000uakt
+export const defaultInitialDeposit = 5000000;
+
 export const transactionLink = (txHash) => `https://www.mintscan.io/akash/txs/${txHash}`;
 
 export let networkVersion;

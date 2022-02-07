@@ -27,7 +27,8 @@ import { copyTextToClipboard } from "../../shared/utils/copyClipboard";
 import { useSnackbar } from "notistack";
 import { useLeaseStatus } from "../../queries/useLeaseQuery";
 import { useProviders } from "../../queries";
-import { sendManifestToProvider, Manifest } from "../../shared/utils/deploymentUtils";
+import { sendManifestToProvider } from "../../shared/utils/deploymentUtils";
+import { deploymentData } from "../../shared/deploymentData";
 import { ManifestErrorSnackbar } from "../../shared/components/ManifestErrorSnackbar";
 import { Snackbar } from "../../shared/components/Snackbar";
 import { LinkTo } from "../../shared/components/LinkTo";
@@ -149,7 +150,7 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
     setIsSendingManifest(true);
     try {
       const doc = yaml.load(deploymentManifest);
-      const manifest = Manifest(doc);
+      const manifest = deploymentData.Manifest(doc);
 
       await sendManifestToProvider(providerInfo, manifest, dseq, localCert);
 
@@ -162,7 +163,7 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
 
   return (
     <>
-      {isViewingProviderDetail && <ProviderDetail provider={providerStatus} onClose={() => setIsViewingProviderDetail(false)} />}
+      {isViewingProviderDetail && <ProviderDetail provider={providerStatus} onClose={() => setIsViewingProviderDetail(false)} address={lease.provider} />}
 
       <Card className={classes.root} elevation={4}>
         <CardHeader

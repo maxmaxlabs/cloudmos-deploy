@@ -1,27 +1,19 @@
 import { Registry } from "@cosmjs/proto-signing";
 import { MsgSend } from "@cosmjs/stargate/build/codec/cosmos/bank/v1beta1/tx";
-import {
-  MsgCloseDeployment,
-  MsgRevokeCertificate,
-  MsgCreateCertificate,
-  MsgCreateDeployment,
-  MsgCreateLease,
-  MsgUpdateDeployment,
-  MsgDepositDeployment
-} from "../ProtoAkashTypes";
+import { protoTypes } from "../protoTypes";
 import { TransactionMessageData } from "./TransactionMessageData";
 
 export let customRegistry;
 
 export function registerTypes() {
   const registery = new Registry();
-  registery.register(TransactionMessageData.Types.MSG_CLOSE_DEPLOYMENT, MsgCloseDeployment);
-  registery.register(TransactionMessageData.Types.MSG_CREATE_DEPLOYMENT, MsgCreateDeployment);
-  registery.register(TransactionMessageData.Types.MSG_UPDATE_DEPLOYMENT, MsgUpdateDeployment);
-  registery.register(TransactionMessageData.Types.MSG_DEPOSIT_DEPLOYMENT, MsgDepositDeployment);
-  registery.register(TransactionMessageData.Types.MSG_CREATE_LEASE, MsgCreateLease);
-  registery.register(TransactionMessageData.Types.MSG_REVOKE_CERTIFICATE, MsgRevokeCertificate);
-  registery.register(TransactionMessageData.Types.MSG_CREATE_CERTIFICATE, MsgCreateCertificate);
+  registery.register(TransactionMessageData.Types.MSG_CLOSE_DEPLOYMENT, protoTypes.MsgCloseDeployment);
+  registery.register(TransactionMessageData.Types.MSG_CREATE_DEPLOYMENT, protoTypes.MsgCreateDeployment);
+  registery.register(TransactionMessageData.Types.MSG_UPDATE_DEPLOYMENT, protoTypes.MsgUpdateDeployment);
+  registery.register(TransactionMessageData.Types.MSG_DEPOSIT_DEPLOYMENT, protoTypes.MsgDepositDeployment);
+  registery.register(TransactionMessageData.Types.MSG_CREATE_LEASE, protoTypes.MsgCreateLease);
+  registery.register(TransactionMessageData.Types.MSG_REVOKE_CERTIFICATE, protoTypes.MsgRevokeCertificate);
+  registery.register(TransactionMessageData.Types.MSG_CREATE_CERTIFICATE, protoTypes.MsgCreateCertificate);
   registery.register(TransactionMessageData.Types.MSG_SEND_TOKENS, MsgSend);
 
   customRegistry = registery;

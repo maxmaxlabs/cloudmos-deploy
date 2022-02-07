@@ -11,6 +11,9 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     alignItems: "center"
   },
+  defaultColor: {
+    borderColor: "rgba(0,0,0,.15)"
+  },
   chipRoot: {
     padding: "2px 0",
     height: "auto"
@@ -55,7 +58,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function SpecDetail({ cpuAmount, memoryAmount, storageAmount, color, size = "large", gutterSize = "large" }) {
+export function SpecDetail({ cpuAmount, memoryAmount, storageAmount, color = "default", size = "large", gutterSize = "large" }) {
   const classes = useStyles();
   return (
     <Box component="div" className={classes.root}>
@@ -63,6 +66,7 @@ export function SpecDetail({ cpuAmount, memoryAmount, storageAmount, color, size
         variant="outlined"
         color={color}
         classes={{ root: classes.chipRoot }}
+        className={clsx({ [classes.defaultColor]: color === "default" })}
         label={
           <div className={classes.chipLabel}>
             <SpeedIcon
@@ -89,6 +93,7 @@ export function SpecDetail({ cpuAmount, memoryAmount, storageAmount, color, size
         color={color}
         classes={{ root: classes.chipRoot }}
         className={clsx({
+          [classes.defaultColor]: color === "default",
           [classes.gutterSmall]: gutterSize === "small",
           [classes.gutterMedium]: gutterSize === "medium",
           [classes.gutterLarge]: gutterSize === "large"
@@ -119,6 +124,7 @@ export function SpecDetail({ cpuAmount, memoryAmount, storageAmount, color, size
         color={color}
         classes={{ root: classes.chipRoot }}
         className={clsx({
+          [classes.defaultColor]: color === "default",
           [classes.gutterSmall]: gutterSize === "small",
           [classes.gutterMedium]: gutterSize === "medium",
           [classes.gutterLarge]: gutterSize === "large"

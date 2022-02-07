@@ -17,7 +17,8 @@ import {
 import { useWallet } from "../../context/WalletProvider";
 import { BidGroup } from "./BidGroup";
 import { useHistory } from "react-router";
-import { sendManifestToProvider, Manifest } from "../../shared/utils/deploymentUtils";
+import { sendManifestToProvider } from "../../shared/utils/deploymentUtils";
+import { deploymentData } from "../../shared/deploymentData";
 import { useCertificate } from "../../context/CertificateProvider";
 import { getDeploymentLocalData } from "../../shared/utils/deploymentLocalDataUtils";
 import { useTransactionModal } from "../../context/TransactionModal";
@@ -159,13 +160,13 @@ export function CreateLease({ dseq }) {
 
     setIsSendingManifest(true);
 
-    const deploymentData = getDeploymentLocalData(dseq);
-    if (deploymentData && deploymentData.manifest) {
+    const localDeploymentData = getDeploymentLocalData(dseq);
+    if (localDeploymentData && localDeploymentData.manifest) {
       // Send the manifest
 
       try {
-        const yamlJson = yaml.load(deploymentData.manifest);
-        const mani = Manifest(yamlJson);
+        const yamlJson = yaml.load(localDeploymentData.manifest);
+        const mani = deploymentData.Manifest(yamlJson);
 
         for (let i = 0; i < bidKeys.length; i++) {
           const currentBid = selectedBids[bidKeys[i]];

@@ -1,12 +1,4 @@
-import {
-  MsgCloseDeployment,
-  MsgUpdateDeployment,
-  MsgRevokeCertificate,
-  MsgCreateCertificate,
-  MsgCreateDeployment,
-  MsgCreateLease,
-  MsgDepositDeployment
-} from "../ProtoAkashTypes";
+import { protoTypes } from "../protoTypes";
 import { networkVersion } from "../constants";
 
 export function setMessageTypes() {
@@ -47,7 +39,7 @@ export class TransactionMessageData {
       }
     };
 
-    const err = MsgRevokeCertificate.verify(txData.value);
+    const err = protoTypes.MsgRevokeCertificate.verify(txData.value);
 
     if (err) throw err;
 
@@ -64,7 +56,7 @@ export class TransactionMessageData {
       }
     };
 
-    const err = MsgCreateCertificate.verify(txData.value);
+    const err = protoTypes.MsgCreateCertificate.verify(txData.value);
 
     if (err) throw err;
 
@@ -85,7 +77,7 @@ export class TransactionMessageData {
       }
     };
 
-    const err = MsgCreateLease.verify(txData.value);
+    const err = protoTypes.MsgCreateLease.verify(txData.value);
 
     if (err) throw err;
 
@@ -103,7 +95,7 @@ export class TransactionMessageData {
       }
     };
 
-    const err = MsgCreateDeployment.verify(txData.value);
+    const err = protoTypes.MsgCreateDeployment.verify(txData.value);
 
     if (err) throw err;
 
@@ -120,7 +112,7 @@ export class TransactionMessageData {
       }
     };
 
-    const err = MsgUpdateDeployment.verify(txData.value);
+    const err = protoTypes.MsgUpdateDeployment.verify(txData.value);
 
     if (err) throw err;
 
@@ -142,7 +134,7 @@ export class TransactionMessageData {
       }
     };
 
-    const err = MsgDepositDeployment.verify(txData.value);
+    const err = protoTypes.MsgDepositDeployment.verify(txData.value);
 
     if (err) throw err;
 
@@ -160,7 +152,7 @@ export class TransactionMessageData {
       }
     };
 
-    const err = MsgCloseDeployment.verify(txData.value);
+    const err = protoTypes.MsgCloseDeployment.verify(txData.value);
 
     if (err) throw err;
 

@@ -10,10 +10,14 @@ import { initAnalytics } from "./shared/utils/analyticsUtils";
 import { setNetworkVersion } from "./shared/constants";
 import { setMessageTypes } from "./shared/utils/TransactionMessageData";
 import { registerTypes } from "./shared/utils/blockchainUtils";
+import { initProtoTypes } from "./shared/protoTypes";
+import { initDeploymentData } from "./shared/deploymentData";
 
 setNetworkVersion();
+initProtoTypes();
 setMessageTypes();
 registerTypes();
+initDeploymentData();
 
 (async () => {
   const isDev = await window.electron.isDev();

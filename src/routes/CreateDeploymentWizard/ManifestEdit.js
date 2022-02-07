@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Box, Typography, Button, TextField, CircularProgress, makeStyles, Tooltip } from "@material-ui/core";
-import { NewDeploymentData, defaultInitialDeposit } from "../../shared/utils/deploymentUtils";
+import { deploymentData } from "../../shared/deploymentData";
+import { defaultInitialDeposit } from "../../shared/constants";
 import { useWallet } from "../../context/WalletProvider";
 import MonacoEditor from "react-monaco-editor";
 import Alert from "@material-ui/lab/Alert";
@@ -67,7 +68,7 @@ export function ManifestEdit(props) {
       if (!editedManifest) return null;
 
       const doc = yaml.load(yamlStr);
-      const dd = await NewDeploymentData(settings.apiEndpoint, doc, dseq, address, deposit);
+      const dd = await deploymentData.NewDeploymentData(settings.apiEndpoint, doc, dseq, address, deposit);
       validateDeploymentData(dd);
 
       setParsingError(null);
