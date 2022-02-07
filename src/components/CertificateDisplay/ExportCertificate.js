@@ -9,6 +9,9 @@ import { useLocalStorage } from "../../hooks/useLocalStorage";
 const useStyles = makeStyles((theme) => ({
   label: {
     fontWeight: "bold"
+  },
+  dialogContent: {
+    padding: "1rem"
   }
 }));
 
@@ -34,8 +37,8 @@ export function ExportCertificate(props) {
 
   return (
     <Dialog open={props.isOpen} onClose={props.onClose} maxWidth="sm" fullWidth>
-      <DialogTitle id="simple-dialog-title">Export certificate</DialogTitle>
-      <DialogContent dividers>
+      <DialogTitle>Export certificate</DialogTitle>
+      <DialogContent dividers className={classes.dialogContent}>
         {certData && certData.crtpem && certData.encryptedKey ? (
           <>
             <Typography variant="body1" className={classes.label}>

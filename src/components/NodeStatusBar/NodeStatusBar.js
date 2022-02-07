@@ -86,7 +86,7 @@ export const NodeStatusBar = () => {
   };
 
   return (
-    <AppBar position="static" color="default">
+    <AppBar position="fixed" color="default" elevation={0}>
       {isEditingSettings && <SettingsModal onClose={onSettingsModalClose} />}
       {isSelectingNetwork && <SelectNetworkModal onClose={onSelectNetworkModalClose} />}
 

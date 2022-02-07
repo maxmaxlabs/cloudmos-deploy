@@ -34,6 +34,13 @@ const useStyles = makeStyles({
   },
   headerRoot: {
     padding: "8px 16px 12px"
+  },
+  menuItem: {
+    display: "flex",
+    alignItems: "end"
+  },
+  menuItemText: {
+    marginLeft: ".5rem"
   }
 });
 
@@ -204,17 +211,23 @@ export function CertificateDisplay() {
             }}
             onClick={handleClose}
           >
-            <MenuItem onClick={() => revokeCertificate()}>
-              <DeleteForeverIcon />
-              &nbsp;Revoke
+            <MenuItem onClick={() => revokeCertificate()} className={classes.menuItem}>
+              <DeleteForeverIcon fontSize="small" />
+              <Typography variant="body1" className={classes.menuItemText}>
+                Revoke
+              </Typography>
             </MenuItem>
-            <MenuItem onClick={() => regenerateCertificate()}>
-              <AutorenewIcon />
-              &nbsp;Regenerate
+            <MenuItem onClick={() => regenerateCertificate()} className={classes.menuItem}>
+              <AutorenewIcon fontSize="small" />
+              <Typography variant="body1" className={classes.menuItemText}>
+                Regenerate
+              </Typography>
             </MenuItem>
-            <MenuItem onClick={() => setIsExportingCert(true)}>
-              <GetAppIcon />
-              &nbsp;Export
+            <MenuItem onClick={() => setIsExportingCert(true)} className={classes.menuItem}>
+              <GetAppIcon fontSize="small" />
+              <Typography variant="body1" className={classes.menuItemText}>
+                Export
+              </Typography>
             </MenuItem>
           </Menu>
         )}

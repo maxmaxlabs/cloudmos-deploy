@@ -1,10 +1,10 @@
 import { useState, useRef } from "react";
-import { makeStyles, Box, Button, Dialog, DialogContent, DialogActions, DialogTitle, FormControl, InputAdornment, TextField, Chip } from "@material-ui/core";
+import { makeStyles, Button, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputAdornment, Box, TextField, Chip } from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
-import { uaktToAKT, aktToUakt } from "../../shared/utils/priceUtils";
-import { LinkTo } from "../../shared/components/LinkTo";
 import { useWallet } from "../../context/WalletProvider";
-import { Controller, useForm } from "react-hook-form";
+import { aktToUakt, uaktToAKT } from "../../shared/utils/priceUtils";
+import { useForm, Controller } from "react-hook-form";
+import { LinkTo } from "../../shared/components/LinkTo";
 
 const useStyles = makeStyles((theme) => ({
   alert: {
@@ -20,11 +20,11 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export const SendModal = ({ onClose, onSendTransaction }) => {
+export function DeploymentDepositModal({ isDepositingDeployment, handleCancel, onDeploymentDeposit, min = 0, infoText = null }) {
   const classes = useStyles();
   const formRef = useRef();
-  const [isBalanceClicked, setIsBalanceClicked] = useState(false);
   const [error, setError] = useState("");
+  const [isBalanceClicked, setIsBalanceClicked] = useState(false);
   const { balance } = useWallet();
   const {
     handleSubmit,
@@ -35,79 +35,62 @@ export const SendModal = ({ onClose, onSendTransaction }) => {
     clearErrors
   } = useForm({
     defaultValues: {
-      recipient: "",
-      sendAmount: 0
+      amount: min
     }
   });
-  const { sendAmount, recipient } = watch();
+  const { amount } = watch();
+
+  const onClose = () => {
+    setValue("amount", min || 0);
+    handleCancel();
+  };
 
   const onBalanceClick = () => {
     setIsBalanceClicked((prev) => !prev);
-    setError("");
     clearErrors();
-    setValue("sendAmount", uaktToAKT(balance, 6));
+    setValue("amount", uaktToAKT(balance, 6));
   };
 
-  const onSubmit = (data) => {
-    clearErrors();
-    const amount = aktToUakt(sendAmount);
-
-    if (!recipient) {
-      setError(`You must set a recipient.`);
-      return;
-    }
-
-    if (amount > balance) {
-      setError(`You can't send more than you currently have in your balance. Current balance is: ${uaktToAKT(amount, 6)}AKT.`);
-      return;
-    }
-
-    onSendTransaction(recipient.trim(), amount);
-  };
-
-  const onContinueClick = (event) => {
+  const onDepositClick = (event) => {
     event.preventDefault();
     formRef.current.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
   };
 
+  const onSubmit = ({ amount }) => {
+    clearErrors();
+    const deposit = aktToUakt(amount);
+
+    if (amount < min) {
+      setError(`Deposit amount must be greater or equal than ${min}.`);
+      return;
+    }
+
+    if (deposit > balance) {
+      setError(`You can't deposit more than you currently have in your balance. Current balance is: ${uaktToAKT(balance)}AKT.`);
+      return;
+    }
+
+    setValue("amount", 0);
+    setIsBalanceClicked(false);
+
+    onDeploymentDeposit(deposit);
+  };
+
   return (
-    <Dialog maxWidth="xs" fullWidth aria-labelledby="send-transaction-dialog-title" open={true} onClose={onClose}>
-      <DialogTitle id="send-transaction-dialog-title">Send tokens</DialogTitle>
+    <Dialog maxWidth="xs" fullWidth aria-labelledby="deposit-deployment-dialog-title" open={isDepositingDeployment} onClose={onClose}>
+      <DialogTitle id="deposit-deployment-dialog-title">Deployment Deposit</DialogTitle>
       <DialogContent dividers className={classes.dialogContent}>
         <form onSubmit={handleSubmit(onSubmit)} ref={formRef}>
-          <FormControl error={!errors.recipient} className={classes.formControl} fullWidth>
-            <Controller
-              control={control}
-              name="recipient"
-              rules={{
-                required: true
-              }}
-              render={({ fieldState, field }) => {
-                const helperText = "Recipient is required.";
+          {infoText}
 
-                return (
-                  <TextField
-                    {...field}
-                    type="text"
-                    variant="outlined"
-                    label="Recipient"
-                    error={!!fieldState.invalid}
-                    helperText={fieldState.invalid && helperText}
-                    className={classes.formValue}
-                  />
-                );
-              }}
-            />
-          </FormControl>
-
-          <Box marginBottom=".5rem" marginTop=".5rem" textAlign="right">
+          <Box marginBottom=".5rem" marginTop={infoText ? 0 : ".5rem"} textAlign="right">
             <LinkTo onClick={() => onBalanceClick()}>Balance: {uaktToAKT(balance, 6)} AKT</LinkTo>
           </Box>
 
-          <FormControl error={!errors.sendAmount} className={classes.formControl} fullWidth>
+          <FormControl error={!errors.amount} className={classes.formControl} fullWidth>
             <Controller
               control={control}
-              name="sendAmount"
+              name="amount"
               rules={{
                 required: true,
                 validate: (value) => value > 0 && value < balance
@@ -125,7 +108,7 @@ export const SendModal = ({ onClose, onSendTransaction }) => {
                     error={!!fieldState.invalid}
                     helperText={fieldState.invalid && helperText}
                     className={classes.formValue}
-                    inputProps={{ min: 0, step: 0.000001 }}
+                    inputProps={{ min: min, step: 0.000001, max: uaktToAKT(balance, 6) }}
                     InputProps={{
                       startAdornment: <InputAdornment position="start">AKT</InputAdornment>,
                       endAdornment: isBalanceClicked && (
@@ -140,6 +123,7 @@ export const SendModal = ({ onClose, onSendTransaction }) => {
               }}
             />
           </FormControl>
+
           {error && (
             <Alert severity="warning" className={classes.alert}>
               {error}
@@ -148,11 +132,13 @@ export const SendModal = ({ onClose, onSendTransaction }) => {
         </form>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={onContinueClick} disabled={!!errors.sendAmount || !!errors.recipient} variant="contained" color="primary">
-          Continue
+        <Button autoFocus onClick={onClose}>
+          Cancel
+        </Button>
+        <Button onClick={onDepositClick} disabled={!amount || !!error || !!errors.amount} variant="contained" color="primary">
+          Deposit
         </Button>
       </DialogActions>
     </Dialog>
   );
-};
+}

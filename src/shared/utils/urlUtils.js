@@ -1,4 +1,6 @@
 export class UrlService {
+  static register = () => "register";
+  static newWallet = () => "new-wallet";
   static walletImport = () => "wallet-import";
   static walletOpen = () => "wallet-open";
 

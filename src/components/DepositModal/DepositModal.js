@@ -6,8 +6,9 @@ import { Snackbar } from "../../shared/components/Snackbar";
 import { useSnackbar } from "notistack";
 
 const useStyles = makeStyles((theme) => ({
-  content: {
-    textAlign: "center"
+  dialogContent: {
+    textAlign: "center",
+    padding: "1rem"
   }
 }));
 
@@ -26,7 +27,7 @@ export const DepositModal = ({ address, onClose }) => {
   return (
     <Dialog maxWidth="xs" aria-labelledby="deposit-dialog-title" open={true} onClose={onClose}>
       <DialogTitle id="deposit-dialog-title">Deposit</DialogTitle>
-      <DialogContent dividers className={classes.content}>
+      <DialogContent dividers className={classes.dialogContent}>
         <Box fontSize="1rem">
           <Address address={address} isCopyable />
         </Box>

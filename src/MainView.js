@@ -5,6 +5,9 @@ import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "./shared/components/ErrorFallback";
 import { LeftNav } from "./components/LeftNav";
 import { RightContent } from "./components/RightContent";
+import { useEffect, useState } from "react";
+import { useWallet } from "./context/WalletProvider";
+import { WelcomeModal } from "./components/WelcomeModal";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -24,9 +27,21 @@ const useStyles = makeStyles((theme) => ({
 
 export function MainView() {
   const classes = useStyles();
+  const [isShowingWelcome, setIsShowingWelcome] = useState(false);
+  const { balance } = useWallet();
+
+  useEffect(() => {
+    if (balance === 0 && !isShowingWelcome) {
+      setIsShowingWelcome(true);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [balance]);
 
   return (
     <div className={classes.root}>
+      {isShowingWelcome && <WelcomeModal open={isShowingWelcome} onClose={() => setIsShowingWelcome(false)} />}
+
       <Grid container pt={2}>
         <ErrorBoundary FallbackComponent={ErrorFallback}>
           <Grid item xs={6}>
