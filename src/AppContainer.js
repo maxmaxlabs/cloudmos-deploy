@@ -120,8 +120,8 @@ export const AppContainer = () => {
 
         {appVersion && (
           <footer className={classes.footer}>
-            <Typography variant="caption">
-              Version: <strong>v{appVersion}</strong>
+            <Typography variant="caption" className={classes.caption}>
+              <strong>v{appVersion}</strong>
             </Typography>
 
             <Box display="flex" alignItems="center">
