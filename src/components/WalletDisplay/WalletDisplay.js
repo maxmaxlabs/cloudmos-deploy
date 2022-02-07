@@ -95,7 +95,7 @@ export function WalletDisplay() {
     setIsShowingSendModal(true);
   };
 
-  const omDepositClick = () => {
+  const onDepositClick = () => {
     handleCloseMenu();
     setIsShowingDepositModal(true);
   };
@@ -207,7 +207,7 @@ export function WalletDisplay() {
               Send
             </Typography>
           </MenuItem>
-          <MenuItem onClick={() => omDepositClick()} className={classes.menuItem}>
+          <MenuItem onClick={() => onDepositClick()} className={classes.menuItem}>
             <MoveToInboxIcon fontSize="small" />
             <Typography variant="body1" className={classes.menuItemText}>
               Deposit

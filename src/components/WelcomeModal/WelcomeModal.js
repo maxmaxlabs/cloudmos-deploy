@@ -87,7 +87,7 @@ export const WelcomeModal = ({ open, onClose }) => {
       </DialogContent>
       <DialogActions>
         <Button variant="contained" onClick={onClose} type="button" color="primary">
-          Close
+          Got it!
         </Button>
       </DialogActions>
     </Dialog>
