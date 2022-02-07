@@ -37,10 +37,22 @@ export const WelcomeModal = ({ open, onClose }) => {
 
         <ul className={classes.ul}>
           <li>
-            <LinkTo onClick={() => window.electron.openUrl("https://drip.akash.network/login ")}>Faucet</LinkTo>
+            <LinkTo onClick={() => window.electron.openUrl("https://docs.akash.network/token/funding")}>Get free tokens</LinkTo>
           </li>
           <li>
+            <LinkTo onClick={() => window.electron.openUrl("https://docs.akash.network/token/buy")}>Buy tokens</LinkTo>
+          </li>
+          <Box marginTop="1rem">
+            <hr />
+          </Box>
+          <Typography variant="caption">
+            <strong>Exchanges</strong>
+          </Typography>
+          <li>
             <LinkTo onClick={() => window.electron.openUrl("https://app.osmosis.zone/")}>Osmosis (DEX)</LinkTo>
+          </li>
+          <li>
+            <LinkTo onClick={() => window.electron.openUrl("https://emeris.com/")}>Emeris (DEX)</LinkTo>
           </li>
           <li>
             <LinkTo onClick={() => window.electron.openUrl("https://dex.sifchain.finance/")}>Sifchain (DEX)</LinkTo>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { MainView } from "./MainView";
 import { useWallet } from "./context/WalletProvider";
-import { makeStyles, Typography } from "@material-ui/core";
+import { makeStyles, Typography, Box, Button } from "@material-ui/core";
 import { Route, useHistory } from "react-router-dom";
 import { BetaBanner } from "./components/BetaBanner";
 import { useAppVersion } from "./hooks/useAppVersion";
@@ -56,6 +56,11 @@ const useStyles = makeStyles((theme) => ({
         fill: theme.palette.primary.main
       }
     }
+  },
+  caption: {
+    color: theme.palette.grey["600"],
+    fontWeight: "bold",
+    fontSize: ".6rem"
   }
 }));
 
@@ -119,31 +124,44 @@ export const AppContainer = () => {
               Version: <strong>v{appVersion}</strong>
             </Typography>
 
-            <ul className={classes.socialLinks}>
-              <li>
-                <LinkTo onClick={() => window.electron.openUrl("https://discord.gg/rXDFNYnFwv")} className={classes.socialLink}>
-                  <DiscordIcon className={classes.socialIcon} />
-                </LinkTo>
-              </li>
-              <li>
-                <LinkTo
-                  onClick={() => window.electron.openUrl("https://www.youtube.com/channel/UC1rgl1y8mtcQoa9R_RWO0UA?sub_confirmation=1")}
-                  className={classes.socialLink}
+            <Box display="flex" alignItems="center">
+              <Box marginRight="1rem">
+                <Button
+                  onClick={() => window.electron.openUrl("https://www.mintscan.io/akash/validators/akashvaloper14mt78hz73d9tdwpdvkd59ne9509kxw8yj7qy8f")}
+                  size="small"
                 >
-                  <YouTubeIcon className={classes.socialIcon} />
-                </LinkTo>
-              </li>
-              <li>
-                <LinkTo onClick={() => window.electron.openUrl("https://twitter.com/akashlytics")} className={classes.socialLink}>
-                  <TwitterIcon className={classes.socialIcon} />
-                </LinkTo>
-              </li>
-              <li>
-                <LinkTo onClick={() => window.electron.openUrl("https://github.com/Akashlytics/akashlytics-deploy")} className={classes.socialLink}>
-                  <GitHubIcon className={classes.socialIcon} />
-                </LinkTo>
-              </li>
-            </ul>
+                  <Typography variant="caption" className={classes.caption}>
+                    Validator
+                  </Typography>
+                </Button>
+              </Box>
+
+              <ul className={classes.socialLinks}>
+                <li>
+                  <LinkTo onClick={() => window.electron.openUrl("https://discord.gg/rXDFNYnFwv")} className={classes.socialLink}>
+                    <DiscordIcon className={classes.socialIcon} />
+                  </LinkTo>
+                </li>
+                <li>
+                  <LinkTo
+                    onClick={() => window.electron.openUrl("https://www.youtube.com/channel/UC1rgl1y8mtcQoa9R_RWO0UA?sub_confirmation=1")}
+                    className={classes.socialLink}
+                  >
+                    <YouTubeIcon className={classes.socialIcon} />
+                  </LinkTo>
+                </li>
+                <li>
+                  <LinkTo onClick={() => window.electron.openUrl("https://twitter.com/akashlytics")} className={classes.socialLink}>
+                    <TwitterIcon className={classes.socialIcon} />
+                  </LinkTo>
+                </li>
+                <li>
+                  <LinkTo onClick={() => window.electron.openUrl("https://github.com/Akashlytics/akashlytics-deploy")} className={classes.socialLink}>
+                    <GitHubIcon className={classes.socialIcon} />
+                  </LinkTo>
+                </li>
+              </ul>
+            </Box>
           </footer>
         )}
       </div>
