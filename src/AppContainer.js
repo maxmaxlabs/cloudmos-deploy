@@ -42,7 +42,8 @@ export const AppContainer = () => {
       }
     }
 
-    const isBetaBannerSeen = Boolean(localStorage.getItem("isBetaBannerSeen"));
+    let isBetaBannerSeen = localStorage.getItem("isBetaBannerSeen");
+    isBetaBannerSeen = !!isBetaBannerSeen && isBetaBannerSeen === "false" ? false : true;
     setShowBetaBanner(!isBetaBannerSeen);
     setIsAppInitiated(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps

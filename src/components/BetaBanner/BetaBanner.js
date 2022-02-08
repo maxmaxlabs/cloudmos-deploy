@@ -9,6 +9,9 @@ const useStyles = makeStyles((theme) => ({
   },
   betaText: {
     padding: "0 1rem"
+  },
+  appBar: {
+    top: "30px"
   }
 }));
 
@@ -25,7 +28,7 @@ export const BetaBanner = () => {
   return (
     <>
       {isBetaBarVisible && (
-        <AppBar position="static">
+        <AppBar position="relative" className={classes.appBar}>
           <Toolbar>
             <Chip label="BETA" color="secondary" className={classes.betaChip} />
             <div className={classes.betaText}>
