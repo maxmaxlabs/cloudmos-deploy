@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
-import { Box, Avatar, makeStyles, Typography, List, ListItem, ListItemText, ListItemAvatar } from "@material-ui/core";
+import { Box, Avatar, TextField, makeStyles, Typography, List, ListItem, ListItemText, ListItemAvatar } from "@material-ui/core";
 import { Helmet } from "react-helmet-async";
-import axios from "axios";
-import removeMarkdown from "markdown-to-text";
 import { useTemplates } from "../../context/TemplatesProvider";
 import { Link } from "react-router-dom";
 import { UrlService } from "../../shared/utils/urlUtils";
@@ -30,7 +28,8 @@ const useStyles = makeStyles((theme) => ({
 
 export function TemplateGallery(props) {
   const [selectedCategoryTitle, setSelectedCategoryTitle] = useState(null);
-  const { isLoading, categories } = useTemplates();
+  const [searchTerms, setSearchTerms] = useState("");
+  const { isLoading, categories, templates } = useTemplates();
 
   useEffect(() => {
     if (categories?.length > 0) {
@@ -42,16 +41,8 @@ export function TemplateGallery(props) {
 
   const classes = useStyles();
 
-  function getTemplateSummary(template) {
-    if (!template.readme) return null;
-
-    const markdown = template.readme.replace(/^#+ .*\n+/g, "");
-    const readmeTxt = removeMarkdown(markdown);
-    const maxLength = 200;
-    const summary = readmeTxt.length > maxLength ? readmeTxt.substring(0, maxLength - 3) + "..." : readmeTxt;
-
-    return summary;
-  }
+  const searchTermsSplit = searchTerms.split().map(x => x.toLowerCase());
+  const searchResults = templates.filter((x) => searchTermsSplit.some((s) => x.name.toLowerCase().includes(s) || x.readme.toLowerCase().includes(s)));
 
   return (
     <Box className={classes.root}>
@@ -61,25 +52,43 @@ export function TemplateGallery(props) {
         </Typography>
       </Box>
 
-      <Box className={classes.gallery}>
-        <List className={classes.categoryList}>
-          {categories.map((category) => (
-            <ListItem button key={category.title} onClick={() => setSelectedCategoryTitle(category.title)} selected={category.title === selectedCategoryTitle}>
-              <ListItemText primary={`${category.title} (${category.templates.length})`} />
+      <TextField fullWidth label="Search" value={searchTerms} onChange={(ev) => setSearchTerms(ev.target.value)} />
+
+      {searchTerms ? (
+        <List className={classes.templateList}>
+          {searchResults.map((template) => (
+            <ListItem button key={template.path} component={Link} to={UrlService.templateDetails(template.path)}>
+              <ListItemAvatar>{template.logoUrl && <Avatar src={template.logoUrl} variant="square" />}</ListItemAvatar>
+              <ListItemText primary={<>{template.name} - <strong>{template.category}</strong></>} secondary={template.summary} />
             </ListItem>
           ))}
         </List>
-        {selectedCategory && selectedCategory.templates && (
-          <List className={classes.templateList}>
-            {selectedCategory.templates.map((template) => (
-              <ListItem button key={template.path} component={Link} to={UrlService.templateDetails(template.path)}>
-                <ListItemAvatar>{template.logoUrl && <Avatar src={template.logoUrl} variant="square" />}</ListItemAvatar>
-                <ListItemText primary={template.name} secondary={getTemplateSummary(template)} />
+      ) : (
+        <Box className={classes.gallery}>
+          <List className={classes.categoryList}>
+            {categories.map((category) => (
+              <ListItem
+                button
+                key={category.title}
+                onClick={() => setSelectedCategoryTitle(category.title)}
+                selected={category.title === selectedCategoryTitle}
+              >
+                <ListItemText primary={`${category.title} (${category.templates.length})`} />
               </ListItem>
             ))}
           </List>
-        )}
-      </Box>
+          {selectedCategory && selectedCategory.templates && (
+            <List className={classes.templateList}>
+              {selectedCategory.templates.map((template) => (
+                <ListItem button key={template.path} component={Link} to={UrlService.templateDetails(template.path)}>
+                  <ListItemAvatar>{template.logoUrl && <Avatar src={template.logoUrl} variant="square" />}</ListItemAvatar>
+                  <ListItemText primary={template.name} secondary={template.summary} />
+                </ListItem>
+              ))}
+            </List>
+          )}
+        </Box>
+      )}
     </Box>
   );
 }

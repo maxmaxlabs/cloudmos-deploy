@@ -13,20 +13,25 @@ export const TemplatesProvider = ({ children }) => {
     return categories.flatMap((x) => x.templates).find((x) => x.path === path);
   }
 
+  const templates = categories.flatMap(x => x.templates);
+
   useEffect(() => {
     (async () => {
       setIsLoading(true);
 
       const templateEndpoint =
-        "https://gist.githubusercontent.com/Redm4x/60fee97d622a8d6a97777e29f5e738fd/raw/5fcbccd3c1a8ed5c690c03e9346df6e04e485e7b/Test.json";
+        "https://gist.githubusercontent.com/Redm4x/60fee97d622a8d6a97777e29f5e738fd/raw/bd9d2c31c168e8651da68794e58c11fd508733e1/Test.json";
       const response = await axios.get(templateEndpoint);
       let categories = response.data.filter((x) => (x.templates || []).length > 0);
+      categories.forEach((c) => {
+        c.templates.forEach((t) => (t.category = c.title));
+      });
       setCategories(categories);
       setIsLoading(false);
     })();
   }, []);
 
-  return <TemplatesProviderContext.Provider value={{ isLoading, categories, getTemplateByPath }}>{children}</TemplatesProviderContext.Provider>;
+  return <TemplatesProviderContext.Provider value={{ isLoading, categories, templates, getTemplateByPath }}>{children}</TemplatesProviderContext.Provider>;
 };
 
 export const useTemplates = () => {
