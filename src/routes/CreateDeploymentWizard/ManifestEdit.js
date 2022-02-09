@@ -201,24 +201,26 @@ export function ManifestEdit(props) {
         <MonacoEditor language="yaml" theme="vs-dark" value={editedManifest} onChange={handleTextChange} options={monacoOptions} />
       </ViewPanel>
 
-      <DeploymentDepositModal
-        isDepositingDeployment={isDepositingDeployment}
-        handleCancel={() => setIsDepositingDeployment(false)}
-        onDeploymentDeposit={onDeploymentDeposit}
-        min={5}
-        infoText={
-          <Alert severity="info" className={classes.alert}>
-            <Typography variant="caption">
-              To create a deployment you need a minimum of <strong>5AKT</strong> for the{" "}
-              <LinkTo onClick={(ev) => handleDocClick(ev, "https://docs.akash.network/glossary/escrow#escrow-accounts")}>
-                <strong>escrow account.</strong>
-              </LinkTo>{" "}
-              Escrow accounts are a mechanism that allow for time-based payments from one bank account to another without block-by-block micropayments. If your
-              escrow account runs out, your deployment will automatically close. You can still add more funds to your deployment escrow once it's created.
-            </Typography>
-          </Alert>
-        }
-      />
+      {isDepositingDeployment && (
+        <DeploymentDepositModal
+          handleCancel={() => setIsDepositingDeployment(false)}
+          onDeploymentDeposit={onDeploymentDeposit}
+          min={5}
+          infoText={
+            <Alert severity="info" className={classes.alert}>
+              <Typography variant="caption">
+                To create a deployment you need a minimum of <strong>5AKT</strong> for the{" "}
+                <LinkTo onClick={(ev) => handleDocClick(ev, "https://docs.akash.network/glossary/escrow#escrow-accounts")}>
+                  <strong>escrow account.</strong>
+                </LinkTo>{" "}
+                Escrow accounts are a mechanism that allow for time-based payments from one bank account to another without block-by-block micropayments. If
+                your escrow account runs out, your deployment will automatically close. You can still add more funds to your deployment escrow once it's
+                created.
+              </Typography>
+            </Alert>
+          }
+        />
+      )}
     </>
   );
 }

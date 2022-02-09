@@ -220,11 +220,7 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address, loadD
         </Box>
       )}
 
-      <DeploymentDepositModal
-        isDepositingDeployment={isDepositingDeployment}
-        handleCancel={() => setIsDepositingDeployment(false)}
-        onDeploymentDeposit={onDeploymentDeposit}
-      />
+      {isDepositingDeployment && <DeploymentDepositModal handleCancel={() => setIsDepositingDeployment(false)} onDeploymentDeposit={onDeploymentDeposit} />}
     </div>
   );
 }

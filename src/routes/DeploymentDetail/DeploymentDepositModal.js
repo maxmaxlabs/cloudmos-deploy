@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { makeStyles, Button, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputAdornment, Box, TextField, Chip } from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
 import { useWallet } from "../../context/WalletProvider";
@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function DeploymentDepositModal({ isDepositingDeployment, handleCancel, onDeploymentDeposit, min = 0, infoText = null }) {
+export function DeploymentDepositModal({ handleCancel, onDeploymentDeposit, min = 0, infoText = null }) {
   const classes = useStyles();
   const formRef = useRef();
   const [error, setError] = useState("");
@@ -42,7 +42,6 @@ export function DeploymentDepositModal({ isDepositingDeployment, handleCancel, o
   const { amount } = watch();
 
   const onClose = () => {
-    setValue("amount", min || 0);
     handleCancel();
   };
 
@@ -71,14 +70,12 @@ export function DeploymentDepositModal({ isDepositingDeployment, handleCancel, o
       return;
     }
 
-    setValue("amount", 0);
     setIsBalanceClicked(false);
-
     onDeploymentDeposit(deposit);
   };
 
   return (
-    <Dialog maxWidth="xs" fullWidth aria-labelledby="deposit-deployment-dialog-title" open={isDepositingDeployment} onClose={onClose}>
+    <Dialog maxWidth="xs" fullWidth aria-labelledby="deposit-deployment-dialog-title" open={true} onClose={onClose}>
       <DialogTitle id="deposit-deployment-dialog-title">Deployment Deposit</DialogTitle>
       <DialogContent dividers className={classes.dialogContent}>
         <form onSubmit={handleSubmit(onSubmit)} ref={formRef}>
