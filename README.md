@@ -18,10 +18,10 @@ Akashlytics Deploy is a desktop app that greatly simplifies and enhances deploym
 - Linux support
 - Send transactions
 - Auto update
+- Create wallet
 
 ## Roadmap
 
-- Create wallet
 - Template gallery
 - Manage multiple wallets
 - Manifest Editor UI
