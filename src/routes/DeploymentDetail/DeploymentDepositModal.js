@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { makeStyles, Button, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputAdornment, Box, TextField, Chip } from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
 import { useWallet } from "../../context/WalletProvider";
