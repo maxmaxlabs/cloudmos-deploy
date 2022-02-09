@@ -1,6 +1,6 @@
 export class ApiUrlService {
   static deploymentList(apiEndpoint, address) {
-    return `${apiEndpoint}/akash/deployment/v1beta1/deployments/list?filters.owner=${address}&pagination.limit=1000`;
+    return `${apiEndpoint}/akash/deployment/v1beta1/deployments/list?filters.owner=${address}&pagination.limit=2000`;
   }
   static deploymentDetail(apiEndpoint, address, dseq) {
     return `${apiEndpoint}/akash/deployment/v1beta1/deployments/info?id.owner=${address}&id.dseq=${dseq}`;
