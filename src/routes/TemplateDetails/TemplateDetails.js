@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Box, Tabs, Button, Tab, makeStyles, Typography, IconButton } from "@material-ui/core";
 import PublishIcon from "@material-ui/icons/Publish";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import GitHubIcon from "@material-ui/icons/GitHub";
 import { useParams, useHistory } from "react-router";
 import { Link } from "react-router-dom";
 import { useTemplates } from "../../context/TemplatesProvider";
@@ -50,6 +51,10 @@ export function TemplateDetails(props) {
     history.push(UrlService.templates());
   }
 
+  function handleOpenGithub() {
+    window.electron.openUrl(template.githubUrl);
+  }
+
   return (
     <Box className={classes.root}>
       <Box className={classes.titleContainer}>
@@ -60,6 +65,12 @@ export function TemplateDetails(props) {
           <Typography variant="h3" className={classes.title}>
             {template.name}
           </Typography>
+
+          <Box marginLeft="0.5rem">
+            <IconButton aria-label="View on github" title="View on Github" onClick={handleOpenGithub}>
+              <GitHubIcon />
+            </IconButton>
+          </Box>
         </Box>
 
         <Button
