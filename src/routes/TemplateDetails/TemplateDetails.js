@@ -10,23 +10,15 @@ import ReactMarkdown from "react-markdown";
 import { UrlService } from "../../shared/utils/urlUtils";
 
 const useStyles = makeStyles((theme) => ({
-  root: { padding: "1rem" },
-  gallery: {
-    display: "flex"
+  root: {
+    padding: "1rem",
+    "& img": {
+      maxWidth: "100%"
+    }
   },
   title: {
     fontSize: "2rem",
     fontWeight: "bold"
-  },
-  categoryList: {
-    flexBasis: "280px"
-  },
-  templateList: {
-    flexBasis: 0,
-    flexGrow: 999,
-    "& .MuiAvatar-img": {
-      objectFit: "contain"
-    }
   },
   titleContainer: {
     display: "flex"
