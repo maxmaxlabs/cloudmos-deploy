@@ -29,6 +29,7 @@ const useStyles = makeStyles((theme) => ({
 export function TemplateGallery(props) {
   const [selectedCategoryTitle, setSelectedCategoryTitle] = useState(null);
   const [searchTerms, setSearchTerms] = useState("");
+  const [searchTermsUsed, setSearchTermsUsed] = useState(null);
   const { isLoading, categories, templates } = useTemplates();
 
   useEffect(() => {
@@ -37,12 +38,32 @@ export function TemplateGallery(props) {
     }
   }, [categories]);
 
+  useEffect(() => {
+    let timeoutId = null;
+    if (searchTerms) {
+      console.log("Wait: " + searchTerms);
+      timeoutId = setTimeout(() => {
+        console.log("Search: " + searchTerms);
+        setSearchTermsUsed(searchTerms);
+      }, 300);
+    } else {
+      console.log("Clear");
+      setSearchTermsUsed(searchTerms);
+    }
+
+    return () => {
+      console.log("clear timeout");
+      clearTimeout(timeoutId);
+    };
+  }, [searchTerms]);
+
   const selectedCategory = selectedCategoryTitle && categories.find((x) => x.title === selectedCategoryTitle);
 
   const classes = useStyles();
 
-  const searchTermsSplit = searchTerms.split().map(x => x.toLowerCase());
-  const searchResults = templates.filter((x) => searchTermsSplit.some((s) => x.name.toLowerCase().includes(s) || x.readme.toLowerCase().includes(s)));
+  const searchTermsSplit = searchTermsUsed?.split().map((x) => x.toLowerCase());
+  const searchResults =
+    searchTermsSplit && templates.filter((x) => searchTermsSplit.some((s) => x.name.toLowerCase().includes(s) || x.readme.toLowerCase().includes(s)));
 
   return (
     <Box className={classes.root}>
@@ -54,12 +75,19 @@ export function TemplateGallery(props) {
 
       <TextField fullWidth label="Search" value={searchTerms} onChange={(ev) => setSearchTerms(ev.target.value)} />
 
-      {searchTerms ? (
+      {searchTermsUsed ? (
         <List className={classes.templateList}>
           {searchResults.map((template) => (
             <ListItem button key={template.path} component={Link} to={UrlService.templateDetails(template.path)}>
               <ListItemAvatar>{template.logoUrl && <Avatar src={template.logoUrl} variant="square" />}</ListItemAvatar>
-              <ListItemText primary={<>{template.name} - <strong>{template.category}</strong></>} secondary={template.summary} />
+              <ListItemText
+                primary={
+                  <>
+                    {template.name} - <strong>{template.category}</strong>
+                  </>
+                }
+                secondary={template.summary}
+              />
             </ListItem>
           ))}
         </List>
