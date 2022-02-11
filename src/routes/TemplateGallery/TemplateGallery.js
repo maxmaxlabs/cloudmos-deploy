@@ -73,6 +73,10 @@ export function TemplateGallery(props) {
         </Typography>
       </Box>
 
+      <Box paddingTop={2}>
+        These templates come from the <a href="https://github.com/ovrclk/awesome-akash" target="_blank">Awesome Akash</a> repository.
+      </Box>
+
       <TextField fullWidth label="Search" value={searchTerms} onChange={(ev) => setSearchTerms(ev.target.value)} />
 
       {searchTermsUsed ? (
