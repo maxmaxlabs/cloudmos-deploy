@@ -57,7 +57,7 @@ export function MainView() {
           <Paper className={classes.viewContainer} variant="outlined">
             <LeftNav />
 
-            <Box flexGrow={1}>
+            <Box flexGrow={1} style={{ overflowX: "hidden" }}>
               <ErrorBoundary FallbackComponent={ErrorFallback}>
                 <RightContent />
               </ErrorBoundary>
