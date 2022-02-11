@@ -102,8 +102,8 @@ function createWindow() {
     ipcMain.on("restart_app", () => {
       autoUpdater.quitAndInstall();
     });
-    ipcMain.on("isDev", (event, arg) => {
-      event.reply("isDev", isDev);
+    ipcMain.handle("isDev", (event, arg) => {
+      return Promise.resolve(isDev);
     });
     ipcMain.handle('dialog', (event, method, params) => {       
       return dialog[method](mainWindow, params);

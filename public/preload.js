@@ -40,14 +40,7 @@ contextBridge.exposeInMainWorld("electron", {
   },
   getAppVersion: () => appVersion,
   getAppEnvironment: () => appEnvironment,
-  isDev: () => {
-    return new Promise((res, rej) => {
-      ipcRenderer.on("isDev", (event, ...args) => {
-        res(args[0]);
-      });
-      ipcRenderer.send("isDev");
-    });
-  },
+  isDev: () => ipcRenderer.invoke("isDev"),
   openTemplateFromFile: async () => {
     const response = await ipcRenderer.invoke("dialog", "showOpenDialog", {
       title: "Select a deployment template",
