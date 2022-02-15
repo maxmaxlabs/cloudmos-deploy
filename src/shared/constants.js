@@ -7,3 +7,7 @@ export const testnetId = "testnet";
 export const edgenetId = "edgenet";
 
 export const transactionLink = (txHash) => `https://www.mintscan.io/akash/txs/${txHash}`;
+
+// UI
+export const statusBarHeight = 30;
+export const accountBarHeight = 58;

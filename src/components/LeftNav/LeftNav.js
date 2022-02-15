@@ -5,6 +5,7 @@ import SettingsIcon from "@material-ui/icons/Settings";
 import CollectionsIcon from '@material-ui/icons/Collections';
 import { Link, useLocation } from "react-router-dom";
 import { UrlService } from "../../shared/utils/urlUtils";
+import { accountBarHeight, statusBarHeight } from "../../shared/constants";
 
 const drawerWidth = 200;
 
@@ -12,7 +13,9 @@ const useStyles = makeStyles((theme) => ({
   root: {
     width: drawerWidth,
     flexShrink: 0,
-    borderRight: "1px solid rgba(0,0,0,0.1)"
+    borderRight: "1px solid rgba(0,0,0,0.1)",
+    position: "fixed",
+    height: `calc(100% - ${accountBarHeight}px - ${statusBarHeight * 2}px)`
   },
   drawerPaper: {
     width: drawerWidth
@@ -32,13 +35,15 @@ export const LeftNav = () => {
   ];
 
   return (
-    <List className={classes.root}>
-      {routes.map((route) => (
-        <ListItem button key={route.title} component={Link} to={route.url} selected={location.pathname === route.url}>
-          <ListItemIcon>{route.icon}</ListItemIcon>
-          <ListItemText primary={route.title} />
-        </ListItem>
-      ))}
-    </List>
+    <div className={classes.root}>
+      <List>
+        {routes.map((route) => (
+          <ListItem button key={route.title} component={Link} to={route.url} selected={location.pathname === route.url}>
+            <ListItemIcon>{route.icon}</ListItemIcon>
+            <ListItemText primary={route.title} />
+          </ListItem>
+        ))}
+      </List>
+    </div>
   );
 };

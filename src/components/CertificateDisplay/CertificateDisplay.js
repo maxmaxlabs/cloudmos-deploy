@@ -16,30 +16,20 @@ import { generateCertificate } from "../../shared/utils/certificateUtils";
 import { ExportCertificate } from "./ExportCertificate";
 import GetAppIcon from "@material-ui/icons/GetApp";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
+import { accountBarHeight } from "../../shared/constants";
 
 const useStyles = makeStyles({
   root: {
-    minWidth: 275,
-    minHeight: 80,
-    height: "100%",
-    borderRadius: 0,
-    border: "none",
-    "& .MuiCardHeader-subheader": {
-      alignItems: "center",
-      display: "flex"
-    }
-  },
-  headerAction: {
-    margin: 0
-  },
-  headerRoot: {
-    padding: "8px 16px 12px"
+    maxHeight: `${accountBarHeight}px`
   },
   menuItem: {
     display: "flex",
     alignItems: "end"
   },
   menuItemText: {
+    marginLeft: ".5rem"
+  },
+  warningIcon: {
     marginLeft: ".5rem"
   }
 });
@@ -147,91 +137,86 @@ export function CertificateDisplay() {
 
   return (
     <>
-      <Card className={classes.root} variant="outlined">
-        <CardHeader
-          classes={{ action: classes.headerAction, root: classes.headerRoot }}
-          title={
-            <Box display="flex" alignItems="center">
-              <VerifiedUserIcon />
-              <Box component="span" marginLeft="5px">
-                Certificate
-              </Box>
-              <Box marginLeft="1rem">
-                <IconButton onClick={() => loadValidCertificates(true)} aria-label="refresh" disabled={isLoadingCertificates} size="small">
-                  {isLoadingCertificates ? <CircularProgress size="1.5rem" /> : <RefreshIcon />}
-                </IconButton>
-              </Box>
-              {certificate && (
-                <Box marginLeft=".1rem">
-                  <IconButton aria-label="settings" aria-haspopup="true" onClick={handleMenuClick} size="small">
-                    <MoreHorizIcon fontSize="large" />
-                  </IconButton>
-                </Box>
-              )}
-              {!isLoadingCertificates && !certificate && (
-                <Box marginLeft="1rem">
-                  <Button variant="contained" color="primary" size="small" onClick={() => createCertificate()}>
-                    Create Certificate
-                  </Button>
-                </Box>
-              )}
+      <div className={classes.root}>
+        <Box display="flex" alignItems="center">
+          <VerifiedUserIcon fontSize="small" />
+          <Box component="span" marginLeft="5px">
+            Certificate
+          </Box>
+          <Box marginLeft="1rem">
+            <IconButton onClick={() => loadValidCertificates(true)} aria-label="refresh" disabled={isLoadingCertificates} size="small">
+              {isLoadingCertificates ? <CircularProgress size="1.5rem" /> : <RefreshIcon />}
+            </IconButton>
+          </Box>
+          {certificate && (
+            <Box marginLeft=".2rem">
+              <IconButton aria-label="settings" aria-haspopup="true" onClick={handleMenuClick} size="small">
+                <MoreHorizIcon />
+              </IconButton>
             </Box>
-          }
-          subheader={
-            <>
-              {certificate && <Typography variant="caption">Serial: {certificate.serial}</Typography>}
+          )}
+          {!isLoadingCertificates && !certificate && (
+            <Box marginLeft="1rem">
+              <Button variant="contained" color="primary" size="small" onClick={() => createCertificate()}>
+                Create Certificate
+              </Button>
+            </Box>
+          )}
+        </Box>
 
-              {certificate && !isLocalCertMatching && (
-                <Tooltip
-                  classes={{ tooltip: classes.tooltip }}
-                  arrow
-                  title="The local cert doesn't match the one on the blockchain. You can revoke it and create a new one."
-                >
-                  <WarningIcon fontSize="small" color="error" />
-                </Tooltip>
-              )}
-            </>
-          }
-        ></CardHeader>
-        {certificate && (
-          <Menu
-            id="cert-menu"
-            anchorEl={anchorEl}
-            keepMounted
-            getContentAnchorEl={null}
-            open={Boolean(anchorEl)}
-            onClose={handleClose}
-            anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "right"
-            }}
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "right"
-            }}
-            onClick={handleClose}
-          >
-            <MenuItem onClick={() => revokeCertificate()} className={classes.menuItem}>
-              <DeleteForeverIcon fontSize="small" />
-              <Typography variant="body1" className={classes.menuItemText}>
-                Revoke
-              </Typography>
-            </MenuItem>
-            <MenuItem onClick={() => regenerateCertificate()} className={classes.menuItem}>
-              <AutorenewIcon fontSize="small" />
-              <Typography variant="body1" className={classes.menuItemText}>
-                Regenerate
-              </Typography>
-            </MenuItem>
-            <MenuItem onClick={() => setIsExportingCert(true)} className={classes.menuItem}>
-              <GetAppIcon fontSize="small" />
-              <Typography variant="body1" className={classes.menuItemText}>
-                Export
-              </Typography>
-            </MenuItem>
-          </Menu>
-        )}
-      </Card>
+        <Box display="flex" alignItems="center">
+          {certificate && <Typography variant="caption" color="textSecondary">Serial: {certificate.serial}</Typography>}
+
+          {certificate && !isLocalCertMatching && (
+            <Tooltip
+              classes={{ tooltip: classes.tooltip }}
+              arrow
+              title="The local cert doesn't match the one on the blockchain. You can revoke it and create a new one."
+            >
+              <WarningIcon fontSize="small" color="error" className={classes.warningIcon} />
+            </Tooltip>
+          )}
+        </Box>
+      </div>
+
+      {certificate && (
+        <Menu
+          id="cert-menu"
+          anchorEl={anchorEl}
+          keepMounted
+          getContentAnchorEl={null}
+          open={Boolean(anchorEl)}
+          onClose={handleClose}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "right"
+          }}
+          transformOrigin={{
+            vertical: "top",
+            horizontal: "right"
+          }}
+          onClick={handleClose}
+        >
+          <MenuItem onClick={() => revokeCertificate()} className={classes.menuItem}>
+            <DeleteForeverIcon fontSize="small" />
+            <Typography variant="body1" className={classes.menuItemText}>
+              Revoke
+            </Typography>
+          </MenuItem>
+          <MenuItem onClick={() => regenerateCertificate()} className={classes.menuItem}>
+            <AutorenewIcon fontSize="small" />
+            <Typography variant="body1" className={classes.menuItemText}>
+              Regenerate
+            </Typography>
+          </MenuItem>
+          <MenuItem onClick={() => setIsExportingCert(true)} className={classes.menuItem}>
+            <GetAppIcon fontSize="small" />
+            <Typography variant="body1" className={classes.menuItemText}>
+              Export
+            </Typography>
+          </MenuItem>
+        </Menu>
+      )}
 
       {isExportingCert && <ExportCertificate isOpen={isExportingCert} onClose={() => setIsExportingCert(false)} />}
     </>

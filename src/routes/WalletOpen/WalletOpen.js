@@ -14,6 +14,7 @@ import { TitleLogo } from "../../shared/components/TitleLogo";
 import { Address } from "../../shared/components/Address";
 import { useForm, Controller } from "react-hook-form";
 import Alert from "@material-ui/lab/Alert";
+import { Layout } from "../../shared/components/Layout";
 
 const useStyles = makeStyles((theme) => ({
   root: { padding: "5% 0" },
@@ -104,76 +105,78 @@ export function WalletOpen() {
   }
 
   return (
-    <div className={classes.root}>
-      <TitleLogo />
+    <Layout>
+      <div className={classes.root}>
+        <TitleLogo />
 
-      <Container maxWidth="xs" className={classes.container}>
-        <Typography variant="h6" color="textSecondary" className={classes.title}>
-          Open account
-        </Typography>
+        <Container maxWidth="xs" className={classes.container}>
+          <Typography variant="h6" color="textSecondary" className={classes.title}>
+            Open account
+          </Typography>
 
-        <Box marginBottom="2rem">
-          <Alert icon={<AccountBalanceWalletIcon />} variant="outlined" classes={{ root: classes.alertRoot, icon: classes.alertIcon }}>
-            <Typography variant="body1">
-              <strong>{currentWallet?.name}</strong>
-            </Typography>
-            <Typography variant="caption">
-              <Address address={currentWallet?.address} />
-            </Typography>
-          </Alert>
-        </Box>
+          <Box marginBottom="2rem">
+            <Alert icon={<AccountBalanceWalletIcon />} variant="outlined" classes={{ root: classes.alertRoot, icon: classes.alertIcon }}>
+              <Typography variant="body1">
+                <strong>{currentWallet?.name}</strong>
+              </Typography>
+              <Typography variant="caption">
+                <Address address={currentWallet?.address} />
+              </Typography>
+            </Alert>
+          </Box>
 
-        <form autoComplete={"false"} onSubmit={handleSubmit(onSubmit)}>
-          <FormControl error={!errors.password} className={classes.formControl} fullWidth>
-            <Controller
-              control={control}
-              name="password"
-              rules={{
-                required: true
-              }}
-              render={({ fieldState, field }) => {
-                const helperText = "Password is required.";
+          <form autoComplete={"false"} onSubmit={handleSubmit(onSubmit)}>
+            <FormControl error={!errors.password} className={classes.formControl} fullWidth>
+              <Controller
+                control={control}
+                name="password"
+                rules={{
+                  required: true
+                }}
+                render={({ fieldState, field }) => {
+                  const helperText = "Password is required.";
 
-                return (
-                  <TextField
-                    {...field}
-                    type="password"
-                    variant="outlined"
-                    label="Password"
-                    autoFocus
-                    error={!!fieldState.invalid}
-                    helperText={fieldState.invalid && helperText}
-                  />
-                );
-              }}
-            />
-          </FormControl>
+                  return (
+                    <TextField
+                      {...field}
+                      type="password"
+                      variant="outlined"
+                      label="Password"
+                      autoFocus
+                      error={!!fieldState.invalid}
+                      helperText={fieldState.invalid && helperText}
+                    />
+                  );
+                }}
+              />
+            </FormControl>
 
-          {isLoading && (
-            <Box textAlign="center">
-              <CircularProgress />
-            </Box>
-          )}
+            {isLoading && (
+              <Box textAlign="center">
+                <CircularProgress />
+              </Box>
+            )}
 
-          {!isLoading && (
-            <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Button color="secondary" onClick={() => setIsShowingConfirmationModal(true)}>
-                Delete wallet
-              </Button>
-              <Button type="submit" variant="contained" color="primary" disabled={!password}>
-                Open
-              </Button>
-            </Box>
-          )}
-        </form>
+            {!isLoading && (
+              <Box display="flex" justifyContent="space-between" alignItems="center">
+                <Button color="secondary" onClick={() => setIsShowingConfirmationModal(true)}>
+                  Delete wallet
+                </Button>
+                <Button type="submit" variant="contained" color="primary" disabled={!password}>
+                  Open
+                </Button>
+              </Box>
+            )}
+          </form>
 
-        <DeleteWalletConfirm
-          isOpen={isShowingConfirmationModal}
-          address={currentWallet?.address}
-          handleCancel={handleCancel}
-          handleConfirmDelete={handleConfirmDelete}
-        />
-      </Container>
-    </div>
+          <DeleteWalletConfirm
+            isOpen={isShowingConfirmationModal}
+            address={currentWallet?.address}
+            handleCancel={handleCancel}
+            handleConfirmDelete={handleConfirmDelete}
+          />
+        </Container>
+      </div>
+    </Layout>
   );
 }

@@ -26,20 +26,11 @@ import clsx from "clsx";
 import { usePasswordConfirmationModal } from "../../context/ConfirmPasswordModal";
 import { MnemonicModal } from "./MnemonicModal";
 import { ChangeAccountNameModal } from "./ChangeAccountNameModal";
+import { accountBarHeight } from "../../shared/constants";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    minWidth: 275,
-    height: "100%",
-    borderRadius: 0,
-    border: "none",
-    minHeight: 80
-  },
-  headerAction: {
-    margin: 0
-  },
-  headerRoot: {
-    padding: "8px 16px 12px"
+    maxHeight: `${accountBarHeight}px`
   },
   menuItem: {
     display: "flex",
@@ -139,106 +130,102 @@ export function WalletDisplay() {
 
   return (
     <>
-      <Card className={classes.root} variant="outlined">
-        <CardHeader
-          classes={{ action: classes.headerAction, root: classes.headerRoot }}
-          title={
-            <Box display="flex" alignItems="center">
-              <AccountBalanceWalletIcon />
-              <Box component="span" marginLeft="5px">
-                {balance / 1000000} AKT
-              </Box>
-              {selectedWallet?.name && (
-                <Box marginLeft="1rem">
-                  <Typography variant="caption">
-                    <strong>{selectedWallet?.name}</strong>
-                  </Typography>
-                </Box>
-              )}
-              <Box marginLeft="1rem">
-                <IconButton onClick={() => refreshBalance(true)} aria-label="refresh" disabled={isRefreshingBalance} size="small">
-                  {isRefreshingBalance ? <CircularProgress size="1.5rem" /> : <RefreshIcon />}
-                </IconButton>
-              </Box>
-              <Box marginLeft=".5rem">
-                <IconButton aria-label="settings" onClick={handleMenuClick} size="small">
-                  <MoreHorizIcon fontSize="large" />
-                </IconButton>
-              </Box>
+      <div className={classes.root}>
+        <Box display="flex" alignItems="center">
+          {selectedWallet?.name && (
+            <Box marginRight="1rem">
+              <Typography variant="caption">
+                <strong>{selectedWallet?.name}</strong>
+              </Typography>
             </Box>
-          }
-          subheader={
-            <Box display="flex" alignItems="center">
-              <Box marginRight=".5rem" fontWeight="bold">
-                <Typography variant="caption">
-                  Balance:
-                  <strong>
-                    <PriceValue value={uaktToAKT(balance, 6)} />
-                  </strong>
-                </Typography>
-              </Box>
-              <Box marginLeft="1rem">
-                <Typography variant="caption" color="textSecondary">
-                  <Address address={address} isCopyable />
-                </Typography>
-              </Box>
-            </Box>
-          }
-        ></CardHeader>
-        <Menu
-          id="wallet-menu"
-          anchorEl={anchorEl}
-          keepMounted
-          getContentAnchorEl={null}
-          open={Boolean(anchorEl)}
-          onClose={handleCloseMenu}
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "right"
-          }}
-          transformOrigin={{
-            vertical: "top",
-            horizontal: "right"
-          }}
-        >
-          <MenuItem onClick={() => onSendClick()} className={classes.menuItem}>
-            <SendIcon fontSize="small" />
-            <Typography variant="body1" className={classes.menuItemText}>
-              Send
+          )}
+          <AccountBalanceWalletIcon fontSize="small" />
+          <Box component="span" marginLeft="5px">
+            {balance / 1000000} AKT
+          </Box>
+
+          <Box marginLeft="1rem">
+            <IconButton onClick={() => refreshBalance(true)} aria-label="refresh" disabled={isRefreshingBalance} size="small">
+              {isRefreshingBalance ? <CircularProgress size="1.5rem" /> : <RefreshIcon />}
+            </IconButton>
+          </Box>
+          <Box marginLeft=".2rem">
+            <IconButton aria-label="settings" onClick={handleMenuClick} size="small">
+              <MoreHorizIcon />
+            </IconButton>
+          </Box>
+        </Box>
+
+        <Box display="flex" alignItems="center">
+          <Box marginRight=".5rem" fontWeight="bold">
+            <Typography variant="caption">
+              Balance:{" "}
+              <strong>
+                <PriceValue value={uaktToAKT(balance, 6)} />
+              </strong>
             </Typography>
-          </MenuItem>
-          <MenuItem onClick={() => onDepositClick()} className={classes.menuItem}>
-            <MoveToInboxIcon fontSize="small" />
-            <Typography variant="body1" className={classes.menuItemText}>
-              Deposit
+          </Box>
+          <Box marginLeft="1rem">
+            <Typography variant="caption" color="textSecondary">
+              <Address address={address} isCopyable />
             </Typography>
-          </MenuItem>
-          <MenuItem onClick={() => onViewMnemonic()} className={classes.menuItem}>
-            <KeyIcon fontSize="small" />
-            <Typography variant="body1" className={classes.menuItemText}>
-              View Mnemonic
-            </Typography>
-          </MenuItem>
-          <MenuItem onClick={() => onChangeAccountName()} className={classes.menuItem}>
-            <EditIcon fontSize="small" />
-            <Typography variant="body1" className={classes.menuItemText}>
-              Change Account Name
-            </Typography>
-          </MenuItem>
-          <MenuItem onClick={() => onSignOutClick()} className={classes.menuItem}>
-            <ExitToAppIcon fontSize="small" />
-            <Typography variant="body1" className={classes.menuItemText}>
-              Sign Out
-            </Typography>
-          </MenuItem>
-          <MenuItem onClick={() => onDeleteAccountClick()} className={clsx(classes.menuItem, classes.delete)}>
-            <DeleteForeverIcon fontSize="small" />
-            <Typography variant="body1" className={classes.menuItemText}>
-              Delete Account
-            </Typography>
-          </MenuItem>
-        </Menu>
-      </Card>
+          </Box>
+        </Box>
+      </div>
+
+      <Menu
+        id="wallet-menu"
+        anchorEl={anchorEl}
+        keepMounted
+        getContentAnchorEl={null}
+        open={Boolean(anchorEl)}
+        onClose={handleCloseMenu}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "right"
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "right"
+        }}
+      >
+        <MenuItem onClick={() => onSendClick()} className={classes.menuItem}>
+          <SendIcon fontSize="small" />
+          <Typography variant="body1" className={classes.menuItemText}>
+            Send
+          </Typography>
+        </MenuItem>
+        <MenuItem onClick={() => onDepositClick()} className={classes.menuItem}>
+          <MoveToInboxIcon fontSize="small" />
+          <Typography variant="body1" className={classes.menuItemText}>
+            Deposit
+          </Typography>
+        </MenuItem>
+        <MenuItem onClick={() => onViewMnemonic()} className={classes.menuItem}>
+          <KeyIcon fontSize="small" />
+          <Typography variant="body1" className={classes.menuItemText}>
+            View Mnemonic
+          </Typography>
+        </MenuItem>
+        <MenuItem onClick={() => onChangeAccountName()} className={classes.menuItem}>
+          <EditIcon fontSize="small" />
+          <Typography variant="body1" className={classes.menuItemText}>
+            Change Account Name
+          </Typography>
+        </MenuItem>
+        <MenuItem onClick={() => onSignOutClick()} className={classes.menuItem}>
+          <ExitToAppIcon fontSize="small" />
+          <Typography variant="body1" className={classes.menuItemText}>
+            Sign Out
+          </Typography>
+        </MenuItem>
+        <MenuItem onClick={() => onDeleteAccountClick()} className={clsx(classes.menuItem, classes.delete)}>
+          <DeleteForeverIcon fontSize="small" />
+          <Typography variant="body1" className={classes.menuItemText}>
+            Delete Account
+          </Typography>
+        </MenuItem>
+      </Menu>
 
       <DeleteWalletConfirm
         isOpen={isShowingConfirmationModal}

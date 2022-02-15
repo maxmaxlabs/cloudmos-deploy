@@ -1,4 +1,4 @@
-import { makeStyles, Grid, Paper, Box } from "@material-ui/core";
+import { makeStyles, Grid, Paper, Box, AppBar, Toolbar } from "@material-ui/core";
 import { WalletDisplay } from "./components/WalletDisplay";
 import { CertificateDisplay } from "./components/CertificateDisplay";
 import { ErrorBoundary } from "react-error-boundary";
@@ -8,20 +8,32 @@ import { RightContent } from "./components/RightContent";
 import { useEffect, useState } from "react";
 import { useWallet } from "./context/WalletProvider";
 import { WelcomeModal } from "./components/WelcomeModal";
+import { Layout } from "./shared/components/Layout";
+import { accountBarHeight } from "./shared/constants";
 
 const useStyles = makeStyles((theme) => ({
-  root: {},
-  paper: {
-    padding: theme.spacing(2),
-    textAlign: "center",
-    color: theme.palette.text.secondary,
-    borderRadius: 0
+  root: {
+    display: "flex",
+    flexDirection: "column",
+    height: "100%"
+  },
+  accountAppBar: {
+    top: "30px",
+    backgroundColor: theme.palette.grey[200]
+  },
+  accountBar: {
+    height: `${accountBarHeight}px`,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%"
   },
   viewContainer: {
     display: "flex",
     width: "100%",
-    minHeight: 300,
-    borderRadius: 0
+    borderRadius: 0,
+    flexGrow: 1,
+    height: "100%"
   }
 }));
 
@@ -31,7 +43,7 @@ export function MainView() {
   const { balance } = useWallet();
 
   useEffect(() => {
-    if (balance === 0 && !isShowingWelcome) {
+    if (typeof balance === "number" && balance === 0 && !isShowingWelcome) {
       setIsShowingWelcome(true);
     }
 
@@ -39,32 +51,30 @@ export function MainView() {
   }, [balance]);
 
   return (
-    <div className={classes.root}>
+    <Layout marginTop={`${accountBarHeight}px`} height={`calc(100% - ${accountBarHeight}px) !important`}>
       {isShowingWelcome && <WelcomeModal open={isShowingWelcome} onClose={() => setIsShowingWelcome(false)} />}
 
-      <Grid container pt={2}>
-        <ErrorBoundary FallbackComponent={ErrorFallback}>
-          <Grid item xs={6}>
-            <WalletDisplay />
-          </Grid>
+      <Box height="100%">
+        <AppBar position="fixed" color="default" elevation={0} component="header" className={classes.accountAppBar}>
+          <Toolbar variant="dense" className={classes.accountBar}>
+            <ErrorBoundary FallbackComponent={ErrorFallback}>
+              <WalletDisplay />
 
-          <Grid item xs={6}>
-            <CertificateDisplay />
-          </Grid>
-        </ErrorBoundary>
+              <CertificateDisplay />
+            </ErrorBoundary>
+          </Toolbar>
+        </AppBar>
 
-        <Grid item xs={12}>
-          <Paper className={classes.viewContainer} variant="outlined">
-            <LeftNav />
+        <div className={classes.viewContainer}>
+          <LeftNav />
 
-            <Box flexGrow={1} style={{ overflowX: "hidden" }}>
-              <ErrorBoundary FallbackComponent={ErrorFallback}>
-                <RightContent />
-              </ErrorBoundary>
-            </Box>
-          </Paper>
-        </Grid>
-      </Grid>
-    </div>
+          <Box flexGrow={1} marginLeft="200px">
+            <ErrorBoundary FallbackComponent={ErrorFallback}>
+              <RightContent />
+            </ErrorBoundary>
+          </Box>
+        </div>
+      </Box>
+    </Layout>
   );
 }
