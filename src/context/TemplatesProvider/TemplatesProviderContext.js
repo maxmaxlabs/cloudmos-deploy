@@ -1,6 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
-import { useSnackbar } from "notistack";
-import { Snackbar } from "../../shared/components/Snackbar";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 const TemplatesProviderContext = React.createContext({});
