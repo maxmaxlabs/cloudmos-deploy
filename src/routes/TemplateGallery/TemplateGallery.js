@@ -70,7 +70,11 @@ export function TemplateGallery(props) {
       </Box>
 
       <Box paddingTop={2}>
-        These templates come from the <a href="https://github.com/ovrclk/awesome-akash" target="_blank">Awesome Akash</a> repository.
+        These templates come from the{" "}
+        <a href="https://github.com/ovrclk/awesome-akash" target="_blank">
+          Awesome Akash
+        </a>{" "}
+        repository.
       </Box>
 
       <TextField fullWidth label="Search" value={searchTerms} onChange={(ev) => setSearchTerms(ev.target.value)} />
@@ -94,16 +98,18 @@ export function TemplateGallery(props) {
       ) : (
         <Box className={classes.gallery}>
           <List className={classes.categoryList}>
-            {categories.map((category) => (
-              <ListItem
-                button
-                key={category.title}
-                onClick={() => setSelectedCategoryTitle(category.title)}
-                selected={category.title === selectedCategoryTitle}
-              >
-                <ListItemText primary={`${category.title} (${category.templates.length})`} />
-              </ListItem>
-            ))}
+            {categories
+              .sort((a, b) => (a.title < b.title ? -1 : 1))
+              .map((category) => (
+                <ListItem
+                  button
+                  key={category.title}
+                  onClick={() => setSelectedCategoryTitle(category.title)}
+                  selected={category.title === selectedCategoryTitle}
+                >
+                  <ListItemText primary={`${category.title} (${category.templates.length})`} />
+                </ListItem>
+              ))}
           </List>
           {selectedCategory && selectedCategory.templates && (
             <List className={classes.templateList}>
@@ -113,6 +119,16 @@ export function TemplateGallery(props) {
                   <ListItemText primary={template.name} secondary={template.summary} />
                 </ListItem>
               ))}
+
+              {selectedCategory?.title === "Blockchain" && (
+                <ListItem button onClick={() => window.electron.openUrl("https://github.com/ovrclk/cosmos-omnibus")}>
+                  <ListItemAvatar></ListItemAvatar>
+                  <ListItemText
+                    primary="Cosmos Omnibus"
+                    secondary={"Visit the Cosmos Omnibus repository for templates to deploy cosmos-sdk-based docker images and configuration onto Akash."}
+                  />
+                </ListItem>
+              )}
             </List>
           )}
         </Box>
