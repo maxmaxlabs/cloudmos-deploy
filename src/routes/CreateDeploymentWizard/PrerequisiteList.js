@@ -49,7 +49,8 @@ export function PrerequisiteList({ selectedTemplate, setSelectedTemplate }) {
       if (template) {
         setSelectedTemplate({
           code: "empty",
-          content: template.deploy
+          content: template.deploy,
+          valuesToChange: template.valuesToChange || []
         });
       }
     }

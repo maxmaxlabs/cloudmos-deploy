@@ -41,18 +41,14 @@ export function TemplateGallery(props) {
   useEffect(() => {
     let timeoutId = null;
     if (searchTerms) {
-      console.log("Wait: " + searchTerms);
       timeoutId = setTimeout(() => {
-        console.log("Search: " + searchTerms);
         setSearchTermsUsed(searchTerms);
       }, 300);
     } else {
-      console.log("Clear");
       setSearchTermsUsed(searchTerms);
     }
 
     return () => {
-      console.log("clear timeout");
       clearTimeout(timeoutId);
     };
   }, [searchTerms]);

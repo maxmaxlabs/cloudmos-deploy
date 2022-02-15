@@ -13,14 +13,13 @@ export const TemplatesProvider = ({ children }) => {
     return categories.flatMap((x) => x.templates).find((x) => x.path === path);
   }
 
-  const templates = categories.flatMap(x => x.templates);
+  const templates = categories.flatMap((x) => x.templates);
 
   useEffect(() => {
     (async () => {
       setIsLoading(true);
 
-      const templateEndpoint =
-        "https://gist.githubusercontent.com/Redm4x/60fee97d622a8d6a97777e29f5e738fd/raw/b74b517978dacf6e86a8dda00155108752fd98ef/Test.json";
+      const templateEndpoint = "https://raw.githubusercontent.com/Akashlytics/akashlytics-deploy/master/templates.json";
       const response = await axios.get(templateEndpoint);
       let categories = response.data.filter((x) => (x.templates || []).length > 0);
       categories.forEach((c) => {
