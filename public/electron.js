@@ -1,5 +1,5 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow, ipcMain, Notification } = require("electron");
+const { app, BrowserWindow, ipcMain, Notification, shell, dialog } = require("electron");
 const path = require("path");
 const winston = require("winston");
 const url = require("url");
@@ -63,6 +63,11 @@ function createWindow() {
 
     logger.info("Created Browser Window");
 
+    mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+      shell.openExternal(url);
+      return { action: "deny" };
+    });
+
     if (isDev) {
       mainWindow.webContents.openDevTools();
     } else {
@@ -97,8 +102,11 @@ function createWindow() {
     ipcMain.on("restart_app", () => {
       autoUpdater.quitAndInstall();
     });
-    ipcMain.on("isDev", (event, arg) => {
-      event.reply("isDev", isDev);
+    ipcMain.handle("isDev", (event, arg) => {
+      return Promise.resolve(isDev);
+    });
+    ipcMain.handle('dialog', (event, method, params) => {       
+      return dialog[method](mainWindow, params);
     });
     ipcMain.on("show_notification", (event, notif) => {
       new Notification(notif).show();

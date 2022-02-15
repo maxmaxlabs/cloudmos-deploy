@@ -4,6 +4,8 @@ const providerProxy = require("./providerProxy");
 const Sentry = require("@sentry/electron");
 const path = require("path");
 
+const fs = require("fs/promises");
+
 const appVersion = window.process.argv[window.process.argv.length - 2];
 const appEnvironment = window.process.argv[window.process.argv.length - 1];
 
@@ -38,13 +40,22 @@ contextBridge.exposeInMainWorld("electron", {
   },
   getAppVersion: () => appVersion,
   getAppEnvironment: () => appEnvironment,
-  isDev: () => {
-    return new Promise((res, rej) => {
-      ipcRenderer.on("isDev", (event, ...args) => {
-        res(args[0]);
-      });
-      ipcRenderer.send("isDev");
+  isDev: () => ipcRenderer.invoke("isDev"),
+  openTemplateFromFile: async () => {
+    const response = await ipcRenderer.invoke("dialog", "showOpenDialog", {
+      title: "Select a deployment template",
+      filters: [{ name: "Deployment template", extensions: ["yml", "yaml"] }],
+      properties: ["openFile"]
     });
+    if (response.canceled) {
+      return null;
+    } else {
+      const path = response.filePaths[0];
+      const buffer = await fs.readFile(path);
+      const content = buffer.toString();
+
+      return { path, content };
+    }
   },
   executeKdf: async (password, kdfConf) => {
     return new Promise((res, rej) => {

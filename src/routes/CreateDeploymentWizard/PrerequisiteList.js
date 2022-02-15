@@ -10,6 +10,7 @@ import { useHistory } from "react-router";
 import { Helmet } from "react-helmet-async";
 import { UrlService } from "../../shared/utils/urlUtils";
 import { useLocalNotes } from "../../context/LocalNoteProvider";
+import { useTemplates } from "../../context/TemplatesProvider";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -27,6 +28,7 @@ export function PrerequisiteList({ selectedTemplate, setSelectedTemplate }) {
   const history = useHistory();
   const queryParams = useQueryParams();
   const { getDeploymentData } = useLocalNotes();
+  const { getTemplateByPath } = useTemplates();
 
   useEffect(() => {
     // If it's a redeploy, set the template from local storage
@@ -39,6 +41,17 @@ export function PrerequisiteList({ selectedTemplate, setSelectedTemplate }) {
           content: deploymentData.manifest
         };
         setSelectedTemplate(template);
+      }
+    }
+    // If it's a deploy from the template gallery, load from template data
+    else if (queryParams.get("templatePath")) {
+      const template = getTemplateByPath(queryParams.get("templatePath"));
+      if (template) {
+        setSelectedTemplate({
+          code: "empty",
+          content: template.deploy,
+          valuesToChange: template.valuesToChange || []
+        });
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
