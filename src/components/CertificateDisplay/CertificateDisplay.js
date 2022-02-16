@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { makeStyles, Box, Typography, Button, IconButton, Card, CardHeader, Tooltip, CircularProgress, MenuItem, Menu } from "@material-ui/core";
+import { makeStyles, Box, Typography, Button, IconButton, Tooltip, CircularProgress, MenuItem, Menu } from "@material-ui/core";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
 import { usePasswordConfirmationModal } from "../../context/ConfirmPasswordModal";
 import { useTransactionModal } from "../../context/TransactionModal";
@@ -165,7 +165,11 @@ export function CertificateDisplay() {
         </Box>
 
         <Box display="flex" alignItems="center">
-          {certificate && <Typography variant="caption" color="textSecondary">Serial: {certificate.serial}</Typography>}
+          {certificate && (
+            <Typography variant="caption" color="textSecondary">
+              Serial: {certificate.serial}
+            </Typography>
+          )}
 
           {certificate && !isLocalCertMatching && (
             <Tooltip

@@ -58,7 +58,7 @@ export const Footer = () => {
   const { appVersion } = useAppVersion();
 
   return (
-    <AppBar position="fixed" color="default" elevation={0} component="footer" className={classes.root}>
+    <AppBar position="fixed" color="default" elevation={0} component="footer" className={classes.root} id="footer">
       <Toolbar variant="dense" className={classes.toolbar}>
         <Box>
           {appVersion && (

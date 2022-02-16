@@ -1,5 +1,5 @@
 import React from "react";
-import { IconButton, makeStyles, List, ListItem, ListItemIcon, ListSubheader, ListItemSecondaryAction, ListItemText, Radio } from "@material-ui/core";
+import { IconButton, makeStyles, List, ListItem, ListSubheader, ListItemSecondaryAction, ListItemText } from "@material-ui/core";
 import GitHubIcon from "@material-ui/icons/GitHub";
 import { useHistory } from "react-router";
 import { Helmet } from "react-helmet-async";
@@ -15,8 +15,7 @@ const useStyles = makeStyles((theme) => ({
 export function TemplateList(props) {
   const classes = useStyles();
   const history = useHistory();
-
-  const { selectedTemplate, setSelectedTemplate } = props;
+  const { setSelectedTemplate } = props;
 
   function handleGithubOpen(value) {
     window.electron.openUrl(value.githubUrl);

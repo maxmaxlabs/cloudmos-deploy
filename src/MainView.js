@@ -1,4 +1,4 @@
-import { makeStyles, Grid, Paper, Box, AppBar, Toolbar } from "@material-ui/core";
+import { makeStyles, Box, AppBar, Toolbar } from "@material-ui/core";
 import { WalletDisplay } from "./components/WalletDisplay";
 import { CertificateDisplay } from "./components/CertificateDisplay";
 import { ErrorBoundary } from "react-error-boundary";
@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
   },
   accountAppBar: {
     top: "30px",
-    backgroundColor: theme.palette.grey[200]
+    backgroundColor: theme.palette.grey[300]
   },
   accountBar: {
     height: `${accountBarHeight}px`,
@@ -34,6 +34,11 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: 0,
     flexGrow: 1,
     height: "100%"
+  },
+  viewContentContainer: {
+    flexGrow: 1,
+    marginLeft: "200px",
+    overflowX: "hidden"
   }
 }));
 
@@ -68,7 +73,7 @@ export function MainView() {
         <div className={classes.viewContainer}>
           <LeftNav />
 
-          <Box flexGrow={1} marginLeft="200px">
+          <Box className={classes.viewContentContainer}>
             <ErrorBoundary FallbackComponent={ErrorFallback}>
               <RightContent />
             </ErrorBoundary>
