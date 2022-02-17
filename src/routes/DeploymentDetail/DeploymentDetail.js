@@ -107,7 +107,7 @@ export function DeploymentDetail(props) {
 
       <LinearLoadingSkeleton isLoading={isLoadingLeases || isLoadingDeployment} />
 
-      <Box display="flex" alignItems="center">
+      <Box display="flex" alignItems="center" padding="0 .5rem">
         <IconButton aria-label="back" onClick={handleBackClick}>
           <ChevronLeftIcon />
         </IconButton>
@@ -151,7 +151,7 @@ export function DeploymentDetail(props) {
         </Box>
       )}
       {activeTab === "DETAILS" && (
-        <ViewPanel bottomElementId="footer" padding="1rem" overflow="auto">
+        <Box padding="1rem">
           <Typography variant="h6" className={classes.title}>
             Leases
           </Typography>
@@ -172,7 +172,7 @@ export function DeploymentDetail(props) {
               <CircularProgress />
             </Box>
           )}
-        </ViewPanel>
+        </Box>
       )}
     </div>
   );

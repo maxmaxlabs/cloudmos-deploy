@@ -3,7 +3,7 @@ import { WalletDisplay } from "./components/WalletDisplay";
 import { CertificateDisplay } from "./components/CertificateDisplay";
 import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "./shared/components/ErrorFallback";
-import { LeftNav } from "./components/LeftNav";
+import { LeftNav, drawerWidth, closedDrawerWidth } from "./components/LeftNav";
 import { RightContent } from "./components/RightContent";
 import { useEffect, useState } from "react";
 import { useWallet } from "./context/WalletProvider";
@@ -37,14 +37,15 @@ const useStyles = makeStyles((theme) => ({
   },
   viewContentContainer: {
     flexGrow: 1,
-    marginLeft: "200px",
-    overflowX: "hidden"
+    overflowX: "hidden",
+    transition: "margin-left .3s ease"
   }
 }));
 
 export function MainView() {
   const classes = useStyles();
   const [isShowingWelcome, setIsShowingWelcome] = useState(false);
+  const [isNavOpen, setIsNavOpen] = useState(true);
   const { balance } = useWallet();
 
   useEffect(() => {
@@ -54,6 +55,10 @@ export function MainView() {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [balance]);
+
+  const onOpenMenuClick = () => {
+    setIsNavOpen((prev) => !prev);
+  };
 
   return (
     <Layout marginTop={`${accountBarHeight}px`} height={`calc(100% - ${accountBarHeight}px) !important`}>
@@ -71,9 +76,9 @@ export function MainView() {
         </AppBar>
 
         <div className={classes.viewContainer}>
-          <LeftNav />
+          <LeftNav onOpenMenuClick={onOpenMenuClick} isNavOpen={isNavOpen} />
 
-          <Box className={classes.viewContentContainer}>
+          <Box className={classes.viewContentContainer} style={{ marginLeft: isNavOpen ? `${drawerWidth}px` : `${closedDrawerWidth}px` }}>
             <ErrorBoundary FallbackComponent={ErrorFallback}>
               <RightContent />
             </ErrorBoundary>

@@ -26,6 +26,7 @@ const useStyles = makeStyles((theme) => ({
     padding: "1rem 1rem .5rem"
   },
   actionContainer: {
+    paddingTop: ".5rem",
     display: "flex",
     alignItems: "center",
     "& .MuiButtonBase-root:first-child": {
