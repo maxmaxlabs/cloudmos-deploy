@@ -17,7 +17,6 @@ import { DeploymentLogs } from "./DeploymentLogs";
 import { useCertificate } from "../../context/CertificateProvider";
 import Alert from "@material-ui/lab/Alert";
 import { getDeploymentLocalData } from "../../shared/utils/deploymentLocalDataUtils";
-import { ViewPanel } from "../../shared/components/ViewPanel";
 
 export function DeploymentDetail(props) {
   const [deployment, setDeployment] = useState(null);

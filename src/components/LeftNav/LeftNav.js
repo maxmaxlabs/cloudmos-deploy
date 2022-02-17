@@ -1,4 +1,4 @@
-import { List, ListItem, ListItemText, makeStyles, ListItemIcon, IconButton, Tooltip, Box } from "@material-ui/core";
+import { List, ListItem, ListItemText, makeStyles, ListItemIcon, IconButton, Tooltip } from "@material-ui/core";
 import DashboardIcon from "@material-ui/icons/Dashboard";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import SettingsIcon from "@material-ui/icons/Settings";
