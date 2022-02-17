@@ -5,6 +5,7 @@ import { useWallet } from "../../context/WalletProvider";
 import { aktToUakt, uaktToAKT } from "../../shared/utils/priceUtils";
 import { useForm, Controller } from "react-hook-form";
 import { LinkTo } from "../../shared/components/LinkTo";
+import { fees } from "../../shared/utils/blockchainUtils";
 
 const useStyles = makeStyles((theme) => ({
   alert: {
@@ -48,7 +49,7 @@ export function DeploymentDepositModal({ isDepositingDeployment, handleCancel, o
   const onBalanceClick = () => {
     setIsBalanceClicked((prev) => !prev);
     clearErrors();
-    setValue("amount", uaktToAKT(balance, 6));
+    setValue("amount", uaktToAKT(balance - fees.high, 6));
   };
 
   const onDepositClick = (event) => {
@@ -108,7 +109,7 @@ export function DeploymentDepositModal({ isDepositingDeployment, handleCancel, o
                     error={!!fieldState.invalid}
                     helperText={fieldState.invalid && helperText}
                     className={classes.formValue}
-                    inputProps={{ min: min, step: 0.000001, max: uaktToAKT(balance, 6) }}
+                    inputProps={{ min: min, step: 0.000001, max: uaktToAKT(balance - fees.high, 6) }}
                     InputProps={{
                       startAdornment: <InputAdornment position="start">AKT</InputAdornment>,
                       endAdornment: isBalanceClicked && (
