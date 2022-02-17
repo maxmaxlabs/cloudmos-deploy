@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { makeStyles, AppBar, Toolbar, Chip, Typography, IconButton } from "@material-ui/core";
-import CloseIcon from "@material-ui/icons/Close";
+import { makeStyles, Dialog, DialogContent, DialogActions, Button, Chip, Typography, Box } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   grow: { flexGrow: 1 },
   betaChip: {
-    fontWeight: "bold"
+    fontWeight: "bold",
+    width: "100%"
   },
   betaText: {
     padding: "0 1rem"
@@ -28,22 +28,27 @@ export const BetaBanner = () => {
   return (
     <>
       {isBetaBarVisible && (
-        <AppBar position="relative" className={classes.appBar}>
-          <Toolbar>
-            <Chip label="BETA" color="secondary" className={classes.betaChip} />
+        <Dialog open={true} maxWidth="xs" fullWidth>
+          <DialogContent className={classes.dialogContent}>
+            <Typography variant="h3">
+              <strong>Welcome!</strong>
+            </Typography>
+            <Box padding="1rem 0">
+              <Chip label="BETA" color="secondary" className={classes.betaChip} size="small" />
+            </Box>
             <div className={classes.betaText}>
               <Typography variant="body1">
-                Akashlytics Deploy is currently in BETA. We strongly suggest you start with a new wallet and a small amount of AKT until we further stabilize
-                the product. Enjoy!
+                <strong>Akashlytics Deploy</strong> is currently in <strong>BETA</strong>. We strongly suggest you start with a new wallet and a small amount of
+                AKT until we further stabilize the product. Enjoy!
               </Typography>
             </div>
-
-            <div className={classes.grow} />
-            <IconButton aria-label="Close beta app bar" color="inherit" onClick={onCloseClick}>
-              <CloseIcon />
-            </IconButton>
-          </Toolbar>
-        </AppBar>
+          </DialogContent>
+          <DialogActions>
+            <Button variant="contained" onClick={onCloseClick} type="button" color="primary">
+              Got it!
+            </Button>
+          </DialogActions>
+        </Dialog>
       )}
     </>
   );

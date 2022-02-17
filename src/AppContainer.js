@@ -43,7 +43,7 @@ export const AppContainer = () => {
     }
 
     let isBetaBannerSeen = localStorage.getItem("isBetaBannerSeen");
-    isBetaBannerSeen = !!isBetaBannerSeen && isBetaBannerSeen === "false" ? false : true;
+    isBetaBannerSeen = !!isBetaBannerSeen && isBetaBannerSeen === "true" ? true : false;
     setShowBetaBanner(!isBetaBannerSeen);
     setIsAppInitiated(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -51,8 +51,8 @@ export const AppContainer = () => {
 
   return (
     <>
-      <NodeStatusBar />
       {showBetaBanner && <BetaBanner />}
+      <NodeStatusBar />
 
       <div className={classes.body}>
         <ErrorBoundary FallbackComponent={ErrorFallback}>
