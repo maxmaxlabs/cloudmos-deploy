@@ -31,7 +31,8 @@ export const useStyles = makeStyles((theme) => ({
   },
   tooltipIcon: {
     fontSize: "1.5rem",
-    marginLeft: "1rem"
+    marginLeft: "1rem",
+    color: theme.palette.text.secondary
   }
 }));
 

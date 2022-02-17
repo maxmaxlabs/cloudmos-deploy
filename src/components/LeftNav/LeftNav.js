@@ -1,6 +1,6 @@
 import { List, ListItem, ListItemText, makeStyles, ListItemIcon, IconButton, Tooltip } from "@material-ui/core";
 import DashboardIcon from "@material-ui/icons/Dashboard";
-import CloudUploadIcon from "@material-ui/icons/CloudUpload";
+import CloudIcon from "@material-ui/icons/Cloud";
 import SettingsIcon from "@material-ui/icons/Settings";
 import CollectionsIcon from "@material-ui/icons/Collections";
 import MenuOpenIcon from "@material-ui/icons/MenuOpen";
@@ -50,7 +50,7 @@ export const LeftNav = ({ onOpenMenuClick, isNavOpen }) => {
 
   const routes = [
     { title: "Dashboard", icon: (props) => <DashboardIcon {...props} />, url: UrlService.dashboard() },
-    { title: "Deployments", icon: (props) => <CloudUploadIcon {...props} />, url: UrlService.deploymentList() },
+    { title: "Deployments", icon: (props) => <CloudIcon {...props} />, url: UrlService.deploymentList() },
     { title: "Templates", icon: (props) => <CollectionsIcon {...props} />, url: UrlService.templates() },
     { title: "Settings", icon: (props) => <SettingsIcon {...props} />, url: UrlService.settings() }
   ];

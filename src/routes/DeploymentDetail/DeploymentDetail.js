@@ -92,7 +92,7 @@ export function DeploymentDetail(props) {
       getDeploymentDetail();
       getLeases();
 
-      leaseRefs.forEach((lr) => lr.current.getLeaseStatus());
+      leaseRefs.forEach((lr) => lr.current?.getLeaseStatus());
     }
   }
 

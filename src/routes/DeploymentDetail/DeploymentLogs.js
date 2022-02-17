@@ -146,8 +146,8 @@ export function DeploymentLogs({ leases }) {
         <>
           {selectedLease && (
             <>
-              <Box display="flex" alignItems="center" justifyContent="space-between">
-                <Box>
+              <Box display="flex" alignItems="center" justifyContent="space-between" padding=".2rem">
+                <div>
                   {leases.length > 1 && (
                     <ToggleButtonGroup className={classes.leaseSelector} color="primary" value={selectedLease.id} exclusive onChange={handleLeaseChange}>
                       {leases.map((l) => (
@@ -166,7 +166,7 @@ export function DeploymentLogs({ leases }) {
                       Events
                     </ToggleButton>
                   </ToggleButtonGroup>
-                </Box>
+                </div>
 
                 <FormControlLabel
                   control={<Checkbox color="primary" checked={stickToBottom} onChange={(ev) => setStickToBottom(ev.target.checked)} />}
