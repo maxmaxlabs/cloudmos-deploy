@@ -70,7 +70,7 @@ export const LeftNav = ({ onOpenMenuClick, isNavOpen }) => {
           const isSelected = location.pathname === route.url;
           const listItemIcon = (
             <ListItemIcon color="primary" className={classes.closedListItemIcon}>
-              {route.icon({ color: isSelected ? "primary" : "default" })}
+              {route.icon({ color: isSelected ? "primary" : "disabled" })}
             </ListItemIcon>
           );
 

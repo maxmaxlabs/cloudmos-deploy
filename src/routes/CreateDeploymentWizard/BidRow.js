@@ -16,6 +16,7 @@ const useStyles = makeStyles((theme) => ({
     fontSize: ".8rem"
   },
   chip: {
+    marginLeft: "4px",
     height: "16px"
   },
   priceTooltip: {
@@ -57,7 +58,6 @@ export function BidRow({ bid, selectedBid, handleBidSelected, disabled, provider
     <ListItem
       disabled={bid.state !== "open" || disabled}
       dense
-      // onClick={() => handleBidSelected(bid)}
     >
       <ListItemIcon>
         <Radio
@@ -86,6 +86,7 @@ export function BidRow({ bid, selectedBid, handleBidSelected, disabled, provider
             </Box>
 
             <Box display="flex" alignItems="center">
+              Bid:
               <Chip
                 label={bid.state}
                 size="small"

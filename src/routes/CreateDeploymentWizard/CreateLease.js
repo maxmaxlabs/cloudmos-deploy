@@ -25,11 +25,12 @@ import { UrlService } from "../../shared/utils/urlUtils";
 import { useBidList } from "../../queries";
 import { useSnackbar } from "notistack";
 import MoreHorizIcon from "@material-ui/icons/MoreHoriz";
+import CloseIcon from "@material-ui/icons/Close";
+import ArrowForwardIosIcon from "@material-ui/icons/ArrowForward";
 import Alert from "@material-ui/lab/Alert";
 import { Helmet } from "react-helmet-async";
 import { analytics } from "../../shared/utils/analyticsUtils";
 import { useProviders } from "../../queries";
-import CloseIcon from "@material-ui/icons/Close";
 import { ManifestErrorSnackbar } from "../../shared/components/ManifestErrorSnackbar";
 import { useDeploymentDetail } from "../../queries";
 import { ViewPanel } from "../../shared/components/ViewPanel";
@@ -39,8 +40,7 @@ const yaml = require("js-yaml");
 
 const useStyles = makeStyles((theme) => ({
   alert: {
-    marginBottom: ".5rem",
-    flexGrow: 1
+    marginBottom: ".5rem"
   },
   title: {
     fontSize: "1.5rem",
@@ -216,45 +216,50 @@ export function CreateLease({ dseq }) {
 
       <Box padding="0 1rem">
         {!isLoadingBids && bids.length > 0 && !allClosed && (
-          <Box display="flex" alignItems="center" justifyContent="flex-end">
-            <Alert severity="info" className={classes.alert}>
+          <Box display="flex" alignItems="center" justifyContent="space-between">
+            <Alert severity="info" className={classes.alert} variant="standard">
               Bids automatically close 5 minutes after the deployment is created if none are selected for a lease.
             </Alert>
 
-            <Box margin="0 .5rem">
-              <IconButton aria-label="settings" aria-haspopup="true" onClick={handleMenuClick} size="small">
-                <MoreHorizIcon fontSize="large" />
-              </IconButton>
+            <Box display="flex" alignItems="center">
+              <Box margin="0 .5rem">
+                <IconButton aria-label="settings" aria-haspopup="true" onClick={handleMenuClick} size="small">
+                  <MoreHorizIcon fontSize="large" />
+                </IconButton>
+              </Box>
+
+              <Menu
+                id="bid-actions-menu"
+                anchorEl={anchorEl}
+                keepMounted
+                getContentAnchorEl={null}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "right"
+                }}
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right"
+                }}
+                onClick={handleMenuClose}
+              >
+                <MenuItem onClick={() => handleCloseDeployment()}>Close Deployment</MenuItem>
+              </Menu>
+
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleNext}
+                disabled={dseqList.some((gseq) => !selectedBids[gseq]) || isSendingManifest || !providers}
+              >
+                Accept Bid{dseqList.length > 1 ? "s" : ""}
+                <Box component="span" marginLeft=".5rem" display="flex" alignItems="center">
+                  <ArrowForwardIosIcon fontSize="small" />
+                </Box>
+              </Button>
             </Box>
-
-            <Menu
-              id="bid-actions-menu"
-              anchorEl={anchorEl}
-              keepMounted
-              getContentAnchorEl={null}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "right"
-              }}
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right"
-              }}
-              onClick={handleMenuClose}
-            >
-              <MenuItem onClick={() => handleCloseDeployment()}>Close Deployment</MenuItem>
-            </Menu>
-
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleNext}
-              disabled={dseqList.some((gseq) => !selectedBids[gseq]) || isSendingManifest || !providers}
-            >
-              Accept Bid{dseqList.length > 1 ? "s" : ""}
-            </Button>
           </Box>
         )}
 
@@ -308,7 +313,7 @@ export function CreateLease({ dseq }) {
         )}
 
         {!isLoadingBids && bids.length > 0 && (
-          <Box display="flex" justifyContent="space-between" marginBottom=".5rem">
+          <Box display="flex" justifyContent="space-between" marginBottom="1rem">
             <Typography variant="h3" className={classes.title}>
               Choose a provider
             </Typography>
@@ -352,7 +357,7 @@ export function CreateLease({ dseq }) {
       </Box>
 
       {dseqList.length > 0 && (
-        <ViewPanel bottomElementId="footer" overflow="auto" padding="0 1rem">
+        <ViewPanel bottomElementId="footer" overflow="auto" padding="0 1rem 2rem">
           {dseqList.map((gseq) => (
             <BidGroup
               key={gseq}

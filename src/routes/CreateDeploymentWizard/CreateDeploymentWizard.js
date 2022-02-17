@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, makeStyles, Stepper, Step, StepButton, Typography, IconButton } from "@material-ui/core";
+import { Box, makeStyles, Typography, IconButton } from "@material-ui/core";
 import { TemplateList } from "./TemplateList";
 import { ManifestEdit } from "./ManifestEdit";
 import { CreateLease } from "./CreateLease";
@@ -7,6 +7,9 @@ import { useHistory, useParams } from "react-router";
 import { PrerequisiteList } from "./PrerequisiteList";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import { UrlService } from "../../shared/utils/urlUtils";
+import { CustomizedSteppers } from "./Stepper";
+
+const steps = ["Checking Prerequisites", "Choose Template", "Create Deployment", "Accept Bids"];
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -34,6 +37,9 @@ const useStyles = makeStyles((theme) => ({
   },
   stepperRoot: {
     padding: "1rem 0 1.5rem"
+  },
+  stepLabel: {
+    marginTop: "4px"
   }
 }));
 
@@ -44,7 +50,6 @@ export function CreateDeploymentWizard() {
   const { step, dseq } = useParams();
 
   const history = useHistory();
-  const steps = getSteps();
 
   useEffect(() => {
     setEditedManifest(selectedTemplate?.content);
@@ -83,10 +88,6 @@ export function CreateDeploymentWizard() {
     }
   }
 
-  function isStepComplete() {
-    return false;
-  }
-
   return (
     <div className={classes.root}>
       <Box display="flex" alignItems="center" padding=".5rem 1rem">
@@ -94,24 +95,12 @@ export function CreateDeploymentWizard() {
           <ChevronLeftIcon />
         </IconButton>
         <Box marginLeft=".5rem">
-          <Typography variant="h5">Create a new deployment</Typography>
+          <Typography variant="h6">Create a new deployment</Typography>
         </Box>
       </Box>
 
       <div className={classes.stepContainer}>
-        <Stepper alternativeLabel activeStep={activeStep} classes={{ root: classes.stepperRoot }}>
-          {steps.map((label, index) => {
-            const stepProps = {};
-            const buttonProps = {};
-            return (
-              <Step key={label} {...stepProps}>
-                <StepButton disabled completed={isStepComplete(index)} {...buttonProps}>
-                  {label}
-                </StepButton>
-              </Step>
-            );
-          })}
-        </Stepper>
+        <CustomizedSteppers steps={steps} activeStep={activeStep} />
       </div>
 
       <div>
@@ -122,8 +111,4 @@ export function CreateDeploymentWizard() {
       </div>
     </div>
   );
-}
-
-function getSteps() {
-  return ["Checking Prerequisites", "Choose Template", "Create Deployment", "Accept Bids"];
 }

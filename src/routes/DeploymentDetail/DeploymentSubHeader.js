@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Grid, Menu, makeStyles, Box, Button, IconButton, MenuItem, Tooltip } from "@material-ui/core";
+import { Grid, Menu, makeStyles, Box, Button, IconButton, Tooltip } from "@material-ui/core";
 import InfoIcon from "@material-ui/icons/Info";
 import MoreHorizIcon from "@material-ui/icons/MoreHoriz";
 import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
@@ -20,6 +20,7 @@ import PublishIcon from "@material-ui/icons/Publish";
 import { PricePerMonth } from "../../shared/components/PricePerMonth";
 import { PriceValue } from "../../shared/components/PriceValue";
 import { PriceEstimateTooltip } from "../../shared/components/PriceEstimateTooltip";
+import { CustomMenuItem } from "../../shared/components/CustomMenuItem";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -35,13 +36,6 @@ const useStyles = makeStyles((theme) => ({
   },
   actionButton: {
     marginLeft: ".5rem"
-  },
-  menuItem: {
-    paddingBottom: "5px",
-    paddingTop: "5px"
-  },
-  menuItemLabel: {
-    marginLeft: "1rem"
   },
   tooltip: {
     fontSize: "1rem"
@@ -203,20 +197,9 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address, loadD
               horizontal: "right"
             }}
           >
-            <MenuItem onClick={() => onChangeName()} classes={{ root: classes.menuItem }}>
-              <EditIcon />
-              <div className={classes.menuItemLabel}>Edit Name</div>
-            </MenuItem>
-            {storageDeploymentData?.manifest && (
-              <MenuItem onClick={() => redeploy()} classes={{ root: classes.menuItem }}>
-                <PublishIcon />
-                <div className={classes.menuItemLabel}>Redeploy</div>
-              </MenuItem>
-            )}
-            <MenuItem onClick={() => onCloseDeployment()} classes={{ root: classes.menuItem }}>
-              <CancelPresentationIcon />
-              <div className={classes.menuItemLabel}>Close</div>
-            </MenuItem>
+            <CustomMenuItem onClick={() => onChangeName()} icon={<EditIcon fontSize="small" />} text="Edit Name" />
+            {storageDeploymentData?.manifest && <CustomMenuItem onClick={() => redeploy()} icon={<PublishIcon fontSize="small" />} text="Redeploy" />}
+            <CustomMenuItem onClick={() => onCloseDeployment()} icon={<CancelPresentationIcon fontSize="small" />} text="Close" />
           </Menu>
         </Box>
       )}

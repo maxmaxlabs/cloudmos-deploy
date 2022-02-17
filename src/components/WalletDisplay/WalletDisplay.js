@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { makeStyles, Box, CircularProgress, Menu, MenuItem, Typography } from "@material-ui/core";
+import { makeStyles, Box, CircularProgress, Menu, Typography } from "@material-ui/core";
 import AccountBalanceWalletIcon from "@material-ui/icons/AccountBalanceWallet";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import IconButton from "@material-ui/core/IconButton";
@@ -22,22 +22,15 @@ import { TransactionMessageData } from "../../shared/utils/TransactionMessageDat
 import { DepositModal } from "../DepositModal";
 import { uaktToAKT } from "../../shared/utils/priceUtils";
 import { PriceValue } from "../../shared/components/PriceValue";
-import clsx from "clsx";
 import { usePasswordConfirmationModal } from "../../context/ConfirmPasswordModal";
 import { MnemonicModal } from "./MnemonicModal";
 import { ChangeAccountNameModal } from "./ChangeAccountNameModal";
 import { accountBarHeight } from "../../shared/constants";
+import { CustomMenuItem } from "../../shared/components/CustomMenuItem";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     maxHeight: `${accountBarHeight}px`
-  },
-  menuItem: {
-    display: "flex",
-    alignItems: "end"
-  },
-  menuItemText: {
-    marginLeft: ".5rem"
   },
   delete: {
     color: theme.palette.secondary.main
@@ -189,42 +182,12 @@ export function WalletDisplay() {
           horizontal: "right"
         }}
       >
-        <MenuItem onClick={() => onSendClick()} className={classes.menuItem}>
-          <SendIcon fontSize="small" />
-          <Typography variant="body1" className={classes.menuItemText}>
-            Send
-          </Typography>
-        </MenuItem>
-        <MenuItem onClick={() => onDepositClick()} className={classes.menuItem}>
-          <MoveToInboxIcon fontSize="small" />
-          <Typography variant="body1" className={classes.menuItemText}>
-            Deposit
-          </Typography>
-        </MenuItem>
-        <MenuItem onClick={() => onViewMnemonic()} className={classes.menuItem}>
-          <KeyIcon fontSize="small" />
-          <Typography variant="body1" className={classes.menuItemText}>
-            View Mnemonic
-          </Typography>
-        </MenuItem>
-        <MenuItem onClick={() => onChangeAccountName()} className={classes.menuItem}>
-          <EditIcon fontSize="small" />
-          <Typography variant="body1" className={classes.menuItemText}>
-            Change Account Name
-          </Typography>
-        </MenuItem>
-        <MenuItem onClick={() => onSignOutClick()} className={classes.menuItem}>
-          <ExitToAppIcon fontSize="small" />
-          <Typography variant="body1" className={classes.menuItemText}>
-            Sign Out
-          </Typography>
-        </MenuItem>
-        <MenuItem onClick={() => onDeleteAccountClick()} className={clsx(classes.menuItem, classes.delete)}>
-          <DeleteForeverIcon fontSize="small" />
-          <Typography variant="body1" className={classes.menuItemText}>
-            Delete Account
-          </Typography>
-        </MenuItem>
+        <CustomMenuItem onClick={() => onSendClick()} icon={<SendIcon fontSize="small" />} text="Send" />
+        <CustomMenuItem onClick={() => onDepositClick()} icon={<MoveToInboxIcon fontSize="small" />} text="Deposit" />
+        <CustomMenuItem onClick={() => onViewMnemonic()} icon={<KeyIcon fontSize="small" />} text="View Mnemonic" />
+        <CustomMenuItem onClick={() => onChangeAccountName()} icon={<EditIcon fontSize="small" />} text="Change Account Name" />
+        <CustomMenuItem onClick={() => onSignOutClick()} icon={<ExitToAppIcon fontSize="small" />} text="Sign Out" />
+        <CustomMenuItem onClick={() => onDeleteAccountClick()} icon={<DeleteForeverIcon fontSize="small" />} text="Delete Account" className={classes.delete} />
       </Menu>
 
       <DeleteWalletConfirm

@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { makeStyles, Box, Typography, Button, IconButton, Tooltip, CircularProgress, MenuItem, Menu } from "@material-ui/core";
+import { makeStyles, Box, Typography, Button, IconButton, Tooltip, CircularProgress, Menu } from "@material-ui/core";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
 import { usePasswordConfirmationModal } from "../../context/ConfirmPasswordModal";
 import { useTransactionModal } from "../../context/TransactionModal";
@@ -17,17 +17,11 @@ import { ExportCertificate } from "./ExportCertificate";
 import GetAppIcon from "@material-ui/icons/GetApp";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 import { accountBarHeight } from "../../shared/constants";
+import { CustomMenuItem } from "../../shared/components/CustomMenuItem";
 
 const useStyles = makeStyles({
   root: {
     maxHeight: `${accountBarHeight}px`
-  },
-  menuItem: {
-    display: "flex",
-    alignItems: "end"
-  },
-  menuItemText: {
-    marginLeft: ".5rem"
   },
   warningIcon: {
     marginLeft: ".5rem"
@@ -201,24 +195,9 @@ export function CertificateDisplay() {
           }}
           onClick={handleClose}
         >
-          <MenuItem onClick={() => revokeCertificate()} className={classes.menuItem}>
-            <DeleteForeverIcon fontSize="small" />
-            <Typography variant="body1" className={classes.menuItemText}>
-              Revoke
-            </Typography>
-          </MenuItem>
-          <MenuItem onClick={() => regenerateCertificate()} className={classes.menuItem}>
-            <AutorenewIcon fontSize="small" />
-            <Typography variant="body1" className={classes.menuItemText}>
-              Regenerate
-            </Typography>
-          </MenuItem>
-          <MenuItem onClick={() => setIsExportingCert(true)} className={classes.menuItem}>
-            <GetAppIcon fontSize="small" />
-            <Typography variant="body1" className={classes.menuItemText}>
-              Export
-            </Typography>
-          </MenuItem>
+          <CustomMenuItem onClick={() => revokeCertificate()} icon={<DeleteForeverIcon fontSize="small" />} text="Revoke" />
+          <CustomMenuItem onClick={() => regenerateCertificate()} icon={<AutorenewIcon fontSize="small" />} text="Regenerate" />
+          <CustomMenuItem onClick={() => setIsExportingCert(true)} icon={<GetAppIcon fontSize="small" />} text="Export" />
         </Menu>
       )}
 

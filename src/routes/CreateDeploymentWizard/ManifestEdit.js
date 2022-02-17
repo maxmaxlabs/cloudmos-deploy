@@ -25,7 +25,8 @@ const useStyles = makeStyles((theme) => ({
   },
   tooltipIcon: {
     fontSize: "1.5rem",
-    marginRight: "1rem"
+    marginRight: "1rem",
+    color: theme.palette.text.secondary
   },
   alert: {
     marginBottom: "1rem"
