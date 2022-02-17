@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { Box, Typography, Button, TextField, CircularProgress, makeStyles } from "@material-ui/core";
+import { Box, Typography, Button, TextField, CircularProgress, makeStyles, Tooltip } from "@material-ui/core";
 import { NewDeploymentData, defaultInitialDeposit } from "../../shared/utils/deploymentUtils";
 import { useWallet } from "../../context/WalletProvider";
 import MonacoEditor from "react-monaco-editor";
 import Alert from "@material-ui/lab/Alert";
+import InfoIcon from "@material-ui/icons/Info";
 import { useHistory } from "react-router";
 import { saveDeploymentManifestAndName } from "../../shared/utils/deploymentLocalDataUtils";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
@@ -13,11 +14,19 @@ import { Helmet } from "react-helmet-async";
 import { analytics } from "../../shared/utils/analyticsUtils";
 import { DeploymentDepositModal } from "../DeploymentDetail/DeploymentDepositModal";
 import { LinkTo } from "../../shared/components/LinkTo";
+import { monacoOptions } from "../../shared/constants";
+import { ViewPanel } from "../../shared/components/ViewPanel";
 
 const yaml = require("js-yaml");
 
 const useStyles = makeStyles((theme) => ({
-  root: {},
+  tooltip: {
+    fontSize: "1rem"
+  },
+  tooltipIcon: {
+    fontSize: "1.5rem",
+    marginRight: "1rem"
+  },
   alert: {
     marginBottom: "1rem"
   }
@@ -74,14 +83,6 @@ export function ManifestEdit(props) {
       }
     }
   }
-
-  const options = {
-    selectOnLineNumbers: true,
-    scrollBeyondLastLine: false,
-    minimap: {
-      enabled: false
-    }
-  };
 
   function handleDocClick(ev, url) {
     ev.preventDefault();
@@ -147,39 +148,56 @@ export function ManifestEdit(props) {
     <>
       <Helmet title="Create Deployment - Manifest Edit" />
 
-      <Box pb={2}>
-        <Typography>
-          You may use the sample deployment file as-is or modify it for your own needs as described in the{" "}
-          <LinkTo onClick={(ev) => handleDocClick(ev, "https://docs.akash.network/intro-to-akash/stack-definition-language")}>
-            SDL (Stack Definition Language)
-          </LinkTo>{" "}
-          documentation. A typical modification would be to reference your own image instead of the demo app image.
-        </Typography>
-        <MonacoEditor height="600" language="yaml" theme="vs-dark" value={editedManifest} onChange={handleTextChange} options={options} />
+      <Box padding="1rem" paddingTop={0}>
+        <Box marginBottom=".5rem" display="flex" alignItems="center" justifyContent="space-between">
+          <Button onClick={handleChangeTemplate}>Change Template</Button>
+          <Box display="flex" alignItems="center">
+            <Tooltip
+              classes={{ tooltip: classes.tooltip }}
+              arrow
+              interactive
+              title={
+                <>
+                  <Typography>
+                    You may use the sample deployment file as-is or modify it for your own needs as described in the{" "}
+                    <LinkTo onClick={(ev) => handleDocClick(ev, "https://docs.akash.network/intro-to-akash/stack-definition-language")}>
+                      SDL (Stack Definition Language)
+                    </LinkTo>{" "}
+                    documentation. A typical modification would be to reference your own image instead of the demo app image.
+                  </Typography>
+                </>
+              }
+            >
+              <InfoIcon className={classes.tooltipIcon} />
+            </Tooltip>
+
+            <Button
+              variant="contained"
+              color="primary"
+              disabled={isCreatingDeployment || !!parsingError || !editedManifest}
+              onClick={() => setIsDepositingDeployment(true)}
+            >
+              {isCreatingDeployment ? <CircularProgress size="24px" color="primary" /> : "Create Deployment"}
+            </Button>
+          </Box>
+        </Box>
+
+        <div>
+          <TextField
+            value={deploymentName}
+            onChange={(ev) => setDeploymentName(ev.target.value)}
+            fullWidth
+            label="Name your deployment (optional)"
+            variant="outlined"
+          />
+        </div>
       </Box>
+
       {parsingError && <Alert severity="warning">{parsingError}</Alert>}
 
-      <Box mt={2}>
-        <TextField
-          value={deploymentName}
-          onChange={(ev) => setDeploymentName(ev.target.value)}
-          fullWidth
-          label="Name your deployment (optional)"
-          variant="outlined"
-        />
-      </Box>
-
-      <Box pt={2}>
-        <Button onClick={handleChangeTemplate}>Change Template</Button>&nbsp;
-        <Button
-          variant="contained"
-          color="primary"
-          disabled={isCreatingDeployment || !!parsingError || !editedManifest}
-          onClick={() => setIsDepositingDeployment(true)}
-        >
-          {isCreatingDeployment ? <CircularProgress size="24px" color="primary" /> : "Create Deployment"}
-        </Button>
-      </Box>
+      <ViewPanel bottomElementId="footer" overflow="hidden">
+        <MonacoEditor language="yaml" theme="vs-dark" value={editedManifest} onChange={handleTextChange} options={monacoOptions} />
+      </ViewPanel>
 
       <DeploymentDepositModal
         isDepositingDeployment={isDepositingDeployment}

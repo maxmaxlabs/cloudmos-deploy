@@ -11,7 +11,8 @@ import {
   IconButton,
   makeStyles,
   TextField,
-  InputAdornment
+  InputAdornment,
+  Tooltip
 } from "@material-ui/core";
 import { useWallet } from "../../context/WalletProvider";
 import { BidGroup } from "./BidGroup";
@@ -23,7 +24,7 @@ import { useTransactionModal } from "../../context/TransactionModal";
 import { UrlService } from "../../shared/utils/urlUtils";
 import { useBidList } from "../../queries";
 import { useSnackbar } from "notistack";
-import MoreVertIcon from "@material-ui/icons/MoreVert";
+import MoreHorizIcon from "@material-ui/icons/MoreHoriz";
 import Alert from "@material-ui/lab/Alert";
 import { Helmet } from "react-helmet-async";
 import { analytics } from "../../shared/utils/analyticsUtils";
@@ -31,18 +32,29 @@ import { useProviders } from "../../queries";
 import CloseIcon from "@material-ui/icons/Close";
 import { ManifestErrorSnackbar } from "../../shared/components/ManifestErrorSnackbar";
 import { useDeploymentDetail } from "../../queries";
+import { ViewPanel } from "../../shared/components/ViewPanel";
+import InfoIcon from "@material-ui/icons/Info";
 
 const yaml = require("js-yaml");
 
 const useStyles = makeStyles((theme) => ({
-  root: {},
   alert: {
-    marginBottom: "1rem"
+    marginBottom: ".5rem",
+    flexGrow: 1
   },
   title: {
     fontSize: "1.5rem",
     display: "flex",
-    alignItems: "center"
+    alignItems: "center",
+    fontWeight: "bold"
+  },
+  tooltip: {
+    fontSize: "1rem",
+    padding: ".5rem"
+  },
+  tooltipIcon: {
+    fontSize: "1.5rem",
+    marginLeft: "1rem"
   }
 }));
 
@@ -202,152 +214,160 @@ export function CreateLease({ dseq }) {
     <>
       <Helmet title="Create Deployment - Create Lease" />
 
-      {isSendingManifest && (
-        <Box marginBottom=".5rem">
-          <LinearProgress />
-        </Box>
-      )}
+      <Box padding="0 1rem">
+        {!isLoadingBids && bids.length > 0 && !allClosed && (
+          <Box display="flex" alignItems="center" justifyContent="flex-end">
+            <Alert severity="info" className={classes.alert}>
+              Bids automatically close 5 minutes after the deployment is created if none are selected for a lease.
+            </Alert>
 
-      {(isLoadingBids || bids.length === 0) && !maxRequestsReached && (
-        <Box textAlign="center">
-          <CircularProgress />
-          <Box paddingTop="1rem">
-            <Typography variant="body1">Waiting for bids...</Typography>
-          </Box>
-        </Box>
-      )}
+            <Box margin="0 .5rem">
+              <IconButton aria-label="settings" aria-haspopup="true" onClick={handleMenuClick} size="small">
+                <MoreHorizIcon fontSize="large" />
+              </IconButton>
+            </Box>
 
-      {warningRequestsReached && !maxRequestsReached && bids.length === 0 && (
-        <Box padding="1rem">
-          <Alert variant="standard" severity="info">
-            There should be bids by now... You can wait longer in case a bid shows up or close the deployment and try again with a different configuration.
-          </Alert>
-        </Box>
-      )}
-
-      {maxRequestsReached && bids.length === 0 && (
-        <Box padding="1rem">
-          <Alert variant="standard" severity="warning">
-            There's no bid for the current deployment. You can close the deployment and try again with a different configuration.
-          </Alert>
-        </Box>
-      )}
-
-      {!isLoadingBids && bids.length > 0 && (
-        <Box display="flex" justifyContent="space-between" marginBottom="1rem">
-          <Typography variant="h3" className={classes.title}>
-            Choose a provider
-          </Typography>
-          <Box flexGrow={1} marginLeft={2}>
-            <TextField
-              label="Search by attribute..."
-              disabled={bids.length === 0 || isSendingManifest}
-              value={search}
-              onChange={onSearchChange}
-              type="text"
-              variant="outlined"
-              autoFocus
-              fullWidth
-              size="medium"
-              InputProps={{
-                endAdornment: search && (
-                  <InputAdornment position="end">
-                    <IconButton size="small" onClick={() => setSearch("")}>
-                      <CloseIcon />
-                    </IconButton>
-                  </InputAdornment>
-                )
+            <Menu
+              id="bid-actions-menu"
+              anchorEl={anchorEl}
+              keepMounted
+              getContentAnchorEl={null}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "right"
               }}
-            />
-          </Box>
-        </Box>
-      )}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "right"
+              }}
+              onClick={handleMenuClose}
+            >
+              <MenuItem onClick={() => handleCloseDeployment()}>Close Deployment</MenuItem>
+            </Menu>
 
-      {bids.length > 0 && !maxRequestsReached && (
-        <Box lineHeight="1rem" fontSize=".7rem" display="flex" alignItems="center" justifyContent="flex-end">
-          <div style={{ color: "grey" }}>
-            <Typography variant="caption">Waiting for more bids...</Typography>
-          </div>
-          <Box marginLeft=".5rem">
-            <CircularProgress size=".7rem" />
-          </Box>
-        </Box>
-      )}
-
-      {dseqList.map((gseq) => (
-        <BidGroup
-          key={gseq}
-          gseq={gseq}
-          bids={groupedBids[gseq]}
-          handleBidSelected={handleBidSelected}
-          selectedBid={selectedBids[gseq]}
-          disabled={isSendingManifest}
-          providers={providers}
-          filteredBids={filteredBids}
-          deploymentDetail={deploymentDetail}
-        />
-      ))}
-
-      {isSendingManifest && (
-        <Box marginBottom=".5rem">
-          <LinearProgress />
-        </Box>
-      )}
-
-      {!isLoadingBids && bids.length > 0 && !allClosed && (
-        <Box mt={1}>
-          <Alert severity="info" className={classes.alert}>
-            Bids automatically close 5 minutes after the deployment is created if none are selected for a lease.
-          </Alert>
-
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleNext}
-            disabled={dseqList.some((gseq) => !selectedBids[gseq]) || isSendingManifest || !providers}
-          >
-            Accept Bid{dseqList.length > 1 ? "s" : ""}
-          </Button>
-
-          <IconButton aria-label="settings" aria-haspopup="true" onClick={handleMenuClick}>
-            <MoreVertIcon />
-          </IconButton>
-          <Menu
-            id="bid-actions-menu"
-            anchorEl={anchorEl}
-            keepMounted
-            getContentAnchorEl={null}
-            open={Boolean(anchorEl)}
-            onClose={handleMenuClose}
-            anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "right"
-            }}
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "right"
-            }}
-            onClick={handleMenuClose}
-          >
-            <MenuItem onClick={() => handleCloseDeployment()}>Close Deployment</MenuItem>
-          </Menu>
-        </Box>
-      )}
-      <>
-        {!isLoadingBids && allClosed && (
-          <Alert severity="warning">
-            All bids for this deployment are closed. This can happen if no bids are accepted for more than 5 minutes after the deployment creation. You can
-            close this deployment and create a new one.
-          </Alert>
-        )}
-        {!isLoadingBids && (allClosed || bids.length === 0) && (
-          <Box mt={1}>
-            <Button variant="contained" color={allClosed ? "primary" : "secondary"} onClick={handleCloseDeployment}>
-              Close Deployment
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleNext}
+              disabled={dseqList.some((gseq) => !selectedBids[gseq]) || isSendingManifest || !providers}
+            >
+              Accept Bid{dseqList.length > 1 ? "s" : ""}
             </Button>
           </Box>
         )}
-      </>
+
+        <Box mb={1} display="flex" alignItems="center">
+          {!isLoadingBids && (allClosed || bids.length === 0) && (
+            <Button variant="contained" color={allClosed ? "primary" : "secondary"} onClick={handleCloseDeployment}>
+              Close Deployment
+            </Button>
+          )}
+
+          {!isLoadingBids && allClosed && (
+            <Tooltip
+              classes={{ tooltip: classes.tooltip }}
+              arrow
+              interactive
+              title={
+                <Alert severity="warning">
+                  All bids for this deployment are closed. This can happen if no bids are accepted for more than 5 minutes after the deployment creation. You
+                  can close this deployment and create a new one.
+                </Alert>
+              }
+            >
+              <InfoIcon className={classes.tooltipIcon} color="error" />
+            </Tooltip>
+          )}
+        </Box>
+
+        {(isLoadingBids || bids.length === 0) && !maxRequestsReached && (
+          <Box textAlign="center" paddingTop="1rem">
+            <CircularProgress />
+            <Box paddingTop="1rem">
+              <Typography variant="body1">Waiting for bids...</Typography>
+            </Box>
+          </Box>
+        )}
+
+        {warningRequestsReached && !maxRequestsReached && bids.length === 0 && (
+          <Box paddingTop="1rem">
+            <Alert variant="standard" severity="info">
+              There should be bids by now... You can wait longer in case a bid shows up or close the deployment and try again with a different configuration.
+            </Alert>
+          </Box>
+        )}
+
+        {maxRequestsReached && bids.length === 0 && (
+          <Box paddingTop="1rem">
+            <Alert variant="standard" severity="warning">
+              There's no bid for the current deployment. You can close the deployment and try again with a different configuration.
+            </Alert>
+          </Box>
+        )}
+
+        {!isLoadingBids && bids.length > 0 && (
+          <Box display="flex" justifyContent="space-between" marginBottom=".5rem">
+            <Typography variant="h3" className={classes.title}>
+              Choose a provider
+            </Typography>
+            <Box flexGrow={1} marginLeft={2}>
+              <TextField
+                label="Search by attribute..."
+                disabled={bids.length === 0 || isSendingManifest}
+                value={search}
+                onChange={onSearchChange}
+                type="text"
+                variant="outlined"
+                autoFocus
+                fullWidth
+                size="medium"
+                InputProps={{
+                  endAdornment: search && (
+                    <InputAdornment position="end">
+                      <IconButton size="small" onClick={() => setSearch("")}>
+                        <CloseIcon />
+                      </IconButton>
+                    </InputAdornment>
+                  )
+                }}
+              />
+            </Box>
+          </Box>
+        )}
+
+        {bids.length > 0 && !maxRequestsReached && (
+          <Box lineHeight="1rem" fontSize=".7rem" display="flex" alignItems="center" justifyContent="flex-end">
+            <div style={{ color: "grey" }}>
+              <Typography variant="caption">Waiting for more bids...</Typography>
+            </div>
+            <Box marginLeft=".5rem">
+              <CircularProgress size=".7rem" />
+            </Box>
+          </Box>
+        )}
+
+        {isSendingManifest && <LinearProgress />}
+      </Box>
+
+      {dseqList.length > 0 && (
+        <ViewPanel bottomElementId="footer" overflow="auto" padding="0 1rem">
+          {dseqList.map((gseq) => (
+            <BidGroup
+              key={gseq}
+              gseq={gseq}
+              bids={groupedBids[gseq]}
+              handleBidSelected={handleBidSelected}
+              selectedBid={selectedBids[gseq]}
+              disabled={isSendingManifest}
+              providers={providers}
+              filteredBids={filteredBids}
+              deploymentDetail={deploymentDetail}
+            />
+          ))}
+        </ViewPanel>
+      )}
     </>
   );
 }

@@ -11,6 +11,7 @@ import ReactMarkdown from "react-markdown";
 import { UrlService } from "../../shared/utils/urlUtils";
 import { Helmet } from "react-helmet-async";
 import { ViewPanel } from "../../shared/components/ViewPanel";
+import { monacoOptions } from "../../shared/constants";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -37,22 +38,8 @@ export function TemplateDetails() {
   const { templatePath } = useParams();
   const { getTemplateByPath } = useTemplates();
   const history = useHistory();
-
-  const template = getTemplateByPath(templatePath);
-
   const classes = useStyles();
-
-  const monacoOptions = {
-    selectOnLineNumbers: true,
-    scrollBeyondLastLine: false,
-    automaticLayout: true,
-    scrollbar: {
-      verticalScrollbarSize: "5px"
-    },
-    minimap: {
-      enabled: false
-    }
-  };
+  const template = getTemplateByPath(templatePath);
 
   function handleBackClick() {
     history.push(UrlService.templates());

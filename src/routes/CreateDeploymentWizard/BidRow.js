@@ -73,6 +73,12 @@ export function BidRow({ bid, selectedBid, handleBidSelected, disabled, provider
       <ListItemText
         id={`checkbox-list-label-${bid.id}`}
         classes={{ secondary: classes.secondaryText }}
+        primaryTypographyProps={{
+          component: "div"
+        }}
+        secondaryTypographyProps={{
+          component: "div"
+        }}
         primary={
           <>
             <Box marginBottom="2px" fontSize="1.1rem">

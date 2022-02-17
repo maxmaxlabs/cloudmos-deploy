@@ -5,13 +5,12 @@ import { useProviders } from "../../queries";
 import MonacoEditor from "react-monaco-editor";
 import { ToggleButtonGroup, ToggleButton, Alert } from "@material-ui/lab";
 import * as monaco from "monaco-editor";
+import { monacoOptions } from "../../shared/constants";
+import { ViewPanel } from "../../shared/components/ViewPanel";
 
 const useStyles = makeStyles((theme) => ({
   leaseSelector: {
     margin: theme.spacing(1)
-  },
-  editor: {
-    marginTop: theme.spacing(1)
   },
   root: {
     "& .MuiToggleButton-root": {
@@ -109,12 +108,8 @@ export function DeploymentLogs({ leases }) {
   const logText = logs.map((x) => x.message).join("\n");
 
   const options = {
-    selectOnLineNumbers: true,
-    scrollBeyondLastLine: false,
-    readOnly: true,
-    minimap: {
-      enabled: false
-    }
+    ...monacoOptions,
+    readOnly: true
   };
 
   function setServiceCheck(service, isChecked) {
@@ -151,20 +146,34 @@ export function DeploymentLogs({ leases }) {
         <>
           {selectedLease && (
             <>
-              {leases.length > 1 && (
-                <ToggleButtonGroup className={classes.leaseSelector} color="primary" value={selectedLease.id} exclusive onChange={handleLeaseChange}>
-                  {leases.map((l) => (
-                    <ToggleButton key={l.id} value={l.id}>
-                      GSEQ: {l.gseq}
-                    </ToggleButton>
-                  ))}
-                </ToggleButtonGroup>
-              )}
+              <Box display="flex" alignItems="center" justifyContent="space-between">
+                <Box>
+                  {leases.length > 1 && (
+                    <ToggleButtonGroup className={classes.leaseSelector} color="primary" value={selectedLease.id} exclusive onChange={handleLeaseChange}>
+                      {leases.map((l) => (
+                        <ToggleButton key={l.id} value={l.id} size="small">
+                          GSEQ: {l.gseq}
+                        </ToggleButton>
+                      ))}
+                    </ToggleButtonGroup>
+                  )}
 
-              <ToggleButtonGroup color="primary" value={selectedMode} exclusive onChange={handleModeChange}>
-                <ToggleButton value="logs">Logs</ToggleButton>
-                <ToggleButton value="events">Events</ToggleButton>
-              </ToggleButtonGroup>
+                  <ToggleButtonGroup color="primary" value={selectedMode} exclusive onChange={handleModeChange}>
+                    <ToggleButton value="logs" size="small">
+                      Logs
+                    </ToggleButton>
+                    <ToggleButton value="events" size="small">
+                      Events
+                    </ToggleButton>
+                  </ToggleButtonGroup>
+                </Box>
+
+                <FormControlLabel
+                  control={<Checkbox color="primary" checked={stickToBottom} onChange={(ev) => setStickToBottom(ev.target.checked)} />}
+                  label={"Stick to bottom"}
+                />
+              </Box>
+
               {services.length > 1 && (
                 <FormGroup row>
                   {services.map((service) => (
@@ -180,11 +189,9 @@ export function DeploymentLogs({ leases }) {
                 </FormGroup>
               )}
               {isWaitingForFirstLog && <LinearProgress />}
-              <MonacoEditor ref={monacoRef} className={classes.editor} height="400" theme="vs-dark" value={logText} options={options} />
-              <FormControlLabel
-                control={<Checkbox color="primary" checked={stickToBottom} onChange={(ev) => setStickToBottom(ev.target.checked)} />}
-                label={"Stick to bottom"}
-              />
+              <ViewPanel bottomElementId="footer" overflow="hidden">
+                <MonacoEditor ref={monacoRef} theme="vs-dark" value={logText} options={options} />
+              </ViewPanel>
             </>
           )}
         </>

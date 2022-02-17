@@ -23,12 +23,11 @@ import { PriceEstimateTooltip } from "../../shared/components/PriceEstimateToolt
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    paddingTop: "1rem"
+    padding: "1rem 1rem .5rem"
   },
   actionContainer: {
     display: "flex",
     alignItems: "center",
-    padding: ".5rem",
     "& .MuiButtonBase-root:first-child": {
       marginLeft: 0
     }
@@ -119,61 +118,63 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address, loadD
   };
 
   return (
-    <Grid container spacing={2} classes={{ root: classes.root }}>
-      <Grid item xs={3}>
-        <LabelValue
-          label="Status:"
-          value={
-            <>
-              <div>{deployment.state}</div>
-              <StatusPill state={deployment.state} />
-            </>
-          }
-        />
-      </Grid>
-      <Grid item xs={5}>
-        <Box display="flex" alignItems="center">
+    <div className={classes.root}>
+      <Grid container spacing={2}>
+        <Grid item xs={3}>
           <LabelValue
-            label="Escrow Balance:"
+            label="Status:"
             value={
               <>
-                {uaktToAKT(deployment.escrowBalance.amount, 6)}AKT{" "}
-                <Box component="span" display="inline-flex" marginLeft=".5rem">
-                  <Tooltip
-                    classes={{ tooltip: classes.tooltip }}
-                    arrow
-                    title="The escrow account balance will be fully returned to your wallet balance when the deployment is closed."
-                  >
-                    <InfoIcon className={classes.tooltipIcon} />
-                  </Tooltip>
-                </Box>
+                <div>{deployment.state}</div>
+                <StatusPill state={deployment.state} />
               </>
             }
           />
-          <Box marginLeft=".5rem"></Box>
-        </Box>
-      </Grid>
-      <Grid item xs={4}>
-        {deployment.state === "active" && <LabelValue label="Time left:" value={isValid(timeLeft) && formatDistanceToNow(timeLeft)} />}
-      </Grid>
-      <Grid item xs={3}>
-        <LabelValue label="DSEQ:" value={deployment.dseq} />
-      </Grid>
-      <Grid item xs={5}>
-        <LabelValue label="Amount spent:" value={`${uaktToAKT(deployment.transferred.amount, 6)}AKT`} />
+        </Grid>
+        <Grid item xs={5}>
+          <Box display="flex" alignItems="center">
+            <LabelValue
+              label="Escrow Balance:"
+              value={
+                <>
+                  {uaktToAKT(deployment.escrowBalance.amount, 6)}AKT{" "}
+                  <Box component="span" display="inline-flex" marginLeft=".5rem">
+                    <Tooltip
+                      classes={{ tooltip: classes.tooltip }}
+                      arrow
+                      title="The escrow account balance will be fully returned to your wallet balance when the deployment is closed."
+                    >
+                      <InfoIcon className={classes.tooltipIcon} />
+                    </Tooltip>
+                  </Box>
+                </>
+              }
+            />
+            <Box marginLeft=".5rem"></Box>
+          </Box>
+        </Grid>
+        <Grid item xs={4}>
+          {deployment.state === "active" && <LabelValue label="Time left:" value={isValid(timeLeft) && formatDistanceToNow(timeLeft)} />}
+        </Grid>
+        <Grid item xs={3}>
+          <LabelValue label="DSEQ:" value={deployment.dseq} />
+        </Grid>
+        <Grid item xs={5}>
+          <LabelValue label="Amount spent:" value={`${uaktToAKT(deployment.transferred.amount, 6)}AKT`} />
 
-        {deployment.transferred.amount && (
-          <strong>
-            ~<PriceValue value={uaktToAKT(deployment.transferred.amount, 6)} />
-          </strong>
-        )}
-      </Grid>
-      <Grid item xs={4}>
-        <LabelValue label="Cost/Month:" value={`~${avgCost}AKT`} />
-        <Box display="flex" alignItems="center">
-          {deploymentCost && <PricePerMonth perBlockValue={uaktToAKT(deploymentCost, 6)} />}
-          {deploymentCost && <PriceEstimateTooltip value={uaktToAKT(deploymentCost, 6)} />}
-        </Box>
+          {deployment.transferred.amount && (
+            <strong>
+              ~<PriceValue value={uaktToAKT(deployment.transferred.amount, 6)} />
+            </strong>
+          )}
+        </Grid>
+        <Grid item xs={4}>
+          <LabelValue label="Cost/Month:" value={`~${avgCost}AKT`} />
+          <Box display="flex" alignItems="center">
+            {deploymentCost && <PricePerMonth perBlockValue={uaktToAKT(deploymentCost, 6)} />}
+            {deploymentCost && <PriceEstimateTooltip value={uaktToAKT(deploymentCost, 6)} />}
+          </Box>
+        </Grid>
       </Grid>
 
       {deployment.state === "active" && (
@@ -240,6 +241,6 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address, loadD
         handleCancel={() => setIsDepositingDeployment(false)}
         onDeploymentDeposit={onDeploymentDeposit}
       />
-    </Grid>
+    </div>
   );
 }

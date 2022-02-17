@@ -14,8 +14,11 @@ import { useTemplates } from "../../context/TemplatesProvider";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    width: "100%",
-    backgroundColor: theme.palette.background.paper
+    padding: "1rem",
+    paddingTop: 0
+  },
+  list: {
+    paddingBottom: "1rem"
   }
 }));
 
@@ -84,10 +87,10 @@ export function PrerequisiteList({ selectedTemplate, setSelectedTemplate }) {
   const allCheckSucceeded = isBalanceValidated && isCertificateValidated && isLocalCertificateValidated;
 
   return (
-    <>
+    <div className={classes.root}>
       <Helmet title="Create Deployment - Prerequisites" />
 
-      <List className={classes.root}>
+      <List className={classes.list}>
         <ListItem>
           <ListItemIcon>
             {isBalanceValidated === null && <CircularProgress />}
@@ -130,6 +133,6 @@ export function PrerequisiteList({ selectedTemplate, setSelectedTemplate }) {
       <Button variant="contained" color="primary" disabled={!allCheckSucceeded} onClick={handleNextClick}>
         Continue
       </Button>
-    </>
+    </div>
   );
 }

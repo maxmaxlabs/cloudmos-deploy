@@ -11,3 +11,18 @@ export const transactionLink = (txHash) => `https://www.mintscan.io/akash/txs/${
 // UI
 export const statusBarHeight = 30;
 export const accountBarHeight = 58;
+
+export const monacoOptions = {
+  selectOnLineNumbers: true,
+  scrollBeyondLastLine: false,
+  automaticLayout: true,
+  scrollbar: {
+    verticalScrollbarSize: "8px"
+  },
+  minimap: {
+    enabled: false
+  },
+  padding: {
+    bottom: 50
+  }
+};

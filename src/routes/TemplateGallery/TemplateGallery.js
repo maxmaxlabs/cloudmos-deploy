@@ -86,7 +86,7 @@ export function TemplateGallery(props) {
           <List className={classes.templateList}>
             {searchResults.map((template) => (
               <ListItem button key={template.path} component={Link} to={UrlService.templateDetails(template.path)}>
-                <ListItemAvatar>{template.logoUrl && <Avatar src={template.logoUrl} variant="square" />}</ListItemAvatar>
+                <ListItemAvatar>{template.logoUrl ? <Avatar src={template.logoUrl} variant="square" /> : <div></div>}</ListItemAvatar>
                 <ListItemText
                   primary={
                     <>
@@ -137,7 +137,9 @@ export function TemplateGallery(props) {
 
                   {selectedCategory?.title === "Blockchain" && (
                     <ListItem button onClick={() => window.electron.openUrl("https://github.com/ovrclk/cosmos-omnibus")}>
-                      <ListItemAvatar></ListItemAvatar>
+                      <ListItemAvatar>
+                        <div></div>
+                      </ListItemAvatar>
                       <ListItemText
                         primary="Cosmos Omnibus"
                         secondary={"Visit the Cosmos Omnibus repository for templates to deploy cosmos-sdk-based docker images and configuration onto Akash."}
