@@ -25,6 +25,9 @@ const useStyles = makeStyles({
   },
   warningIcon: {
     marginLeft: ".5rem"
+  },
+  tooltip: {
+    fontSize: "1rem"
   }
 });
 
@@ -169,7 +172,7 @@ export function CertificateDisplay() {
             <Tooltip
               classes={{ tooltip: classes.tooltip }}
               arrow
-              title="The local cert doesn't match the one on the blockchain. You can revoke it and create a new one."
+              title="The local certificate doesn't match the one on the blockchain. You can revoke it and create a new one."
             >
               <WarningIcon fontSize="small" color="error" className={classes.warningIcon} />
             </Tooltip>

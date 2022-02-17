@@ -30,7 +30,7 @@ export const useStyles = makeStyles((theme) => ({
     padding: ".5rem"
   },
   tooltipIcon: {
-    fontSize: "1.5rem",
+    fontSize: "1rem",
     marginLeft: "1rem",
     color: theme.palette.text.secondary
   }
@@ -149,12 +149,12 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
   return (
     <>
       {showOutsideDeploymentMessage ? (
-        <Box mt={1}>
+        <Box padding=".5rem">
           <Alert severity="info">
             It looks like this deployment was created using another deploy tool. We can't show you the configuration file that was used initially, but you can
             still update it. Simply continue and enter the configuration you want to use.
             <Box mt={1}>
-              <Button variant="contained" color="primary" onClick={() => setShowOutsideDeploymentMessage(false)}>
+              <Button variant="contained" color="primary" onClick={() => setShowOutsideDeploymentMessage(false)} size="small">
                 Continue
               </Button>
             </Box>
