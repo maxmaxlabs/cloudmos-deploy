@@ -51,6 +51,14 @@ function runApp() {
         outlined: {
           transform: "translate(14px, 12px) scale(1)"
         }
+      },
+      MuiTooltip: {
+        arrow: {
+          color: "rgba(0,0,0,.85)"
+        },
+        tooltip: {
+          backgroundColor: "rgba(0,0,0,.85)"
+        }
       }
     }
   });
