@@ -52,7 +52,7 @@ let openSockets = [];
 exports.openWebSocket = function (url, certPem, keyPem, onMessage) {
   const requestId = nanoid();
 
-  console.log("openWebSocket: ", child);
+  // console.log("openWebSocket: ", child);
 
   openSockets[requestId] = {
     onMessage: onMessage
@@ -66,17 +66,17 @@ exports.openWebSocket = function (url, certPem, keyPem, onMessage) {
     keyPem: keyPem
   });
 
-  console.log("Sending websocket request: " + url);
+  // console.log("Sending websocket request: " + url);
 
   return {
     close: () => {
-      console.log("sending websocket_close");
-      console.log(child);
+      // console.log("sending websocket_close");
+      // console.log(child);
       child.send({
         id: requestId,
         type: "websocket_close"
       });
-      console.log("sent websocket_close");
+      // console.log("sent websocket_close");
       delete openSockets[requestId];
     }
   };
@@ -104,7 +104,7 @@ async function makeRequest(url, method, body, certPem, keyPem) {
 }
 
 exports.queryProvider = async function (url, method, body, certPem, prvPem) {
-  console.log("Querying provider using proxy");
+  // console.log("Querying provider using proxy");
 
   try {
     const response = await makeRequest(url, method, body, certPem, prvPem);
@@ -112,7 +112,7 @@ exports.queryProvider = async function (url, method, body, certPem, prvPem) {
     return response;
   } catch (err) {
     console.error(err);
-    console.log("Failed to query provider with proxy");
+    // console.log("Failed to query provider with proxy");
     throw err;
   }
 };

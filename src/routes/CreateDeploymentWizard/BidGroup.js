@@ -7,13 +7,14 @@ import { BidRow } from "./BidRow";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    padding: ".5rem 0",
     marginBottom: "1rem"
   },
   subHeader: {
     display: "flex",
     alignItems: "center",
-    paddingBottom: "6px"
+    paddingBottom: "6px",
+    zIndex: 100,
+    backgroundColor: theme.palette.common.white
   },
   secondaryText: {
     fontSize: ".8rem"

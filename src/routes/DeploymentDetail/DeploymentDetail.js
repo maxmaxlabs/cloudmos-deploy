@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, createRef } from "react";
 import { useParams, useHistory } from "react-router-dom";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-import { CircularProgress, Tabs, Tab, IconButton, Card, CardContent, CardHeader, Typography, Box } from "@material-ui/core";
+import { CircularProgress, Tabs, Tab, IconButton, Typography, Box } from "@material-ui/core";
 import { LeaseRow } from "./LeaseRow";
 import { useStyles } from "./DeploymentDetail.styles";
 import { DeploymentSubHeader } from "./DeploymentSubHeader";
@@ -92,7 +92,7 @@ export function DeploymentDetail(props) {
       getDeploymentDetail();
       getLeases();
 
-      leaseRefs.forEach((lr) => lr.current.getLeaseStatus());
+      leaseRefs.forEach((lr) => lr.current?.getLeaseStatus());
     }
   }
 
@@ -101,87 +101,78 @@ export function DeploymentDetail(props) {
   }
 
   return (
-    <Card variant="outlined" className={classes.root}>
+    <div className={classes.root}>
       <Helmet title="Deployment Detail" />
 
       <LinearLoadingSkeleton isLoading={isLoadingLeases || isLoadingDeployment} />
-      <CardHeader
-        classes={{
-          title: classes.cardTitle
-        }}
-        title={
-          <Box display="flex" alignItems="center">
-            <IconButton aria-label="back" onClick={handleBackClick}>
-              <ChevronLeftIcon />
-            </IconButton>
-            <Typography variant="h3" className={classes.title}>
-              Deployment detail
-              {deploymentName && <> - {deploymentName}</>}
-            </Typography>
-            <Box marginLeft="1rem">
-              <IconButton aria-label="back" onClick={() => loadDeploymentDetail()}>
-                <RefreshIcon />
-              </IconButton>
-            </Box>
-          </Box>
-        }
-        subheader={
-          deployment && (
-            <DeploymentSubHeader
-              deployment={deployment}
-              block={currentBlock}
-              deploymentCost={hasLeases ? leases.reduce((prev, current) => prev + current.price.amount, 0) : 0}
-              address={address}
-              loadDeploymentDetail={loadDeploymentDetail}
-              removeLeases={removeLeases}
-            />
-          )
-        }
-      />
 
-      <Tabs value={activeTab} onChange={(ev, value) => setActiveTab(value)} indicatorColor="primary" textColor="primary">
+      <Box display="flex" alignItems="center" padding="0 .5rem">
+        <IconButton aria-label="back" onClick={handleBackClick}>
+          <ChevronLeftIcon />
+        </IconButton>
+        <Typography variant="h3" className={classes.title}>
+          Deployment detail
+          {deploymentName && <> - {deploymentName}</>}
+        </Typography>
+        <Box marginLeft="1rem">
+          <IconButton aria-label="back" onClick={() => loadDeploymentDetail()}>
+            <RefreshIcon />
+          </IconButton>
+        </Box>
+      </Box>
+
+      {deployment && (
+        <DeploymentSubHeader
+          deployment={deployment}
+          block={currentBlock}
+          deploymentCost={hasLeases ? leases.reduce((prev, current) => prev + current.price.amount, 0) : 0}
+          address={address}
+          loadDeploymentDetail={loadDeploymentDetail}
+          removeLeases={removeLeases}
+        />
+      )}
+
+      <Tabs value={activeTab} onChange={(ev, value) => setActiveTab(value)} indicatorColor="primary" textColor="primary" classes={{ root: classes.tabsRoot }}>
         <Tab value="DETAILS" label="Details" />
         <Tab value="EDIT" label="View / Edit Manifest" />
         {deployment?.state === "active" && leases?.some((x) => x.state === "active") && <Tab value="LOGS" label="Logs" />}
         <Tab value="JSON_DATA" label="JSON Data" />
       </Tabs>
 
-      <CardContent>
-        {activeTab === "EDIT" && deployment && leases && (
-          <ManifestEditor deployment={deployment} leases={leases} closeManifestEditor={() => setActiveTab("DETAILS")} />
-        )}
-        {activeTab === "LOGS" && <DeploymentLogs leases={leases} />}
-        {activeTab === "JSON_DATA" && deployment && (
-          <>
-            <DeploymentJsonViewer jsonObj={deployment} title="Deployment JSON" />
-            <DeploymentJsonViewer jsonObj={leases} title="Leases JSON" />
-          </>
-        )}
-        {activeTab === "DETAILS" && (
-          <>
-            <Typography variant="h6" className={classes.title}>
-              Leases
-            </Typography>
-            {leases &&
-              leases.map((lease, i) => (
-                <LeaseRow key={lease.id} lease={lease} setActiveTab={setActiveTab} ref={leaseRefs[i]} deploymentManifest={deploymentManifest} dseq={dseq} />
-              ))}
-            {!hasLeases && !isLoadingLeases && !isLoadingDeployment && <>This deployment doesn't have any leases</>}
+      {activeTab === "EDIT" && deployment && leases && (
+        <ManifestEditor deployment={deployment} leases={leases} closeManifestEditor={() => setActiveTab("DETAILS")} />
+      )}
+      {activeTab === "LOGS" && <DeploymentLogs leases={leases} />}
+      {activeTab === "JSON_DATA" && deployment && (
+        <Box display="flex">
+          <DeploymentJsonViewer jsonObj={deployment} title="Deployment JSON" />
+          <DeploymentJsonViewer jsonObj={leases} title="Leases JSON" />
+        </Box>
+      )}
+      {activeTab === "DETAILS" && (
+        <Box padding="1rem">
+          <Typography variant="h6" className={classes.title}>
+            Leases
+          </Typography>
+          {leases &&
+            leases.map((lease, i) => (
+              <LeaseRow key={lease.id} lease={lease} setActiveTab={setActiveTab} ref={leaseRefs[i]} deploymentManifest={deploymentManifest} dseq={dseq} />
+            ))}
+          {!hasLeases && !isLoadingLeases && !isLoadingDeployment && <>This deployment doesn't have any leases</>}
 
-            {leases && certificate && (!localCert || !isLocalCertMatching) && (
-              <Box marginTop="1rem">
-                <Alert severity="warning">You do not have a valid local certificate. You need to create a new one to view lease status and details.</Alert>
-              </Box>
-            )}
+          {leases && certificate && (!localCert || !isLocalCertMatching) && (
+            <Box marginTop="1rem">
+              <Alert severity="warning">You do not have a valid local certificate. You need to create a new one to view lease status and details.</Alert>
+            </Box>
+          )}
 
-            {(isLoadingLeases || isLoadingDeployment) && !hasLeases && (
-              <Box textAlign="center" padding="2rem">
-                <CircularProgress />
-              </Box>
-            )}
-          </>
-        )}
-      </CardContent>
-    </Card>
+          {(isLoadingLeases || isLoadingDeployment) && !hasLeases && (
+            <Box textAlign="center" padding="2rem">
+              <CircularProgress />
+            </Box>
+          )}
+        </Box>
+      )}
+    </div>
   );
 }

@@ -1,5 +1,5 @@
 import React from "react";
-import { IconButton, makeStyles, List, ListItem, ListItemIcon, ListSubheader, ListItemSecondaryAction, ListItemText, Radio } from "@material-ui/core";
+import { Box, Typography, IconButton, makeStyles, List, ListItem, ListItemSecondaryAction, ListItemText } from "@material-ui/core";
 import GitHubIcon from "@material-ui/icons/GitHub";
 import { useHistory } from "react-router";
 import { Helmet } from "react-helmet-async";
@@ -15,8 +15,7 @@ const useStyles = makeStyles((theme) => ({
 export function TemplateList(props) {
   const classes = useStyles();
   const history = useHistory();
-
-  const { selectedTemplate, setSelectedTemplate } = props;
+  const { setSelectedTemplate } = props;
 
   function handleGithubOpen(value) {
     window.electron.openUrl(value.githubUrl);
@@ -49,7 +48,12 @@ export function TemplateList(props) {
   return (
     <>
       <Helmet title="Create Deployment - Template List" />
-      <List className={classes.root} subheader={<ListSubheader>What do you want to deploy?</ListSubheader>}>
+
+      <Box padding="1rem">
+        <Typography variant="h6">What do you want to deploy?</Typography>
+      </Box>
+
+      <List className={classes.root}>
         <ListItem dense button onClick={() => selectTemplate(emptyTemplate)}>
           <ListItemText primary={emptyTemplate.title} secondary={emptyTemplate.description} />
           {emptyTemplate.githubUrl && (

@@ -14,6 +14,7 @@ import { Snackbar } from "../../shared/components/Snackbar";
 import { HdPath } from "../../shared/components/HdPath";
 import { MnemonicTextarea } from "../../shared/components/MnemonicTextarea";
 import { arrayEquals } from "../../shared/utils/array";
+import { Layout } from "../../shared/components/Layout";
 
 const useStyles = makeStyles((theme) => ({
   root: { padding: "5% 0" },
@@ -179,175 +180,177 @@ export function NewWallet() {
   };
 
   return (
-    <div className={classes.root}>
-      <TitleLogo />
+    <Layout>
+      <div className={classes.root}>
+        <TitleLogo />
 
-      <Container maxWidth="xs" className={classes.container}>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          {isKeyValidating ? (
-            <>
-              <Typography variant="h6" color="textSecondary">
-                Click your mnemonic seed in the right order
-              </Typography>
-              <div className={classes.wordBox}>
-                {selectedWords.map((word, i) => (
-                  <Button
-                    onClick={() => onWordClick(word, false)}
-                    variant="contained"
-                    color="primary"
-                    className={classes.wordButton}
-                    key={`selected_word_${i}`}
-                    size="small"
-                  >
-                    {word}
-                  </Button>
-                ))}
-              </div>
-
-              <hr />
-
-              <div>
-                {shuffledMnemonic
-                  .filter((w) => !selectedWords.some((_) => _ === w))
-                  .map((word, i) => (
-                    <Button onClick={() => onWordClick(word, true)} className={classes.wordButton} variant="outlined" size="small" key={`word_${i}`}>
+        <Container maxWidth="xs" className={classes.container}>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            {isKeyValidating ? (
+              <>
+                <Typography variant="h6" color="textSecondary">
+                  Click your mnemonic seed in the right order
+                </Typography>
+                <div className={classes.wordBox}>
+                  {selectedWords.map((word, i) => (
+                    <Button
+                      onClick={() => onWordClick(word, false)}
+                      variant="contained"
+                      color="primary"
+                      className={classes.wordButton}
+                      key={`selected_word_${i}`}
+                      size="small"
+                    >
                       {word}
                     </Button>
                   ))}
-              </div>
+                </div>
 
-              <Box marginTop="1rem">
-                {error && (
-                  <Alert severity="error" variant="filled">
-                    {error}
-                  </Alert>
-                )}
+                <hr />
+
+                <div>
+                  {shuffledMnemonic
+                    .filter((w) => !selectedWords.some((_) => _ === w))
+                    .map((word, i) => (
+                      <Button onClick={() => onWordClick(word, true)} className={classes.wordButton} variant="outlined" size="small" key={`word_${i}`}>
+                        {word}
+                      </Button>
+                    ))}
+                </div>
+
+                <Box marginTop="1rem">
+                  {error && (
+                    <Alert severity="error" variant="filled">
+                      {error}
+                    </Alert>
+                  )}
+                </Box>
+              </>
+            ) : (
+              <>
+                <Alert variant="outlined" color="warning" className={classes.alert} icon={false}>
+                  <Typography variant="h6" className={classes.alertTitle}>
+                    <strong>Backup your mnemonic seed securely</strong>
+                  </Typography>
+
+                  <ul className={classes.alertList}>
+                    <li>Anyone with your mnemonic seed can take your assets.</li>
+                    <li>Lost mnemonic seed can't be recovered.</li>
+                    <li>Make sure to write it down somewhere secure.</li>
+                    <li>Never share the mnemonic with others or enter it in unverified sites.</li>
+                  </ul>
+                </Alert>
+
+                <Box display="flex" justifyContent="space-between" marginBottom="1rem">
+                  <Typography variant="h5">Mnemonic Seed</Typography>
+                  <ButtonGroup variant="contained" size="small">
+                    <Button onClick={() => onNumberChange(12)} size="small" color={numberOfWords === 12 ? "primary" : "default"}>
+                      12 words
+                    </Button>
+                    <Button onClick={() => onNumberChange(24)} size="small" color={numberOfWords === 24 ? "primary" : "default"}>
+                      24 words
+                    </Button>
+                  </ButtonGroup>
+                </Box>
+
+                <Box marginBottom="1rem">
+                  <MnemonicTextarea mnemonic={newWallet?.mnemonic} />
+                </Box>
+
+                <FormControl error={!errors.name} className={classes.formControl} fullWidth>
+                  <Controller
+                    control={control}
+                    name="name"
+                    rules={{
+                      required: true
+                    }}
+                    render={({ fieldState, field }) => {
+                      const helperText = "Account name is required.";
+
+                      return (
+                        <TextField
+                          {...field}
+                          type="text"
+                          variant="outlined"
+                          label="Account name"
+                          autoFocus
+                          error={!!fieldState.invalid}
+                          helperText={fieldState.invalid && helperText}
+                        />
+                      );
+                    }}
+                  />
+                </FormControl>
+
+                <FormControl error={!errors.password} className={classes.formControl} fullWidth>
+                  <Controller
+                    control={control}
+                    name="password"
+                    rules={{
+                      required: true
+                    }}
+                    render={({ fieldState, field }) => {
+                      const helperText = "Password is required.";
+
+                      return (
+                        <TextField
+                          {...field}
+                          type="password"
+                          variant="outlined"
+                          label="Password"
+                          error={!!fieldState.invalid}
+                          helperText={fieldState.invalid && helperText}
+                        />
+                      );
+                    }}
+                  />
+                </FormControl>
+
+                <FormControl error={!errors.confirmPassword} className={classes.formControl} fullWidth>
+                  <Controller
+                    control={control}
+                    name="confirmPassword"
+                    rules={{
+                      required: true,
+                      validate: (value) => !!value && value === password
+                    }}
+                    render={({ fieldState, field }) => {
+                      const helperText = fieldState.error?.type === "validate" ? "Password doesn't match." : "Confirm password is required.";
+
+                      return (
+                        <TextField
+                          {...field}
+                          type="password"
+                          variant="outlined"
+                          label="Confirm password"
+                          error={!!fieldState.invalid}
+                          helperText={fieldState.invalid && helperText}
+                        />
+                      );
+                    }}
+                  />
+                </FormControl>
+
+                <HdPath onChange={onHdPathChange} />
+              </>
+            )}
+
+            <Box display="flex" alignItems="center" justifyContent="space-between" marginTop="1rem">
+              <Box>
+                <Button onClick={onBackClick}>Back</Button>
               </Box>
-            </>
-          ) : (
-            <>
-              <Alert variant="outlined" color="warning" className={classes.alert} icon={false}>
-                <Typography variant="h6" className={classes.alertTitle}>
-                  <strong>Backup your mnemonic seed securely</strong>
-                </Typography>
-
-                <ul className={classes.alertList}>
-                  <li>Anyone with your mnemonic seed can take your assets.</li>
-                  <li>Lost mnemonic seed can't be recovered.</li>
-                  <li>Make sure to write it down somewhere secure.</li>
-                  <li>Never share the mnemonic with others or enter it in unverified sites.</li>
-                </ul>
-              </Alert>
-
-              <Box display="flex" justifyContent="space-between" marginBottom="1rem">
-                <Typography variant="h5">Mnemonic Seed</Typography>
-                <ButtonGroup variant="contained" size="small">
-                  <Button onClick={() => onNumberChange(12)} size="small" color={numberOfWords === 12 ? "primary" : "default"}>
-                    12 words
-                  </Button>
-                  <Button onClick={() => onNumberChange(24)} size="small" color={numberOfWords === 24 ? "primary" : "default"}>
-                    24 words
-                  </Button>
-                </ButtonGroup>
-              </Box>
-
-              <Box marginBottom="1rem">
-                <MnemonicTextarea mnemonic={newWallet?.mnemonic} />
-              </Box>
-
-              <FormControl error={!errors.name} className={classes.formControl} fullWidth>
-                <Controller
-                  control={control}
-                  name="name"
-                  rules={{
-                    required: true
-                  }}
-                  render={({ fieldState, field }) => {
-                    const helperText = "Account name is required.";
-
-                    return (
-                      <TextField
-                        {...field}
-                        type="text"
-                        variant="outlined"
-                        label="Account name"
-                        autoFocus
-                        error={!!fieldState.invalid}
-                        helperText={fieldState.invalid && helperText}
-                      />
-                    );
-                  }}
-                />
-              </FormControl>
-
-              <FormControl error={!errors.password} className={classes.formControl} fullWidth>
-                <Controller
-                  control={control}
-                  name="password"
-                  rules={{
-                    required: true
-                  }}
-                  render={({ fieldState, field }) => {
-                    const helperText = "Password is required.";
-
-                    return (
-                      <TextField
-                        {...field}
-                        type="password"
-                        variant="outlined"
-                        label="Password"
-                        error={!!fieldState.invalid}
-                        helperText={fieldState.invalid && helperText}
-                      />
-                    );
-                  }}
-                />
-              </FormControl>
-
-              <FormControl error={!errors.confirmPassword} className={classes.formControl} fullWidth>
-                <Controller
-                  control={control}
-                  name="confirmPassword"
-                  rules={{
-                    required: true,
-                    validate: (value) => !!value && value === password
-                  }}
-                  render={({ fieldState, field }) => {
-                    const helperText = fieldState.error?.type === "validate" ? "Password doesn't match." : "Confirm password is required.";
-
-                    return (
-                      <TextField
-                        {...field}
-                        type="password"
-                        variant="outlined"
-                        label="Confirm password"
-                        error={!!fieldState.invalid}
-                        helperText={fieldState.invalid && helperText}
-                      />
-                    );
-                  }}
-                />
-              </FormControl>
-
-              <HdPath onChange={onHdPathChange} />
-            </>
-          )}
-
-          <Box display="flex" alignItems="center" justifyContent="space-between" marginTop="1rem">
-            <Box>
-              <Button onClick={onBackClick}>Back</Button>
+              <Button
+                variant="contained"
+                color="primary"
+                disabled={isGeneratingNewWallet || isCreatingWallet || (isKeyValidating && !isKeyValidated)}
+                type="submit"
+              >
+                {isGeneratingNewWallet || isCreatingWallet ? <CircularProgress size="1.5rem" color="primary" /> : <>Next</>}
+              </Button>
             </Box>
-            <Button
-              variant="contained"
-              color="primary"
-              disabled={isGeneratingNewWallet || isCreatingWallet || (isKeyValidating && !isKeyValidated)}
-              type="submit"
-            >
-              {isGeneratingNewWallet || isCreatingWallet ? <CircularProgress size="1.5rem" color="primary" /> : <>Next</>}
-            </Button>
-          </Box>
-        </form>
-      </Container>
-    </div>
+          </form>
+        </Container>
+      </div>
+    </Layout>
   );
 }

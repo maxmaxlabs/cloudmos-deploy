@@ -14,12 +14,17 @@ import { useTemplates } from "../../context/TemplatesProvider";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    width: "100%",
-    backgroundColor: theme.palette.background.paper
+    padding: "1rem",
+    paddingTop: 0
+  },
+  list: {
+    paddingBottom: "1rem"
   }
 }));
 
 export function PrerequisiteList({ selectedTemplate, setSelectedTemplate }) {
+  const classes = useStyles();
+  const [isLoadingPrerequisites, setIsLoadingPrerequisites] = useState(false);
   const [isBalanceValidated, setIsBalanceValidated] = useState(null);
   const [isCertificateValidated, setIsCertificateValidated] = useState(null);
   const [isLocalCertificateValidated, setIsLocalCertificateValidated] = useState(null);
@@ -29,49 +34,85 @@ export function PrerequisiteList({ selectedTemplate, setSelectedTemplate }) {
   const queryParams = useQueryParams();
   const { getDeploymentData } = useLocalNotes();
   const { getTemplateByPath } = useTemplates();
+  const allCheckSucceeded = isBalanceValidated && isCertificateValidated && isLocalCertificateValidated;
 
   useEffect(() => {
-    // If it's a redeploy, set the template from local storage
-    if (queryParams.get("redeploy")) {
-      const deploymentData = getDeploymentData(queryParams.get("redeploy"));
+    const redeployTemplate = getRedeployTemplate();
+    const galleryTemplate = getGalleryTemplate();
 
-      if (deploymentData && deploymentData.manifest) {
-        const template = {
-          code: "empty",
-          content: deploymentData.manifest
-        };
-        setSelectedTemplate(template);
-      }
-    }
-    // If it's a deploy from the template gallery, load from template data
-    else if (queryParams.get("templatePath")) {
-      const template = getTemplateByPath(queryParams.get("templatePath"));
-      if (template) {
-        setSelectedTemplate({
-          code: "empty",
-          content: template.deploy,
-          valuesToChange: template.valuesToChange || []
-        });
-      }
+    if (redeployTemplate) {
+      // If it's a redeploy, set the template from local storage
+      setSelectedTemplate(redeployTemplate);
+    } else if (galleryTemplate) {
+      // If it's a deploy from the template gallery, load from template data
+      setSelectedTemplate(galleryTemplate);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     async function loadPrerequisites() {
+      setIsLoadingPrerequisites(true);
+
       const balance = await refreshBalance();
-      setIsBalanceValidated(balance >= 5000000);
-
       const certificate = await loadValidCertificates();
-      setIsCertificateValidated(certificate?.certificate?.state === "valid");
+      const isBalanceValidated = balance >= 5000000;
+      const isCertificateValidated = certificate?.certificate?.state === "valid";
+      const isLocalCertificateValidated = !!localCert && isLocalCertMatching;
 
-      setIsLocalCertificateValidated(!!localCert && isLocalCertMatching);
+      setIsBalanceValidated(isBalanceValidated);
+      setIsCertificateValidated(isCertificateValidated);
+      setIsLocalCertificateValidated(isLocalCertificateValidated);
+
+      setIsLoadingPrerequisites(false);
+
+      // Auto redirect when all is good
+      const redeployTemplate = getRedeployTemplate();
+      const galleryTemplate = getGalleryTemplate();
+      if ((redeployTemplate || galleryTemplate) && isBalanceValidated && isCertificateValidated && isLocalCertificateValidated) {
+        if (redeployTemplate || galleryTemplate) {
+          history.push(UrlService.createDeploymentStepManifest());
+        } else {
+          history.push(UrlService.createDeploymentStepTemplate());
+        }
+      }
     }
 
     loadPrerequisites();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshBalance, loadValidCertificates, localCert, isLocalCertMatching]);
 
-  const classes = useStyles();
+  const getRedeployTemplate = () => {
+    let template = null;
+    if (queryParams.get("redeploy")) {
+      const deploymentData = getDeploymentData(queryParams.get("redeploy"));
+
+      if (deploymentData && deploymentData.manifest) {
+        template = {
+          code: "empty",
+          content: deploymentData.manifest
+        };
+      }
+    }
+
+    return template;
+  };
+
+  const getGalleryTemplate = () => {
+    let template = null;
+    if (queryParams.get("templatePath")) {
+      const templateByPath = getTemplateByPath(queryParams.get("templatePath"));
+      if (templateByPath) {
+        template = {
+          code: "empty",
+          content: templateByPath.deploy,
+          valuesToChange: templateByPath.valuesToChange || []
+        };
+      }
+    }
+
+    return template;
+  };
 
   function handleNextClick() {
     if (selectedTemplate) {
@@ -81,13 +122,11 @@ export function PrerequisiteList({ selectedTemplate, setSelectedTemplate }) {
     }
   }
 
-  const allCheckSucceeded = isBalanceValidated && isCertificateValidated && isLocalCertificateValidated;
-
   return (
-    <>
+    <div className={classes.root}>
       <Helmet title="Create Deployment - Prerequisites" />
 
-      <List className={classes.root}>
+      <List className={classes.list}>
         <ListItem>
           <ListItemIcon>
             {isBalanceValidated === null && <CircularProgress />}
@@ -128,8 +167,8 @@ export function PrerequisiteList({ selectedTemplate, setSelectedTemplate }) {
       </List>
 
       <Button variant="contained" color="primary" disabled={!allCheckSucceeded} onClick={handleNextClick}>
-        Continue
+        {isLoadingPrerequisites ? <CircularProgress size="1.5rem" color="primary" /> : "Continue"}
       </Button>
-    </>
+    </div>
   );
 }

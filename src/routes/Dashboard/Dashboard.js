@@ -11,6 +11,7 @@ import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
 import { useTransactionModal } from "../../context/TransactionModal";
 import { useSettings } from "../../context/SettingsProvider";
+import { UrlService } from "../../shared/utils/urlUtils";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -116,7 +117,7 @@ export function Dashboard({ deployments, isLoadingDeployments, refreshDeployment
             <Box textAlign="center" padding="4rem">
               {isLoadingDeployments ? (
                 <Box paddingBottom="1rem">
-                  <CircularProgress size="2.5rem" />
+                  <CircularProgress size="2rem" />
                 </Box>
               ) : (
                 <Typography variant="h5" className={classes.noActiveDeployments}>
@@ -124,7 +125,7 @@ export function Dashboard({ deployments, isLoadingDeployments, refreshDeployment
                 </Typography>
               )}
 
-              <Button variant="contained" size="medium" color="primary" component={Link} to="/createDeployment">
+              <Button variant="contained" size="medium" color="primary" component={Link} to={UrlService.createDeployment()}>
                 <AddIcon />
                 &nbsp;Create Deployment
               </Button>

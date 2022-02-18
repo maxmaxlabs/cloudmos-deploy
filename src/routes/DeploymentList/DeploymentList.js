@@ -11,7 +11,6 @@ import { useSettings } from "../../context/SettingsProvider";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    padding: "1rem",
     "& .MuiListItemText-secondary .MuiSvgIcon-root:not(:first-child)": {
       marginLeft: "5px"
     },
@@ -23,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
     }
   },
   titleContainer: {
-    paddingBottom: "1rem",
+    padding: "1rem",
     display: "flex",
     alignItems: "center"
   },
@@ -70,7 +69,7 @@ export function DeploymentList({ deployments, isLoadingDeployments, refreshDeplo
 
           <Box marginLeft="1rem">
             <IconButton aria-label="back" onClick={refreshDeployments}>
-              <RefreshIcon />
+              <RefreshIcon fontSize="small" />
             </IconButton>
           </Box>
 
@@ -84,7 +83,7 @@ export function DeploymentList({ deployments, isLoadingDeployments, refreshDeplo
             <DeploymentListRow key={deployment.dseq} deployment={deployment} />
           ))}
         </Box>
-        <Box mt={2}>
+        <Box padding="1rem 1rem 2rem">
           <Pagination count={pageCount} onChange={handleChangePage} page={page} size="large" />
         </Box>
       </Box>

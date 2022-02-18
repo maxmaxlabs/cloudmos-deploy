@@ -35,7 +35,7 @@ contextBridge.exposeInMainWorld("electron", {
   queryProvider: (url, method, body, certPem, prvPem) => providerProxy.queryProvider(url, method, body, certPem, prvPem),
   openWebSocket: (url, certPem, prvPem, onMessage) => providerProxy.openWebSocket(url, certPem, prvPem, onMessage),
   openUrl: (url) => {
-    console.log("Opening in browser: " + url);
+    // console.log("Opening in browser: " + url);
     shell.openExternal(url);
   },
   getAppVersion: () => appVersion,

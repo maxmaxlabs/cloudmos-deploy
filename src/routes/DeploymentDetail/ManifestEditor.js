@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Box, Typography, LinearProgress } from "@material-ui/core";
+import { Button, Box, Typography, LinearProgress, Tooltip, makeStyles } from "@material-ui/core";
 import { getDeploymentLocalData, saveDeploymentManifest } from "../../shared/utils/deploymentLocalDataUtils";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
 import { NewDeploymentData, Manifest, sendManifestToProvider } from "../../shared/utils/deploymentUtils";
@@ -8,15 +8,33 @@ import { useTransactionModal } from "../../context/TransactionModal";
 import { useCertificate } from "../../context/CertificateProvider";
 import MonacoEditor from "react-monaco-editor";
 import Alert from "@material-ui/lab/Alert";
-import { useStyles } from "./ManifestEditor.styles";
 import { useSettings } from "../../context/SettingsProvider";
 import { useSnackbar } from "notistack";
 import { analytics } from "../../shared/utils/analyticsUtils";
 import { useProviders } from "../../queries";
 import { ManifestErrorSnackbar } from "../../shared/components/ManifestErrorSnackbar";
 import { LinkTo } from "../../shared/components/LinkTo";
+import InfoIcon from "@material-ui/icons/Info";
+import { ViewPanel } from "../../shared/components/ViewPanel";
+import { monacoOptions } from "../../shared/constants";
 
 const yaml = require("js-yaml");
+
+export const useStyles = makeStyles((theme) => ({
+  title: {
+    fontWeight: "bold",
+    marginLeft: ".5rem"
+  },
+  tooltip: {
+    fontSize: "1rem",
+    padding: ".5rem"
+  },
+  tooltipIcon: {
+    fontSize: "1rem",
+    marginLeft: "1rem",
+    color: theme.palette.text.secondary
+  }
+}));
 
 export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
   const [parsingError, setParsingError] = useState(null);
@@ -84,14 +102,6 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
     window.electron.openUrl("https://docs.akash.network/guides/cli/part-11.-update-the-deployment");
   }
 
-  const options = {
-    selectOnLineNumbers: true,
-    scrollBeyondLastLine: false,
-    minimap: {
-      enabled: false
-    }
-  };
-
   async function sendManifest(providerInfo, manifest) {
     try {
       const response = await sendManifestToProvider(providerInfo, manifest, deployment.dseq, localCert);
@@ -138,17 +148,13 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
 
   return (
     <>
-      <Typography variant="h6" className={classes.title}>
-        Update Manifest
-      </Typography>
-
       {showOutsideDeploymentMessage ? (
-        <Box mt={1}>
+        <Box padding=".5rem">
           <Alert severity="info">
             It looks like this deployment was created using another deploy tool. We can't show you the configuration file that was used initially, but you can
             still update it. Simply continue and enter the configuration you want to use.
             <Box mt={1}>
-              <Button variant="contained" color="primary" onClick={() => setShowOutsideDeploymentMessage(false)}>
+              <Button variant="contained" color="primary" onClick={() => setShowOutsideDeploymentMessage(false)} size="small">
                 Continue
               </Button>
             </Box>
@@ -156,34 +162,53 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
         </Box>
       ) : (
         <>
-          <Box pb={2}>
-            <Alert severity="info">
-              Akash Groups are translated into Kubernetes Deployments, this means that only a few fields from the Akash SDL are mutable. For example image,
-              command, args, env and exposed ports can be modified, but compute resources and placement criteria cannot. (
-              <LinkTo onClick={handleUpdateDocClick}>View doc</LinkTo>)
-            </Alert>
-            <br />
-            <MonacoEditor height="600" language="yaml" theme="vs-dark" value={editedManifest} onChange={handleTextChange} options={options} />
+          <div>
+            <Box display="flex" alignItems="center" justifyContent="space-between" padding=".5rem">
+              <Box display="flex" alignItems="center">
+                <Typography variant="h6" className={classes.title}>
+                  Update Manifest
+                </Typography>
+
+                <Tooltip
+                  classes={{ tooltip: classes.tooltip }}
+                  arrow
+                  interactive
+                  title={
+                    <Alert severity="info">
+                      Akash Groups are translated into Kubernetes Deployments, this means that only a few fields from the Akash SDL are mutable. For example
+                      image, command, args, env and exposed ports can be modified, but compute resources and placement criteria cannot. (
+                      <LinkTo onClick={handleUpdateDocClick}>View doc</LinkTo>)
+                    </Alert>
+                  }
+                >
+                  <InfoIcon className={classes.tooltipIcon} />
+                </Tooltip>
+              </Box>
+
+              <Box>
+                {!localCert || !isLocalCertMatching ? (
+                  <Alert severity="warning">You do not have a valid certificate. You need to create a new one to update an existing deployment.</Alert>
+                ) : (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    disabled={!!parsingError || !editedManifest || !providers || isSendingManifest || deployment.state !== "active"}
+                    onClick={() => handleUpdateClick()}
+                  >
+                    Update Deployment
+                  </Button>
+                )}
+              </Box>
+            </Box>
+
+            {parsingError && <Alert severity="warning">{parsingError}</Alert>}
 
             {isSendingManifest && <LinearProgress />}
-          </Box>
 
-          {parsingError && <Alert severity="warning">{parsingError}</Alert>}
-
-          <Box pt={2}>
-            {!localCert || !isLocalCertMatching ? (
-              <Alert severity="warning">You do not have a valid certificate. You need to create a new one to update an existing deployment.</Alert>
-            ) : (
-              <Button
-                variant="contained"
-                color="primary"
-                disabled={!!parsingError || !editedManifest || !providers || isSendingManifest || deployment.state !== "active"}
-                onClick={() => handleUpdateClick()}
-              >
-                Update Deployment
-              </Button>
-            )}
-          </Box>
+            <ViewPanel bottomElementId="footer" overflow="hidden">
+              <MonacoEditor language="yaml" theme="vs-dark" value={editedManifest} onChange={handleTextChange} options={monacoOptions} />
+            </ViewPanel>
+          </div>
         </>
       )}
     </>

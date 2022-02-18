@@ -1,1 +1,1 @@
-export { LeftNav } from "./LeftNav";
+export { LeftNav, drawerWidth, closedDrawerWidth } from "./LeftNav";
