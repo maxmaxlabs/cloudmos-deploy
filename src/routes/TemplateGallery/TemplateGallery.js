@@ -5,6 +5,7 @@ import { useTemplates } from "../../context/TemplatesProvider";
 import { Link } from "react-router-dom";
 import { UrlService } from "../../shared/utils/urlUtils";
 import { ViewPanel } from "../../shared/components/ViewPanel";
+import ImageIcon from "@material-ui/icons/Image";
 
 const useStyles = makeStyles((theme) => ({
   gallery: {
@@ -23,6 +24,15 @@ const useStyles = makeStyles((theme) => ({
     "& .MuiAvatar-img": {
       objectFit: "contain"
     }
+  },
+  logoPlaceholder: {
+    width: "2.7rem",
+    height: "2.7rem",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: theme.palette.grey[300],
+    borderRadius: "50%"
   }
 }));
 
@@ -86,7 +96,15 @@ export function TemplateGallery(props) {
           <List className={classes.templateList}>
             {searchResults.map((template) => (
               <ListItem button key={template.path} component={Link} to={UrlService.templateDetails(template.path)}>
-                <ListItemAvatar>{template.logoUrl ? <Avatar src={template.logoUrl} variant="square" /> : <div></div>}</ListItemAvatar>
+                <ListItemAvatar>
+                  {template.logoUrl ? (
+                    <Avatar src={template.logoUrl} variant="square" />
+                  ) : (
+                    <div className={classes.logoPlaceholder}>
+                      <ImageIcon />
+                    </div>
+                  )}
+                </ListItemAvatar>
                 <ListItemText
                   primary={
                     <>
@@ -130,7 +148,15 @@ export function TemplateGallery(props) {
                 <List>
                   {selectedCategory.templates.map((template) => (
                     <ListItem button key={template.path} component={Link} to={UrlService.templateDetails(template.path)}>
-                      <ListItemAvatar>{template.logoUrl ? <Avatar src={template.logoUrl} variant="square" /> : <div></div>}</ListItemAvatar>
+                      <ListItemAvatar>
+                        {template.logoUrl ? (
+                          <Avatar src={template.logoUrl} variant="square" />
+                        ) : (
+                          <div className={classes.logoPlaceholder}>
+                            <ImageIcon />
+                          </div>
+                        )}
+                      </ListItemAvatar>
                       <ListItemText primary={template.name} secondary={template.summary} />
                     </ListItem>
                   ))}
@@ -138,7 +164,9 @@ export function TemplateGallery(props) {
                   {selectedCategory?.title === "Blockchain" && (
                     <ListItem button onClick={() => window.electron.openUrl("https://github.com/ovrclk/cosmos-omnibus")}>
                       <ListItemAvatar>
-                        <div></div>
+                        <div className={classes.logoPlaceholder}>
+                          <ImageIcon />
+                        </div>
                       </ListItemAvatar>
                       <ListItemText
                         primary="Cosmos Omnibus"

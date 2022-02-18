@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
     padding: "1rem"
   },
   deployBtn: {
-    marginLeft: "auto"
+    marginLeft: "2rem"
   }
 }));
 
