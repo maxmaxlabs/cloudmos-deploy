@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useCertificate } from "../../context/CertificateProvider";
-import { makeStyles, Checkbox, FormControlLabel, FormGroup, LinearProgress, Box } from "@material-ui/core";
+import { makeStyles, Checkbox, FormControlLabel, FormGroup, Box } from "@material-ui/core";
 import { useProviders } from "../../queries";
 import MonacoEditor from "react-monaco-editor";
 import { ToggleButtonGroup, ToggleButton, Alert } from "@material-ui/lab";
 import * as monaco from "monaco-editor";
 import { monacoOptions } from "../../shared/constants";
 import { ViewPanel } from "../../shared/components/ViewPanel";
+import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 
 const useStyles = makeStyles((theme) => ({
   leaseSelector: {
@@ -146,7 +147,7 @@ export function DeploymentLogs({ leases }) {
         <>
           {selectedLease && (
             <>
-              <Box display="flex" alignItems="center" justifyContent="space-between" padding=".2rem">
+              <Box display="flex" alignItems="center" justifyContent="space-between" padding=".2rem .5rem">
                 <div>
                   {leases.length > 1 && (
                     <ToggleButtonGroup className={classes.leaseSelector} color="primary" value={selectedLease.id} exclusive onChange={handleLeaseChange}>
@@ -188,7 +189,9 @@ export function DeploymentLogs({ leases }) {
                   ))}
                 </FormGroup>
               )}
-              {isWaitingForFirstLog && <LinearProgress />}
+
+              <LinearLoadingSkeleton isLoading={isWaitingForFirstLog} />
+
               <ViewPanel bottomElementId="footer" overflow="hidden">
                 <MonacoEditor ref={monacoRef} theme="vs-dark" value={logText} options={options} />
               </ViewPanel>

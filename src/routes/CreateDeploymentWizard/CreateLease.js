@@ -1,19 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
-import {
-  Button,
-  CircularProgress,
-  Box,
-  Typography,
-  LinearProgress,
-  Menu,
-  MenuItem,
-  IconButton,
-  makeStyles,
-  TextField,
-  InputAdornment,
-  Tooltip
-} from "@material-ui/core";
+import { Button, CircularProgress, Box, Typography, Menu, MenuItem, IconButton, makeStyles, TextField, InputAdornment, Tooltip } from "@material-ui/core";
 import { useWallet } from "../../context/WalletProvider";
 import { BidGroup } from "./BidGroup";
 import { useHistory } from "react-router";
@@ -36,6 +23,7 @@ import { ManifestErrorSnackbar } from "../../shared/components/ManifestErrorSnac
 import { useDeploymentDetail } from "../../queries";
 import { ViewPanel } from "../../shared/components/ViewPanel";
 import InfoIcon from "@material-ui/icons/Info";
+import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 
 const yaml = require("js-yaml");
 
@@ -266,7 +254,7 @@ export function CreateLease({ dseq }) {
 
         <Box mb={1} display="flex" alignItems="center">
           {!isLoadingBids && (allClosed || bids.length === 0) && (
-            <Button variant="contained" color={allClosed ? "primary" : "secondary"} onClick={handleCloseDeployment}>
+            <Button variant="contained" color={allClosed ? "primary" : "secondary"} onClick={handleCloseDeployment} size="small">
               Close Deployment
             </Button>
           )}
@@ -354,7 +342,7 @@ export function CreateLease({ dseq }) {
           </Box>
         )}
 
-        {isSendingManifest && <LinearProgress />}
+        <LinearLoadingSkeleton isLoading={isSendingManifest} />
       </Box>
 
       {dseqList.length > 0 && (

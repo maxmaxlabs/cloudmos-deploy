@@ -48,6 +48,7 @@ export const ProviderAttributes = ({ provider }) => {
   useEffect(() => {
     const isShowingViewAll = provider?.attributes?.length > 4;
     setIsShowingViewAll(isShowingViewAll);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

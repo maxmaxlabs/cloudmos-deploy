@@ -13,6 +13,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     alignItems: "center",
     paddingBottom: "6px",
+    paddingTop: "6px",
     zIndex: 100,
     backgroundColor: theme.palette.common.white
   },

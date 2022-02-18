@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Box, Typography, LinearProgress, Tooltip, makeStyles } from "@material-ui/core";
+import { Button, Box, Typography, Tooltip, makeStyles } from "@material-ui/core";
 import { getDeploymentLocalData, saveDeploymentManifest } from "../../shared/utils/deploymentLocalDataUtils";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
 import { sendManifestToProvider } from "../../shared/utils/deploymentUtils";
@@ -18,6 +18,7 @@ import { LinkTo } from "../../shared/components/LinkTo";
 import InfoIcon from "@material-ui/icons/Info";
 import { ViewPanel } from "../../shared/components/ViewPanel";
 import { monacoOptions } from "../../shared/constants";
+import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 
 const yaml = require("js-yaml");
 
@@ -204,7 +205,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
 
             {parsingError && <Alert severity="warning">{parsingError}</Alert>}
 
-            {isSendingManifest && <LinearProgress />}
+            <LinearLoadingSkeleton isLoading={isSendingManifest} />
 
             <ViewPanel bottomElementId="footer" overflow="hidden">
               <MonacoEditor language="yaml" theme="vs-dark" value={editedManifest} onChange={handleTextChange} options={monacoOptions} />
