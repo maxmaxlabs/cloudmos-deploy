@@ -60,7 +60,7 @@ export function BidGroup({ bids, gseq, selectedBid, handleBidSelected, disabled,
       const resourcesSum = {
         cpuAmount: deploymentGroupResourceSum(currentGroup, (r) => parseInt(r.cpu.units.val) / 1000),
         memoryAmount: deploymentGroupResourceSum(currentGroup, (r) => parseInt(r.memory.quantity.val)),
-        storageAmount: deploymentGroupResourceSum(currentGroup, (r) => parseInt(r.storage.quantity.val))
+        storageAmount: deploymentGroupResourceSum(currentGroup, (r) => parseInt(r.storage.map((x) => x.quantity.val).reduce((a, b) => a + b, 0)))
       };
       setResources(resourcesSum);
     }

@@ -1,15 +1,8 @@
 export async function sendManifestToProvider(providerInfo, manifest, dseq, localCert) {
   console.log("Sending manifest to " + providerInfo.owner);
 
-  const jsonStr = JSON.stringify(manifest, (key, value) => {
-    if (key === "storage" || key === "memory") {
-      let newValue = { ...value };
-      newValue.size = newValue.quantity;
-      delete newValue.quantity;
-      return newValue;
-    }
-    return value;
-  });
+  let jsonStr = JSON.stringify(manifest);
+  jsonStr = jsonStr.replaceAll('"quantity":{"val', '"size":{"val');
 
   // Waiting for 5 sec for provider to have lease
   await wait(5000);

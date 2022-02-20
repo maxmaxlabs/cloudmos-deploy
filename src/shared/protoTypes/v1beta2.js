@@ -1,10 +1,11 @@
 import { Field, Enum, Type, Root } from "protobufjs";
+import { DecCoin } from "./deccoin";
 
 // Deployments
 const DeploymentID = new Type("DeploymentID").add(new Field("owner", 1, "string")).add(new Field("dseq", 2, "uint64"));
 const Coin = new Type("Coin").add(new Field("denom", 1, "string")).add(new Field("amount", 2, "string"));
 const Kind = new Enum("Kind", { SHARED_HTTP: 0, RANDOM_PORT: 1 });
-const Endpoint = new Type("Endpoint").add(new Field("kind", 1, "Kind")).add(Kind);
+const Endpoint = new Type("Endpoint").add(new Field("kind", 1, "Kind")).add(Kind).add(new Field("sequence_number", 2, "uint32"));
 const Attribute = new Type("Attribute").add(new Field("key", 1, "string")).add(new Field("value", 2, "string"));
 const ResourceValue = new Type("ResourceValue").add(new Field("val", 1, "string"));
 const CPU = new Type("CPU")
@@ -18,25 +19,27 @@ const Memory = new Type("Memory")
   .add(new Field("attributes", 2, "Attribute", "repeated"))
   .add(Attribute);
 const Storage = new Type("Storage")
-  .add(new Field("quantity", 1, "ResourceValue"))
+  .add(new Field("name", 1, "string"))
+  .add(new Field("quantity", 2, "ResourceValue"))
   .add(ResourceValue)
-  .add(new Field("attributes", 2, "Attribute", "repeated"))
+  .add(new Field("attributes", 3, "Attribute", "repeated"))
   .add(Attribute);
 const ResourceUnits = new Type("ResourceUnits")
   .add(new Field("cpu", 1, "CPU"))
   .add(CPU)
   .add(new Field("memory", 2, "Memory"))
   .add(Memory)
-  .add(new Field("storage", 3, "Storage"))
+  .add(new Field("storage", 3, "Storage", "repeated"))
   .add(Storage)
   .add(new Field("endpoints", 4, "Endpoint", "repeated"))
   .add(Endpoint);
+
 const Resource = new Type("Resource")
   .add(new Field("resources", 1, "ResourceUnits")) // unit
   .add(ResourceUnits)
   .add(new Field("count", 2, "uint32"))
-  .add(new Field("price", 3, "Coin"))
-  .add(Coin);
+  .add(new Field("price", 3, "DecCoin"))
+  .add(DecCoin);
 const SignedBy = new Type("SignedBy").add(new Field("all_of", 1, "string", "repeated")).add(new Field("any_of", 2, "string", "repeated"));
 const PlacementRequirements = new Type("PlacementRequirements")
   .add(new Field("signed_by", 1, "SignedBy"))
@@ -55,7 +58,6 @@ export const MsgCloseDeployment = new Type("MsgCloseDeployment").add(new Field("
 export const MsgCreateDeployment = new Type("MsgCreateDeployment")
   .add(new Field("id", 1, "DeploymentID"))
   .add(new Field("groups", 2, "GroupSpec", "repeated"))
-  .add(GroupSpec)
   .add(new Field("version", 3, "bytes"))
   .add(new Field("deposit", 4, "Coin"))
   .add(Coin)
@@ -101,4 +103,5 @@ let root = new Root().add(DeploymentID);
 root.add(MsgCloseDeployment);
 root.add(MsgDepositDeployment);
 root.add(MsgCreateDeployment);
+root.add(GroupSpec);
 root.add(MsgUpdateDeployment);

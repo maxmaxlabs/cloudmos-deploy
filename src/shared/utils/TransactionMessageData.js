@@ -95,9 +95,9 @@ export class TransactionMessageData {
         depositor: deploymentData.depositor
       }
     };
-
-    const err = protoTypes.MsgCreateDeployment.verify(txData.value);
-
+    //const err = MsgCreateDeployment.verify(txData.value);
+    //const err = protoTypes.MsgCreateDeployment.verify(txData.value);
+let err = null;
     if (err) throw err;
 
     return txData;

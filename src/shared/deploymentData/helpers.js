@@ -26,17 +26,11 @@ const specSuffixes = {
 // https://github.com/ovrclk/akash/blob/04e7a7667dd94b5a15fa039e4f7df5c9ad93be4f/sdl/sdl.go#L120
 export async function ManifestVersion(manifest) {
   var enc = new TextEncoder();
-  let m = JSON.stringify(manifest, (key, value) => {
-    if (key === "storage" || key === "memory") {
-      let newValue = { ...value };
-      newValue.size = newValue.quantity;
-      delete newValue.quantity;
-      return newValue;
-    }
-    return value;
-  });
+  let jsonStr = JSON.stringify(manifest);
+
+  jsonStr = jsonStr.replaceAll('"quantity":{"val', '"size":{"val');
   //console.log(SortJSON(m));
-  let sortedBytes = enc.encode(SortJSON(m));
+  let sortedBytes = enc.encode(SortJSON(jsonStr));
 
   let sum = await crypto.subtle.digest("SHA-256", sortedBytes);
 

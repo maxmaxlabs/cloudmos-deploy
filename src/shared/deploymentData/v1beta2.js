@@ -2,12 +2,12 @@ import { CustomValidationError, ManifestVersion, ParseServiceProtocol, getCurren
 import { defaultInitialDeposit } from "../constants";
 
 const defaultHTTPOptions = {
-  MaxBodySize: 2097152,
+  MaxBodySize: 1048576,
   ReadTimeout: 60000,
   SendTimeout: 60000,
   NextTries: 3,
   NextTimeout: 0,
-  NextCases: ["off"]
+  NextCases: ["error", "timeout"]
 };
 
 // https://github.com/ovrclk/akash/blob/98fd6bd9c25014fb819f85a06168a3335dc9633f/x/deployment/types/v1beta2/validation_config.go
@@ -49,27 +49,32 @@ export function toResourceUnits(computeResources) {
   let units = {};
   if (computeResources.cpu) {
     units.cpu = {
-      units: { val: (computeResources.cpu.units * 1000).toString() }
-      //attributes: computeResources.cpu.attributes TODO
+      units: { val: (computeResources.cpu.units * 1000).toString() },
+      attributes: computeResources.cpu.attributes && Object.keys(computeResources.cpu.attributes).map((key) => ({
+        key: key,
+        value: computeResources.cpu.attributes[key]
+      }))
     };
   }
   if (computeResources.memory) {
     units.memory = {
-      quantity: { val: parseSizeStr(computeResources.memory.size) }
-      //attributes: computeResources.memory.attributes TODO
+      quantity: { val: parseSizeStr(computeResources.memory.size) },
+      attributes: computeResources.memory.attributes && Object.keys(computeResources.memory.attributes).map((key) => ({
+        key: key,
+        value: computeResources.memory.attributes[key]
+      }))
     };
   }
   if (computeResources.storage) {
     units.storage =
       computeResources.storage?.map((storage) => ({
-        name: storage.name,
-        quantity: parseSizeStr(computeResources.memory.size)
+        name: storage.name || "default",
+        quantity: { val: parseSizeStr(computeResources.memory.size) },
+        attributes: storage.attributes && Object.keys(storage.attributes).map((key) => ({
+          key: key,
+          value: storage.attributes[key]
+        }))
       })) || [];
-
-    // units.storage = {
-    //   quantity: { val: parseSizeStr(computeResources.storage.size) }
-    //   //attributes: computeResources.storage.attributes TODO
-    // };
   }
 
   units.endpoints = null;
@@ -115,10 +120,10 @@ function DeploymentGroups(yamlJson) {
         group = {
           name: placementName,
           requirements: {
-            attributes: infra.attributes && Object.keys(infra.attributes).map((key) => ({ key: key, value: infra.attributes[key] })),
+            attributes: infra.attributes ? Object.keys(infra.attributes).map((key) => ({ key: key, value: infra.attributes[key] })) : [],
             signed_by: {
-              all_of: infra.signedBy?.allOf,
-              any_of: infra.signedBy?.anyOf
+              all_of: infra.signedBy?.allOf || [],
+              any_of: infra.signedBy?.anyOf || []
             }
           },
           resources: []
@@ -163,7 +168,7 @@ function DeploymentGroups(yamlJson) {
               kind = Endpoint_SHARED_HTTP;
             }
 
-            endpoints.push({ kind: kind });
+            endpoints.push({ kind: kind, sequence_number: 0 }); // TODO
           }
         });
       });
@@ -218,7 +223,7 @@ export function Manifest(yamlJson) {
         Resources: toResourceUnits(compute.resources),
         Count: svcdepl.count,
         Expose: [],
-        Params: svc.params || null
+        Params: svc.params || undefined
       };
 
       svc.expose?.forEach((expose) => {
@@ -254,11 +259,11 @@ export function Manifest(yamlJson) {
           Storage: []
         };
 
-        svc.params?.storage?.forEach((storage) => {
+        (Object.keys(svc.params?.storage) || []).forEach((name) => {
           msvc.Params.Storage.push({
-            Name: storage.name,
-            Mount: storage.mount,
-            ReadOnly: storage.readonly
+            Name: name,
+            Mount: svc.params.storage[name].mount,
+            ReadOnly: svc.params.storage[name].readonly
           });
         });
       }
