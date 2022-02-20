@@ -32,7 +32,6 @@ export function DeploymentDetail(props) {
     refetch: getDeploymentDetail
   } = useDeploymentDetail(address, dseq, { refetchOnMount: false, enabled: false });
   const { data: leases, isLoading: isLoadingLeases, refetch: getLeases, remove: removeLeases } = useLeaseList(deployment, address, { enabled: !!deployment });
-  const { data: currentBlock, refetch: getCurrentBlock } = useBlock(deployment?.createdAt, { enabled: !!deployment });
   const hasLeases = leases && leases.length > 0;
   const [leaseRefs, setLeaseRefs] = useState([]);
   const { certificate, isLocalCertMatching, localCert } = useCertificate();
@@ -63,7 +62,6 @@ export function DeploymentDetail(props) {
   useEffect(() => {
     if (deployment) {
       loadLeases();
-      getCurrentBlock();
 
       const deploymentData = getDeploymentLocalData(dseq);
       setDeploymentManifest(deploymentData?.manifest);
@@ -124,7 +122,6 @@ export function DeploymentDetail(props) {
       {deployment && (
         <DeploymentSubHeader
           deployment={deployment}
-          block={currentBlock}
           deploymentCost={hasLeases ? leases.reduce((prev, current) => prev + current.price.amount, 0) : 0}
           address={address}
           loadDeploymentDetail={loadDeploymentDetail}
