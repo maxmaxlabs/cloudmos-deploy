@@ -39,6 +39,7 @@ import InfoIcon from "@material-ui/icons/Info";
 import { ProviderAttributes } from "../../shared/components/ProviderAttributes";
 import { ProviderDetail } from "../../components/ProviderDetail/ProviderDetail";
 import { useProviderStatus } from "../../queries/useProvidersQuery";
+import { FormattedNumber } from "react-intl";
 
 const yaml = require("js-yaml");
 
@@ -197,7 +198,8 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
             label="Price:"
             value={
               <>
-                {lease.price.amount}uakt ({`~${getAvgCostPerMonth(lease.price.amount)}akt/month`})
+                <FormattedNumber value={lease.price.amount} maximumSignificantDigits={18} />
+                uakt ({`~${getAvgCostPerMonth(lease.price.amount)}akt/month`})
                 <Box component="span" marginLeft=".5rem">
                   <PricePerMonth perBlockValue={uaktToAKT(lease.price.amount, 6)} />
                 </Box>

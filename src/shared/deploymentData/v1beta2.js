@@ -50,30 +50,37 @@ export function toResourceUnits(computeResources) {
   if (computeResources.cpu) {
     units.cpu = {
       units: { val: (computeResources.cpu.units * 1000).toString() },
-      attributes: computeResources.cpu.attributes && Object.keys(computeResources.cpu.attributes).map((key) => ({
-        key: key,
-        value: computeResources.cpu.attributes[key]
-      }))
+      attributes:
+        computeResources.cpu.attributes &&
+        Object.keys(computeResources.cpu.attributes).map((key) => ({
+          key: key,
+          value: computeResources.cpu.attributes[key]
+        }))
     };
   }
   if (computeResources.memory) {
     units.memory = {
       quantity: { val: parseSizeStr(computeResources.memory.size) },
-      attributes: computeResources.memory.attributes && Object.keys(computeResources.memory.attributes).map((key) => ({
-        key: key,
-        value: computeResources.memory.attributes[key]
-      }))
+      attributes:
+        computeResources.memory.attributes &&
+        Object.keys(computeResources.memory.attributes).map((key) => ({
+          key: key,
+          value: computeResources.memory.attributes[key]
+        }))
     };
   }
   if (computeResources.storage) {
+    const storages = computeResources.storage.map ? computeResources.storage : [computeResources.storage];
     units.storage =
-      computeResources.storage?.map((storage) => ({
+      storages.map((storage) => ({
         name: storage.name || "default",
         quantity: { val: parseSizeStr(computeResources.memory.size) },
-        attributes: storage.attributes && Object.keys(storage.attributes).map((key) => ({
-          key: key,
-          value: storage.attributes[key]
-        }))
+        attributes:
+          storage.attributes &&
+          Object.keys(storage.attributes).map((key) => ({
+            key: key,
+            value: storage.attributes[key]
+          }))
       })) || [];
   }
 
