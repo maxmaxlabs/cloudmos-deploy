@@ -14,7 +14,7 @@ export class ApiUrlService {
     return `${apiEndpoint}/akash/market/${networkVersion}/leases/list?filters.owner=${address}&filters.dseq=${dseq}`;
   }
   static providers(apiEndpoint) {
-    return `${apiEndpoint}/akash/provider/${networkVersion}/providers`;
+    return `${apiEndpoint}/akash/provider/${networkVersion}/providers?pagination.limit=1000`;
   }
   static block(apiEndpoint, id) {
     return `${apiEndpoint}/blocks/${id}`;

@@ -44,6 +44,9 @@ const useStyles = makeStyles((theme) => ({
   tooltipIcon: {
     fontSize: "1.5rem",
     marginLeft: "1rem"
+  },
+  nowrap: {
+    whiteSpace: "nowrap"
   }
 }));
 
@@ -241,6 +244,7 @@ export function CreateLease({ dseq }) {
                 variant="contained"
                 color="primary"
                 onClick={handleNext}
+                classes={{ label: classes.nowrap }}
                 disabled={dseqList.some((gseq) => !selectedBids[gseq]) || isSendingManifest || !providers}
               >
                 Accept Bid{dseqList.length > 1 ? "s" : ""}

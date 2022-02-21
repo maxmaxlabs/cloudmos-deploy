@@ -1,5 +1,5 @@
 export async function sendManifestToProvider(providerInfo, manifest, dseq, localCert) {
-  console.log("Sending manifest to " + providerInfo.owner);
+  console.log("Sending manifest to " + providerInfo?.owner);
 
   let jsonStr = JSON.stringify(manifest);
   jsonStr = jsonStr.replaceAll('"quantity":{"val', '"size":{"val');
