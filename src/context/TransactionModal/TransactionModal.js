@@ -34,6 +34,7 @@ import { transactionLink } from "../../shared/constants";
 import { BroadcastingError } from "../../shared/utils/errors";
 import OpenInNew from "@material-ui/icons/OpenInNew";
 import { PriceValue } from "../../shared/components/PriceValue";
+import { selectedNetworkId } from "../../shared/deploymentData";
 
 const a11yPrefix = "transaction-tab";
 
@@ -350,7 +351,7 @@ const TransactionSnackbarContent = ({ snackMessage, transactionHash }) => {
     <>
       {snackMessage}
       {snackMessage && <br />}
-      {transactionHash && (
+      {transactionHash && selectedNetworkId === "mainnet" && (
         <Box component="a" display="flex" alignItems="center" href="#" onClick={() => window.electron.openUrl(transactionLink(transactionHash))}>
           View transaction <OpenInNew className={classes.transactionLinkIcon} />
         </Box>
