@@ -32,8 +32,8 @@ export async function ManifestVersion(manifest) {
   jsonStr = jsonStr.replaceAll('"mount":', '"readOnlyTmp":');
   jsonStr = jsonStr.replaceAll('"readOnly":', '"mount":');
   jsonStr = jsonStr.replaceAll('"readOnlyTmp":', '"readOnly":');
-
-  //console.log(SortJSON(m));
+  //console.log(jsonStr);
+  //console.log(SortJSON(jsonStr));
   let sortedBytes = enc.encode(SortJSON(jsonStr));
 
   let sum = await crypto.subtle.digest("SHA-256", sortedBytes);

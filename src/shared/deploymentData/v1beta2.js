@@ -52,10 +52,12 @@ export function toResourceUnits(computeResources) {
       units: { val: (computeResources.cpu.units * 1000).toString() },
       attributes:
         computeResources.cpu.attributes &&
-        Object.keys(computeResources.cpu.attributes).sort().map((key) => ({
-          key: key,
-          value: computeResources.cpu.attributes[key].toString()
-        }))
+        Object.keys(computeResources.cpu.attributes)
+          .sort()
+          .map((key) => ({
+            key: key,
+            value: computeResources.cpu.attributes[key].toString()
+          }))
     };
   }
   if (computeResources.memory) {
@@ -63,10 +65,12 @@ export function toResourceUnits(computeResources) {
       quantity: { val: parseSizeStr(computeResources.memory.size) },
       attributes:
         computeResources.memory.attributes &&
-        Object.keys(computeResources.memory.attributes).sort().map((key) => ({
-          key: key,
-          value: computeResources.memory.attributes[key].toString()
-        }))
+        Object.keys(computeResources.memory.attributes)
+          .sort()
+          .map((key) => ({
+            key: key,
+            value: computeResources.memory.attributes[key].toString()
+          }))
     };
   }
   if (computeResources.storage) {
@@ -77,10 +81,12 @@ export function toResourceUnits(computeResources) {
         quantity: { val: parseSizeStr(storage.size) },
         attributes:
           storage.attributes &&
-          Object.keys(storage.attributes).sort().map((key) => ({
-            key: key,
-            value: storage.attributes[key].toString()
-          }))
+          Object.keys(storage.attributes)
+            .sort()
+            .map((key) => ({
+              key: key,
+              value: storage.attributes[key].toString()
+            }))
       })) || [];
   }
 
@@ -203,11 +209,13 @@ function DepositFromFlags(deposit) {
 export function Manifest(yamlJson) {
   let groups = {};
 
-  Object.keys(yamlJson.services).forEach((svcName) => {
+  const sortedServicesNames = Object.keys(yamlJson.services).sort();
+  sortedServicesNames.forEach((svcName) => {
     const svc = yamlJson.services[svcName];
     const depl = yamlJson.deployment[svcName];
 
-    Object.keys(depl).forEach((placementName) => {
+    const sortedPlacementNames = Object.keys(depl).sort();
+    sortedPlacementNames.forEach((placementName) => {
       const svcdepl = depl[placementName];
       let group = groups[placementName];
 
@@ -229,11 +237,15 @@ export function Manifest(yamlJson) {
         Env: svc.env || null,
         Resources: toResourceUnits(compute.resources),
         Count: svcdepl.count,
-        Expose: []
+        Expose: null
       };
 
       svc.expose?.forEach((expose) => {
         const proto = ParseServiceProtocol(expose.proto);
+
+        if (!msvc.Expose) {
+          msvc.Expose = [];
+        }
 
         if (expose.to && expose.to.length > 0) {
           expose.to.forEach((to) => {
@@ -274,7 +286,7 @@ export function Manifest(yamlJson) {
         });
       }
 
-      msvc.Expose = msvc.Expose.sort((a, b) => {
+      msvc.Expose = msvc.Expose && msvc.Expose.sort((a, b) => {
         if (a.Service !== b.Service) {
           return a.Service < b.Service;
         }
