@@ -15,7 +15,15 @@ DecCoin.encode = function (message, writer) {
   }
   if (message.amount !== "") {
     // https://github.com/cosmos/cosmos-sdk/issues/10863
-    writer.uint32(18).string(message.amount + "000000000000000000");
+    let amount = message.amount;
+    if (message.amount.includes(".")) {
+      const parts = amount.split(".");
+      amount = parts[0] + parts[1].padEnd(18, "0");
+    } else {
+      amount = message.amount.padEnd(message.amount.length + 18, "0");
+    }
+
+    writer.uint32(18).string(amount);
   }
   return writer;
 };
