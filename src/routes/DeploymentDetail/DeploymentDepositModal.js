@@ -57,10 +57,11 @@ export function DeploymentDepositModal({ handleCancel, onDeploymentDeposit, min 
   };
 
   const onSubmit = ({ amount }) => {
+    setError("");
     clearErrors();
     const deposit = aktToUakt(amount);
 
-    if (amount < min) {
+    if (deposit < aktToUakt(min)) {
       setError(`Deposit amount must be greater or equal than ${min}.`);
       return;
     }
@@ -90,8 +91,7 @@ export function DeploymentDepositModal({ handleCancel, onDeploymentDeposit, min 
               control={control}
               name="amount"
               rules={{
-                required: true,
-                validate: (value) => value > 0 && value < balance
+                required: true
               }}
               render={({ fieldState, field }) => {
                 const helperText = fieldState.error?.type === "validate" ? "Invalid amount." : "Amount is required.";
@@ -133,7 +133,7 @@ export function DeploymentDepositModal({ handleCancel, onDeploymentDeposit, min 
         <Button autoFocus onClick={onClose}>
           Cancel
         </Button>
-        <Button onClick={onDepositClick} disabled={!amount || !!error || !!errors.amount} variant="contained" color="primary">
+        <Button onClick={onDepositClick} disabled={!amount} variant="contained" color="primary">
           Deposit
         </Button>
       </DialogActions>
