@@ -28,7 +28,11 @@ async function getLeases(apiEndpoint, deployment, address) {
       price: l.lease.price,
       cpuAmount: deploymentGroupResourceSum(group, (r) => parseInt(r.cpu.units.val) / 1000),
       memoryAmount: deploymentGroupResourceSum(group, (r) => parseInt(r.memory.quantity.val)),
-      storageAmount: deploymentGroupResourceSum(group, (r) => parseInt(convertToArrayIfNeeded(r.storage).map(x => x.quantity.val).reduce((a,b) => a+b, 0))),
+      storageAmount: deploymentGroupResourceSum(group, (r) =>
+        convertToArrayIfNeeded(r.storage)
+          .map((x) => parseInt(x.quantity.val))
+          .reduce((a, b) => a + b, 0)
+      ),
       group
     };
   });

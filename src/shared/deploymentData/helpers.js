@@ -29,6 +29,10 @@ export async function ManifestVersion(manifest) {
   let jsonStr = JSON.stringify(manifest);
 
   jsonStr = jsonStr.replaceAll('"quantity":{"val', '"size":{"val');
+  jsonStr = jsonStr.replaceAll('"mount":', '"readOnlyTmp":');
+  jsonStr = jsonStr.replaceAll('"readOnly":', '"mount":');
+  jsonStr = jsonStr.replaceAll('"readOnlyTmp":', '"readOnly":');
+
   //console.log(SortJSON(m));
   let sortedBytes = enc.encode(SortJSON(jsonStr));
 

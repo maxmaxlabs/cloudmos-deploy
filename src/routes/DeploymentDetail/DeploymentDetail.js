@@ -8,7 +8,7 @@ import { DeploymentSubHeader } from "./DeploymentSubHeader";
 import { useWallet } from "../../context/WalletProvider";
 import { DeploymentJsonViewer } from "./DeploymentJsonViewer";
 import { ManifestEditor } from "./ManifestEditor";
-import { useBlock, useDeploymentDetail, useLeaseList } from "../../queries";
+import { useDeploymentDetail, useLeaseList } from "../../queries";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 import { Helmet } from "react-helmet-async";

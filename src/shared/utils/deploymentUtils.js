@@ -3,6 +3,9 @@ export async function sendManifestToProvider(providerInfo, manifest, dseq, local
 
   let jsonStr = JSON.stringify(manifest);
   jsonStr = jsonStr.replaceAll('"quantity":{"val', '"size":{"val');
+  jsonStr = jsonStr.replaceAll('"mount":', '"readOnlyTmp":');
+  jsonStr = jsonStr.replaceAll('"readOnly":', '"mount":');
+  jsonStr = jsonStr.replaceAll('"readOnlyTmp":', '"readOnly":');
 
   // Waiting for 5 sec for provider to have lease
   await wait(5000);

@@ -52,9 +52,9 @@ export function toResourceUnits(computeResources) {
       units: { val: (computeResources.cpu.units * 1000).toString() },
       attributes:
         computeResources.cpu.attributes &&
-        Object.keys(computeResources.cpu.attributes).map((key) => ({
+        Object.keys(computeResources.cpu.attributes).sort().map((key) => ({
           key: key,
-          value: computeResources.cpu.attributes[key]
+          value: computeResources.cpu.attributes[key].toString()
         }))
     };
   }
@@ -63,9 +63,9 @@ export function toResourceUnits(computeResources) {
       quantity: { val: parseSizeStr(computeResources.memory.size) },
       attributes:
         computeResources.memory.attributes &&
-        Object.keys(computeResources.memory.attributes).map((key) => ({
+        Object.keys(computeResources.memory.attributes).sort().map((key) => ({
           key: key,
-          value: computeResources.memory.attributes[key]
+          value: computeResources.memory.attributes[key].toString()
         }))
     };
   }
@@ -74,12 +74,12 @@ export function toResourceUnits(computeResources) {
     units.storage =
       storages.map((storage) => ({
         name: storage.name || "default",
-        quantity: { val: parseSizeStr(computeResources.memory.size) },
+        quantity: { val: parseSizeStr(storage.size) },
         attributes:
           storage.attributes &&
-          Object.keys(storage.attributes).map((key) => ({
+          Object.keys(storage.attributes).sort().map((key) => ({
             key: key,
-            value: storage.attributes[key]
+            value: storage.attributes[key].toString()
           }))
       })) || [];
   }
@@ -229,8 +229,7 @@ export function Manifest(yamlJson) {
         Env: svc.env || null,
         Resources: toResourceUnits(compute.resources),
         Count: svcdepl.count,
-        Expose: [],
-        Params: svc.params || undefined
+        Expose: []
       };
 
       svc.expose?.forEach((expose) => {
@@ -262,15 +261,15 @@ export function Manifest(yamlJson) {
       });
 
       if (svc.params) {
-        msvc.Params = {
+        msvc.params = {
           Storage: []
         };
 
         (Object.keys(svc.params?.storage) || []).forEach((name) => {
-          msvc.Params.Storage.push({
-            Name: name,
-            Mount: svc.params.storage[name].mount,
-            ReadOnly: svc.params.storage[name].readonly
+          msvc.params.Storage.push({
+            name: name,
+            mount: svc.params.storage[name].mount,
+            readOnly: svc.params.storage[name].readOnly || false
           });
         });
       }
