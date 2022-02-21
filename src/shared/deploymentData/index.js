@@ -4,9 +4,10 @@ import { mainnetId, testnetId, edgenetId } from "../constants";
 export * from "./helpers";
 
 export let deploymentData;
+export let selectedNetworkId;
 
 export function initDeploymentData() {
-  const selectedNetworkId = localStorage.getItem("selectedNetworkId");
+  selectedNetworkId = localStorage.getItem("selectedNetworkId");
 
   switch (selectedNetworkId) {
     case mainnetId:

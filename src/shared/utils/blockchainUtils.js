@@ -2,6 +2,7 @@ import { Registry } from "@cosmjs/proto-signing";
 import { MsgSend } from "@cosmjs/stargate/build/codec/cosmos/bank/v1beta1/tx";
 import { protoTypes } from "../protoTypes";
 import { TransactionMessageData } from "./TransactionMessageData";
+import { selectedNetworkId } from "../deploymentData";
 
 export let customRegistry;
 
@@ -25,6 +26,11 @@ export const fees = {
   avg: 5000,
   high: 6000
 };
+const edgenetFees = {
+  low: 14000,
+  avg: 15000,
+  high: 16000
+};
 
 /**
  * Get the fee object for an Akash transaction
@@ -34,7 +40,8 @@ export const fees = {
  * @returns The fee object
  */
 export const createFee = (type, gas = baseGas, msgCount = 1) => {
-  return { gas, amount: [{ denom: "uakt", amount: (fees[type] * msgCount).toString() }] };
+  const feesToUse = selectedNetworkId === "edgenet" ? edgenetFees : fees;
+  return { gas, amount: [{ denom: "uakt", amount: (feesToUse[type] * msgCount).toString() }] };
 };
 
 export const createCustomFee = (fee = fees["avg"], gas = baseGas, msgCount = 1) => {
