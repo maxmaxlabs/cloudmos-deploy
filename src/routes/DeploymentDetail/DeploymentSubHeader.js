@@ -68,7 +68,7 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address, loadD
       if (response) {
         removeLeases();
 
-        history.push(UrlService.deploymentList());
+        loadDeploymentDetail();
 
         await analytics.event("deploy", "close deployment");
       }

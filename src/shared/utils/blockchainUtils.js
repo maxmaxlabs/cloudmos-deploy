@@ -26,10 +26,10 @@ export const fees = {
   avg: 5000,
   high: 6000
 };
-const edgenetFees = {
-  low: 14000,
-  avg: 15000,
-  high: 16000
+export const edgenetFees = {
+  low: 20000,
+  avg: 24000,
+  high: 28000
 };
 
 /**

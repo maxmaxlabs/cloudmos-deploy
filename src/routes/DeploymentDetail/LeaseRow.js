@@ -243,7 +243,7 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
                   <Box margin="1rem 0">
                     <strong>OR</strong>
                   </Box>
-                  <Button variant="contained" color="primary" disabled={isSendingManifest} onClick={sendManifest}>
+                  <Button variant="contained" color="primary" disabled={isSendingManifest} onClick={sendManifest} size="small">
                     {isSendingManifest ? <CircularProgress size="1.5rem" /> : <span>Send manifest manually</span>}
                   </Button>
                 </>

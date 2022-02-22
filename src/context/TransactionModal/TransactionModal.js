@@ -19,7 +19,7 @@ import {
 } from "@material-ui/core";
 import { a11yProps } from "../../shared/utils/a11yUtils";
 import { TabPanel } from "../../shared/components/TabPanel";
-import { baseGas, createFee, customRegistry, fees, createCustomFee } from "../../shared/utils/blockchainUtils";
+import { baseGas, createFee, customRegistry, fees, edgenetFees, createCustomFee } from "../../shared/utils/blockchainUtils";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { useWallet } from "../WalletProvider";
 import clsx from "clsx";
@@ -46,7 +46,7 @@ export function TransactionModal(props) {
   const [tabIndex, setTabIndex] = useState(0);
   const [memo, setMemo] = useState("");
   const [gas, setGas] = useState(baseGas);
-  const [customFee, setCustomFee] = useState(uaktToAKT(fees["avg"]));
+  const [customFee, setCustomFee] = useState(uaktToAKT(selectedNetworkId === "mainnet" ? fees["avg"] : edgenetFees["avg"]));
   const [isSettingCustomFee, setIsCustomFee] = useState(false);
   const [currentFee, setCurrentFee] = useState("avg");
   const classes = useStyles();
