@@ -32,7 +32,7 @@ export const useStyles = makeStyles((theme) => ({
     padding: ".5rem"
   },
   tooltipIcon: {
-    fontSize: "1rem",
+    fontSize: "1.5rem",
     marginLeft: "1rem",
     color: theme.palette.text.secondary
   }
@@ -194,6 +194,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
                   <Button
                     variant="contained"
                     color="primary"
+                    size="small"
                     disabled={!!parsingError || !editedManifest || !providers || isSendingManifest || deployment.state !== "active"}
                     onClick={() => handleUpdateClick()}
                   >

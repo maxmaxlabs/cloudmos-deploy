@@ -110,7 +110,12 @@ export function DeploymentDetail(props) {
         </IconButton>
         <Typography variant="h3" className={classes.title}>
           Deployment detail
-          {deploymentName && <> - {deploymentName}</>}
+          {deploymentName && (
+            <Box component="span" fontWeight="normal">
+              {" "}
+              - {deploymentName}
+            </Box>
+          )}
         </Typography>
         <Box marginLeft="1rem">
           <IconButton aria-label="back" onClick={() => loadDeploymentDetail()}>

@@ -41,7 +41,8 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "1rem"
   },
   tooltipIcon: {
-    fontSize: "1rem"
+    fontSize: "1rem",
+    color: theme.palette.text.secondary
   }
 }));
 

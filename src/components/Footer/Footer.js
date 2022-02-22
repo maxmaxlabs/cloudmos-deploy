@@ -1,4 +1,4 @@
-import { makeStyles, AppBar, Toolbar, Box, Typography, Button } from "@material-ui/core";
+import { makeStyles, AppBar, Toolbar, Box, Typography, Button, Chip } from "@material-ui/core";
 import YouTubeIcon from "@material-ui/icons/YouTube";
 import TwitterIcon from "@material-ui/icons/Twitter";
 import GitHubIcon from "@material-ui/icons/GitHub";
@@ -50,6 +50,12 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.grey["600"],
     fontWeight: "bold",
     fontSize: ".6rem"
+  },
+  betaChip: {
+    height: "12px",
+    fontSize: "10px",
+    fontWeight: "bold",
+    marginLeft: ".5rem"
   }
 }));
 
@@ -62,9 +68,13 @@ export const Footer = () => {
       <Toolbar variant="dense" className={classes.toolbar}>
         <Box>
           {appVersion && (
-            <Typography variant="caption" className={classes.caption}>
-              <strong>v{appVersion}</strong>
-            </Typography>
+            <>
+              <Typography variant="caption" className={classes.caption}>
+                <strong>v{appVersion}</strong>
+              </Typography>
+
+              <Chip label="beta" color="secondary" size="small" className={classes.betaChip} />
+            </>
           )}
         </Box>
 

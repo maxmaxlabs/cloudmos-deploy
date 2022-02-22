@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
     background: theme.palette.common.white
   },
   title: {
-    padding: ".5rem 1rem"
+    padding: "4px 1rem"
   },
   button: {
     marginRight: theme.spacing(1)

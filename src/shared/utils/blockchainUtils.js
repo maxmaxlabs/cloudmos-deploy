@@ -20,7 +20,7 @@ export function registerTypes() {
   customRegistry = registery;
 }
 
-export const baseGas = "600000";
+export const baseGas = "800000";
 export const fees = {
   low: 4000,
   avg: 5000,

@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
     }
   },
   titleContainer: {
-    padding: "1rem",
+    padding: "0 1rem",
     display: "flex",
     alignItems: "center"
   },

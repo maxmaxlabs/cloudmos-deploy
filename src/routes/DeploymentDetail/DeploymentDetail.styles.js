@@ -16,7 +16,7 @@ export const useStyles = makeStyles((theme) => ({
   title: {
     fontWeight: "bold",
     marginLeft: ".5rem",
-    fontSize: "2rem"
+    fontSize: "1.5rem"
   },
   tabsRoot: {
     minHeight: "36px",
