@@ -35,8 +35,15 @@ export const migrateLocalStorage = () => {
   const currentVersion = window.electron.getAppVersion();
   let latestUpdatedVersion = localStorage.getItem("latestUpdatedVersion");
 
-  if (!latestUpdatedVersion && Object.keys(localStorage).some((key) => key.endsWith(".data") || key.endsWith(".wallet"))) {
-    latestUpdatedVersion = "0.5.0";
+  if (!latestUpdatedVersion) {
+    // It's an upgrade from an old version
+    if (Object.keys(localStorage).some((key) => key.endsWith(".data") || key.endsWith(".wallet"))) {
+      latestUpdatedVersion = "0.5.0";
+    } else {
+      // It's a brand new installation
+      latestUpdatedVersion = currentVersion;
+      localStorage.setItem("selectedNetworkId", mainnetId);
+    }
   }
 
   // Only apply migrations if there was a previous version

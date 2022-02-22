@@ -6,6 +6,7 @@ import { migrateLocalStorage } from "../../shared/utils/localStorage";
 import { queryClient } from "../../queries";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 import { useStateWithCallbackLazy } from "use-state-with-callback";
+import { initAppTypes } from "../../shared/init";
 
 const SettingsProviderContext = React.createContext({});
 
@@ -35,6 +36,8 @@ export const SettingsProvider = ({ children }) => {
       await initiateNetworkData();
       // Apply local storage migrations
       migrateLocalStorage();
+      // Init app types based on the selected network id
+      initAppTypes();
 
       const settingsStr = getLocalStorageItem("settings");
       const settings = { ...defaultSettings, ...JSON.parse(settingsStr) } || {};
