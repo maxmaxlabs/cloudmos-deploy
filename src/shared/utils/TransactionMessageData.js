@@ -114,8 +114,9 @@ export class TransactionMessageData {
       }
     };
 
-    const err = protoTypes.MsgUpdateDeployment.verify(txData.value);
+    // const err = protoTypes.MsgUpdateDeployment.verify(txData.value);
 
+    let err = null;
     if (err) throw err;
 
     return txData;
