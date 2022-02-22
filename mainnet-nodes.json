@@ -1,10 +1,5 @@
 [
    {
-      "id":"akash.c29r3.xyz",
-      "api":"https://akash.c29r3.xyz:443/api",
-      "rpc":"http://akash.c29r3.xyz:80/rpc"
-   },
-   {
       "id":"akash.smartnodes.one",
       "api":"https://api.akash.smartnodes.one",
       "rpc":"https://rpc.akash.smartnodes.one:443"
