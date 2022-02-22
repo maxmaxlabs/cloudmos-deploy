@@ -15,7 +15,7 @@ import { UrlService } from "../../shared/utils/urlUtils";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    padding: "1rem",
+    padding: "0 1rem",
     "& .MuiListItemText-secondary .MuiSvgIcon-root:not(:first-child)": {
       marginLeft: "5px"
     },

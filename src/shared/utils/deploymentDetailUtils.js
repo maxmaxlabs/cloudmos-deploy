@@ -19,8 +19,28 @@ export function deploymentToDto(d) {
     transferred: d.escrow_account.transferred,
     cpuAmount: deploymentResourceSum(d, (r) => parseInt(r.cpu.units.val) / 1000),
     memoryAmount: deploymentResourceSum(d, (r) => parseInt(r.memory.quantity.val)),
-    storageAmount: deploymentResourceSum(d, (r) => parseInt(r.storage.quantity.val)),
+    storageAmount: deploymentResourceSum(d, (r) =>
+      convertToArrayIfNeeded(r.storage)
+        .map((x) => parseInt(x.quantity.val))
+        .reduce((a, b) => a + b, 0)
+    ),
     escrowAccount: { ...d.escrow_account },
     groups: [...d.groups]
   };
 }
+
+export function convertToArrayIfNeeded(arrayOrItem) {
+  return arrayOrItem.map ? arrayOrItem : [arrayOrItem];
+}
+
+export const getStorageAmount = (resource) => {
+  let storage;
+
+  if (Array.isArray(resource.storage)) {
+    storage = resource.storage.map((x) => parseInt(x.quantity.val)).reduce((a, b) => a + b, 0);
+  } else {
+    storage = parseInt(resource.storage.quantity.val);
+  }
+
+  return storage;
+};

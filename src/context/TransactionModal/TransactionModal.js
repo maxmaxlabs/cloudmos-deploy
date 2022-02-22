@@ -19,7 +19,7 @@ import {
 } from "@material-ui/core";
 import { a11yProps } from "../../shared/utils/a11yUtils";
 import { TabPanel } from "../../shared/components/TabPanel";
-import { baseGas, createFee, customRegistry, fees, createCustomFee } from "../../shared/utils/blockchainUtils";
+import { baseGas, createFee, customRegistry, fees, edgenetFees, createCustomFee } from "../../shared/utils/blockchainUtils";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { useWallet } from "../WalletProvider";
 import clsx from "clsx";
@@ -34,6 +34,7 @@ import { transactionLink } from "../../shared/constants";
 import { BroadcastingError } from "../../shared/utils/errors";
 import OpenInNew from "@material-ui/icons/OpenInNew";
 import { PriceValue } from "../../shared/components/PriceValue";
+import { selectedNetworkId } from "../../shared/deploymentData";
 
 const a11yPrefix = "transaction-tab";
 
@@ -45,7 +46,7 @@ export function TransactionModal(props) {
   const [tabIndex, setTabIndex] = useState(0);
   const [memo, setMemo] = useState("");
   const [gas, setGas] = useState(baseGas);
-  const [customFee, setCustomFee] = useState(uaktToAKT(fees["avg"]));
+  const [customFee, setCustomFee] = useState(uaktToAKT(selectedNetworkId === "mainnet" ? fees["avg"] : edgenetFees["avg"]));
   const [isSettingCustomFee, setIsCustomFee] = useState(false);
   const [currentFee, setCurrentFee] = useState("avg");
   const classes = useStyles();
@@ -350,7 +351,7 @@ const TransactionSnackbarContent = ({ snackMessage, transactionHash }) => {
     <>
       {snackMessage}
       {snackMessage && <br />}
-      {transactionHash && (
+      {transactionHash && selectedNetworkId === "mainnet" && (
         <Box component="a" display="flex" alignItems="center" href="#" onClick={() => window.electron.openUrl(transactionLink(transactionHash))}>
           View transaction <OpenInNew className={classes.transactionLinkIcon} />
         </Box>

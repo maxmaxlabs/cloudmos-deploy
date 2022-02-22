@@ -3,7 +3,7 @@ import { QueryKeys } from "./queryKeys";
 import axios from "axios";
 import { ApiUrlService } from "../shared/utils/apiUtils";
 import { useSettings } from "../context/SettingsProvider";
-import { deploymentGroupResourceSum } from "../shared/utils/deploymentDetailUtils";
+import { deploymentGroupResourceSum, convertToArrayIfNeeded } from "../shared/utils/deploymentDetailUtils";
 import { useCertificate } from "../context/CertificateProvider";
 
 // Leases
@@ -28,7 +28,11 @@ async function getLeases(apiEndpoint, deployment, address) {
       price: l.lease.price,
       cpuAmount: deploymentGroupResourceSum(group, (r) => parseInt(r.cpu.units.val) / 1000),
       memoryAmount: deploymentGroupResourceSum(group, (r) => parseInt(r.memory.quantity.val)),
-      storageAmount: deploymentGroupResourceSum(group, (r) => parseInt(r.storage.quantity.val)),
+      storageAmount: deploymentGroupResourceSum(group, (r) =>
+        convertToArrayIfNeeded(r.storage)
+          .map((x) => parseInt(x.quantity.val))
+          .reduce((a, b) => a + b, 0)
+      ),
       group
     };
   });

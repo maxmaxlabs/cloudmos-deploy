@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Button, Box, Typography, LinearProgress, Tooltip, makeStyles } from "@material-ui/core";
+import { Button, Box, Typography, Tooltip, makeStyles } from "@material-ui/core";
 import { getDeploymentLocalData, saveDeploymentManifest } from "../../shared/utils/deploymentLocalDataUtils";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
-import { NewDeploymentData, Manifest, sendManifestToProvider } from "../../shared/utils/deploymentUtils";
+import { sendManifestToProvider } from "../../shared/utils/deploymentUtils";
+import { deploymentData } from "../../shared/deploymentData";
 import { useWallet } from "../../context/WalletProvider";
 import { useTransactionModal } from "../../context/TransactionModal";
 import { useCertificate } from "../../context/CertificateProvider";
@@ -17,6 +18,7 @@ import { LinkTo } from "../../shared/components/LinkTo";
 import InfoIcon from "@material-ui/icons/Info";
 import { ViewPanel } from "../../shared/components/ViewPanel";
 import { monacoOptions } from "../../shared/constants";
+import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 
 const yaml = require("js-yaml");
 
@@ -30,7 +32,7 @@ export const useStyles = makeStyles((theme) => ({
     padding: ".5rem"
   },
   tooltipIcon: {
-    fontSize: "1rem",
+    fontSize: "1.5rem",
     marginLeft: "1rem",
     color: theme.palette.text.secondary
   }
@@ -68,7 +70,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
 
         const doc = yaml.load(yamlStr);
 
-        await NewDeploymentData(settings.apiEndpoint, doc, dseq, address);
+        await deploymentData.NewDeploymentData(settings.apiEndpoint, doc, dseq, address);
 
         setParsingError(null);
       } catch (err) {
@@ -115,8 +117,8 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
 
   async function handleUpdateClick() {
     const doc = yaml.load(editedManifest);
-    const dd = await NewDeploymentData(settings.apiEndpoint, doc, parseInt(deployment.dseq), address); // TODO Flags
-    const mani = Manifest(doc);
+    const dd = await deploymentData.NewDeploymentData(settings.apiEndpoint, doc, parseInt(deployment.dseq), address); // TODO Flags
+    const mani = deploymentData.Manifest(doc);
 
     try {
       const message = TransactionMessageData.getUpdateDeploymentMsg(dd);
@@ -192,6 +194,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
                   <Button
                     variant="contained"
                     color="primary"
+                    size="small"
                     disabled={!!parsingError || !editedManifest || !providers || isSendingManifest || deployment.state !== "active"}
                     onClick={() => handleUpdateClick()}
                   >
@@ -203,7 +206,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
 
             {parsingError && <Alert severity="warning">{parsingError}</Alert>}
 
-            {isSendingManifest && <LinearProgress />}
+            <LinearLoadingSkeleton isLoading={isSendingManifest} />
 
             <ViewPanel bottomElementId="footer" overflow="hidden">
               <MonacoEditor language="yaml" theme="vs-dark" value={editedManifest} onChange={handleTextChange} options={monacoOptions} />

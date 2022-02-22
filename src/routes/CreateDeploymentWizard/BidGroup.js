@@ -4,6 +4,7 @@ import { deploymentGroupResourceSum } from "../../shared/utils/deploymentDetailU
 import { SpecDetail } from "../../shared/components/SpecDetail";
 import { LabelValue } from "../../shared/components/LabelValue";
 import { BidRow } from "./BidRow";
+import { getStorageAmount } from "../../shared/utils/deploymentDetailUtils";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -13,6 +14,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     alignItems: "center",
     paddingBottom: "6px",
+    paddingTop: "6px",
     zIndex: 100,
     backgroundColor: theme.palette.common.white
   },
@@ -59,7 +61,7 @@ export function BidGroup({ bids, gseq, selectedBid, handleBidSelected, disabled,
       const resourcesSum = {
         cpuAmount: deploymentGroupResourceSum(currentGroup, (r) => parseInt(r.cpu.units.val) / 1000),
         memoryAmount: deploymentGroupResourceSum(currentGroup, (r) => parseInt(r.memory.quantity.val)),
-        storageAmount: deploymentGroupResourceSum(currentGroup, (r) => parseInt(r.storage.quantity.val))
+        storageAmount: deploymentGroupResourceSum(currentGroup, (r) => getStorageAmount(r))
       };
       setResources(resourcesSum);
     }

@@ -11,13 +11,19 @@ export function providerStatusToDto(providerStatus) {
   };
 }
 
+function getStorageFromResource(resource) {
+  return Object.keys(resource).includes("storage_ephemeral") ? resource.storage_ephemeral : resource.storage;
+}
+
 export function getTotalProviderResource(resources) {
-  const result = resources
+  const resourcesArr = resources?.nodes || resources;
+
+  const result = resourcesArr
     ?.map((x) => {
       return {
-        cpu: getCpuValue(x?.cpu),
-        memory: getByteValue(x?.memory),
-        storage: getByteValue(x?.storage)
+        cpu: getCpuValue(x.cpu),
+        memory: getByteValue(x.memory),
+        storage: getByteValue(getStorageFromResource(x))
       };
     })
     .reduce((prev, current) => {

@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { Box, Typography, Button, TextField, CircularProgress, makeStyles, Tooltip } from "@material-ui/core";
-import { NewDeploymentData, defaultInitialDeposit } from "../../shared/utils/deploymentUtils";
+import { deploymentData } from "../../shared/deploymentData";
+import { defaultInitialDeposit } from "../../shared/constants";
 import { useWallet } from "../../context/WalletProvider";
 import MonacoEditor from "react-monaco-editor";
 import Alert from "@material-ui/lab/Alert";
 import InfoIcon from "@material-ui/icons/Info";
+import ArrowForwardIosIcon from "@material-ui/icons/ArrowForward";
 import { useHistory } from "react-router";
 import { saveDeploymentManifestAndName } from "../../shared/utils/deploymentLocalDataUtils";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
@@ -16,6 +18,7 @@ import { DeploymentDepositModal } from "../DeploymentDetail/DeploymentDepositMod
 import { LinkTo } from "../../shared/components/LinkTo";
 import { monacoOptions } from "../../shared/constants";
 import { ViewPanel } from "../../shared/components/ViewPanel";
+import { Timer } from "../../shared/utils/timer";
 
 const yaml = require("js-yaml");
 
@@ -50,13 +53,15 @@ export function ManifestEdit(props) {
   }
 
   useEffect(() => {
-    const timeoutId = setTimeout(async () => {
-      await createAndValidateDeploymentData(editedManifest, "TEST_DSEQ_VALIDATION");
-    }, 500);
+    const timer = Timer(500);
+
+    timer.start().then(() => {
+      createAndValidateDeploymentData(editedManifest, "TEST_DSEQ_VALIDATION");
+    });
 
     return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
+      if (timer) {
+        timer.abort();
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -67,7 +72,7 @@ export function ManifestEdit(props) {
       if (!editedManifest) return null;
 
       const doc = yaml.load(yamlStr);
-      const dd = await NewDeploymentData(settings.apiEndpoint, doc, dseq, address, deposit);
+      const dd = await deploymentData.NewDeploymentData(settings.apiEndpoint, doc, dseq, address, deposit);
       validateDeploymentData(dd);
 
       setParsingError(null);
@@ -149,9 +154,20 @@ export function ManifestEdit(props) {
     <>
       <Helmet title="Create Deployment - Manifest Edit" />
 
-      <Box padding="1rem" paddingTop={0}>
+      <Box padding="0 1rem">
         <Box marginBottom=".5rem" display="flex" alignItems="center" justifyContent="space-between">
           <Button onClick={handleChangeTemplate}>Change Template</Button>
+
+          <Box flexGrow={1} margin="0 1rem">
+            <TextField
+              value={deploymentName}
+              onChange={(ev) => setDeploymentName(ev.target.value)}
+              fullWidth
+              label="Name your deployment (optional)"
+              variant="outlined"
+            />
+          </Box>
+
           <Box display="flex" alignItems="center">
             <Tooltip
               classes={{ tooltip: classes.tooltip }}
@@ -178,20 +194,19 @@ export function ManifestEdit(props) {
               disabled={isCreatingDeployment || !!parsingError || !editedManifest}
               onClick={() => setIsDepositingDeployment(true)}
             >
-              {isCreatingDeployment ? <CircularProgress size="24px" color="primary" /> : "Create Deployment"}
+              {isCreatingDeployment ? (
+                <CircularProgress size="24px" color="primary" />
+              ) : (
+                <>
+                  Create Deployment{" "}
+                  <Box component="span" marginLeft=".5rem" display="flex" alignItems="center">
+                    <ArrowForwardIosIcon fontSize="small" />
+                  </Box>
+                </>
+              )}
             </Button>
           </Box>
         </Box>
-
-        <div>
-          <TextField
-            value={deploymentName}
-            onChange={(ev) => setDeploymentName(ev.target.value)}
-            fullWidth
-            label="Name your deployment (optional)"
-            variant="outlined"
-          />
-        </div>
       </Box>
 
       {parsingError && <Alert severity="warning">{parsingError}</Alert>}
@@ -200,24 +215,26 @@ export function ManifestEdit(props) {
         <MonacoEditor language="yaml" theme="vs-dark" value={editedManifest} onChange={handleTextChange} options={monacoOptions} />
       </ViewPanel>
 
-      <DeploymentDepositModal
-        isDepositingDeployment={isDepositingDeployment}
-        handleCancel={() => setIsDepositingDeployment(false)}
-        onDeploymentDeposit={onDeploymentDeposit}
-        min={5}
-        infoText={
-          <Alert severity="info" className={classes.alert}>
-            <Typography variant="caption">
-              To create a deployment you need a minimum of <strong>5AKT</strong> for the{" "}
-              <LinkTo onClick={(ev) => handleDocClick(ev, "https://docs.akash.network/glossary/escrow#escrow-accounts")}>
-                <strong>escrow account.</strong>
-              </LinkTo>{" "}
-              Escrow accounts are a mechanism that allow for time-based payments from one bank account to another without block-by-block micropayments. If your
-              escrow account runs out, your deployment will automatically close. You can still add more funds to your deployment escrow once it's created.
-            </Typography>
-          </Alert>
-        }
-      />
+      {isDepositingDeployment && (
+        <DeploymentDepositModal
+          handleCancel={() => setIsDepositingDeployment(false)}
+          onDeploymentDeposit={onDeploymentDeposit}
+          min={5}
+          infoText={
+            <Alert severity="info" className={classes.alert}>
+              <Typography variant="caption">
+                To create a deployment you need a minimum of <strong>5AKT</strong> for the{" "}
+                <LinkTo onClick={(ev) => handleDocClick(ev, "https://docs.akash.network/glossary/escrow#escrow-accounts")}>
+                  <strong>escrow account.</strong>
+                </LinkTo>{" "}
+                Escrow accounts are a mechanism that allow for time-based payments from one bank account to another without block-by-block micropayments. If
+                your escrow account runs out, your deployment will automatically close. You can still add more funds to your deployment escrow once it's
+                created.
+              </Typography>
+            </Alert>
+          }
+        />
+      )}
     </>
   );
 }

@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function DeploymentDepositModal({ isDepositingDeployment, handleCancel, onDeploymentDeposit, min = 0, infoText = null }) {
+export function DeploymentDepositModal({ handleCancel, onDeploymentDeposit, min = 0, infoText = null }) {
   const classes = useStyles();
   const formRef = useRef();
   const [error, setError] = useState("");
@@ -42,7 +42,6 @@ export function DeploymentDepositModal({ isDepositingDeployment, handleCancel, o
   const { amount } = watch();
 
   const onClose = () => {
-    setValue("amount", min || 0);
     handleCancel();
   };
 
@@ -58,10 +57,11 @@ export function DeploymentDepositModal({ isDepositingDeployment, handleCancel, o
   };
 
   const onSubmit = ({ amount }) => {
+    setError("");
     clearErrors();
     const deposit = aktToUakt(amount);
 
-    if (amount < min) {
+    if (deposit < aktToUakt(min)) {
       setError(`Deposit amount must be greater or equal than ${min}.`);
       return;
     }
@@ -71,14 +71,12 @@ export function DeploymentDepositModal({ isDepositingDeployment, handleCancel, o
       return;
     }
 
-    setValue("amount", 0);
     setIsBalanceClicked(false);
-
     onDeploymentDeposit(deposit);
   };
 
   return (
-    <Dialog maxWidth="xs" fullWidth aria-labelledby="deposit-deployment-dialog-title" open={isDepositingDeployment} onClose={onClose}>
+    <Dialog maxWidth="xs" fullWidth aria-labelledby="deposit-deployment-dialog-title" open={true} onClose={onClose}>
       <DialogTitle id="deposit-deployment-dialog-title">Deployment Deposit</DialogTitle>
       <DialogContent dividers className={classes.dialogContent}>
         <form onSubmit={handleSubmit(onSubmit)} ref={formRef}>
@@ -93,8 +91,7 @@ export function DeploymentDepositModal({ isDepositingDeployment, handleCancel, o
               control={control}
               name="amount"
               rules={{
-                required: true,
-                validate: (value) => value > 0 && value < balance
+                required: true
               }}
               render={({ fieldState, field }) => {
                 const helperText = fieldState.error?.type === "validate" ? "Invalid amount." : "Amount is required.";
@@ -136,7 +133,7 @@ export function DeploymentDepositModal({ isDepositingDeployment, handleCancel, o
         <Button autoFocus onClick={onClose}>
           Cancel
         </Button>
-        <Button onClick={onDepositClick} disabled={!amount || !!error || !!errors.amount} variant="contained" color="primary">
+        <Button onClick={onDepositClick} disabled={!amount} variant="contained" color="primary">
           Deposit
         </Button>
       </DialogActions>

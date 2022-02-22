@@ -1,25 +1,28 @@
-import {
-  MsgCloseDeployment,
-  MsgUpdateDeployment,
-  MsgRevokeCertificate,
-  MsgCreateCertificate,
-  MsgCreateDeployment,
-  MsgCreateLease,
-  MsgDepositDeployment
-} from "../ProtoAkashTypes";
+import { protoTypes } from "../protoTypes";
+import { networkVersion } from "../constants";
+
+export function setMessageTypes() {
+  TransactionMessageData.Types.MSG_CLOSE_DEPLOYMENT = `/akash.deployment.${networkVersion}.MsgCloseDeployment`;
+  TransactionMessageData.Types.MSG_CREATE_DEPLOYMENT = `/akash.deployment.${networkVersion}.MsgCreateDeployment`;
+  TransactionMessageData.Types.MSG_DEPOSIT_DEPLOYMENT = `/akash.deployment.${networkVersion}.MsgDepositDeployment`;
+  TransactionMessageData.Types.MSG_UPDATE_DEPLOYMENT = `/akash.deployment.${networkVersion}.MsgUpdateDeployment`;
+  TransactionMessageData.Types.MSG_CREATE_LEASE = `/akash.market.${networkVersion}.MsgCreateLease`;
+  TransactionMessageData.Types.MSG_REVOKE_CERTIFICATE = `/akash.cert.${networkVersion}.MsgRevokeCertificate`;
+  TransactionMessageData.Types.MSG_CREATE_CERTIFICATE = `/akash.cert.${networkVersion}.MsgCreateCertificate`;
+}
 
 export class TransactionMessageData {
   static Types = {
-    MSG_CLOSE_DEPLOYMENT: "/akash.deployment.v1beta1.MsgCloseDeployment",
-    MSG_CREATE_DEPLOYMENT: "/akash.deployment.v1beta1.MsgCreateDeployment",
-    MSG_DEPOSIT_DEPLOYMENT: "/akash.deployment.v1beta1.MsgDepositDeployment",
-    MSG_UPDATE_DEPLOYMENT: "/akash.deployment.v1beta1.MsgUpdateDeployment",
+    MSG_CLOSE_DEPLOYMENT: "",
+    MSG_CREATE_DEPLOYMENT: "",
+    MSG_DEPOSIT_DEPLOYMENT: "",
+    MSG_UPDATE_DEPLOYMENT: "",
     // TODO MsgCloseGroup
     // TODO MsgPauseGroup
     // TODO MsgStartGroup
-    MSG_CREATE_LEASE: "/akash.market.v1beta1.MsgCreateLease",
-    MSG_REVOKE_CERTIFICATE: "/akash.cert.v1beta1.MsgRevokeCertificate",
-    MSG_CREATE_CERTIFICATE: "/akash.cert.v1beta1.MsgCreateCertificate",
+    MSG_CREATE_LEASE: "",
+    MSG_REVOKE_CERTIFICATE: "",
+    MSG_CREATE_CERTIFICATE: "",
 
     // Cosmos
     MSG_SEND_TOKENS: "/cosmos.bank.v1beta1.MsgSend"
@@ -36,7 +39,7 @@ export class TransactionMessageData {
       }
     };
 
-    const err = MsgRevokeCertificate.verify(txData.value);
+    const err = protoTypes.MsgRevokeCertificate.verify(txData.value);
 
     if (err) throw err;
 
@@ -53,7 +56,7 @@ export class TransactionMessageData {
       }
     };
 
-    const err = MsgCreateCertificate.verify(txData.value);
+    const err = protoTypes.MsgCreateCertificate.verify(txData.value);
 
     if (err) throw err;
 
@@ -74,7 +77,7 @@ export class TransactionMessageData {
       }
     };
 
-    const err = MsgCreateLease.verify(txData.value);
+    const err = protoTypes.MsgCreateLease.verify(txData.value);
 
     if (err) throw err;
 
@@ -88,12 +91,14 @@ export class TransactionMessageData {
         id: deploymentData.deploymentId,
         groups: deploymentData.groups,
         version: deploymentData.version,
-        deposit: deploymentData.deposit
+        deposit: deploymentData.deposit,
+        depositor: deploymentData.depositor
       }
     };
 
-    const err = MsgCreateDeployment.verify(txData.value);
-
+    // TODO
+    //const err = protoTypes.MsgCreateDeployment.verify(txData.value);
+    let err = null;
     if (err) throw err;
 
     return txData;
@@ -109,8 +114,9 @@ export class TransactionMessageData {
       }
     };
 
-    const err = MsgUpdateDeployment.verify(txData.value);
+    // const err = protoTypes.MsgUpdateDeployment.verify(txData.value);
 
+    let err = null;
     if (err) throw err;
 
     return txData;
@@ -131,7 +137,7 @@ export class TransactionMessageData {
       }
     };
 
-    const err = MsgDepositDeployment.verify(txData.value);
+    const err = protoTypes.MsgDepositDeployment.verify(txData.value);
 
     if (err) throw err;
 
@@ -149,7 +155,7 @@ export class TransactionMessageData {
       }
     };
 
-    const err = MsgCloseDeployment.verify(txData.value);
+    const err = protoTypes.MsgCloseDeployment.verify(txData.value);
 
     if (err) throw err;
 

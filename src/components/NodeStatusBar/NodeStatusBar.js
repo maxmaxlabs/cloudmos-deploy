@@ -1,4 +1,4 @@
-import { makeStyles, AppBar, Toolbar, Box, CircularProgress, Typography, Button, Chip } from "@material-ui/core";
+import { makeStyles, AppBar, Toolbar, Box, CircularProgress, Typography, Button } from "@material-ui/core";
 import { NodeStatus } from "../../shared/components/NodeStatus";
 import { useSettings } from "../../context/SettingsProvider";
 import { useEffect, useState } from "react";
@@ -8,7 +8,6 @@ import { networks } from "../../shared/networks";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 import { SelectNetworkModal } from "../SelectNetworkModal";
 import { LinkTo } from "../../shared/components/LinkTo";
-import { useAppVersion } from "../../hooks/useAppVersion";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: {
@@ -48,17 +47,11 @@ const useStyles = makeStyles((theme) => ({
   flexAlign: {
     display: "flex",
     alignItems: "center"
-  },
-  betaChip: {
-    height: "12px",
-    fontSize: "10px",
-    fontWeight: "bold"
   }
 }));
 
 export const NodeStatusBar = () => {
   const classes = useStyles();
-  const { appVersion } = useAppVersion();
   const [isEditingSettings, setIsEditingSettings] = useState(false);
   const [isSelectingNetwork, setIsSelectingNetwork] = useState(false);
   const { settings, isRefreshingNodeStatus, refreshNodeStatuses, selectedNetworkId } = useSettings();
@@ -134,10 +127,6 @@ export const NodeStatusBar = () => {
         </Box>
 
         <Box display="flex" alignItems="center" whiteSpace="nowrap">
-          <Box marginRight={1}>
-            <Chip label={`beta v${appVersion}`} color="secondary" size="small" className={classes.betaChip} />
-          </Box>
-
           <Button onClick={() => window.electron.openUrl("https://github.com/Akashlytics/akashlytics-deploy/issues")} size="small">
             <Typography variant="caption" className={classes.caption}>
               Submit an issue

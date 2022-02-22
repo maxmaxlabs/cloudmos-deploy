@@ -1,23 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
-import {
-  Button,
-  CircularProgress,
-  Box,
-  Typography,
-  LinearProgress,
-  Menu,
-  MenuItem,
-  IconButton,
-  makeStyles,
-  TextField,
-  InputAdornment,
-  Tooltip
-} from "@material-ui/core";
+import { Button, CircularProgress, Box, Typography, Menu, MenuItem, IconButton, makeStyles, TextField, InputAdornment, Tooltip } from "@material-ui/core";
 import { useWallet } from "../../context/WalletProvider";
 import { BidGroup } from "./BidGroup";
 import { useHistory } from "react-router";
-import { sendManifestToProvider, Manifest } from "../../shared/utils/deploymentUtils";
+import { sendManifestToProvider } from "../../shared/utils/deploymentUtils";
+import { deploymentData } from "../../shared/deploymentData";
 import { useCertificate } from "../../context/CertificateProvider";
 import { getDeploymentLocalData } from "../../shared/utils/deploymentLocalDataUtils";
 import { useTransactionModal } from "../../context/TransactionModal";
@@ -35,15 +23,14 @@ import { ManifestErrorSnackbar } from "../../shared/components/ManifestErrorSnac
 import { useDeploymentDetail } from "../../queries";
 import { ViewPanel } from "../../shared/components/ViewPanel";
 import InfoIcon from "@material-ui/icons/Info";
+import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
+import clsx from "clsx";
 
 const yaml = require("js-yaml");
 
 const useStyles = makeStyles((theme) => ({
-  alert: {
-    marginBottom: ".5rem"
-  },
   title: {
-    fontSize: "1.5rem",
+    fontSize: "1.2rem",
     display: "flex",
     alignItems: "center",
     fontWeight: "bold"
@@ -54,7 +41,13 @@ const useStyles = makeStyles((theme) => ({
   },
   tooltipIcon: {
     fontSize: "1.5rem",
+    color: theme.palette.text.secondary
+  },
+  marginLeft: {
     marginLeft: "1rem"
+  },
+  nowrap: {
+    whiteSpace: "nowrap"
   }
 }));
 
@@ -159,13 +152,13 @@ export function CreateLease({ dseq }) {
 
     setIsSendingManifest(true);
 
-    const deploymentData = getDeploymentLocalData(dseq);
-    if (deploymentData && deploymentData.manifest) {
+    const localDeploymentData = getDeploymentLocalData(dseq);
+    if (localDeploymentData && localDeploymentData.manifest) {
       // Send the manifest
 
       try {
-        const yamlJson = yaml.load(deploymentData.manifest);
-        const mani = Manifest(yamlJson);
+        const yamlJson = yaml.load(localDeploymentData.manifest);
+        const mani = deploymentData.Manifest(yamlJson);
 
         for (let i = 0; i < bidKeys.length; i++) {
           const currentBid = selectedBids[bidKeys[i]];
@@ -217,11 +210,46 @@ export function CreateLease({ dseq }) {
       <Box padding="0 1rem">
         {!isLoadingBids && bids.length > 0 && !allClosed && (
           <Box display="flex" alignItems="center" justifyContent="space-between">
-            <Alert severity="info" className={classes.alert} variant="standard">
-              Bids automatically close 5 minutes after the deployment is created if none are selected for a lease.
-            </Alert>
+            <Typography variant="h3" className={classes.title}>
+              Choose a provider
+            </Typography>
+            <Box flexGrow={1} marginLeft={2}>
+              <TextField
+                label="Search by attribute..."
+                disabled={bids.length === 0 || isSendingManifest}
+                value={search}
+                onChange={onSearchChange}
+                type="text"
+                variant="outlined"
+                autoFocus
+                fullWidth
+                size="medium"
+                InputProps={{
+                  endAdornment: search && (
+                    <InputAdornment position="end">
+                      <IconButton size="small" onClick={() => setSearch("")}>
+                        <CloseIcon />
+                      </IconButton>
+                    </InputAdornment>
+                  )
+                }}
+              />
+            </Box>
 
             <Box display="flex" alignItems="center">
+              <Tooltip
+                classes={{ tooltip: classes.tooltip }}
+                arrow
+                interactive
+                title={
+                  <Alert severity="info" variant="standard">
+                    Bids automatically close 5 minutes after the deployment is created if none are selected for a lease.
+                  </Alert>
+                }
+              >
+                <InfoIcon className={clsx(classes.tooltipIcon, classes.marginLeft)} />
+              </Tooltip>
+
               <Box margin="0 .5rem">
                 <IconButton aria-label="settings" aria-haspopup="true" onClick={handleMenuClick} size="small">
                   <MoreHorizIcon fontSize="large" />
@@ -252,6 +280,7 @@ export function CreateLease({ dseq }) {
                 variant="contained"
                 color="primary"
                 onClick={handleNext}
+                classes={{ label: classes.nowrap }}
                 disabled={dseqList.some((gseq) => !selectedBids[gseq]) || isSendingManifest || !providers}
               >
                 Accept Bid{dseqList.length > 1 ? "s" : ""}
@@ -265,7 +294,7 @@ export function CreateLease({ dseq }) {
 
         <Box mb={1} display="flex" alignItems="center">
           {!isLoadingBids && (allClosed || bids.length === 0) && (
-            <Button variant="contained" color={allClosed ? "primary" : "secondary"} onClick={handleCloseDeployment}>
+            <Button variant="contained" color={allClosed ? "primary" : "secondary"} onClick={handleCloseDeployment} size="small">
               Close Deployment
             </Button>
           )}
@@ -282,7 +311,7 @@ export function CreateLease({ dseq }) {
                 </Alert>
               }
             >
-              <InfoIcon className={classes.tooltipIcon} color="error" />
+              <InfoIcon className={clsx(classes.tooltipIcon, classes.marginLeft)} color="error" />
             </Tooltip>
           )}
         </Box>
@@ -312,36 +341,6 @@ export function CreateLease({ dseq }) {
           </Box>
         )}
 
-        {!isLoadingBids && bids.length > 0 && (
-          <Box display="flex" justifyContent="space-between" marginBottom="1rem">
-            <Typography variant="h3" className={classes.title}>
-              Choose a provider
-            </Typography>
-            <Box flexGrow={1} marginLeft={2}>
-              <TextField
-                label="Search by attribute..."
-                disabled={bids.length === 0 || isSendingManifest}
-                value={search}
-                onChange={onSearchChange}
-                type="text"
-                variant="outlined"
-                autoFocus
-                fullWidth
-                size="medium"
-                InputProps={{
-                  endAdornment: search && (
-                    <InputAdornment position="end">
-                      <IconButton size="small" onClick={() => setSearch("")}>
-                        <CloseIcon />
-                      </IconButton>
-                    </InputAdornment>
-                  )
-                }}
-              />
-            </Box>
-          </Box>
-        )}
-
         {bids.length > 0 && !maxRequestsReached && (
           <Box lineHeight="1rem" fontSize=".7rem" display="flex" alignItems="center" justifyContent="flex-end">
             <div style={{ color: "grey" }}>
@@ -353,7 +352,7 @@ export function CreateLease({ dseq }) {
           </Box>
         )}
 
-        {isSendingManifest && <LinearProgress />}
+        <LinearLoadingSkeleton isLoading={isSendingManifest} />
       </Box>
 
       {dseqList.length > 0 && (

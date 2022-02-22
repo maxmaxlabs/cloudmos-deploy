@@ -8,6 +8,7 @@ import { useProviderStatus } from "../../queries/useProvidersQuery";
 import CloudOffIcon from "@material-ui/icons/CloudOff";
 import clsx from "clsx";
 import { LinkTo } from "../../shared/components/LinkTo";
+import { FormattedNumber } from "react-intl";
 import { ProviderDetail } from "../../components/ProviderDetail/ProviderDetail";
 
 const useStyles = makeStyles((theme) => ({
@@ -55,10 +56,7 @@ export function BidRow({ bid, selectedBid, handleBidSelected, disabled, provider
   }, [provider, fetchProviderStatus]);
 
   return (
-    <ListItem
-      disabled={bid.state !== "open" || disabled}
-      dense
-    >
+    <ListItem disabled={bid.state !== "open" || disabled} dense>
       <ListItemIcon>
         <Radio
           checked={selectedBid?.id === bid.id}
@@ -94,7 +92,7 @@ export function BidRow({ bid, selectedBid, handleBidSelected, disabled, provider
                 classes={{ root: classes.chip }}
               />
               <Box component="span" marginLeft=".5rem">
-                {bid.price.amount} uakt / block
+                <FormattedNumber value={bid.price.amount} maximumFractionDigits={18} /> uakt / block
               </Box>
               <Box className={classes.priceTooltip}>
                 <PriceEstimateTooltip value={uaktToAKT(bid.price.amount, 6)} />

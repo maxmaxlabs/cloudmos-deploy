@@ -41,7 +41,8 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "1rem"
   },
   tooltipIcon: {
-    fontSize: "1rem"
+    fontSize: "1rem",
+    color: theme.palette.text.secondary
   }
 }));
 
@@ -67,7 +68,7 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address, loadD
       if (response) {
         removeLeases();
 
-        history.push(UrlService.deploymentList());
+        loadDeploymentDetail();
 
         await analytics.event("deploy", "close deployment");
       }
@@ -220,11 +221,7 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address, loadD
         </Box>
       )}
 
-      <DeploymentDepositModal
-        isDepositingDeployment={isDepositingDeployment}
-        handleCancel={() => setIsDepositingDeployment(false)}
-        onDeploymentDeposit={onDeploymentDeposit}
-      />
+      {isDepositingDeployment && <DeploymentDepositModal handleCancel={() => setIsDepositingDeployment(false)} onDeploymentDeposit={onDeploymentDeposit} />}
     </div>
   );
 }
