@@ -149,7 +149,7 @@ export function DeploymentLogs({ leases }) {
             <>
               <Box display="flex" alignItems="center" justifyContent="space-between" padding=".2rem .5rem">
                 <div>
-                  {leases.length > 1 && (
+                  {leases?.length > 1 && (
                     <ToggleButtonGroup className={classes.leaseSelector} color="primary" value={selectedLease.id} exclusive onChange={handleLeaseChange}>
                       {leases.map((l) => (
                         <ToggleButton key={l.id} value={l.id} size="small">
@@ -175,7 +175,7 @@ export function DeploymentLogs({ leases }) {
                 />
               </Box>
 
-              {services.length > 1 && (
+              {services?.length > 1 && (
                 <FormGroup row>
                   {services.map((service) => (
                     <FormControlLabel

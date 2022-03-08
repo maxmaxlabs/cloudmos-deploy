@@ -46,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function DeploymentSubHeader({ deployment, deploymentCost, address, loadDeploymentDetail, removeLeases }) {
+export function DeploymentSubHeader({ deployment, deploymentCost, address, loadDeploymentDetail, removeLeases, setActiveTab }) {
   const classes = useStyles();
   const timeLeft = getTimeLeft(deploymentCost, deployment.escrowBalance.amount);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -66,6 +66,8 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address, loadD
       const response = await sendTransaction([message]);
 
       if (response) {
+        setActiveTab("DETAILS");
+
         removeLeases();
 
         loadDeploymentDetail();

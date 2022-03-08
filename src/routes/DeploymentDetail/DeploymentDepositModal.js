@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   makeStyles,
   Button,
@@ -56,16 +56,29 @@ export function DeploymentDepositModal({ handleCancel, onDeploymentDeposit, min 
     formState: { errors },
     watch,
     setValue,
-    clearErrors
+    clearErrors,
+    unregister
   } = useForm({
     defaultValues: {
       amount: min,
-      useDepositor: false
+      useDepositor: false,
+      depositorAddress: ""
     }
   });
   const { amount, useDepositor, depositorAddress } = watch();
 
   const hasDepositorSupport = selectedNetworkId === "edgenet";
+
+  useEffect(() => {
+    clearErrors();
+    setError("");
+
+    if (!useDepositor) {
+      setValue("depositorAddress", "");
+      unregister("depositorAddress");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [useDepositor]);
 
   async function checkDepositor(depositAmount) {
     setIsCheckingDepositor(true);
@@ -217,6 +230,7 @@ export function DeploymentDepositModal({ handleCancel, onDeploymentDeposit, min 
                   <Controller
                     control={control}
                     name="depositorAddress"
+                    defaultValue=""
                     rules={{
                       required: true
                     }}
@@ -229,6 +243,7 @@ export function DeploymentDepositModal({ handleCancel, onDeploymentDeposit, min 
                           label="Depositor address"
                           autoFocus
                           error={!!fieldState.invalid}
+                          helperText={fieldState.invalid && "Depositor address is required."}
                           className={classes.formValue}
                         />
                       );
