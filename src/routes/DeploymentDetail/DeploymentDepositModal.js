@@ -17,7 +17,7 @@ import {
 } from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
 import { useWallet } from "../../context/WalletProvider";
-import { aktToUakt, uaktToAKT } from "../../shared/utils/priceUtils";
+import { aktToUakt, coinToUAkt, uaktToAKT } from "../../shared/utils/priceUtils";
 import { useForm, Controller } from "react-hook-form";
 import { LinkTo } from "../../shared/components/LinkTo";
 import { fees } from "../../shared/utils/blockchainUtils";
@@ -102,15 +102,7 @@ export function DeploymentDepositModal({ handleCancel, onDeploymentDeposit, min 
         return false;
       }
 
-      const spendLimit = grant.authorization.spend_limit;
-      let spendLimitUAkt = 0;
-      if (spendLimit.denom === "akt") {
-        spendLimitUAkt = aktToUakt(parseInt(spendLimit.amount));
-      } else if (spendLimit.denom === "uakt") {
-        spendLimitUAkt = parseInt(spendLimit.amount);
-      } else {
-        throw Error("Unrecognized denom: " + spendLimit.denom);
-      }
+      let spendLimitUAkt = coinToUAkt(grant.authorization.spend_limit);
 
       if (depositAmount > spendLimitUAkt) {
         setError(`Spend limit remaining: ${uaktToAKT(spendLimitUAkt)}akt`);
