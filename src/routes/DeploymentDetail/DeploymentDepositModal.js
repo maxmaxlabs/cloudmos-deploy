@@ -1,11 +1,31 @@
 import { useState, useRef } from "react";
-import { makeStyles, Button, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputAdornment, Box, TextField, Chip } from "@material-ui/core";
+import {
+  makeStyles,
+  Button,
+  Dialog,
+  Checkbox,
+  FormControlLabel,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  FormControl,
+  InputAdornment,
+  Box,
+  TextField,
+  Chip,
+  CircularProgress
+} from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
 import { useWallet } from "../../context/WalletProvider";
 import { aktToUakt, uaktToAKT } from "../../shared/utils/priceUtils";
 import { useForm, Controller } from "react-hook-form";
 import { LinkTo } from "../../shared/components/LinkTo";
 import { fees } from "../../shared/utils/blockchainUtils";
+import { selectedNetworkId } from "../../shared/deploymentData";
+import { useSettings } from "../../context/SettingsProvider";
+import { useSnackbar } from "notistack";
+import { Snackbar } from "../../shared/components/Snackbar";
+import compareAsc from "date-fns/compareAsc";
 
 const useStyles = makeStyles((theme) => ({
   alert: {
@@ -24,9 +44,12 @@ const useStyles = makeStyles((theme) => ({
 export function DeploymentDepositModal({ handleCancel, onDeploymentDeposit, min = 0, infoText = null }) {
   const classes = useStyles();
   const formRef = useRef();
+  const { settings } = useSettings();
+  const { enqueueSnackbar } = useSnackbar();
   const [error, setError] = useState("");
   const [isBalanceClicked, setIsBalanceClicked] = useState(false);
-  const { balance } = useWallet();
+  const [isCheckingDepositor, setIsCheckingDepositor] = useState(false);
+  const { balance, address } = useWallet();
   const {
     handleSubmit,
     control,
@@ -36,10 +59,60 @@ export function DeploymentDepositModal({ handleCancel, onDeploymentDeposit, min 
     clearErrors
   } = useForm({
     defaultValues: {
-      amount: min
+      amount: min,
+      useDepositor: false
     }
   });
-  const { amount } = watch();
+  const { amount, useDepositor, depositorAddress } = watch();
+
+  const hasDepositorSupport = selectedNetworkId === "edgenet";
+
+  async function checkDepositor(depositAmount) {
+    setIsCheckingDepositor(true);
+
+    try {
+      const response = await fetch(`${settings.apiEndpoint}/cosmos/authz/v1beta1/grants?granter=${depositorAddress}&grantee=${address}`);
+      const data = await response.json();
+
+      const grant = data.grants?.find((x) => x.authorization["@type"] === "/akash.deployment.v1beta2.DepositDeploymentAuthorization");
+
+      if (!grant) {
+        setError("You are not authorized by this depositor.");
+        return false;
+      }
+
+      const expirationDate = new Date(grant.expiration);
+      const expired = compareAsc(new Date(), expirationDate) === 1;
+
+      if (expired) {
+        setError(`Authorization expired since ${expirationDate.toDateString()}`);
+        return false;
+      }
+
+      const spendLimit = grant.authorization.spend_limit;
+      let spendLimitUAkt = 0;
+      if (spendLimit.denom === "akt") {
+        spendLimitUAkt = aktToUakt(parseInt(spendLimit.amount));
+      } else if (spendLimit.denom === "uakt") {
+        spendLimitUAkt = parseInt(spendLimit.amount);
+      } else {
+        throw Error("Unrecognized denom: " + spendLimit.denom);
+      }
+
+      if (depositAmount > spendLimitUAkt) {
+        setError(`Spend limit remaining: ${uaktToAKT(spendLimitUAkt)}akt`);
+        return false;
+      }
+
+      return true;
+    } catch (err) {
+      console.error(err);
+      enqueueSnackbar(<Snackbar title={err.message} />, { variant: "error" });
+      return false;
+    } finally {
+      setIsCheckingDepositor(false);
+    }
+  }
 
   const onClose = () => {
     handleCancel();
@@ -56,7 +129,7 @@ export function DeploymentDepositModal({ handleCancel, onDeploymentDeposit, min 
     formRef.current.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
   };
 
-  const onSubmit = ({ amount }) => {
+  const onSubmit = async ({ amount }) => {
     setError("");
     clearErrors();
     const deposit = aktToUakt(amount);
@@ -66,13 +139,18 @@ export function DeploymentDepositModal({ handleCancel, onDeploymentDeposit, min 
       return;
     }
 
-    if (deposit > balance) {
+    if (useDepositor) {
+      const validDepositor = await checkDepositor(deposit);
+      if (!validDepositor) {
+        return;
+      }
+    } else if (deposit > balance) {
       setError(`You can't deposit more than you currently have in your balance. Current balance is: ${uaktToAKT(balance)}AKT.`);
       return;
     }
 
     setIsBalanceClicked(false);
-    onDeploymentDeposit(deposit);
+    onDeploymentDeposit(deposit, depositorAddress);
   };
 
   return (
@@ -122,6 +200,45 @@ export function DeploymentDepositModal({ handleCancel, onDeploymentDeposit, min 
             />
           </FormControl>
 
+          {hasDepositorSupport && (
+            <>
+              <FormControl className={classes.formControl} fullWidth>
+                <Controller
+                  control={control}
+                  name="useDepositor"
+                  render={({ fieldState, field }) => {
+                    return <FormControlLabel control={<Checkbox {...field} color="primary" />} label="Use depositor" />;
+                  }}
+                />
+              </FormControl>
+
+              {useDepositor && (
+                <FormControl className={classes.formControl} fullWidth>
+                  <Controller
+                    control={control}
+                    name="depositorAddress"
+                    rules={{
+                      required: true
+                    }}
+                    render={({ fieldState, field }) => {
+                      return (
+                        <TextField
+                          {...field}
+                          type="text"
+                          variant="outlined"
+                          label="Depositor address"
+                          autoFocus
+                          error={!!fieldState.invalid}
+                          className={classes.formValue}
+                        />
+                      );
+                    }}
+                  />
+                </FormControl>
+              )}
+            </>
+          )}
+
           {error && (
             <Alert severity="warning" className={classes.alert}>
               {error}
@@ -133,8 +250,8 @@ export function DeploymentDepositModal({ handleCancel, onDeploymentDeposit, min 
         <Button autoFocus onClick={onClose}>
           Cancel
         </Button>
-        <Button onClick={onDepositClick} disabled={!amount} variant="contained" color="primary">
-          Deposit
+        <Button onClick={onDepositClick} disabled={!amount || isCheckingDepositor} variant="contained" color="primary">
+          {isCheckingDepositor ? <CircularProgress size="24px" color="primary" /> : "Deposit"}
         </Button>
       </DialogActions>
     </Dialog>
