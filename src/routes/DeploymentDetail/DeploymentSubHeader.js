@@ -95,11 +95,11 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address, loadD
     history.push(url);
   };
 
-  const onDeploymentDeposit = async (deposit) => {
+  const onDeploymentDeposit = async (deposit, depositorAddress) => {
     setIsDepositingDeployment(false);
 
     try {
-      const message = TransactionMessageData.getDepositDeploymentMsg(address, deployment.dseq, deposit);
+      const message = TransactionMessageData.getDepositDeploymentMsg(address, deployment.dseq, deposit, depositorAddress);
 
       const response = await sendTransaction([message]);
 

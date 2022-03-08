@@ -75,7 +75,7 @@ export const MsgDepositDeployment = new Type("MsgDepositDeployment")
   .add(DeploymentID)
   .add(new Field("amount", 2, "Coin"))
   .add(Coin)
-  .add(new Field("depositor", 5, "string"));
+  .add(new Field("depositor", 3, "string"));
 
 // Certificates
 
