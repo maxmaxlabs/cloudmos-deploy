@@ -11,6 +11,7 @@ import { Helmet } from "react-helmet-async";
 import { UrlService } from "../../shared/utils/urlUtils";
 import { useLocalNotes } from "../../context/LocalNoteProvider";
 import { useTemplates } from "../../context/TemplatesProvider";
+import { selectedNetworkId } from "../../shared/deploymentData";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -34,7 +35,9 @@ export function PrerequisiteList({ selectedTemplate, setSelectedTemplate }) {
   const queryParams = useQueryParams();
   const { getDeploymentData } = useLocalNotes();
   const { getTemplateByPath } = useTemplates();
-  const allCheckSucceeded = isBalanceValidated && isCertificateValidated && isLocalCertificateValidated;
+
+  const hasDepositorSupport = selectedNetworkId === "edgenet";
+  const allCheckSucceeded = (isBalanceValidated || hasDepositorSupport) && isCertificateValidated && isLocalCertificateValidated;
 
   useEffect(() => {
     const redeployTemplate = getRedeployTemplate();
@@ -69,7 +72,7 @@ export function PrerequisiteList({ selectedTemplate, setSelectedTemplate }) {
       // Auto redirect when all is good
       const redeployTemplate = getRedeployTemplate();
       const galleryTemplate = getGalleryTemplate();
-      if ((redeployTemplate || galleryTemplate) && isBalanceValidated && isCertificateValidated && isLocalCertificateValidated) {
+      if ((redeployTemplate || galleryTemplate) && (isBalanceValidated || hasDepositorSupport) && isCertificateValidated && isLocalCertificateValidated) {
         if (redeployTemplate || galleryTemplate) {
           history.push(UrlService.createDeploymentStepManifest());
         } else {
@@ -133,7 +136,10 @@ export function PrerequisiteList({ selectedTemplate, setSelectedTemplate }) {
             {isBalanceValidated === true && <CheckCircleOutlineIcon fontSize="large" style={{ color: green[500] }} />}
             {isBalanceValidated === false && <ErrorOutlineIcon fontSize="large" color="secondary" />}
           </ListItemIcon>
-          <ListItemText primary="Wallet Balance" secondary="The balance of the wallet needs to be of at least 5 AKT" />
+          <ListItemText
+            primary="Wallet Balance"
+            secondary="The balance of the wallet needs to be of at least 5 AKT. If you do not have 5 AKT, you will need to specify an authorized depositor."
+          />
         </ListItem>
 
         <ListItem>

@@ -1,3 +1,5 @@
+import { coinToUAkt } from "./priceUtils";
+
 export function deploymentResourceSum(deployment, resourceSelector) {
   return deployment.groups
     .map((g) => g.group_spec.resources.map((r) => r.count * resourceSelector(r.resources)).reduce((a, b) => a + b))
@@ -11,11 +13,16 @@ export function deploymentGroupResourceSum(group, resourceSelector) {
 }
 
 export function deploymentToDto(d) {
+  let escrowBalanceUAkt = coinToUAkt(d.escrow_account.balance);
+  if (d.escrow_account.funds) {
+    escrowBalanceUAkt += coinToUAkt(d.escrow_account.funds);
+  }
+
   return {
     dseq: d.deployment.deployment_id.dseq,
     state: d.deployment.state,
     createdAt: parseInt(d.deployment.created_at),
-    escrowBalance: d.escrow_account.balance,
+    escrowBalance: escrowBalanceUAkt,
     transferred: d.escrow_account.transferred,
     cpuAmount: deploymentResourceSum(d, (r) => parseInt(r.cpu.units.val) / 1000),
     memoryAmount: deploymentResourceSum(d, (r) => parseInt(r.memory.quantity.val)),

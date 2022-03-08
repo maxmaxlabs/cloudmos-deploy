@@ -46,9 +46,9 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function DeploymentSubHeader({ deployment, deploymentCost, address, loadDeploymentDetail, removeLeases }) {
+export function DeploymentSubHeader({ deployment, deploymentCost, address, loadDeploymentDetail, removeLeases, setActiveTab }) {
   const classes = useStyles();
-  const timeLeft = getTimeLeft(deploymentCost, deployment.escrowBalance.amount);
+  const timeLeft = getTimeLeft(deploymentCost, deployment.escrowBalance);
   const [anchorEl, setAnchorEl] = useState(null);
   const { sendTransaction } = useTransactionModal();
   const { changeDeploymentName, getDeploymentData } = useLocalNotes();
@@ -66,6 +66,8 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address, loadD
       const response = await sendTransaction([message]);
 
       if (response) {
+        setActiveTab("DETAILS");
+
         removeLeases();
 
         loadDeploymentDetail();
@@ -95,11 +97,11 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address, loadD
     history.push(url);
   };
 
-  const onDeploymentDeposit = async (deposit) => {
+  const onDeploymentDeposit = async (deposit, depositorAddress) => {
     setIsDepositingDeployment(false);
 
     try {
-      const message = TransactionMessageData.getDepositDeploymentMsg(address, deployment.dseq, deposit);
+      const message = TransactionMessageData.getDepositDeploymentMsg(address, deployment.dseq, deposit, depositorAddress);
 
       const response = await sendTransaction([message]);
 
@@ -133,7 +135,7 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address, loadD
               label="Escrow Balance:"
               value={
                 <>
-                  {uaktToAKT(deployment.escrowBalance.amount, 6)}AKT{" "}
+                  {uaktToAKT(deployment.escrowBalance, 6)}AKT{" "}
                   <Box component="span" display="inline-flex" marginLeft=".5rem">
                     <Tooltip
                       classes={{ tooltip: classes.tooltip }}

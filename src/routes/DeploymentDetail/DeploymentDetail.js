@@ -131,6 +131,7 @@ export function DeploymentDetail(props) {
           address={address}
           loadDeploymentDetail={loadDeploymentDetail}
           removeLeases={removeLeases}
+          setActiveTab={setActiveTab}
         />
       )}
 

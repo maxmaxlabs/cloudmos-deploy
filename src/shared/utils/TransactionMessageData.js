@@ -122,8 +122,8 @@ export class TransactionMessageData {
     return txData;
   }
 
-  static getDepositDeploymentMsg(address, dseq, depositAmount) {
-    const txData = {
+  static getDepositDeploymentMsg(address, dseq, depositAmount, depositorAddress = null) {
+    let txData = {
       typeUrl: TransactionMessageData.Types.MSG_DEPOSIT_DEPLOYMENT,
       value: {
         id: {
@@ -136,6 +136,10 @@ export class TransactionMessageData {
         }
       }
     };
+
+    if (depositorAddress) {
+      txData.value.depositor = depositorAddress;
+    }
 
     const err = protoTypes.MsgDepositDeployment.verify(txData.value);
 

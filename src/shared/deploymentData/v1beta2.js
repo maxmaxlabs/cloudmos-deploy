@@ -129,6 +129,11 @@ function DeploymentGroups(yamlJson) {
 
       let group = groups[placementName];
 
+      const akashAuditingAddress = "akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63";
+      if (infra.signedBy?.allOf?.includes(akashAuditingAddress) || infra.signedBy?.anyOf?.includes(akashAuditingAddress)) {
+        throw new CustomValidationError(`The auditing address "${akashAuditingAddress}" is only valid on the mainnet. You must remove it from the signedBy section to continue.`);
+      }
+
       if (!group) {
         group = {
           name: placementName,
@@ -286,21 +291,23 @@ export function Manifest(yamlJson) {
         });
       }
 
-      msvc.Expose = msvc.Expose && msvc.Expose.sort((a, b) => {
-        if (a.Service !== b.Service) {
-          return a.Service < b.Service;
-        }
-        if (a.Port !== b.Port) {
-          return a.Port < b.Port;
-        }
-        if (a.Proto !== b.Proto) {
-          return a.Proto < b.Proto;
-        }
-        if (a.Global !== b.Global) {
-          return a.Global < b.Global;
-        }
-        return false;
-      });
+      msvc.Expose =
+        msvc.Expose &&
+        msvc.Expose.sort((a, b) => {
+          if (a.Service !== b.Service) {
+            return a.Service < b.Service;
+          }
+          if (a.Port !== b.Port) {
+            return a.Port < b.Port;
+          }
+          if (a.Proto !== b.Proto) {
+            return a.Proto < b.Proto;
+          }
+          if (a.Global !== b.Global) {
+            return a.Global < b.Global;
+          }
+          return false;
+        });
 
       group.Services.push(msvc);
     });
@@ -313,7 +320,7 @@ export function Manifest(yamlJson) {
   return result;
 }
 
-export async function NewDeploymentData(apiEndpoint, yamlJson, dseq, fromAddress, deposit = defaultInitialDeposit) {
+export async function NewDeploymentData(apiEndpoint, yamlJson, dseq, fromAddress, deposit = defaultInitialDeposit, depositorAddress = null) {
   const groups = DeploymentGroups(yamlJson);
   const mani = Manifest(yamlJson);
   const ver = await ManifestVersion(mani);
@@ -336,6 +343,6 @@ export async function NewDeploymentData(apiEndpoint, yamlJson, dseq, fromAddress
     leaseId: [],
     version: ver,
     deposit: _deposit,
-    depositor: fromAddress // TODO
+    depositor: depositorAddress || fromAddress
   };
 }

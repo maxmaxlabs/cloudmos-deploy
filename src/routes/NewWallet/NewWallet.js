@@ -339,14 +339,25 @@ export function NewWallet() {
               <Box>
                 <Button onClick={onBackClick}>Back</Button>
               </Box>
-              <Button
-                variant="contained"
-                color="primary"
-                disabled={isGeneratingNewWallet || isCreatingWallet || (isKeyValidating && !isKeyValidated)}
-                type="submit"
-              >
-                {isGeneratingNewWallet || isCreatingWallet ? <CircularProgress size="1.5rem" color="primary" /> : <>Next</>}
-              </Button>
+
+              <Box display="flex" alignItems="center">
+                {isKeyValidating && selectedWords.length > 0 && (
+                  <Box marginRight=".5rem" display="flex" justifyContent="flex-end">
+                    <Button size="small" color="primary" variant="contained" onClick={() => setSelectedWords([])}>
+                      Reset
+                    </Button>
+                  </Box>
+                )}
+
+                <Button
+                  variant="contained"
+                  color="primary"
+                  disabled={isGeneratingNewWallet || isCreatingWallet || (isKeyValidating && !isKeyValidated)}
+                  type="submit"
+                >
+                  {isGeneratingNewWallet || isCreatingWallet ? <CircularProgress size="1.5rem" color="primary" /> : <>Next</>}
+                </Button>
+              </Box>
             </Box>
           </form>
         </Container>

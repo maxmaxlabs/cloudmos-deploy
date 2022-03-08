@@ -67,12 +67,12 @@ export function ManifestEdit(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editedManifest]);
 
-  async function createAndValidateDeploymentData(yamlStr, dseq = null, deposit = defaultInitialDeposit) {
+  async function createAndValidateDeploymentData(yamlStr, dseq = null, deposit = defaultInitialDeposit, depositorAddress = null) {
     try {
       if (!editedManifest) return null;
 
       const doc = yaml.load(yamlStr);
-      const dd = await deploymentData.NewDeploymentData(settings.apiEndpoint, doc, dseq, address, deposit);
+      const dd = await deploymentData.NewDeploymentData(settings.apiEndpoint, doc, dseq, address, deposit, depositorAddress);
       validateDeploymentData(dd);
 
       setParsingError(null);
@@ -117,14 +117,14 @@ export function ManifestEdit(props) {
     }
   }
 
-  const onDeploymentDeposit = async (deposit) => {
+  const onDeploymentDeposit = async (deposit, depositorAddress) => {
     setIsDepositingDeployment(false);
-    await handleCreateClick(deposit);
+    await handleCreateClick(deposit, depositorAddress);
   };
 
-  async function handleCreateClick(deposit) {
+  async function handleCreateClick(deposit, depositorAddress) {
     setIsCreatingDeployment(true);
-    const dd = await createAndValidateDeploymentData(editedManifest, null, deposit);
+    const dd = await createAndValidateDeploymentData(editedManifest, null, deposit, depositorAddress);
 
     if (!dd) return;
 
