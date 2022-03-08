@@ -347,12 +347,14 @@ export function TransactionModal(props) {
 const TransactionSnackbarContent = ({ snackMessage, transactionHash }) => {
   const classes = useStyles();
 
+  const txUrl = transactionHash && transactionLink(transactionHash, selectedNetworkId);
+
   return (
     <>
       {snackMessage}
       {snackMessage && <br />}
-      {transactionHash && selectedNetworkId === "mainnet" && (
-        <Box component="a" display="flex" alignItems="center" href="#" onClick={() => window.electron.openUrl(transactionLink(transactionHash))}>
+      {txUrl && (
+        <Box component="a" display="flex" alignItems="center" href="#" onClick={() => window.electron.openUrl(txUrl)}>
           View transaction <OpenInNew className={classes.transactionLinkIcon} />
         </Box>
       )}

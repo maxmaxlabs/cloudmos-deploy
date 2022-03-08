@@ -9,7 +9,15 @@ export const edgenetId = "edgenet";
 // 5AKT aka 5000000uakt
 export const defaultInitialDeposit = 5000000;
 
-export const transactionLink = (txHash) => `https://www.mintscan.io/akash/txs/${txHash}`;
+export const transactionLink = (txHash, networkId) => {
+  if (networkId === "mainnet") {
+    return `https://www.mintscan.io/akash/txs/${txHash}`;
+  } else if (networkId === "edgenet") {
+    return `https://testnet.akash.bigdipper.live/transactions/${txHash}`;
+  }
+
+  return null;
+};
 
 export let networkVersion;
 
