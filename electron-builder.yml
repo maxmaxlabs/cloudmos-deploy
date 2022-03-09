@@ -5,8 +5,8 @@ afterSign: "./scripts/notarize.js"
 win:
   target: "NSIS"
   icon: "/public/icon.png"
-  signingHashAlgorithms: [ 'sha256' ]
-  publisherName: "MaxMax Labs Inc."
+  signingHashAlgorithms: ["sha256"]
+  publisherName: "MaxMax Labs Inc"
   signAndEditExecutable: true
   verifyUpdateCodeSignature: true
 mac:
