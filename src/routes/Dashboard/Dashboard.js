@@ -12,6 +12,8 @@ import { TransactionMessageData } from "../../shared/utils/TransactionMessageDat
 import { useTransactionModal } from "../../context/TransactionModal";
 import { useSettings } from "../../context/SettingsProvider";
 import { UrlService } from "../../shared/utils/urlUtils";
+import { useBalances } from "../../queries/useBalancesQuery";
+import { Balances } from "./Balances";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -29,7 +31,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center"
   },
   title: {
-    fontSize: "2rem",
+    fontSize: "1.5rem",
     fontWeight: "bold"
   },
   noActiveDeployments: {
@@ -48,6 +50,14 @@ export function Dashboard({ deployments, isLoadingDeployments, refreshDeployment
   const { sendTransaction } = useTransactionModal();
   const { settings } = useSettings();
   const { apiEndpoint } = settings;
+  const { data: balances, isFetching: isLoadingBalances, refetch: getBalances } = useBalances(address, { enabled: false });
+  const escrowSum = orderedDeployments.map((x) => x.escrowBalance).reduce((a, b) => a + b, 0);
+
+  useEffect(() => {
+    getBalances();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     refreshDeployments();
@@ -75,8 +85,10 @@ export function Dashboard({ deployments, isLoadingDeployments, refreshDeployment
   return (
     <>
       <Helmet title="Dashboard" />
-      <LinearLoadingSkeleton isLoading={isLoadingDeployments} />
-      <Box className={classes.root}>
+      <LinearLoadingSkeleton isLoading={isLoadingDeployments || isLoadingBalances} />
+      <div className={classes.root}>
+        <Balances isLoadingBalances={isLoadingBalances} balances={balances} escrowSum={escrowSum} />
+
         <Box className={classes.titleContainer}>
           <Typography variant="h3" className={classes.title}>
             Active Deployments
@@ -132,7 +144,7 @@ export function Dashboard({ deployments, isLoadingDeployments, refreshDeployment
             </Box>
           )}
         </Box>
-      </Box>
+      </div>
     </>
   );
 }

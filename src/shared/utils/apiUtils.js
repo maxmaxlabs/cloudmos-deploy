@@ -19,4 +19,19 @@ export class ApiUrlService {
   static block(apiEndpoint, id) {
     return `${apiEndpoint}/blocks/${id}`;
   }
+  static balance(apiEndpoint, address) {
+    return `${apiEndpoint}/cosmos/bank/v1beta1/balances/${address}`;
+  }
+  static rewards(apiEndpoint, address) {
+    return `${apiEndpoint}/cosmos/distribution/v1beta1/delegators/${address}/rewards`;
+  }
+  static redelegations(apiEndpoint, address) {
+    return `${apiEndpoint}/cosmos/staking/v1beta1/delegators/${address}/redelegations`;
+  }
+  static delegations(apiEndpoint, address) {
+    return `${apiEndpoint}/cosmos/staking/v1beta1/delegations/${address}`;
+  }
+  static unbonding(apiEndpoint, address) {
+    return `${apiEndpoint}/cosmos/staking/v1beta1/delegators/${address}/unbonding_delegations`;
+  }
 }
