@@ -46,10 +46,10 @@ export function MainView() {
   const classes = useStyles();
   const [isShowingWelcome, setIsShowingWelcome] = useState(false);
   const [isNavOpen, setIsNavOpen] = useState(true);
-  const { balance } = useWallet();
+  const { balance, isRefreshingBalance } = useWallet();
 
   useEffect(() => {
-    if (typeof balance === "number" && balance === 0 && !isShowingWelcome) {
+    if (!isRefreshingBalance && typeof balance === "number" && balance === 0 && !isShowingWelcome) {
       setIsShowingWelcome(true);
     }
 

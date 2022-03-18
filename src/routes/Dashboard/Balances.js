@@ -30,14 +30,19 @@ export const Balances = ({ balances, isLoadingBalances, escrowSum }) => {
   const data = balances ? getData(balances, escrowSum) : [];
   const filteredData = data.filter((x) => x.value);
   const total = balances ? balances.balance + balances.rewards + balances.delegations + balances.unbondings + escrowSum : 0;
+  const hasBalance = balances && total !== 0;
 
   const getColor = (bar) => colors[bar.id];
 
   return (
     <Box display="flex" alignItems="center" marginBottom="1rem" padding="0 1rem">
-      <Box height="200px" width="220px" display="flex" alignItems="center" justifyContent="center">
-        {isLoadingBalances && !balances && <CircularProgress size="3rem" />}
-        {balances && (
+      {isLoadingBalances && !balances && (
+        <Box flexBasis="220px" height="200px" textAlign="center">
+          <CircularProgress size="3rem" />
+        </Box>
+      )}
+      {hasBalance && (
+        <Box height="200px" width="220px" display="flex" alignItems="center" justifyContent="center">
           <ResponsivePie
             data={filteredData}
             margin={{ top: 15, right: 15, bottom: 15, left: 0 }}
@@ -56,11 +61,11 @@ export const Balances = ({ balances, isLoadingBalances, escrowSum }) => {
             arcLabelsSkipAngle={10}
             theme={theme}
           />
-        )}
-      </Box>
+        </Box>
+      )}
 
       {balances && (
-        <div>
+        <Box padding={hasBalance ? 0 : "1rem"}>
           {data.map((balance, i) => (
             <div className={classes.legendRow} key={i}>
               <div className={classes.legendColor} style={{ backgroundColor: balance.color }} />
@@ -88,7 +93,7 @@ export const Balances = ({ balances, isLoadingBalances, escrowSum }) => {
               </div>
             )}
           </div>
-        </div>
+        </Box>
       )}
     </Box>
   );
