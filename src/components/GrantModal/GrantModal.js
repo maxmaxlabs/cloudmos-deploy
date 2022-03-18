@@ -22,6 +22,7 @@ import {
 import { LinkTo } from "../../shared/components/LinkTo";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
 import { useTransactionModal } from "../../context/TransactionModal";
+import { addYears, format } from "date-fns";
 
 const useStyles = makeStyles((theme) => ({
   dialogContent: {
@@ -51,11 +52,12 @@ export const GrantModal = ({ address, onClose }) => {
   } = useForm({
     defaultValues: {
       amount: "",
+      expiration: format(addYears(new Date(), 1), "yyyy-MM-dd'T'HH:mm"),
       useDepositor: false,
       granteeAddress: ""
     }
   });
-  const { amount, granteeAddress } = watch();
+  const { amount, granteeAddress, expiration } = watch();
 
   const onDepositClick = (event) => {
     event.preventDefault();
@@ -67,8 +69,8 @@ export const GrantModal = ({ address, onClose }) => {
     clearErrors();
     const spendLimit = aktToUakt(amount);
 
-    const expiration = new Date("2023-03-07T05:36:47Z");
-    const message = TransactionMessageData.getGrantMsg(address, granteeAddress, spendLimit, expiration);
+    const expirationDate = new Date(expiration);
+    const message = TransactionMessageData.getGrantMsg(address, granteeAddress, spendLimit, expirationDate);
     const response = await sendTransaction([message]);
 
     if (response) {
@@ -142,6 +144,29 @@ export const GrantModal = ({ address, onClose }) => {
                     label="Grantee Address"
                     error={!!fieldState.invalid}
                     helperText={fieldState.invalid && "Grantee address is required."}
+                    className={classes.formValue}
+                  />
+                );
+              }}
+            />
+          </FormControl>
+
+          <FormControl className={classes.formControl} fullWidth>
+            <Controller
+              control={control}
+              name="expiration"
+              rules={{
+                required: true
+              }}
+              render={({ fieldState, field }) => {
+                return (
+                  <TextField
+                    {...field}
+                    type="datetime-local"
+                    variant="outlined"
+                    label="Expiration"
+                    error={!!fieldState.invalid}
+                    helperText={fieldState.invalid && "Expiration is required."}
                     className={classes.formValue}
                   />
                 );
