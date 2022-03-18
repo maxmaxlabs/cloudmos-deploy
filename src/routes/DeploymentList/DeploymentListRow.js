@@ -1,6 +1,7 @@
 import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
 import CloudIcon from "@material-ui/icons/Cloud";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
+import WarningIcon from "@material-ui/icons/Warning";
 import {
   makeStyles,
   IconButton,
@@ -10,7 +11,6 @@ import {
   ListItemIcon,
   ListItemSecondaryAction,
   Typography,
-  Chip,
   CircularProgress,
   Checkbox
 } from "@material-ui/core";
@@ -18,8 +18,12 @@ import { useHistory } from "react-router";
 import { useLocalNotes } from "../../context/LocalNoteProvider";
 import { useLeaseList } from "../../queries";
 import { useWallet } from "../../context/WalletProvider";
-import { StatusPill } from "../../shared/components/StatusPill";
 import { SpecDetail } from "../../shared/components/SpecDetail";
+import { LeaseChip } from "./LeaseChip";
+import { getTimeLeft, uaktToAKT } from "../../shared/utils/priceUtils";
+import formatDistanceToNow from "date-fns/formatDistanceToNow";
+import isValid from "date-fns/isValid";
+import differenceInCalendarDays from "date-fns/differenceInCalendarDays";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -35,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
   },
   listItemText: {
     margin: 0,
-    padding: ".8rem .5rem",
+    padding: "10px 4px",
     cursor: "pointer",
     transition: ".3s all ease",
     "&:hover": {
@@ -52,40 +56,70 @@ const useStyles = makeStyles((theme) => ({
   },
   leaseChip: {
     marginLeft: ".5rem"
+  },
+  warningIcon: {
+    fontSize: "1rem",
+    marginLeft: ".5rem"
   }
 }));
 
-export function DeploymentListRow({ deployment, isSelectable, onSelectDeployment, checked }) {
+export function DeploymentListRow({ deployment, isSelectable, onSelectDeployment, checked, providers }) {
   const classes = useStyles();
   const history = useHistory();
   const { getDeploymentName } = useLocalNotes();
   const { address } = useWallet();
   const { data: leases, isLoading: isLoadingLeases } = useLeaseList(deployment, address, { enabled: !!deployment && deployment.state === "active" });
+  const name = getDeploymentName(deployment.dseq);
+  const hasLeases = leases && !!leases.length;
+  const deploymentCost = hasLeases ? leases.reduce((prev, current) => prev + current.price.amount, 0) : 0;
+  const timeLeft = getTimeLeft(deploymentCost, deployment.escrowBalance);
+  const deploymentName = name ? (
+    <>
+      <Typography variant="body2">
+        <strong>{name}</strong>
+      </Typography>
+      <span className={classes.dseq}>&nbsp;-&nbsp;{deployment.dseq}</span>
+    </>
+  ) : (
+    <span className={classes.dseq}>{deployment.dseq}</span>
+  );
+  const showWarning = differenceInCalendarDays(timeLeft, new Date()) < 7;
 
   function viewDeployment() {
     history.push("/deployment/" + deployment.dseq);
   }
 
-  const name = getDeploymentName(deployment.dseq);
-
   return (
-    <ListItem key={deployment.dseq} classes={{ root: classes.root }}>
+    <ListItem classes={{ root: classes.root }}>
       <ListItemIcon>
         {deployment.state === "active" && <CloudIcon color="primary" />}
-        {deployment.state === "closed" && <CancelPresentationIcon />}
+        {deployment.state === "closed" && <CancelPresentationIcon color="disabled" />}
       </ListItemIcon>
       <ListItemText
         className={classes.listItemText}
         onClick={viewDeployment}
+        primaryTypographyProps={{ component: "div" }}
         primary={
-          name ? (
-            <>
-              <strong>{name}</strong>
-              <Typography className={classes.dseq}> - {deployment.dseq}</Typography>
-            </>
-          ) : (
-            <Typography variant="body1">{deployment.dseq}</Typography>
-          )
+          <Box component="span" display="flex" alignItems="center" marginBottom="2px">
+            {deploymentName}
+            {isValid(timeLeft) && (
+              <Box component="span" marginLeft="1rem" display="flex" alignItems="center">
+                <Typography variant="caption">
+                  Time left: <strong>~{formatDistanceToNow(timeLeft)}</strong>
+                </Typography>
+
+                {showWarning && <WarningIcon fontSize="small" color="error" className={classes.warningIcon} />}
+              </Box>
+            )}
+
+            {!!deployment.escrowBalance && (
+              <Box marginLeft="1rem" display="flex">
+                <Typography variant="caption">
+                  Escrow: <strong>{uaktToAKT(deployment.escrowBalance, 2)} AKT</strong>
+                </Typography>
+              </Box>
+            )}
+          </Box>
         }
         secondaryTypographyProps={{ component: "div" }}
         secondary={
@@ -101,27 +135,11 @@ export function DeploymentListRow({ deployment, isSelectable, onSelectDeployment
               />
             </Box>
 
-            {leases && !!leases.length && (
+            {hasLeases && (
               <Box display="flex" alignItems="center">
-                Leases:{" "}
+                <Typography variant="caption">Leases:</Typography>{" "}
                 {leases?.map((lease) => (
-                  <Chip
-                    key={lease.id}
-                    size="small"
-                    className={classes.leaseChip}
-                    label={
-                      <>
-                        <span>GSEQ: {lease.gseq}</span>
-                        <Box component="span" marginLeft=".5rem">
-                          OSEQ: {lease.oseq}
-                        </Box>
-                        <Box component="span" marginLeft=".5rem">
-                          Status: {lease.state}
-                        </Box>
-                      </>
-                    }
-                    icon={<StatusPill state={lease.state} size="small" />}
-                  />
+                  <LeaseChip key={lease.id} lease={lease} providers={providers} />
                 ))}
               </Box>
             )}

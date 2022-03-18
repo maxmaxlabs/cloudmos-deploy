@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
     padding: "2px 0"
   },
   specIconSmall: {
-    fontSize: "1rem"
+    fontSize: ".8rem"
   },
   specIconMedium: {
     fontSize: "1.5rem"

@@ -12,7 +12,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex"
   },
   title: {
-    fontSize: "2rem",
+    fontSize: "1.5rem",
     fontWeight: "bold"
   },
   categoryList: {

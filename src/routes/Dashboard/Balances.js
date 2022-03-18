@@ -29,32 +29,34 @@ export const Balances = ({ balances, isLoadingBalances, escrowSum }) => {
   const classes = useStyles();
   const data = balances ? getData(balances, escrowSum) : [];
   const filteredData = data.filter((x) => x.value);
-  const total = balances ? balances.balance + balances.rewards + balances.delegations + balances.redelegations + balances.unbondings + escrowSum : 0;
+  const total = balances ? balances.balance + balances.rewards + balances.delegations + balances.unbondings + escrowSum : 0;
 
   const getColor = (bar) => colors[bar.id];
 
   return (
-    <Box display="flex" alignItems="center" marginBottom="1rem">
+    <Box display="flex" alignItems="center" marginBottom="1rem" padding="0 1rem">
       <Box height="200px" width="220px" display="flex" alignItems="center" justifyContent="center">
-        {isLoadingBalances && <CircularProgress size="3rem" />}
-        <ResponsivePie
-          data={filteredData}
-          margin={{ top: 15, right: 15, bottom: 15, left: 0 }}
-          innerRadius={0.6}
-          padAngle={2}
-          cornerRadius={4}
-          activeOuterRadiusOffset={8}
-          colors={getColor}
-          borderWidth={0}
-          borderColor={{
-            from: "color",
-            modifiers: [["darker", 0.2]]
-          }}
-          valueFormat={(value) => `${uaktToAKT(value, 2)} AKT`}
-          enableArcLinkLabels={false}
-          arcLabelsSkipAngle={10}
-          theme={theme}
-        />
+        {isLoadingBalances && !balances && <CircularProgress size="3rem" />}
+        {balances && (
+          <ResponsivePie
+            data={filteredData}
+            margin={{ top: 15, right: 15, bottom: 15, left: 0 }}
+            innerRadius={0.4}
+            padAngle={2}
+            cornerRadius={4}
+            activeOuterRadiusOffset={8}
+            colors={getColor}
+            borderWidth={0}
+            borderColor={{
+              from: "color",
+              modifiers: [["darker", 0.2]]
+            }}
+            valueFormat={(value) => `${uaktToAKT(value, 2)} AKT`}
+            enableArcLinkLabels={false}
+            arcLabelsSkipAngle={10}
+            theme={theme}
+          />
+        )}
       </Box>
 
       {balances && (
@@ -103,7 +105,7 @@ const colors = {
   escrow: "#263069",
   rewards: "#313E87",
   delegations: "#3B4BA5",
-  redelegations: "#4B5CBE",
+  // redelegations: "#4B5CBE",
   unbondings: "#6977C9"
 };
 
@@ -133,12 +135,12 @@ const getData = (balances, escrowSum) => {
       value: balances.delegations,
       color: colors.delegations
     },
-    {
-      id: "redelegations",
-      label: "Redelegations",
-      value: balances.redelegations,
-      color: colors.redelegations
-    },
+    // {
+    //   id: "redelegations",
+    //   label: "Redelegations",
+    //   value: balances.redelegations,
+    //   color: colors.redelegations
+    // },
     {
       id: "unbondings",
       label: "Unbondings",
