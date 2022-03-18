@@ -37,7 +37,7 @@ export const PriceProvider = ({ children }) => {
       console.log(error);
 
       setIsLoadingPriceData(false);
-      enqueueSnackbar(<Snackbar title="Error loading price data." />, { variant: "error" });
+      // enqueueSnackbar(<Snackbar title="Error loading price data." />, { variant: "error" });
     }
   }, [enqueueSnackbar, isLoadingPriceData]);
 
@@ -50,7 +50,8 @@ export const PriceProvider = ({ children }) => {
     return () => {
       clearInterval(priceDataIntervalId);
     };
-  }, [loadPriceData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return <PriceProviderContext.Provider value={{ priceData, isLoadingPriceData, loadPriceData }}>{children}</PriceProviderContext.Provider>;
 };
