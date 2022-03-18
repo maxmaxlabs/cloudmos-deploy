@@ -21,7 +21,7 @@ import { aktToUakt, coinToUAkt, uaktToAKT } from "../../shared/utils/priceUtils"
 import { useForm, Controller } from "react-hook-form";
 import { LinkTo } from "../../shared/components/LinkTo";
 import { fees } from "../../shared/utils/blockchainUtils";
-import { selectedNetworkId } from "../../shared/deploymentData";
+import { hasDepositorSupport, selectedNetworkId } from "../../shared/deploymentData";
 import { useSettings } from "../../context/SettingsProvider";
 import { useSnackbar } from "notistack";
 import { Snackbar } from "../../shared/components/Snackbar";
@@ -66,8 +66,6 @@ export function DeploymentDepositModal({ handleCancel, onDeploymentDeposit, min 
     }
   });
   const { amount, useDepositor, depositorAddress } = watch();
-
-  const hasDepositorSupport = selectedNetworkId === "edgenet";
 
   useEffect(() => {
     clearErrors();

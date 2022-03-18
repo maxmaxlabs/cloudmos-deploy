@@ -99,9 +99,27 @@ export const BidID = new Type("BidID")
 
 export const MsgCreateLease = new Type("MsgCreateLease").add(new Field("bid_id", 1, "BidID")).add(BidID);
 
+const Authorization = new Type("Authorization").add(new Field("spend_limit", 1, "Coin"));
+
+const AnyGrantDeposit = new Type("AnyGrantDeposit").add(new Field("type_url", 1, "string")).add(new Field("value", 2, "Authorization")).add(Authorization);
+
+const Timestamp = new Type("Timestamp").add(new Field("seconds", 1, "uint64")).add(new Field("nanos", 2, "uint32"));
+const Grant = new Type("Grant")
+  .add(new Field("authorization", 1, "AnyGrantDeposit"))
+  .add(AnyGrantDeposit)
+  .add(new Field("expiration", 2, "Timestamp"))
+  .add(Timestamp);
+
+export const MsgGrant = new Type("MsgGrant")
+  .add(new Field("granter", 1, "string"))
+  .add(new Field("grantee", 2, "string"))
+  .add(new Field("grant", 3, "Grant"))
+  .add(Grant);
+
 let root = new Root().add(DeploymentID);
 root.add(MsgCloseDeployment);
 root.add(MsgDepositDeployment);
 root.add(MsgCreateDeployment);
 root.add(GroupSpec);
 root.add(MsgUpdateDeployment);
+root.add(MsgGrant);

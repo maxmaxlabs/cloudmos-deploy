@@ -11,7 +11,7 @@ import { Helmet } from "react-helmet-async";
 import { UrlService } from "../../shared/utils/urlUtils";
 import { useLocalNotes } from "../../context/LocalNoteProvider";
 import { useTemplates } from "../../context/TemplatesProvider";
-import { selectedNetworkId } from "../../shared/deploymentData";
+import { hasDepositorSupport, selectedNetworkId } from "../../shared/deploymentData";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -36,7 +36,6 @@ export function PrerequisiteList({ selectedTemplate, setSelectedTemplate }) {
   const { getDeploymentData } = useLocalNotes();
   const { getTemplateByPath } = useTemplates();
 
-  const hasDepositorSupport = selectedNetworkId === "edgenet";
   const allCheckSucceeded = (isBalanceValidated || hasDepositorSupport) && isCertificateValidated && isLocalCertificateValidated;
 
   useEffect(() => {

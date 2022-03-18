@@ -1,5 +1,6 @@
 import { ListItem, ListItemAvatar, Avatar, ListItemText, makeStyles } from "@material-ui/core";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
+import AccountBalanceIcon from "@material-ui/icons/AccountBalance";
 import PowerOffIcon from "@material-ui/icons/PowerOff";
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser";
 import PublishIcon from "@material-ui/icons/Publish";
@@ -8,6 +9,7 @@ import CancelIcon from "@material-ui/icons/Cancel";
 import AddBoxIcon from "@material-ui/icons/AddBox";
 import SendIcon from "@material-ui/icons/Send";
 import { uaktToAKT } from "../../shared/utils/priceUtils";
+import { FormattedDate } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -165,6 +167,26 @@ const getMessage = (message, classes) => {
             secondary={
               <>
                 <strong>{message.value.toAddress}</strong> will receive <strong>{uaktToAKT(message.value.amount[0].amount, 6)}AKT</strong>
+              </>
+            }
+            classes={{ primary: classes.listItemPrimaryText }}
+          />
+        </>
+      );
+    case TransactionMessageData.Types.MSG_GRANT:
+      return (
+        <>
+          <ListItemAvatar>
+            <Avatar classes={{ root: classes.avatarRoot }}>
+              <AccountBalanceIcon classes={{ root: classes.avatarIcon }} />
+            </Avatar>
+          </ListItemAvatar>
+          <ListItemText
+            primary="Authorize Spend"
+            secondary={
+              <>
+                <strong>{message.value.grantee}</strong> will be able to spend up to{" "}
+                <strong>{uaktToAKT(message.value.grant.authorization.value.spend_limit.amount, 6)}AKT</strong> on your behalf. Expires: <FormattedDate value={message.value.grant.expiration} />.
               </>
             }
             classes={{ primary: classes.listItemPrimaryText }}
