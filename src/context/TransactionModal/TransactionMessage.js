@@ -9,7 +9,7 @@ import CancelIcon from "@material-ui/icons/Cancel";
 import AddBoxIcon from "@material-ui/icons/AddBox";
 import SendIcon from "@material-ui/icons/Send";
 import { uaktToAKT } from "../../shared/utils/priceUtils";
-import { FormattedDate } from "react-intl";
+import { FormattedDate, FormattedTime } from "react-intl";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -186,7 +186,10 @@ const getMessage = (message, classes) => {
             secondary={
               <>
                 <strong>{message.value.grantee}</strong> will be able to spend up to{" "}
-                <strong>{uaktToAKT(message.value.grant.authorization.value.spend_limit.amount, 6)}AKT</strong> on your behalf. Expires: <FormattedDate value={message.value.grant.expiration} />.
+                <strong>{uaktToAKT(message.value.grant.authorization.value.spend_limit.amount, 6)}AKT</strong> on your behalf. Expires:{" "}
+                <FormattedDate value={new Date(message.value.grant.expiration.seconds * 1_000)} />
+                &nbsp;
+                <FormattedTime value={new Date(message.value.grant.expiration.seconds * 1_000)} />.
               </>
             }
             classes={{ primary: classes.listItemPrimaryText }}
