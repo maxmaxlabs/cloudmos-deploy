@@ -1,9 +1,6 @@
 import { useRef, useState } from "react";
-import { aktToUakt, uaktToAKT } from "../../shared/utils/priceUtils";
-import { Address } from "../../shared/components/Address";
-import { Snackbar } from "../../shared/components/Snackbar";
+import { aktToUakt } from "../../shared/utils/priceUtils";
 import { useForm, Controller } from "react-hook-form";
-import { useSnackbar } from "notistack";
 import Alert from "@material-ui/lab/Alert";
 import {
   makeStyles,
@@ -16,7 +13,6 @@ import {
   InputAdornment,
   TextField,
   Typography,
-  CircularProgress,
   Box
 } from "@material-ui/core";
 import { LinkTo } from "../../shared/components/LinkTo";
@@ -39,16 +35,13 @@ export const GrantModal = ({ address, onClose }) => {
   const [error, setError] = useState("");
 
   const classes = useStyles();
-  const { enqueueSnackbar } = useSnackbar();
   const { sendTransaction } = useTransactionModal();
   const {
     handleSubmit,
     control,
     formState: { errors },
     watch,
-    setValue,
-    clearErrors,
-    unregister
+    clearErrors
   } = useForm({
     defaultValues: {
       amount: "",
