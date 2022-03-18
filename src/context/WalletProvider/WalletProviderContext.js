@@ -29,7 +29,7 @@ export const WalletProvider = ({ children }) => {
         const data = response.data;
         const balance = data.balances.length > 0 && data.balances.some((b) => b.denom === "uakt") ? data.balances.find((b) => b.denom === "uakt").amount : 0;
 
-        setBalance(Number(balance));
+        setBalance(parseInt(balance));
         setIsRefreshingBalance(false);
 
         if (showSnackbar) {
