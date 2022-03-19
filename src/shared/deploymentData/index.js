@@ -5,9 +5,11 @@ export * from "./helpers";
 
 export let deploymentData;
 export let selectedNetworkId;
+export let hasDepositorSupport;
 
 export function initDeploymentData() {
   selectedNetworkId = localStorage.getItem("selectedNetworkId");
+  hasDepositorSupport = selectedNetworkId === "edgenet";
 
   switch (selectedNetworkId) {
     case mainnetId:

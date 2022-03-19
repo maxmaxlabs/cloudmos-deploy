@@ -6,6 +6,7 @@ import IconButton from "@material-ui/core/IconButton";
 import MoveToInboxIcon from "@material-ui/icons/MoveToInbox";
 import MoreHorizIcon from "@material-ui/icons/MoreHoriz";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
+import AccountBalanceIcon from "@material-ui/icons/AccountBalance";
 import SendIcon from "@material-ui/icons/Send";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import KeyIcon from "@material-ui/icons/VpnKey";
@@ -27,6 +28,8 @@ import { MnemonicModal } from "./MnemonicModal";
 import { ChangeAccountNameModal } from "./ChangeAccountNameModal";
 import { accountBarHeight } from "../../shared/constants";
 import { CustomMenuItem } from "../../shared/components/CustomMenuItem";
+import { GrantModal } from "../GrantModal";
+import { hasDepositorSupport } from "../../shared/deploymentData";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -41,6 +44,7 @@ export function WalletDisplay() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [isShowingConfirmationModal, setIsShowingConfirmationModal] = useState(false);
   const [isShowingSendModal, setIsShowingSendModal] = useState(false);
+  const [isShowingGrantModal, setIsShowingGrantModal] = useState(false);
   const [isShowingDepositModal, setIsShowingDepositModal] = useState(false);
   const [isShowingMnemonicModal, setIsShowingMnemonicModal] = useState(false);
   const [isShowinChangeAccountNameModal, setIsShowingChangeAccountNameModal] = useState(false);
@@ -103,6 +107,11 @@ export function WalletDisplay() {
   const onChangeAccountName = () => {
     handleCloseMenu();
     setIsShowingChangeAccountNameModal(true);
+  };
+
+  const onAuthorizeSpendingClick = () => {
+    handleCloseMenu();
+    setIsShowingGrantModal(true);
   };
 
   const onSendTransaction = async (recipient, amount) => {
@@ -184,6 +193,7 @@ export function WalletDisplay() {
       >
         <CustomMenuItem onClick={() => onSendClick()} icon={<SendIcon fontSize="small" />} text="Send" />
         <CustomMenuItem onClick={() => onDepositClick()} icon={<MoveToInboxIcon fontSize="small" />} text="Deposit" />
+        {hasDepositorSupport && <CustomMenuItem onClick={() => onAuthorizeSpendingClick()} icon={<AccountBalanceIcon fontSize="small" />} text="Authorize Spending" />}
         <CustomMenuItem onClick={() => onViewMnemonic()} icon={<KeyIcon fontSize="small" />} text="View Mnemonic" />
         <CustomMenuItem onClick={() => onChangeAccountName()} icon={<EditIcon fontSize="small" />} text="Change Account Name" />
         <CustomMenuItem onClick={() => onSignOutClick()} icon={<ExitToAppIcon fontSize="small" />} text="Sign Out" />
@@ -201,6 +211,7 @@ export function WalletDisplay() {
       {isShowingDepositModal && address && <DepositModal address={address} onClose={() => setIsShowingDepositModal(false)} />}
       {isShowingMnemonicModal && <MnemonicModal onClose={() => setIsShowingMnemonicModal(false)} />}
       {isShowinChangeAccountNameModal && <ChangeAccountNameModal onClose={() => setIsShowingChangeAccountNameModal(false)} />}
+      {isShowingGrantModal && <GrantModal address={address} onClose={() => setIsShowingGrantModal(false)} />}
     </>
   );
 }

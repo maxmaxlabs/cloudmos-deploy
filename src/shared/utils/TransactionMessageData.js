@@ -25,7 +25,8 @@ export class TransactionMessageData {
     MSG_CREATE_CERTIFICATE: "",
 
     // Cosmos
-    MSG_SEND_TOKENS: "/cosmos.bank.v1beta1.MsgSend"
+    MSG_SEND_TOKENS: "/cosmos.bank.v1beta1.MsgSend",
+    MSG_GRANT: "/cosmos.authz.v1beta1.MsgGrant"
   };
 
   static getRevokeCertificateMsg(address, serial) {
@@ -178,6 +179,33 @@ export class TransactionMessageData {
             amount: amount.toString()
           }
         ]
+      }
+    };
+
+    return txData;
+  }
+
+  static getGrantMsg(granter, grantee, spendLimit, expiration) {
+    const txData = {
+      typeUrl: TransactionMessageData.Types.MSG_GRANT,
+      value: {
+        granter: granter,
+        grantee: grantee,
+        grant: {
+          authorization: {
+            type_url: "/akash.deployment.v1beta2.DepositDeploymentAuthorization",
+            value: {
+              spend_limit: {
+                denom: "uakt",
+                amount: spendLimit.toString()
+              }
+            }
+          },
+          expiration: {
+            seconds: Math.floor(expiration.getTime() / 1_000), // Convert milliseconds to seconds
+            nanos: Math.floor((expiration.getTime() % 1_000) * 1_000_000) // Convert reminder into nanoseconds
+          }
+        }
       }
     };
 
