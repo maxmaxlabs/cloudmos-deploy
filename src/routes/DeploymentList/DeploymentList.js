@@ -11,23 +11,17 @@ import { useSettings } from "../../context/SettingsProvider";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    "& .MuiListItemText-secondary .MuiSvgIcon-root:not(:first-child)": {
-      marginLeft: "5px"
-    },
-    "& .MuiListItemText-secondary .MuiSvgIcon-root": {
-      fontSize: "20px"
-    },
     "& .MuiPagination-ul": {
       justifyContent: "center"
     }
   },
   titleContainer: {
-    padding: "0 1rem",
+    padding: "0.5rem 1rem",
     display: "flex",
     alignItems: "center"
   },
   title: {
-    fontSize: "2rem",
+    fontSize: "1.5rem",
     fontWeight: "bold"
   },
   createBtn: {
@@ -68,8 +62,8 @@ export function DeploymentList({ deployments, isLoadingDeployments, refreshDeplo
           </Typography>
 
           <Box marginLeft="1rem">
-            <IconButton aria-label="back" onClick={refreshDeployments}>
-              <RefreshIcon fontSize="small" />
+            <IconButton aria-label="back" onClick={refreshDeployments} size="small">
+              <RefreshIcon />
             </IconButton>
           </Box>
 

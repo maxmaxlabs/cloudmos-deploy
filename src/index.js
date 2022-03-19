@@ -4,9 +4,10 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { ErrorFallback } from "./shared/components/ErrorFallback";
-import { CssBaseline, ThemeProvider, createMuiTheme } from "@material-ui/core";
+import { CssBaseline, ThemeProvider } from "@material-ui/core";
 import * as Sentry from "@sentry/react";
 import { initAnalytics } from "./shared/utils/analyticsUtils";
+import { theme } from "./shared/theme";
 
 (async () => {
   const isDev = await window.electron.isDev();
@@ -24,43 +25,6 @@ function runApp() {
     dsn: "https://fc8f0d800d664154a0f1babe0e318fbb@o877251.ingest.sentry.io/5827747",
     environment: appEnvironment,
     release: appVersion
-  });
-
-  const theme = createMuiTheme({
-    palette: {
-      background: {
-        // default: "#282c34"
-      }
-      // type: "dark"
-    },
-    overrides: {
-      MuiCssBaseline: {
-        "@global": {
-          html: {
-            WebkitFontSmoothing: "auto"
-          }
-        }
-      },
-      MuiInputBase: {
-        input: { padding: "10px 14px" }
-      },
-      MuiOutlinedInput: {
-        input: { padding: "10px 14px" }
-      },
-      MuiInputLabel: {
-        outlined: {
-          transform: "translate(14px, 12px) scale(1)"
-        }
-      },
-      MuiTooltip: {
-        arrow: {
-          color: "rgba(0,0,0,.85)"
-        },
-        tooltip: {
-          backgroundColor: "rgba(0,0,0,.85)"
-        }
-      }
-    }
   });
 
   ReactDOM.render(

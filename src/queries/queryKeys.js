@@ -7,4 +7,5 @@ export class QueryKeys {
   static getProvidersKey = () => ["PROVIDERS"];
   static getProviderStatusKey = (providerUri) => ["PROVIDER_STATUS", providerUri];
   static getBlockKey = (id) => ["BLOCK", id];
+  static getBalancesKey = (address) => ["BALANCES", address];
 }

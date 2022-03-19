@@ -28,7 +28,7 @@ import clsx from "clsx";
 const useStyles = makeStyles((theme) => ({
   root: { padding: "1rem" },
   title: {
-    fontSize: "2rem",
+    fontSize: "1.5rem",
     fontWeight: "bold"
   },
   form: {

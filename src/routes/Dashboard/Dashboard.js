@@ -12,24 +12,18 @@ import { TransactionMessageData } from "../../shared/utils/TransactionMessageDat
 import { useTransactionModal } from "../../context/TransactionModal";
 import { useSettings } from "../../context/SettingsProvider";
 import { UrlService } from "../../shared/utils/urlUtils";
+import { useBalances } from "../../queries/useBalancesQuery";
+import { Balances } from "./Balances";
+import { useProviders } from "../../queries";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    padding: "0 1rem",
-    "& .MuiListItemText-secondary .MuiSvgIcon-root:not(:first-child)": {
-      marginLeft: "5px"
-    },
-    "& .MuiListItemText-secondary .MuiSvgIcon-root": {
-      fontSize: "20px"
-    }
-  },
   titleContainer: {
-    paddingBottom: "1rem",
+    padding: "0 1rem 1rem",
     display: "flex",
     alignItems: "center"
   },
   title: {
-    fontSize: "2rem",
+    fontSize: "1.5rem",
     fontWeight: "bold"
   },
   noActiveDeployments: {
@@ -48,6 +42,15 @@ export function Dashboard({ deployments, isLoadingDeployments, refreshDeployment
   const { sendTransaction } = useTransactionModal();
   const { settings } = useSettings();
   const { apiEndpoint } = settings;
+  const { data: balances, isFetching: isLoadingBalances, refetch: getBalances } = useBalances(address, { enabled: false });
+  const escrowSum = orderedDeployments.map((x) => x.escrowBalance).reduce((a, b) => a + b, 0);
+  const { data: providers } = useProviders();
+
+  useEffect(() => {
+    getBalances();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     refreshDeployments();
@@ -64,6 +67,7 @@ export function Dashboard({ deployments, isLoadingDeployments, refreshDeployment
       const messages = selectedDeploymentDseqs.map((dseq) => TransactionMessageData.getCloseDeploymentMsg(address, dseq));
       await sendTransaction(messages);
 
+      getBalances();
       refreshDeployments();
     } catch (error) {
       console.log(error);
@@ -75,21 +79,23 @@ export function Dashboard({ deployments, isLoadingDeployments, refreshDeployment
   return (
     <>
       <Helmet title="Dashboard" />
-      <LinearLoadingSkeleton isLoading={isLoadingDeployments} />
-      <Box className={classes.root}>
+      <LinearLoadingSkeleton isLoading={isLoadingDeployments || isLoadingBalances} />
+      <div>
+        <Balances isLoadingBalances={isLoadingBalances} balances={balances} escrowSum={escrowSum} />
+
         <Box className={classes.titleContainer}>
           <Typography variant="h3" className={classes.title}>
             Active Deployments
           </Typography>
 
           <Box marginLeft="1rem">
-            <IconButton aria-label="back" onClick={refreshDeployments}>
+            <IconButton aria-label="back" onClick={refreshDeployments} size="small">
               <RefreshIcon />
             </IconButton>
           </Box>
 
-          <Box>
-            <IconButton aria-label="Close" disabled={selectedDeploymentDseqs.length === 0} onClick={onCloseSelectedDeployments}>
+          <Box marginLeft="1rem">
+            <IconButton aria-label="Close" disabled={selectedDeploymentDseqs.length === 0} onClick={onCloseSelectedDeployments} size="small">
               <CancelPresentationIcon />
             </IconButton>
           </Box>
@@ -102,7 +108,7 @@ export function Dashboard({ deployments, isLoadingDeployments, refreshDeployment
           )}
         </Box>
 
-        <Box>
+        <div>
           {orderedDeployments.length > 0 ? (
             orderedDeployments.map((deployment) => (
               <DeploymentListRow
@@ -111,6 +117,7 @@ export function Dashboard({ deployments, isLoadingDeployments, refreshDeployment
                 isSelectable
                 onSelectDeployment={onSelectDeployment}
                 checked={selectedDeploymentDseqs.some((x) => x === deployment.dseq)}
+                providers={providers}
               />
             ))
           ) : (
@@ -131,8 +138,8 @@ export function Dashboard({ deployments, isLoadingDeployments, refreshDeployment
               </Button>
             </Box>
           )}
-        </Box>
-      </Box>
+        </div>
+      </div>
     </>
   );
 }

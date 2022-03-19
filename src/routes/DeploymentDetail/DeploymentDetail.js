@@ -118,7 +118,7 @@ export function DeploymentDetail(props) {
           )}
         </Typography>
         <Box marginLeft="1rem">
-          <IconButton aria-label="back" onClick={() => loadDeploymentDetail()}>
+          <IconButton aria-label="back" onClick={() => loadDeploymentDetail()} size="small">
             <RefreshIcon />
           </IconButton>
         </Box>
