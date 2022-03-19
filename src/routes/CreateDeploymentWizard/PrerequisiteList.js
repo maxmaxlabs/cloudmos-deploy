@@ -11,7 +11,7 @@ import { Helmet } from "react-helmet-async";
 import { UrlService } from "../../shared/utils/urlUtils";
 import { useLocalNotes } from "../../context/LocalNoteProvider";
 import { useTemplates } from "../../context/TemplatesProvider";
-import { hasDepositorSupport, selectedNetworkId } from "../../shared/deploymentData";
+import { hasDepositorSupport } from "../../shared/deploymentData";
 
 const useStyles = makeStyles((theme) => ({
   root: {
