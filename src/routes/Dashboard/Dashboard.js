@@ -67,6 +67,7 @@ export function Dashboard({ deployments, isLoadingDeployments, refreshDeployment
       const messages = selectedDeploymentDseqs.map((dseq) => TransactionMessageData.getCloseDeploymentMsg(address, dseq));
       await sendTransaction(messages);
 
+      getBalances();
       refreshDeployments();
     } catch (error) {
       console.log(error);
