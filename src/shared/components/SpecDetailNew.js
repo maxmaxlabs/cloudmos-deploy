@@ -15,8 +15,8 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: 0
   },
   defaultColor: {
-    color: "rgba(0,0,0,.15)",
-    borderColor: "rgba(0,0,0,.15) !important"
+    color: "rgba(0,0,0,.25)",
+    borderColor: "rgba(0,0,0,.20) !important"
   },
   activeColor: {
     color: theme.palette.grey[700],
