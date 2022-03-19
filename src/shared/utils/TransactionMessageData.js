@@ -202,8 +202,8 @@ export class TransactionMessageData {
             }
           },
           expiration: {
-            seconds: Math.floor(expiration.getTime() / 1_000),
-            nanos: Math.floor((expiration.getTime() % 1_000) * 1_000_000)
+            seconds: Math.floor(expiration.getTime() / 1_000), // Convert milliseconds to seconds
+            nanos: Math.floor((expiration.getTime() % 1_000) * 1_000_000) // Convert reminder into nanoseconds
           }
         }
       }
