@@ -135,7 +135,7 @@ export function ManifestEdit(props) {
       if (response) {
         saveDeploymentManifestAndName(dd.deploymentId.dseq, editedManifest, dd.version, address, deploymentName);
 
-        history.push("/createDeployment/acceptBids/" + dd.deploymentId.dseq);
+        history.replace("/createDeployment/acceptBids/" + dd.deploymentId.dseq);
 
         await analytics.event("deploy", "create deployment");
       }
@@ -147,7 +147,7 @@ export function ManifestEdit(props) {
   }
 
   function handleChangeTemplate() {
-    history.push("/createDeployment/chooseTemplate");
+    history.replace("/createDeployment/chooseTemplate");
   }
 
   return (
