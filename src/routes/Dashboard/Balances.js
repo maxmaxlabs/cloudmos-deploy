@@ -37,10 +37,11 @@ export const Balances = ({ balances, isLoadingBalances, escrowSum }) => {
   return (
     <Box display="flex" alignItems="center" marginBottom="1rem" padding="0 1rem">
       {isLoadingBalances && !balances && (
-        <Box flexBasis="220px" height="200px" textAlign="center">
+        <Box flexBasis="220px" height="200px" display="flex" alignItems="center" justifyContent="center">
           <CircularProgress size="3rem" />
         </Box>
       )}
+      
       {hasBalance && (
         <Box height="200px" width="220px" display="flex" alignItems="center" justifyContent="center">
           <ResponsivePie

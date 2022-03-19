@@ -107,7 +107,7 @@ export function Dashboard({ deployments, isLoadingDeployments, refreshDeployment
           )}
         </Box>
 
-        <Box>
+        <div>
           {orderedDeployments.length > 0 ? (
             orderedDeployments.map((deployment) => (
               <DeploymentListRow
@@ -137,7 +137,7 @@ export function Dashboard({ deployments, isLoadingDeployments, refreshDeployment
               </Button>
             </Box>
           )}
-        </Box>
+        </div>
       </div>
     </>
   );

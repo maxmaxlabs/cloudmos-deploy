@@ -1,6 +1,4 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { useSnackbar } from "notistack";
-import { Snackbar } from "../../shared/components/Snackbar";
 import axios from "axios";
 
 const PriceProviderContext = React.createContext({});
@@ -8,7 +6,6 @@ const PriceProviderContext = React.createContext({});
 export const PriceProvider = ({ children }) => {
   const [priceData, setPriceData] = useState({});
   const [isLoadingPriceData, setIsLoadingPriceData] = useState(false);
-  const { enqueueSnackbar } = useSnackbar();
 
   const loadPriceData = useCallback(async () => {
     if (isLoadingPriceData) return;
@@ -18,7 +15,7 @@ export const PriceProvider = ({ children }) => {
     try {
       const endpointUrl = "https://api.coingecko.com/api/v3/coins/akash-network";
 
-      console.log("Fetching latest market data from " + endpointUrl);
+      // console.log("Fetching latest market data from " + endpointUrl);
 
       const response = await axios.get(endpointUrl);
       const data = response.data;
@@ -39,7 +36,7 @@ export const PriceProvider = ({ children }) => {
       setIsLoadingPriceData(false);
       // enqueueSnackbar(<Snackbar title="Error loading price data." />, { variant: "error" });
     }
-  }, [enqueueSnackbar, isLoadingPriceData]);
+  }, [isLoadingPriceData]);
 
   useEffect(() => {
     loadPriceData();
