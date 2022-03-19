@@ -8,8 +8,4 @@ export class QueryKeys {
   static getProviderStatusKey = (providerUri) => ["PROVIDER_STATUS", providerUri];
   static getBlockKey = (id) => ["BLOCK", id];
   static getBalancesKey = (address) => ["BALANCES", address];
-  // static getRewardsKey = (address) => ["REWARDS", address];
-  // static getRedelegationsKey = (address) => ["REDELEGATIONS", address];
-  // static getDelegationsKey = (address) => ["DELEGATIONS", address];
-  // static getUnbondingKey = (address) => ["UNBONDING", address];
 }

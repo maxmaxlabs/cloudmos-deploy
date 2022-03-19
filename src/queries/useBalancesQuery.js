@@ -22,15 +22,11 @@ async function getBalances(apiEndpoint, address) {
 
   // Balance
   const balanceData = balanceResponse.data;
-  const balance =
-    balanceData.balances.length > 0 && balanceData.balances.some((b) => b.denom === "uakt")
-      ? parseInt(balanceData.balances.find((b) => b.denom === "uakt").amount)
-      : 0;
+  const balance = balanceData.balances.some((b) => b.denom === "uakt") ? parseInt(balanceData.balances.find((b) => b.denom === "uakt").amount) : 0;
 
   // Rewards
   const rewardsData = rewardsResponse.data;
-  const rewards =
-    rewardsData.total.length > 0 && rewardsData.total.some((b) => b.denom === "uakt") ? parseInt(rewardsData.total.find((b) => b.denom === "uakt").amount) : 0;
+  const rewards = rewardsData.total.some((b) => b.denom === "uakt") ? parseInt(rewardsData.total.find((b) => b.denom === "uakt").amount) : 0;
 
   // Redelegations
   const redelegationsData = redelegationsResponse.data;
@@ -53,13 +49,12 @@ async function getBalances(apiEndpoint, address) {
     const delegationsResponse = await axios.get(ApiUrlService.delegations(apiEndpoint, address));
     const delegationsData = delegationsResponse.data;
 
-    delegations =
-      delegationsData.delegation_responses.length > 0 && delegationsData.delegation_responses.some((b) => b.balance.denom === "uakt")
-        ? delegationsData.delegation_responses
-            .filter((x) => x.balance.denom === "uakt")
-            .map((x) => parseInt(x.balance.amount))
-            .reduce((a, b) => a + b, 0)
-        : 0;
+    delegations = delegationsData.delegation_responses.some((b) => b.balance.denom === "uakt")
+      ? delegationsData.delegation_responses
+          .filter((x) => x.balance.denom === "uakt")
+          .map((x) => parseInt(x.balance.amount))
+          .reduce((a, b) => a + b, 0)
+      : 0;
   } catch (error) {}
 
   return {
