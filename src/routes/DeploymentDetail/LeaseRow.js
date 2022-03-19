@@ -87,7 +87,7 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
     refetch: getLeaseStatus,
     isLoading: isLoadingLeaseStatus
   } = useLeaseStatus(providerInfo?.host_uri, lease, {
-    enabled: lease.state === "active" && !isServicesAvailable && !!providerInfo?.host_uri,
+    enabled: lease.state === "active" && !isServicesAvailable && !!providerInfo?.host_uri && !!localCert,
     refetchInterval: 10_000,
     onSuccess: (leaseStatus) => {
       if (leaseStatus) {
