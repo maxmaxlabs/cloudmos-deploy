@@ -1,10 +1,5 @@
 [
    {
-      "id":"akash.smartnodes.one",
-      "api":"https://api.akash.smartnodes.one",
-      "rpc":"https://rpc.akash.smartnodes.one:443"
-   },
-   {
       "id":"135.181.181.122",
       "api":"http://135.181.181.122:1518",
       "rpc":"http://135.181.181.122:28957"
