@@ -22,7 +22,7 @@
 - 📄 Real-time log and events viewer
 - ✔ Cross-platform (Windows, MacOS, Linux)
 - 💲 Send transactions
-- 🟢 More to come...
+- 🛠 More to come...
 
 ## Support us! 
 - `akash13265twfqejnma6cc93rw5dxk4cldyz2zyy8cdm`
