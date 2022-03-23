@@ -10,7 +10,11 @@ const useStyles = makeStyles((theme) => ({
     display: "inline",
     margin: 0,
     padding: 0,
-    color: theme.palette.info.dark
+    color: theme.palette.info.dark,
+    "&:disabled": {
+      color: theme.palette.grey[500],
+      cursor: "initial"
+    }
   }
 }));
 
