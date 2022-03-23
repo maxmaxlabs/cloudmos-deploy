@@ -1,6 +1,8 @@
+import { useState } from "react";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
+import AddIcon from "@material-ui/icons/Add";
 import WarningIcon from "@material-ui/icons/Warning";
-import { makeStyles, IconButton, Box, Typography, CircularProgress, Checkbox } from "@material-ui/core";
+import { makeStyles, IconButton, Box, Typography, CircularProgress, Checkbox, Menu } from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import { useHistory } from "react-router";
 import { useLocalNotes } from "../../context/LocalNoteProvider";
@@ -12,13 +14,24 @@ import { getTimeLeft, uaktToAKT } from "../../shared/utils/priceUtils";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import isValid from "date-fns/isValid";
 import differenceInCalendarDays from "date-fns/differenceInCalendarDays";
+import { useTransactionModal } from "../../context/TransactionModal";
+import { analytics } from "../../shared/utils/analyticsUtils";
+import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
+import { CustomMenuItem } from "../../shared/components/CustomMenuItem";
+import MoreHorizIcon from "@material-ui/icons/MoreHoriz";
+import { DeploymentDepositModal } from "../DeploymentDetail/DeploymentDepositModal";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
     alignItems: "center",
     padding: ".5rem 1rem",
-    borderBottom: `1px solid ${theme.palette.grey[300]}`
+    borderBottom: `1px solid ${theme.palette.grey[300]}`,
+    cursor: "pointer",
+    transition: "background-color .2s ease",
+    "&:hover": {
+      backgroundColor: theme.palette.grey[300]
+    }
   },
   titleContainer: {
     paddingBottom: "1rem",
@@ -29,6 +42,13 @@ const useStyles = makeStyles((theme) => ({
   infoContainer: {
     flexGrow: "1",
     padding: "0 1rem"
+  },
+  deploymentInfo: {
+    display: "flex",
+    alignItems: "center",
+    marginBottom: "2px",
+    fontSize: ".875rem",
+    lineHeight: ".875rem"
   },
   title: {
     fontSize: "2rem",
@@ -58,12 +78,16 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function DeploymentListRow({ deployment, isSelectable, onSelectDeployment, checked, providers }) {
+export function DeploymentListRow({ deployment, isSelectable, onSelectDeployment, checked, providers, refreshDeployments }) {
   const classes = useStyles();
   const history = useHistory();
+  const { sendTransaction } = useTransactionModal();
+  const [isDepositingDeployment, setIsDepositingDeployment] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
   const { getDeploymentName, changeDeploymentName } = useLocalNotes();
   const { address } = useWallet();
-  const { data: leases, isLoading: isLoadingLeases } = useLeaseList(deployment, address, { enabled: !!deployment && deployment.state === "active" });
+  const isActive = deployment.state === "active";
+  const { data: leases, isLoading: isLoadingLeases } = useLeaseList(deployment, address, { enabled: !!deployment && isActive });
   const name = getDeploymentName(deployment.dseq);
   const hasLeases = leases && !!leases.length;
   const deploymentCost = hasLeases ? leases.reduce((prev, current) => prev + current.price.amount, 0) : 0;
@@ -84,72 +108,123 @@ export function DeploymentListRow({ deployment, isSelectable, onSelectDeployment
     history.push("/deployment/" + deployment.dseq);
   }
 
-  return (
-    <div className={classes.root}>
-      <div>
-        <SpecDetailNew
-          cpuAmount={deployment.cpuAmount}
-          memoryAmount={deployment.memoryAmount}
-          storageAmount={deployment.storageAmount}
-          isActive={deployment.state === "active"}
-        />
-      </div>
+  function handleMenuClick(ev) {
+    ev.stopPropagation();
+    setAnchorEl(ev.currentTarget);
+  }
 
-      <div className={classes.infoContainer}>
-        <Box component="span" display="flex" alignItems="center" marginBottom="2px">
-          <Box display="flex" alignItems="center">
-            {deploymentName}
-            <IconButton size="small" onClick={() => changeDeploymentName(deployment.dseq)} className={classes.editButton}>
-              <EditIcon fontSize="small" className={classes.editIcon} />
+  const handleMenuClose = (event) => {
+    event?.stopPropagation();
+    setAnchorEl(null);
+  };
+
+  const onDeploymentDeposit = async (deposit, depositorAddress) => {
+    setIsDepositingDeployment(false);
+
+    try {
+      const message = TransactionMessageData.getDepositDeploymentMsg(address, deployment.dseq, deposit, depositorAddress);
+
+      const response = await sendTransaction([message]);
+
+      if (response) {
+        refreshDeployments();
+
+        await analytics.event("deploy", "deployment deposit");
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  return (
+    <>
+      <div className={classes.root} onClick={() => viewDeployment()}>
+        <div>
+          <SpecDetailNew cpuAmount={deployment.cpuAmount} memoryAmount={deployment.memoryAmount} storageAmount={deployment.storageAmount} isActive={isActive} />
+        </div>
+
+        <div className={classes.infoContainer}>
+          <div className={classes.deploymentInfo}>
+            <Box display="flex" alignItems="baseline">
+              {deploymentName}
+            </Box>
+
+            {isActive && isValid(timeLeft) && (
+              <Box component="span" marginLeft="1rem" display="flex" alignItems="center">
+                Time left:&nbsp;<strong>~{formatDistanceToNow(timeLeft)}</strong>
+                {showWarning && <WarningIcon fontSize="small" color="error" className={classes.warningIcon} />}
+              </Box>
+            )}
+
+            {isActive && !!deployment.escrowBalance && (
+              <Box marginLeft="1rem" display="flex">
+                Escrow:&nbsp;<strong>{uaktToAKT(deployment.escrowBalance, 2)} AKT</strong>
+              </Box>
+            )}
+          </div>
+
+          {hasLeases && (
+            <Box display="flex" alignItems="center" flexWrap="wrap">
+              <Typography variant="caption">Leases:</Typography>{" "}
+              {leases?.map((lease) => (
+                <LeaseChip key={lease.id} lease={lease} providers={providers} />
+              ))}
+            </Box>
+          )}
+
+          {isLoadingLeases && <CircularProgress size="1rem" />}
+        </div>
+
+        <Box padding="0 1rem" display="flex" alignItems="center">
+          {isSelectable && (
+            <Checkbox
+              checked={checked}
+              size="small"
+              onClick={(event) => {
+                event.stopPropagation();
+              }}
+              onChange={(event) => {
+                onSelectDeployment(event.target.checked, deployment.dseq);
+              }}
+            />
+          )}
+
+          <Box marginLeft=".2rem">
+            <IconButton onClick={handleMenuClick} size="small">
+              <MoreHorizIcon />
             </IconButton>
           </Box>
 
-          {isValid(timeLeft) && (
-            <Box component="span" marginLeft="1rem" display="flex" alignItems="center">
-              <Typography variant="caption">
-                Time left: <strong>~{formatDistanceToNow(timeLeft)}</strong>
-              </Typography>
-
-              {showWarning && <WarningIcon fontSize="small" color="error" className={classes.warningIcon} />}
-            </Box>
-          )}
-
-          {!!deployment.escrowBalance && (
-            <Box marginLeft="1rem" display="flex">
-              <Typography variant="caption">
-                Escrow: <strong>{uaktToAKT(deployment.escrowBalance, 2)} AKT</strong>
-              </Typography>
-            </Box>
-          )}
-        </Box>
-
-        {hasLeases && (
-          <Box display="flex" alignItems="center">
-            <Typography variant="caption">Leases:</Typography>{" "}
-            {leases?.map((lease) => (
-              <LeaseChip key={lease.id} lease={lease} providers={providers} />
-            ))}
+          <Box marginLeft=".5rem" display="flex">
+            <ChevronRightIcon />
           </Box>
-        )}
-
-        {isLoadingLeases && <CircularProgress size="1rem" />}
+        </Box>
       </div>
 
-      <Box padding="0 1rem">
-        {isSelectable && (
-          <Checkbox
-            checked={checked}
-            size="medium"
-            onChange={(event) => {
-              onSelectDeployment(event.target.checked, deployment.dseq);
-            }}
-          />
-        )}
+      <Menu
+        id={`deployment-list-menu-${deployment.dseq}`}
+        anchorEl={anchorEl}
+        keepMounted
+        getContentAnchorEl={null}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "right"
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "right"
+        }}
+        onClick={handleMenuClose}
+      >
+        {isActive && <CustomMenuItem onClick={() => setIsDepositingDeployment(true)} icon={<AddIcon fontSize="small" />} text="Deposit" />}
+        <CustomMenuItem onClick={() => changeDeploymentName(deployment.dseq)} icon={<EditIcon fontSize="small" />} text="Edit name" />
+      </Menu>
 
-        <IconButton edge="end" onClick={viewDeployment}>
-          <ChevronRightIcon />
-        </IconButton>
-      </Box>
-    </div>
+      {isActive && isDepositingDeployment && (
+        <DeploymentDepositModal handleCancel={() => setIsDepositingDeployment(false)} onDeploymentDeposit={onDeploymentDeposit} />
+      )}
+    </>
   );
 }

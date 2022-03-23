@@ -15,6 +15,7 @@ import { UrlService } from "../../shared/utils/urlUtils";
 import { useBalances } from "../../queries/useBalancesQuery";
 import { Balances } from "./Balances";
 import { useProviders } from "../../queries";
+import { LinkTo } from "../../shared/components/LinkTo";
 
 const useStyles = makeStyles((theme) => ({
   titleContainer: {
@@ -65,14 +66,19 @@ export function Dashboard({ deployments, isLoadingDeployments, refreshDeployment
   const onCloseSelectedDeployments = async () => {
     try {
       const messages = selectedDeploymentDseqs.map((dseq) => TransactionMessageData.getCloseDeploymentMsg(address, dseq));
-      await sendTransaction(messages);
+      const response = await sendTransaction(messages);
 
-      getBalances();
-      refreshDeployments();
+      if (response) {
+        getBalances();
+        refreshDeployments();
+        setSelectedDeploymentDseqs([]);
+      }
     } catch (error) {
       console.log(error);
     }
+  };
 
+  const onClearSelection = () => {
     setSelectedDeploymentDseqs([]);
   };
 
@@ -89,15 +95,23 @@ export function Dashboard({ deployments, isLoadingDeployments, refreshDeployment
           </Typography>
 
           <Box marginLeft="1rem">
-            <IconButton aria-label="back" onClick={refreshDeployments} size="small">
+            <IconButton onClick={refreshDeployments} size="small">
               <RefreshIcon />
             </IconButton>
           </Box>
 
           <Box marginLeft="1rem">
-            <IconButton aria-label="Close" disabled={selectedDeploymentDseqs.length === 0} onClick={onCloseSelectedDeployments} size="small">
+            <IconButton disabled={selectedDeploymentDseqs.length === 0} onClick={onCloseSelectedDeployments} size="small">
               <CancelPresentationIcon />
             </IconButton>
+          </Box>
+
+          <Box marginLeft="1rem">
+            {selectedDeploymentDseqs.length > 0 && (
+              <LinkTo onClick={onClearSelection} size="small">
+                Clear
+              </LinkTo>
+            )}
           </Box>
 
           {orderedDeployments.length > 0 && (
@@ -118,6 +132,7 @@ export function Dashboard({ deployments, isLoadingDeployments, refreshDeployment
                 onSelectDeployment={onSelectDeployment}
                 checked={selectedDeploymentDseqs.some((x) => x === deployment.dseq)}
                 providers={providers}
+                refreshDeployments={refreshDeployments}
               />
             ))
           ) : (

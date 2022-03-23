@@ -74,7 +74,7 @@ export function DeploymentList({ deployments, isLoadingDeployments, refreshDeplo
         </Box>
         <Box>
           {currentPageDeployments.map((deployment) => (
-            <DeploymentListRow key={deployment.dseq} deployment={deployment} />
+            <DeploymentListRow key={deployment.dseq} deployment={deployment} refreshDeployments={refreshDeployments} />
           ))}
         </Box>
         <Box padding="1rem 1rem 2rem">
