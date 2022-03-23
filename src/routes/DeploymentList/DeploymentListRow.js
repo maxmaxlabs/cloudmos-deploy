@@ -20,6 +20,7 @@ import { TransactionMessageData } from "../../shared/utils/TransactionMessageDat
 import { CustomMenuItem } from "../../shared/components/CustomMenuItem";
 import MoreHorizIcon from "@material-ui/icons/MoreHoriz";
 import { DeploymentDepositModal } from "../DeploymentDetail/DeploymentDepositModal";
+import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -136,6 +137,24 @@ export function DeploymentListRow({ deployment, isSelectable, onSelectDeployment
     }
   };
 
+  const onCloseDeployment = async () => {
+    handleMenuClose();
+
+    try {
+      const message = TransactionMessageData.getCloseDeploymentMsg(address, deployment.dseq);
+
+      const response = await sendTransaction([message]);
+
+      if (response) {
+        refreshDeployments();
+
+        await analytics.event("deploy", "close deployment");
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
+
   return (
     <>
       <div className={classes.root} onClick={() => viewDeployment()}>
@@ -220,6 +239,7 @@ export function DeploymentListRow({ deployment, isSelectable, onSelectDeployment
       >
         {isActive && <CustomMenuItem onClick={() => setIsDepositingDeployment(true)} icon={<AddIcon fontSize="small" />} text="Deposit" />}
         <CustomMenuItem onClick={() => changeDeploymentName(deployment.dseq)} icon={<EditIcon fontSize="small" />} text="Edit name" />
+        {isActive && <CustomMenuItem onClick={() => onCloseDeployment()} icon={<CancelPresentationIcon fontSize="small" />} text="Close" />}
       </Menu>
 
       {isActive && isDepositingDeployment && (

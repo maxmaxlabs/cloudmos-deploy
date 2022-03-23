@@ -7,7 +7,6 @@ import {
   Card,
   CardContent,
   CardHeader,
-  Chip,
   List,
   ListItem,
   ListItemText,
