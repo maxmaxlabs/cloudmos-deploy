@@ -44,3 +44,13 @@ function getCpuValue(cpu) {
 function getByteValue(val) {
   return typeof val === "number" ? val : Number(val.size.val);
 }
+
+export function getNetworkCapacityDto(networkCapacity) {
+  return {
+    ...networkCapacity,
+    activeCPU: networkCapacity.activeCPU / 1000,
+    pendingCPU: networkCapacity.pendingCPU / 1000,
+    availableCPU: networkCapacity.availableCPU / 1000,
+    totalCPU: networkCapacity.totalCPU / 1000
+  };
+}

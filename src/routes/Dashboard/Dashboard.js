@@ -13,9 +13,10 @@ import { useTransactionModal } from "../../context/TransactionModal";
 import { useSettings } from "../../context/SettingsProvider";
 import { UrlService } from "../../shared/utils/urlUtils";
 import { useBalances } from "../../queries/useBalancesQuery";
-import { Balances } from "./Balances";
+import { DashboardInfoPanel } from "./DashboardInfoPanel";
 import { useProviders } from "../../queries";
 import { LinkTo } from "../../shared/components/LinkTo";
+import { useNetworkCapacity } from "../../queries/useProvidersQuery";
 
 const useStyles = makeStyles((theme) => ({
   titleContainer: {
@@ -44,11 +45,13 @@ export function Dashboard({ deployments, isLoadingDeployments, refreshDeployment
   const { settings } = useSettings();
   const { apiEndpoint } = settings;
   const { data: balances, isFetching: isLoadingBalances, refetch: getBalances } = useBalances(address, { enabled: false });
+  const { data: networkCapacity, isFetching: isLoadingNetworkCapacity, refetch: getNetworkCapacity } = useNetworkCapacity({ enabled: false });
   const escrowSum = orderedDeployments.map((x) => x.escrowBalance).reduce((a, b) => a + b, 0);
   const { data: providers } = useProviders();
 
   useEffect(() => {
     getBalances();
+    getNetworkCapacity();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -87,7 +90,13 @@ export function Dashboard({ deployments, isLoadingDeployments, refreshDeployment
       <Helmet title="Dashboard" />
       <LinearLoadingSkeleton isLoading={isLoadingDeployments || isLoadingBalances} />
       <div>
-        <Balances isLoadingBalances={isLoadingBalances} balances={balances} escrowSum={escrowSum} />
+        <DashboardInfoPanel
+          isLoadingBalances={isLoadingBalances}
+          balances={balances}
+          escrowSum={escrowSum}
+          networkCapacity={networkCapacity}
+          isLoadingNetworkCapacity={isLoadingNetworkCapacity}
+        />
 
         <Box className={classes.titleContainer}>
           <Typography variant="h3" className={classes.title}>
