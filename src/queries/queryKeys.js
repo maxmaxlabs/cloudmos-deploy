@@ -6,6 +6,7 @@ export class QueryKeys {
   static getBidListKey = (address, dseq) => ["BID_LIST", address, dseq];
   static getProvidersKey = () => ["PROVIDERS"];
   static getProviderStatusKey = (providerUri) => ["PROVIDER_STATUS", providerUri];
+  static getNetworkCapacity = () => ["NETWORK_CAPACITY"];
   static getBlockKey = (id) => ["BLOCK", id];
   static getBalancesKey = (address) => ["BALANCES", address];
 }

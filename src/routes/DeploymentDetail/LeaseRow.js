@@ -7,7 +7,6 @@ import {
   Card,
   CardContent,
   CardHeader,
-  Chip,
   List,
   ListItem,
   ListItemText,
@@ -299,14 +298,9 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
                       Forwarded Ports:{" "}
                       {leaseStatus.forwarded_ports[service.name].map((p) => (
                         <Box key={"port_" + p.externalPort} display="inline" mr={0.5}>
-                          <Chip
-                            variant="outlined"
-                            size="small"
-                            label={`${p.externalPort}:${p.port}`}
-                            disabled={p.available < 1}
-                            component="a"
-                            onClick={(ev) => handleExternalUrlClick(ev, `${p.host}:${p.externalPort}`)}
-                          />
+                          <LinkTo label={``} disabled={p.available < 1} onClick={(ev) => handleExternalUrlClick(ev, `${p.host}:${p.externalPort}`)}>
+                            {p.externalPort}:{p.port}
+                          </LinkTo>
                         </Box>
                       ))}
                     </>

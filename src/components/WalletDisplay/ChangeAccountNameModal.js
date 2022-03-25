@@ -5,6 +5,7 @@ import { useRef } from "react";
 import { updateLocalStorageWalletName } from "../../shared/utils/walletUtils";
 import { useSnackbar } from "notistack";
 import { Snackbar } from "../../shared/components/Snackbar";
+import { analytics } from "../../shared/utils/analyticsUtils";
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -49,7 +50,9 @@ export function ChangeAccountNameModal(props) {
 
       setSelectedWallet(selectedWallet);
 
-      enqueueSnackbar(<Snackbar title="Account name change success!" />, { variant: "success" });
+      enqueueSnackbar(<Snackbar title="Success!" />, { variant: "success", autoHideDuration: 1000 });
+
+      await analytics.event("deploy", "change account name");
 
       props.onClose();
     } catch (err) {

@@ -25,12 +25,11 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function DeploymentLogs({ leases }) {
+export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }) {
   const [logs, setLogs] = useState([]);
   const [isWaitingForFirstLog, setIsWaitingForFirstLog] = useState(true);
   const [services, setServices] = useState([]);
   const [selectedServices, setSelectedServices] = useState([]);
-  const [selectedMode, setSelectedMode] = useState("logs");
   const [stickToBottom, setStickToBottom] = useState(true);
 
   const [selectedLease, setSelectedLease] = useState(null);
@@ -74,7 +73,7 @@ export function DeploymentLogs({ leases }) {
     const providerInfo = providers?.find((p) => p.owner === selectedLease.provider);
 
     let url = null;
-    if (selectedMode === "logs") {
+    if (selectedLogsMode === "logs") {
       url = `${providerInfo.host_uri}/lease/${selectedLease.dseq}/${selectedLease.gseq}/${selectedLease.oseq}/logs?follow=true&tail=100`;
 
       if (selectedServices.length < services.length) {
@@ -88,7 +87,7 @@ export function DeploymentLogs({ leases }) {
       setIsWaitingForFirstLog(false);
 
       let parsedLog = null;
-      if (selectedMode === "logs") {
+      if (selectedLogsMode === "logs") {
         parsedLog = JSON.parse(message);
         parsedLog.service = parsedLog.name.split("-")[0];
         parsedLog.message = parsedLog.service + ": " + parsedLog.message;
@@ -104,7 +103,7 @@ export function DeploymentLogs({ leases }) {
     return () => {
       socket.close();
     };
-  }, [leases, providers, isLocalCertMatching, selectedMode, selectedLease, selectedServices, localCert.certPem, localCert.keyPem, services?.length]);
+  }, [leases, providers, isLocalCertMatching, selectedLogsMode, selectedLease, selectedServices, localCert.certPem, localCert.keyPem, services?.length]);
 
   const logText = logs.map((x) => x.message).join("\n");
 
@@ -133,7 +132,7 @@ export function DeploymentLogs({ leases }) {
 
   function handleModeChange(ev, val) {
     if (val) {
-      setSelectedMode(val);
+      setSelectedLogsMode(val);
     }
   }
 
@@ -159,7 +158,7 @@ export function DeploymentLogs({ leases }) {
                     </ToggleButtonGroup>
                   )}
 
-                  <ToggleButtonGroup color="primary" value={selectedMode} exclusive onChange={handleModeChange}>
+                  <ToggleButtonGroup color="primary" value={selectedLogsMode} exclusive onChange={handleModeChange}>
                     <ToggleButton value="logs" size="small">
                       Logs
                     </ToggleButton>
@@ -180,7 +179,7 @@ export function DeploymentLogs({ leases }) {
                   {services.map((service) => (
                     <FormControlLabel
                       key={service}
-                      disabled={selectedMode !== "logs"}
+                      disabled={selectedLogsMode !== "logs"}
                       control={
                         <Checkbox color="primary" checked={selectedServices.includes(service)} onChange={(ev) => setServiceCheck(service, ev.target.checked)} />
                       }

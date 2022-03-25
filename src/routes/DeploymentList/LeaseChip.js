@@ -4,8 +4,15 @@ import { StatusPill } from "../../shared/components/StatusPill";
 
 const useStyles = makeStyles((theme) => ({
   leaseChip: {
-    height: "20px",
-    marginLeft: ".5rem"
+    height: "auto",
+    marginLeft: ".5rem",
+    fontSize: ".7rem",
+    padding: "1px"
+  },
+  chipLabel: {
+    dispaly: "flex",
+    alignItems: "center",
+    flexWrap: "wrap"
   }
 }));
 
@@ -28,6 +35,7 @@ export const LeaseChip = ({ lease, providers }) => {
       key={lease.id}
       size="small"
       className={classes.leaseChip}
+      classes={{ label: classes.chipLabel }}
       label={
         <>
           <span>

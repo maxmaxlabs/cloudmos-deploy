@@ -42,14 +42,14 @@ export const DeploymentNameModal = ({ dseq, onClose, onSaved, getDeploymentName 
   function onSubmit({ name }) {
     updateDeploymentLocalData(dseq, { name: name });
 
-    enqueueSnackbar(<Snackbar title="Deployment name change success!" />, { variant: "success" });
+    enqueueSnackbar(<Snackbar title="Success!" />, { variant: "success", autoHideDuration: 1000 });
 
     onSaved();
   }
 
   return (
-    <Dialog open={!!dseq} onClose={onClose}>
-      <DialogTitle>Change Deployment Name ({dseq})</DialogTitle>
+    <Dialog open={!!dseq} onClose={onClose} maxWidth="xs" fullWidth>
+      <DialogTitle>Change Deployment Name {dseq ? `(${dseq})` : ""}</DialogTitle>
       <DialogContent dividers className={classes.dialogContent}>
         <form onSubmit={handleSubmit(onSubmit)} ref={formRef}>
           <FormControl fullWidth>

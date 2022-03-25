@@ -26,6 +26,7 @@ import { useSettings } from "../../context/SettingsProvider";
 import { useSnackbar } from "notistack";
 import { Snackbar } from "../../shared/components/Snackbar";
 import compareAsc from "date-fns/compareAsc";
+import { analytics } from "../../shared/utils/analyticsUtils";
 
 const useStyles = makeStyles((theme) => ({
   alert: {
@@ -147,6 +148,8 @@ export function DeploymentDepositModal({ handleCancel, onDeploymentDeposit, min 
       if (!validDepositor) {
         return;
       }
+
+      await analytics.event("deploy", "use depositor");
     } else if (deposit > balance) {
       setError(`You can't deposit more than you currently have in your balance. Current balance is: ${uaktToAKT(balance)}AKT.`);
       return;

@@ -3,7 +3,7 @@ import { QueryKeys } from "./queryKeys";
 import axios from "axios";
 import { ApiUrlService } from "../shared/utils/apiUtils";
 import { useSettings } from "../context/SettingsProvider";
-import { providerStatusToDto } from "../shared/utils/providerUtils";
+import { providerStatusToDto, getNetworkCapacityDto } from "../shared/utils/providerUtils";
 
 async function getProviders(apiEndpoint) {
   const response = await axios.get(ApiUrlService.providers(apiEndpoint));
@@ -29,4 +29,13 @@ async function getProviderStatus(providerUri) {
 
 export function useProviderStatus(providerUri, options) {
   return useQuery(QueryKeys.getProviderStatusKey(providerUri), () => getProviderStatus(providerUri), options);
+}
+
+async function getNetworkCapacity() {
+  const response = await axios.get(ApiUrlService.networkCapacity());
+  return getNetworkCapacityDto(response.data);
+}
+
+export function useNetworkCapacity(options) {
+  return useQuery(QueryKeys.getNetworkCapacity(), () => getNetworkCapacity(), options);
 }

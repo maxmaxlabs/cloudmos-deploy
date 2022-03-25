@@ -19,6 +19,7 @@ import { LinkTo } from "../../shared/components/LinkTo";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
 import { useTransactionModal } from "../../context/TransactionModal";
 import { addYears, format } from "date-fns";
+import { analytics } from "../../shared/utils/analyticsUtils";
 
 const useStyles = makeStyles((theme) => ({
   dialogContent: {
@@ -67,6 +68,8 @@ export const GrantModal = ({ address, onClose }) => {
     const response = await sendTransaction([message]);
 
     if (response) {
+      await analytics.event("deploy", "authorize spend");
+
       onClose();
     }
   };

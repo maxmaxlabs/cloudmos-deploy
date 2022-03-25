@@ -36,6 +36,7 @@ export function DeploymentDetail(props) {
   const [leaseRefs, setLeaseRefs] = useState([]);
   const { certificate, isLocalCertMatching, localCert } = useCertificate();
   const [deploymentManifest, setDeploymentManifest] = useState(null);
+  const [selectedLogsMode, setSelectedLogsMode] = useState("logs");
 
   const deploymentName = getDeploymentName(dseq);
 
@@ -143,9 +144,16 @@ export function DeploymentDetail(props) {
       </Tabs>
 
       {activeTab === "EDIT" && deployment && leases && (
-        <ManifestEditor deployment={deployment} leases={leases} closeManifestEditor={() => setActiveTab("DETAILS")} />
+        <ManifestEditor
+          deployment={deployment}
+          leases={leases}
+          closeManifestEditor={() => {
+            setActiveTab("LOGS");
+            setSelectedLogsMode("events");
+          }}
+        />
       )}
-      {activeTab === "LOGS" && <DeploymentLogs leases={leases} />}
+      {activeTab === "LOGS" && <DeploymentLogs leases={leases} selectedLogsMode={selectedLogsMode} setSelectedLogsMode={setSelectedLogsMode} />}
       {activeTab === "JSON_DATA" && deployment && (
         <Box display="flex">
           <DeploymentJsonViewer jsonObj={deployment} title="Deployment JSON" />
