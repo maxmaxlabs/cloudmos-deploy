@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Box, CircularProgress, makeStyles, Typography } from "@material-ui/core";
 import { ResponsivePie } from "@nivo/pie";
 import { uaktToAKT } from "../../shared/utils/priceUtils";
@@ -10,7 +11,8 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     alignItems: "center",
     fontSize: ".75rem",
-    lineHeight: "1.25rem"
+    lineHeight: "1.25rem",
+    transition: "opacity .2s ease"
   },
   legendColor: {
     width: "1rem",
@@ -57,12 +59,13 @@ const useStyles = makeStyles((theme) => ({
 
 export const DashboardInfoPanel = ({ balances, isLoadingBalances, escrowSum, networkCapacity, isLoadingNetworkCapacity }) => {
   const classes = useStyles();
+  const [selectedDataId, setSelectedDataId] = useState(null);
   const data = balances ? getData(balances, escrowSum) : [];
   const filteredData = data.filter((x) => x.value);
   const total = balances ? balances.balance + balances.rewards + balances.delegations + balances.unbondings + escrowSum : 0;
   const hasBalance = balances && total !== 0;
 
-  const getColor = (bar) => colors[bar.id];
+  const _getColor = (bar) => getColor(bar.id, selectedDataId);
 
   return (
     <Box display="flex" alignItems="center" marginBottom="1rem" padding="0 1rem" justifyContent="space-between">
@@ -82,7 +85,7 @@ export const DashboardInfoPanel = ({ balances, isLoadingBalances, escrowSum, net
               padAngle={2}
               cornerRadius={4}
               activeOuterRadiusOffset={8}
-              colors={getColor}
+              colors={_getColor}
               borderWidth={0}
               borderColor={{
                 from: "color",
@@ -97,9 +100,14 @@ export const DashboardInfoPanel = ({ balances, isLoadingBalances, escrowSum, net
         )}
 
         {balances && (
-          <Box padding={hasBalance ? 0 : "1rem"}>
+          <Box padding={hasBalance ? 0 : "1rem"} onMouseLeave={() => setSelectedDataId(null)}>
             {data.map((balance, i) => (
-              <div className={classes.legendRow} key={i}>
+              <div
+                className={classes.legendRow}
+                key={i}
+                onMouseEnter={() => setSelectedDataId(balance.id)}
+                style={{ opacity: !selectedDataId || balance.id === selectedDataId ? 1 : 0.3 }}
+              >
                 <div className={classes.legendColor} style={{ backgroundColor: balance.color }} />
                 <div className={classes.legendLabel}>{balance.label}:</div>
                 <div className={classes.legendValue}>{uaktToAKT(balance.value, 2)} AKT</div>
@@ -200,6 +208,14 @@ const theme = {
   background: customColors.lightBg,
   textColor: "#fff",
   fontSize: 12
+};
+
+const getColor = (id, selectedId) => {
+  if (!selectedId || id === selectedId) {
+    return colors[id];
+  } else {
+    return "#e0e0e0";
+  }
 };
 
 const colors = {
