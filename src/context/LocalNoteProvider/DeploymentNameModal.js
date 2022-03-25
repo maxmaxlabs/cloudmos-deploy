@@ -48,8 +48,8 @@ export const DeploymentNameModal = ({ dseq, onClose, onSaved, getDeploymentName 
   }
 
   return (
-    <Dialog open={!!dseq} onClose={onClose}>
-      <DialogTitle>Change Deployment Name ({dseq})</DialogTitle>
+    <Dialog open={!!dseq} onClose={onClose} maxWidth="xs" fullWidth>
+      <DialogTitle>Change Deployment Name {dseq ? `(${dseq})` : ""}</DialogTitle>
       <DialogContent dividers className={classes.dialogContent}>
         <form onSubmit={handleSubmit(onSubmit)} ref={formRef}>
           <FormControl fullWidth>

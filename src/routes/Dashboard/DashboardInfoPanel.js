@@ -1,4 +1,4 @@
-import { Box, CircularProgress, makeStyles, Typography, Paper } from "@material-ui/core";
+import { Box, CircularProgress, makeStyles, Typography } from "@material-ui/core";
 import { ResponsivePie } from "@nivo/pie";
 import { uaktToAKT } from "../../shared/utils/priceUtils";
 import { customColors } from "../../shared/theme";
@@ -66,7 +66,7 @@ export const DashboardInfoPanel = ({ balances, isLoadingBalances, escrowSum, net
 
   return (
     <Box display="flex" alignItems="center" marginBottom="1rem" padding="0 1rem" justifyContent="space-between">
-      {(isLoadingBalances || isLoadingNetworkCapacity) && !balances && (
+      {isLoadingBalances && !balances && (
         <Box flexBasis="220px" height="200px" display="flex" alignItems="center" justifyContent="center">
           <CircularProgress size="3rem" />
         </Box>
@@ -129,63 +129,67 @@ export const DashboardInfoPanel = ({ balances, isLoadingBalances, escrowSum, net
         )}
       </Box>
 
+      {isLoadingNetworkCapacity && !networkCapacity && (
+        <Box flexBasis="40%" height="200px" display="flex" alignItems="center" justifyContent="center">
+          <CircularProgress size="3rem" />
+        </Box>
+      )}
+
       {networkCapacity && (
-        <Box padding="1rem" flexBasis="40%" justifySelf="flex-end">
-          <Paper elevation={0} className={classes.networkCapacityContainer}>
-            <Typography variant="h1" className={classes.title}>
-              Network Capacity
-            </Typography>
-            <Box marginBottom=".5rem">
-              <div className={classes.networkCapacityBar}>
-                <div
-                  className={classes.networkCapacityIndicator}
-                  style={{ width: `${Math.round(((networkCapacity.activeCPU + networkCapacity.pendingCPU) / networkCapacity.totalCPU) * 100)}%` }}
-                />
+        <Box padding="1rem 2rem" flexBasis="40%" justifySelf="flex-end">
+          <Typography variant="h1" className={classes.title}>
+            Network Capacity
+          </Typography>
+          <Box marginBottom=".5rem">
+            <div className={classes.networkCapacityBar}>
+              <div
+                className={classes.networkCapacityIndicator}
+                style={{ width: `${Math.round(((networkCapacity.activeCPU + networkCapacity.pendingCPU) / networkCapacity.totalCPU) * 100)}%` }}
+              />
+            </div>
+            <div className={classes.networkCapacityDesc}>
+              <div>
+                <strong>CPU</strong>
               </div>
-              <div className={classes.networkCapacityDesc}>
-                <div>
-                  <strong>CPU</strong>
-                </div>
-                <div>
-                  {Math.round(networkCapacity.activeCPU + networkCapacity.pendingCPU)}&nbsp;CPU&nbsp;/&nbsp;{Math.round(networkCapacity.totalCPU)}&nbsp;CPU
-                </div>
+              <div>
+                {Math.round(networkCapacity.activeCPU + networkCapacity.pendingCPU)}&nbsp;CPU&nbsp;/&nbsp;{Math.round(networkCapacity.totalCPU)}&nbsp;CPU
               </div>
-            </Box>
+            </div>
+          </Box>
 
-            <Box marginBottom=".5rem">
-              <div className={classes.networkCapacityBar}>
-                <div
-                  className={classes.networkCapacityIndicator}
-                  style={{ width: `${Math.round(((networkCapacity.activeMemory + networkCapacity.pendingMemory) / networkCapacity.totalMemory) * 100)}%` }}
-                />
+          <Box marginBottom=".5rem">
+            <div className={classes.networkCapacityBar}>
+              <div
+                className={classes.networkCapacityIndicator}
+                style={{ width: `${Math.round(((networkCapacity.activeMemory + networkCapacity.pendingMemory) / networkCapacity.totalMemory) * 100)}%` }}
+              />
+            </div>
+            <div className={classes.networkCapacityDesc}>
+              <div>
+                <strong>RAM</strong>
               </div>
-              <div className={classes.networkCapacityDesc}>
-                <div>
-                  <strong>RAM</strong>
-                </div>
-                <div>
-                  {humanFileSize(networkCapacity.activeMemory + networkCapacity.pendingMemory)}&nbsp;/&nbsp;{humanFileSize(networkCapacity.totalMemory)}
-                </div>
+              <div>
+                {humanFileSize(networkCapacity.activeMemory + networkCapacity.pendingMemory)}&nbsp;/&nbsp;{humanFileSize(networkCapacity.totalMemory)}
               </div>
-            </Box>
+            </div>
+          </Box>
 
-            <Box marginBottom=".5rem">
-              <div className={classes.networkCapacityBar}>
-                <div
-                  className={classes.networkCapacityIndicator}
-                  style={{ width: `${Math.round(((networkCapacity.activeStorage + networkCapacity.pendingStorage) / networkCapacity.totalStorage) * 100)}%` }}
-                />
+          <Box marginBottom=".5rem">
+            <div className={classes.networkCapacityBar}>
+              <div
+                className={classes.networkCapacityIndicator}
+                style={{ width: `${Math.round(((networkCapacity.activeStorage + networkCapacity.pendingStorage) / networkCapacity.totalStorage) * 100)}%` }}
+              />
+            </div>
+            <div className={classes.networkCapacityDesc}>
+              <div>
+                <strong>STORAGE</strong>
               </div>
-              <div className={classes.networkCapacityDesc}>
-                <div>
-                  <strong>STORAGE</strong>
-                </div>
-                <div>
-                  {humanFileSize(networkCapacity.activeStorage + networkCapacity.pendingStorage)}&nbsp;/&nbsp;{humanFileSize(networkCapacity.totalStorage)}
-                </div>
+              <div>
+                {humanFileSize(networkCapacity.activeStorage + networkCapacity.pendingStorage)}&nbsp;/&nbsp;{humanFileSize(networkCapacity.totalStorage)}
               </div>
-            </Box>
-          </Paper>
+            </div>
+          </Box>
         </Box>
       )}
     </Box>

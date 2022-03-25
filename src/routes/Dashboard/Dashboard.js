@@ -88,7 +88,7 @@ export function Dashboard({ deployments, isLoadingDeployments, refreshDeployment
   return (
     <>
       <Helmet title="Dashboard" />
-      <LinearLoadingSkeleton isLoading={isLoadingDeployments || isLoadingBalances} />
+      <LinearLoadingSkeleton isLoading={isLoadingDeployments || isLoadingBalances || isLoadingNetworkCapacity} />
       <div>
         <DashboardInfoPanel
           isLoadingBalances={isLoadingBalances}
