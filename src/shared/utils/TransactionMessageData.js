@@ -2,36 +2,36 @@ import { protoTypes } from "../protoTypes";
 import { networkVersion } from "../constants";
 
 export function setMessageTypes() {
-  TransactionMessageData.Types.MSG_CLOSE_DEPLOYMENT = `/akash.deployment.${networkVersion}.MsgCloseDeployment`;
-  TransactionMessageData.Types.MSG_CREATE_DEPLOYMENT = `/akash.deployment.${networkVersion}.MsgCreateDeployment`;
-  TransactionMessageData.Types.MSG_DEPOSIT_DEPLOYMENT = `/akash.deployment.${networkVersion}.MsgDepositDeployment`;
-  TransactionMessageData.Types.MSG_UPDATE_DEPLOYMENT = `/akash.deployment.${networkVersion}.MsgUpdateDeployment`;
-  TransactionMessageData.Types.MSG_CREATE_LEASE = `/akash.market.${networkVersion}.MsgCreateLease`;
-  TransactionMessageData.Types.MSG_REVOKE_CERTIFICATE = `/akash.cert.${networkVersion}.MsgRevokeCertificate`;
-  TransactionMessageData.Types.MSG_CREATE_CERTIFICATE = `/akash.cert.${networkVersion}.MsgCreateCertificate`;
+  TransactionMessageData.Types.MSG_CLOSE_DEPLOYMENT.type = `/akash.deployment.${networkVersion}.MsgCloseDeployment`;
+  TransactionMessageData.Types.MSG_CREATE_DEPLOYMENT.type = `/akash.deployment.${networkVersion}.MsgCreateDeployment`;
+  TransactionMessageData.Types.MSG_DEPOSIT_DEPLOYMENT.type = `/akash.deployment.${networkVersion}.MsgDepositDeployment`;
+  TransactionMessageData.Types.MSG_UPDATE_DEPLOYMENT.type = `/akash.deployment.${networkVersion}.MsgUpdateDeployment`;
+  TransactionMessageData.Types.MSG_CREATE_LEASE.type = `/akash.market.${networkVersion}.MsgCreateLease`;
+  TransactionMessageData.Types.MSG_REVOKE_CERTIFICATE.type = `/akash.cert.${networkVersion}.MsgRevokeCertificate`;
+  TransactionMessageData.Types.MSG_CREATE_CERTIFICATE.type = `/akash.cert.${networkVersion}.MsgCreateCertificate`;
 }
 
 export class TransactionMessageData {
   static Types = {
-    MSG_CLOSE_DEPLOYMENT: "",
-    MSG_CREATE_DEPLOYMENT: "",
-    MSG_DEPOSIT_DEPLOYMENT: "",
-    MSG_UPDATE_DEPLOYMENT: "",
+    MSG_CLOSE_DEPLOYMENT: { type: "", gas: 250000 },
+    MSG_CREATE_DEPLOYMENT: { type: "", gas: 200000 },
+    MSG_DEPOSIT_DEPLOYMENT: { type: "", gas: 125000 },
+    MSG_UPDATE_DEPLOYMENT: { type: "", gas: 150000 },
     // TODO MsgCloseGroup
     // TODO MsgPauseGroup
     // TODO MsgStartGroup
-    MSG_CREATE_LEASE: "",
-    MSG_REVOKE_CERTIFICATE: "",
-    MSG_CREATE_CERTIFICATE: "",
+    MSG_CREATE_LEASE: { type: "", gas: 600000 },
+    MSG_REVOKE_CERTIFICATE: { type: "", gas: 125000 },
+    MSG_CREATE_CERTIFICATE: { type: "", gas: 125000 },
 
     // Cosmos
-    MSG_SEND_TOKENS: "/cosmos.bank.v1beta1.MsgSend",
-    MSG_GRANT: "/cosmos.authz.v1beta1.MsgGrant"
+    MSG_SEND_TOKENS: { type: "/cosmos.bank.v1beta1.MsgSend", gas: 100000 },
+    MSG_GRANT: { type: "/cosmos.authz.v1beta1.MsgGrant", gas: 100000 }
   };
 
   static getRevokeCertificateMsg(address, serial) {
-    const txData = {
-      typeUrl: TransactionMessageData.Types.MSG_REVOKE_CERTIFICATE,
+    const message = {
+      typeUrl: TransactionMessageData.Types.MSG_REVOKE_CERTIFICATE.type,
       value: {
         id: {
           owner: address,
@@ -40,16 +40,16 @@ export class TransactionMessageData {
       }
     };
 
-    const err = protoTypes.MsgRevokeCertificate.verify(txData.value);
+    const err = protoTypes.MsgRevokeCertificate.verify(message.value);
 
     if (err) throw err;
 
-    return txData;
+    return { message, gas: TransactionMessageData.Types.MSG_REVOKE_CERTIFICATE.gas };
   }
 
   static getCreateCertificateMsg(address, crtpem, pubpem) {
-    const txData = {
-      typeUrl: TransactionMessageData.Types.MSG_CREATE_CERTIFICATE,
+    const message = {
+      typeUrl: TransactionMessageData.Types.MSG_CREATE_CERTIFICATE.type,
       value: {
         owner: address,
         cert: Buffer.from(crtpem).toString("base64"),
@@ -57,16 +57,16 @@ export class TransactionMessageData {
       }
     };
 
-    const err = protoTypes.MsgCreateCertificate.verify(txData.value);
+    const err = protoTypes.MsgCreateCertificate.verify(message.value);
 
     if (err) throw err;
 
-    return txData;
+    return { message, gas: TransactionMessageData.Types.MSG_CREATE_CERTIFICATE.gas };
   }
 
   static getCreateLeaseMsg(bid) {
-    const txData = {
-      typeUrl: TransactionMessageData.Types.MSG_CREATE_LEASE,
+    const message = {
+      typeUrl: TransactionMessageData.Types.MSG_CREATE_LEASE.type,
       value: {
         bid_id: {
           owner: bid.owner,
@@ -78,16 +78,16 @@ export class TransactionMessageData {
       }
     };
 
-    const err = protoTypes.MsgCreateLease.verify(txData.value);
+    const err = protoTypes.MsgCreateLease.verify(message.value);
 
     if (err) throw err;
 
-    return txData;
+    return { message, gas: TransactionMessageData.Types.MSG_CREATE_LEASE.gas };
   }
 
   static getCreateDeploymentMsg(deploymentData) {
-    const txData = {
-      typeUrl: TransactionMessageData.Types.MSG_CREATE_DEPLOYMENT,
+    const message = {
+      typeUrl: TransactionMessageData.Types.MSG_CREATE_DEPLOYMENT.type,
       value: {
         id: deploymentData.deploymentId,
         groups: deploymentData.groups,
@@ -102,12 +102,12 @@ export class TransactionMessageData {
     let err = null;
     if (err) throw err;
 
-    return txData;
+    return { message, gas: TransactionMessageData.Types.MSG_CREATE_DEPLOYMENT.gas };
   }
 
   static getUpdateDeploymentMsg(deploymentData) {
-    const txData = {
-      typeUrl: TransactionMessageData.Types.MSG_UPDATE_DEPLOYMENT,
+    const message = {
+      typeUrl: TransactionMessageData.Types.MSG_UPDATE_DEPLOYMENT.type,
       value: {
         id: deploymentData.deploymentId,
         groups: deploymentData.groups,
@@ -120,12 +120,12 @@ export class TransactionMessageData {
     let err = null;
     if (err) throw err;
 
-    return txData;
+    return { message, gas: TransactionMessageData.Types.MSG_UPDATE_DEPLOYMENT.gas };
   }
 
   static getDepositDeploymentMsg(address, dseq, depositAmount, depositorAddress = null) {
-    let txData = {
-      typeUrl: TransactionMessageData.Types.MSG_DEPOSIT_DEPLOYMENT,
+    let message = {
+      typeUrl: TransactionMessageData.Types.MSG_DEPOSIT_DEPLOYMENT.type,
       value: {
         id: {
           owner: address,
@@ -139,19 +139,19 @@ export class TransactionMessageData {
     };
 
     if (depositorAddress) {
-      txData.value.depositor = depositorAddress;
+      message.value.depositor = depositorAddress;
     }
 
-    const err = protoTypes.MsgDepositDeployment.verify(txData.value);
+    const err = protoTypes.MsgDepositDeployment.verify(message.value);
 
     if (err) throw err;
 
-    return txData;
+    return { message, gas: TransactionMessageData.Types.MSG_DEPOSIT_DEPLOYMENT.gas };
   }
 
   static getCloseDeploymentMsg(address, dseq) {
-    const txData = {
-      typeUrl: TransactionMessageData.Types.MSG_CLOSE_DEPLOYMENT,
+    const message = {
+      typeUrl: TransactionMessageData.Types.MSG_CLOSE_DEPLOYMENT.type,
       value: {
         id: {
           owner: address,
@@ -160,16 +160,16 @@ export class TransactionMessageData {
       }
     };
 
-    const err = protoTypes.MsgCloseDeployment.verify(txData.value);
+    const err = protoTypes.MsgCloseDeployment.verify(message.value);
 
     if (err) throw err;
 
-    return txData;
+    return { message, gas: TransactionMessageData.Types.MSG_CLOSE_DEPLOYMENT.gas };
   }
 
   static getSendTokensMsg(address, recipient, amount) {
-    const txData = {
-      typeUrl: TransactionMessageData.Types.MSG_SEND_TOKENS,
+    const message = {
+      typeUrl: TransactionMessageData.Types.MSG_SEND_TOKENS.type,
       value: {
         fromAddress: address,
         toAddress: recipient,
@@ -182,12 +182,12 @@ export class TransactionMessageData {
       }
     };
 
-    return txData;
+    return { message, gas: TransactionMessageData.Types.MSG_SEND_TOKENS.gas };
   }
 
   static getGrantMsg(granter, grantee, spendLimit, expiration) {
-    const txData = {
-      typeUrl: TransactionMessageData.Types.MSG_GRANT,
+    const message = {
+      typeUrl: TransactionMessageData.Types.MSG_GRANT.type,
       value: {
         granter: granter,
         grantee: grantee,
@@ -209,6 +209,6 @@ export class TransactionMessageData {
       }
     };
 
-    return txData;
+    return { message, gas: TransactionMessageData.Types.MSG_GRANT.gas };
   }
 }

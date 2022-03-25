@@ -19,7 +19,7 @@ import {
 } from "@material-ui/core";
 import { a11yProps } from "../../shared/utils/a11yUtils";
 import { TabPanel } from "../../shared/components/TabPanel";
-import { baseGas, createFee, customRegistry, fees, edgenetFees, createCustomFee } from "../../shared/utils/blockchainUtils";
+import { createFee, customRegistry, fees, edgenetFees, createCustomFee } from "../../shared/utils/blockchainUtils";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { useWallet } from "../WalletProvider";
 import clsx from "clsx";
@@ -45,6 +45,7 @@ export function TransactionModal(props) {
   const [isSendingTransaction, setIsSendingTransaction] = useState(false);
   const [tabIndex, setTabIndex] = useState(0);
   const [memo, setMemo] = useState("");
+  const baseGas = messages.map((m) => m.gas).reduce((a, b) => a + b, 0);
   const [gas, setGas] = useState(baseGas);
   const [customFee, setCustomFee] = useState(uaktToAKT(selectedNetworkId === "mainnet" ? fees["avg"] : edgenetFees["avg"]));
   const [isSettingCustomFee, setIsCustomFee] = useState(false);
@@ -70,7 +71,12 @@ export function TransactionModal(props) {
       });
 
       const fee = isSettingCustomFee ? createCustomFee(aktToUakt(customFee), gas, messages.length) : createFee(currentFee, gas, messages.length);
-      const response = await client.signAndBroadcast(address, messages, fee, memo);
+      const response = await client.signAndBroadcast(
+        address,
+        messages.map((m) => m.message),
+        fee,
+        memo
+      );
       const transactionHash = response.transactionHash;
       const isError = response.code !== 0;
 
@@ -192,7 +198,7 @@ export function TransactionModal(props) {
           </Badge>
 
           <List dense className={classes.messages}>
-            {messages.map((message, i) => {
+            {messages.map(({ message }, i) => {
               return <TransactionMessage key={`message_${i}`} message={message} />;
             })}
           </List>
@@ -316,7 +322,13 @@ export function TransactionModal(props) {
           </Box>
         </TabPanel>
         <TabPanel value={tabIndex} index={1} className={clsx(classes.tabPanel)}>
-          <Box className={classes.messagesData}>{JSON.stringify(messages, null, 2)}</Box>
+          <Box className={classes.messagesData}>
+            {JSON.stringify(
+              messages.map((m) => m.message),
+              null,
+              2
+            )}
+          </Box>
         </TabPanel>
       </DialogContent>
       <DialogActions>
