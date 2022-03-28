@@ -73,9 +73,9 @@ export function PrerequisiteList({ selectedTemplate, setSelectedTemplate }) {
       const galleryTemplate = getGalleryTemplate();
       if ((isBalanceValidated || hasDepositorSupport) && isCertificateValidated && isLocalCertificateValidated) {
         if (redeployTemplate || galleryTemplate) {
-          history.push(UrlService.createDeploymentStepManifest());
+          history.replace(UrlService.createDeploymentStepManifest());
         } else {
-          history.push(UrlService.createDeploymentStepTemplate());
+          history.replace(UrlService.createDeploymentStepTemplate());
         }
       }
     }
@@ -118,9 +118,9 @@ export function PrerequisiteList({ selectedTemplate, setSelectedTemplate }) {
 
   function handleNextClick() {
     if (selectedTemplate) {
-      history.push(UrlService.createDeploymentStepManifest());
+      history.replace(UrlService.createDeploymentStepManifest());
     } else {
-      history.push(UrlService.createDeploymentStepTemplate());
+      history.replace(UrlService.createDeploymentStepTemplate());
     }
   }
 

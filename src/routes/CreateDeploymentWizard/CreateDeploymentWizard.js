@@ -58,9 +58,6 @@ export function CreateDeploymentWizard() {
   function handleBackClick() {
     let route = "";
     switch (step) {
-      case "chooseTemplate":
-        route = UrlService.createDeployment();
-        break;
       case "editManifest":
         route = UrlService.createDeploymentStepTemplate();
         break;
@@ -70,7 +67,12 @@ export function CreateDeploymentWizard() {
       default:
         break;
     }
-    history.replace(route);
+
+    if (route) {
+      history.replace(route);
+    } else {
+      history.goBack();
+    }
   }
 
   let activeStep = getStepIndexByParam(step);
