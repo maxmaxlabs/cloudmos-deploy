@@ -48,8 +48,13 @@ export function toResourceUnits(computeResources) {
 
   let units = {};
   if (computeResources.cpu) {
+    const cpu =
+      typeof computeResources.cpu.units === "string" && computeResources.cpu.units.endsWith("m")
+        ? computeResources.cpu.units.slice(0, -1)
+        : (computeResources.cpu.units * 1000).toString();
+
     units.cpu = {
-      units: { val: (computeResources.cpu.units * 1000).toString() },
+      units: { val: cpu },
       attributes:
         computeResources.cpu.attributes &&
         Object.keys(computeResources.cpu.attributes)
@@ -131,7 +136,9 @@ function DeploymentGroups(yamlJson) {
 
       const akashAuditingAddress = "akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63";
       if (infra.signedBy?.allOf?.includes(akashAuditingAddress) || infra.signedBy?.anyOf?.includes(akashAuditingAddress)) {
-        throw new CustomValidationError(`The auditing address "${akashAuditingAddress}" is only valid on the mainnet. You must remove it from the signedBy section to continue.`);
+        throw new CustomValidationError(
+          `The auditing address "${akashAuditingAddress}" is only valid on the mainnet. You must remove it from the signedBy section to continue.`
+        );
       }
 
       if (!group) {
