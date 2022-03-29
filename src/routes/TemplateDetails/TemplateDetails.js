@@ -42,7 +42,7 @@ export function TemplateDetails() {
   const template = getTemplateByPath(templatePath);
 
   function handleBackClick() {
-    history.push(UrlService.templates());
+    history.goBack();
   }
 
   function handleOpenGithub() {

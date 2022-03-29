@@ -43,8 +43,8 @@ export class ApiUrlService {
 export async function loadWithPagination(baseUrl, dataKey, limit) {
   let items = [];
   let nextKey = null;
-  let callCount = 1;
-  let totalCount = null;
+  // let callCount = 1;
+  // let totalCount = null;
 
   do {
     const _hasQueryParam = hasQueryParam(baseUrl);
@@ -56,13 +56,13 @@ export async function loadWithPagination(baseUrl, dataKey, limit) {
     const response = await axios.get(queryUrl);
     const data = response.data;
 
-    if (!nextKey) {
-      totalCount = data.pagination.total;
-    }
+    // if (!nextKey) {
+    //   totalCount = data.pagination.total;
+    // }
 
     items = items.concat(data[dataKey]);
     nextKey = data.pagination.next_key;
-    callCount++;
+    // callCount++;
 
     // console.log(`Got ${items.length} of ${totalCount}`);
   } while (nextKey);
