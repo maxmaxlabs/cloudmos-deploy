@@ -13,7 +13,9 @@ import {
   ListItemSecondaryAction,
   CircularProgress,
   Button,
-  Tooltip
+  Tooltip,
+  Typography,
+  Chip
 } from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
 import FileCopyIcon from "@material-ui/icons/FileCopy";
@@ -47,7 +49,9 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: "1rem"
   },
   cardHeader: {
-    borderBottom: "1px solid rgba(0,0,0,0.1)"
+    borderBottom: "1px solid rgba(0,0,0,0.1)",
+    padding: ".5rem 1rem",
+    backgroundColor: theme.palette.grey[100]
   },
   cardHeaderTitle: {
     fontSize: "18px"
@@ -69,6 +73,15 @@ const useStyles = makeStyles((theme) => ({
   whiteLink: {
     fontWeight: "bold",
     color: theme.palette.common.white
+  },
+  marginLeft: {
+    marginLeft: "1rem"
+  },
+  serviceChip: {
+    height: ".875rem",
+    lineHeight: ".875rem",
+    fontSize: ".5rem",
+    fontWeight: "bold"
   }
 }));
 
@@ -181,57 +194,65 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
               />
               <LabelValue label="GSEQ:" value={lease.gseq} marginLeft="1rem" fontSize="1rem" />
               <LabelValue label="OSEQ:" value={lease.oseq} marginLeft="1rem" fontSize="1rem" />
+
+              <Box marginLeft="1rem" display="inline-flex">
+                <LinkTo onClick={() => setActiveTab("LOGS")}>View logs</LinkTo>
+              </Box>
             </Box>
           }
         />
         <CardContent>
-          <Box paddingBottom="1rem">
-            <SpecDetail
-              cpuAmount={lease.cpuAmount}
-              memoryAmount={lease.memoryAmount}
-              storageAmount={lease.storageAmount}
-              color={lease.state === "active" ? "primary" : "default"}
-            />
-          </Box>
-          <LabelValue
-            label="Price:"
-            value={
-              <>
-                <FormattedNumber value={lease.price.amount} maximumSignificantDigits={18} />
-                uakt ({`~${getAvgCostPerMonth(lease.price.amount)}akt/month`})
-                <Box component="span" marginLeft=".5rem">
-                  <PricePerMonth perBlockValue={uaktToAKT(lease.price.amount, 6)} />
-                </Box>
-                <PriceEstimateTooltip value={uaktToAKT(lease.price.amount, 6)} />
-              </>
-            }
-          />
-
-          <LabelValue
-            label="Provider:"
-            value={
-              <>
-                {isLoadingProviderStatus && <CircularProgress size="1rem" />}
-                {providerStatus && (
+          <Box display="flex">
+            <Box>
+              <Box paddingBottom="1rem">
+                <SpecDetail
+                  cpuAmount={lease.cpuAmount}
+                  memoryAmount={lease.memoryAmount}
+                  storageAmount={lease.storageAmount}
+                  color={lease.state === "active" ? "primary" : "default"}
+                />
+              </Box>
+              <LabelValue
+                label="Price:"
+                value={
                   <>
-                    {providerStatus.name}
-
-                    <Box marginLeft={1}>
-                      <LinkTo onClick={() => setIsViewingProviderDetail(true)}>View details</LinkTo>
+                    <PricePerMonth perBlockValue={uaktToAKT(lease.price.amount, 6)} />
+                    <PriceEstimateTooltip value={uaktToAKT(lease.price.amount, 6)} />
+                    <Box component="span" marginLeft=".5rem">
+                      <FormattedNumber value={lease.price.amount} maximumSignificantDigits={18} />
+                      uakt ({`~${getAvgCostPerMonth(lease.price.amount)}akt/month`})
                     </Box>
                   </>
-                )}
-              </>
-            }
-            marginTop="5px"
-            marginBottom=".5rem"
-          />
+                }
+              />
 
-          {providerInfo && (
-            <Box marginBottom="1rem">
-              <ProviderAttributes provider={providerInfo} />
+              <LabelValue
+                label="Provider:"
+                value={
+                  <>
+                    {isLoadingProviderStatus && <CircularProgress size="1rem" />}
+                    {providerStatus && (
+                      <>
+                        {providerStatus.name}
+
+                        <Box marginLeft={1}>
+                          <LinkTo onClick={() => setIsViewingProviderDetail(true)}>View details</LinkTo>
+                        </Box>
+                      </>
+                    )}
+                  </>
+                }
+                marginTop="5px"
+                marginBottom=".5rem"
+              />
             </Box>
-          )}
+
+            {providerInfo && (
+              <Box paddingLeft="1rem" flexGrow={1}>
+                <ProviderAttributes provider={providerInfo} />
+              </Box>
+            )}
+          </Box>
 
           {isLeaseNotFound && (
             <Alert severity="warning">
@@ -287,12 +308,27 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
                       </Box>
                     )}
                   </Box>
-                  Available: {service.available}
-                  <br />
-                  Ready Replicas: {service.available}
-                  <br />
-                  Total: {service.available}
-                  <br />
+
+                  <Box display="flex" alignItems="center" marginTop="2px">
+                    <Typography variant="body2">
+                      Available:&nbsp;
+                      <Chip label={service.available} size="small" color={service.available > 0 ? "primary" : "default"} className={classes.serviceChip} />
+                    </Typography>
+                    <Typography variant="body2" className={classes.marginLeft}>
+                      Ready Replicas:&nbsp;
+                      <Chip
+                        label={service.ready_replicas}
+                        size="small"
+                        color={service.ready_replicas > 0 ? "primary" : "default"}
+                        className={classes.serviceChip}
+                      />
+                    </Typography>
+                    <Typography variant="body2" className={classes.marginLeft}>
+                      Total:&nbsp;
+                      <Chip label={service.total} size="small" color="primary" className={classes.serviceChip} />
+                    </Typography>
+                  </Box>
+
                   {leaseStatus.forwarded_ports[service.name]?.length > 0 && (
                     <>
                       Forwarded Ports:{" "}

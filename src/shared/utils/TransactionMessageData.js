@@ -20,7 +20,7 @@ export class TransactionMessageData {
     // TODO MsgCloseGroup
     // TODO MsgPauseGroup
     // TODO MsgStartGroup
-    MSG_CREATE_LEASE: { type: "", gas: 600000 },
+    MSG_CREATE_LEASE: { type: "", gas: 800000 },
     MSG_REVOKE_CERTIFICATE: { type: "", gas: 125000 },
     MSG_CREATE_CERTIFICATE: { type: "", gas: 125000 },
 

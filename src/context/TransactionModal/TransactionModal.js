@@ -47,7 +47,7 @@ export function TransactionModal(props) {
   const [memo, setMemo] = useState("");
   const baseGas = messages.map((m) => m.gas).reduce((a, b) => a + b, 0);
   const [gas, setGas] = useState(baseGas);
-  const [customFee, setCustomFee] = useState(uaktToAKT(selectedNetworkId === "mainnet" ? fees["avg"] : edgenetFees["avg"]));
+  const [customFee, setCustomFee] = useState(uaktToAKT(selectedNetworkId === "mainnet" ? fees["avg"] * messages.length : edgenetFees["avg"] * messages.length));
   const [isSettingCustomFee, setIsCustomFee] = useState(false);
   const [currentFee, setCurrentFee] = useState("avg");
   const classes = useStyles();
@@ -150,7 +150,7 @@ export function TransactionModal(props) {
   const showTransactionSnackbar = (snackTitle, snackMessage, transactionHash, snackVariant) => {
     enqueueSnackbar(<Snackbar title={snackTitle} subTitle={<TransactionSnackbarContent snackMessage={snackMessage} transactionHash={transactionHash} />} />, {
       variant: snackVariant,
-      autoHideDuration: 15000
+      autoHideDuration: 10000
     });
   };
 

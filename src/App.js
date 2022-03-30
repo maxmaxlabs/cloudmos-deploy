@@ -20,6 +20,7 @@ import { legitPaths } from "./shared/utils/urlUtils";
 import { PriceProvider } from "./context/PriceProvider";
 import { IntlProvider } from "react-intl";
 import { TemplatesProvider } from "./context/TemplatesProvider/TemplatesProviderContext";
+import { AsyncTaskProvider } from "./context/AsyncTaskProvider";
 
 let history = createMemoryHistory({
   initialEntries: ["/"],
@@ -88,25 +89,27 @@ function App() {
               classes={{ root: classes.snackbarRoot }}
               dense
             >
-              <PriceProvider>
-                <SettingsProvider>
-                  <WalletProvider>
-                    <TransactionModalProvider>
-                      <PasswordConfirmationModalProvider>
-                        <CertificateProvider>
-                          <LocalNoteProvider>
-                            <TemplatesProvider>
-                              <Helmet defaultTitle="Akashlytics Deploy" titleTemplate="Akashlytics Deploy - %s" />
+              <AsyncTaskProvider>
+                <PriceProvider>
+                  <SettingsProvider>
+                    <WalletProvider>
+                      <TransactionModalProvider>
+                        <PasswordConfirmationModalProvider>
+                          <CertificateProvider>
+                            <LocalNoteProvider>
+                              <TemplatesProvider>
+                                <Helmet defaultTitle="Akashlytics Deploy" titleTemplate="Akashlytics Deploy - %s" />
 
-                              <AppSettingsContainer />
-                            </TemplatesProvider>
-                          </LocalNoteProvider>
-                        </CertificateProvider>
-                      </PasswordConfirmationModalProvider>
-                    </TransactionModalProvider>
-                  </WalletProvider>
-                </SettingsProvider>
-              </PriceProvider>
+                                <AppSettingsContainer />
+                              </TemplatesProvider>
+                            </LocalNoteProvider>
+                          </CertificateProvider>
+                        </PasswordConfirmationModalProvider>
+                      </TransactionModalProvider>
+                    </WalletProvider>
+                  </SettingsProvider>
+                </PriceProvider>
+              </AsyncTaskProvider>
             </SnackbarProvider>
           </QueryClientProvider>
         </HelmetProvider>

@@ -4,6 +4,7 @@ const providerProxy = require("./providerProxy");
 const Sentry = require("@sentry/electron");
 const path = require("path");
 const fs = require("fs/promises");
+const helpers = require("./helpers");
 
 const appVersion = window.process.argv[window.process.argv.length - 2];
 const appEnvironment = window.process.argv[window.process.argv.length - 1];
@@ -66,32 +67,35 @@ contextBridge.exposeInMainWorld("electron", {
       });
 
       function cleanup() {
-        logsWorker?.send("cleanup");
+        logsWorker.kill();
+        delete logsWorker;
       }
-
-      logsWorker.on("exit", () => {
-        console.log("clean up before exit");
-        cleanup();
-      });
 
       logsWorker.on("error", (err) => {
         rej("Spawn failed! (" + err + ")");
-        logsWorker.kill();
+        cleanup();
       });
       logsWorker.stderr.on("data", function (data) {
         rej(data);
-        logsWorker.kill();
+        cleanup();
       });
       logsWorker.on("message", (data) => {
         res(data);
-        logsWorker.kill();
+        cleanup();
       });
 
       logsWorker.send({ appPath, url, certPem, prvPem, fileName });
     });
   },
-  cancelSaveLogs: () => {
+  cancelSaveLogs: async () => {
+    logsWorker?.send("cleanup");
+
+    await helpers.sleep(500);
+
     logsWorker?.kill();
+    delete logsWorker;
+
+    throw new Error("Cancelled export logs");
   },
   saveLogFile: async (filePath) => {
     const response = await ipcRenderer.invoke("dialog", "showSaveDialog", {

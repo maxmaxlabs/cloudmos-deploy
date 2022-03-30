@@ -2,24 +2,25 @@ const providerProxy = require("../providerProxy");
 const fs = require("fs/promises");
 const syncFs = require("fs");
 const winston = require("winston");
+const helpers = require("../helpers");
 
 let socket;
 
 const logger = winston.createLogger({
   level: "info",
   format: winston.format.simple(),
-  transports: [new winston.transports.File({ filename: "electron.log" })]
+  transports: [new winston.transports.File({ filename: "electron.export.log" })]
 });
 
 process.on("message", async (value) => {
-  logger.info("Exporting logs");
+  logger.info("Exporting logs " + value);
 
   if (value === "cleanup") {
+    logger.info("Cleanup");
     socket?.close();
-    return;
+    delete socket;
+    process.exit(0);
   }
-
-  console.log("yo wtf");
 
   const { appPath, url, certPem, prvPem, fileName } = value;
   const dir = `${appPath}/logs`;
@@ -34,8 +35,6 @@ process.on("message", async (value) => {
   let isFinished = false;
   let lastMessageTimestamp;
 
-  console.log("opening socket", url);
-
   socket = providerProxy.openWebSocket(url, certPem, prvPem, (message) => {
     let parsedLog = JSON.parse(message);
     parsedLog.service = parsedLog.name.split("-")[0];
@@ -46,10 +45,8 @@ process.on("message", async (value) => {
     lastMessageTimestamp = Date.now();
   });
 
-  await sleep(5000);
-
   while (!isFinished) {
-    await sleep(1000);
+    await helpers.sleep(1000);
 
     const elapsed = Date.now() - lastMessageTimestamp;
 
@@ -63,7 +60,3 @@ process.on("message", async (value) => {
 
   process.send(filePath);
 });
-
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}

@@ -9,7 +9,7 @@ const useStyles = makeStyles((theme) => ({
     flexBasis: "45%",
     margin: "2px 0",
     backgroundColor: "rgba(0,0,0,0.05)",
-    borderRadius: "1rem",
+    borderRadius: "4px",
     padding: ".5rem 1rem",
     maxHeight: "100px",
     overflow: "hidden",
