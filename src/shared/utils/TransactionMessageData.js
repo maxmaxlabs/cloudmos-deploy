@@ -13,20 +13,20 @@ export function setMessageTypes() {
 
 export class TransactionMessageData {
   static Types = {
-    MSG_CLOSE_DEPLOYMENT: { type: "", gas: 250000 },
-    MSG_CREATE_DEPLOYMENT: { type: "", gas: 200000 },
-    MSG_DEPOSIT_DEPLOYMENT: { type: "", gas: 125000 },
-    MSG_UPDATE_DEPLOYMENT: { type: "", gas: 150000 },
+    MSG_CLOSE_DEPLOYMENT: { type: "", gas: 500000 },
+    MSG_CREATE_DEPLOYMENT: { type: "", gas: 500000 },
+    MSG_DEPOSIT_DEPLOYMENT: { type: "", gas: 300000 },
+    MSG_UPDATE_DEPLOYMENT: { type: "", gas: 300000 },
     // TODO MsgCloseGroup
     // TODO MsgPauseGroup
     // TODO MsgStartGroup
-    MSG_CREATE_LEASE: { type: "", gas: 800000 },
-    MSG_REVOKE_CERTIFICATE: { type: "", gas: 125000 },
-    MSG_CREATE_CERTIFICATE: { type: "", gas: 125000 },
+    MSG_CREATE_LEASE: { type: "", gas: 1000000 },
+    MSG_REVOKE_CERTIFICATE: { type: "", gas: 300000 },
+    MSG_CREATE_CERTIFICATE: { type: "", gas: 300000 },
 
     // Cosmos
-    MSG_SEND_TOKENS: { type: "/cosmos.bank.v1beta1.MsgSend", gas: 100000 },
-    MSG_GRANT: { type: "/cosmos.authz.v1beta1.MsgGrant", gas: 100000 }
+    MSG_SEND_TOKENS: { type: "/cosmos.bank.v1beta1.MsgSend", gas: 300000 },
+    MSG_GRANT: { type: "/cosmos.authz.v1beta1.MsgGrant", gas: 300000 }
   };
 
   static getRevokeCertificateMsg(address, serial) {
