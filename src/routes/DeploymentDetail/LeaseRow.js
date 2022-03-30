@@ -310,23 +310,27 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
                   </Box>
 
                   <Box display="flex" alignItems="center" marginTop="2px">
-                    <Typography variant="body2">
-                      Available:&nbsp;
+                    <Box display="flex" alignItems="center">
+                      <Typography variant="body2">Available:&nbsp;</Typography>
                       <Chip label={service.available} size="small" color={service.available > 0 ? "primary" : "default"} className={classes.serviceChip} />
-                    </Typography>
-                    <Typography variant="body2" className={classes.marginLeft}>
-                      Ready Replicas:&nbsp;
+                    </Box>
+                    <Box display="flex" alignItems="center">
+                      <Typography variant="body2" className={classes.marginLeft}>
+                        Ready Replicas:&nbsp;
+                      </Typography>
                       <Chip
                         label={service.ready_replicas}
                         size="small"
                         color={service.ready_replicas > 0 ? "primary" : "default"}
                         className={classes.serviceChip}
                       />
-                    </Typography>
-                    <Typography variant="body2" className={classes.marginLeft}>
-                      Total:&nbsp;
+                    </Box>
+                    <Box display="flex" alignItems="center">
+                      <Typography variant="body2" className={classes.marginLeft}>
+                        Total:&nbsp;
+                      </Typography>
                       <Chip label={service.total} size="small" color="primary" className={classes.serviceChip} />
-                    </Typography>
+                    </Box>
                   </Box>
 
                   {leaseStatus.forwarded_ports[service.name]?.length > 0 && (
