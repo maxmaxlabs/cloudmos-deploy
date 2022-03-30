@@ -99,7 +99,7 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
     refetch: getLeaseStatus,
     isLoading: isLoadingLeaseStatus
   } = useLeaseStatus(providerInfo?.host_uri, lease, {
-    enabled: lease.state === "active" && !isServicesAvailable && !!providerInfo?.host_uri && !!localCert,
+    enabled: isLeaseActive && !isServicesAvailable && !!providerInfo?.host_uri && !!localCert,
     refetchInterval: 10_000,
     onSuccess: (leaseStatus) => {
       if (leaseStatus) {
@@ -195,9 +195,11 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
               <LabelValue label="GSEQ:" value={lease.gseq} marginLeft="1rem" fontSize="1rem" />
               <LabelValue label="OSEQ:" value={lease.oseq} marginLeft="1rem" fontSize="1rem" />
 
-              <Box marginLeft="1rem" display="inline-flex">
-                <LinkTo onClick={() => setActiveTab("LOGS")}>View logs</LinkTo>
-              </Box>
+              {isLeaseActive && (
+                <Box marginLeft="1rem" display="inline-flex">
+                  <LinkTo onClick={() => setActiveTab("LOGS")}>View logs</LinkTo>
+                </Box>
+              )}
             </Box>
           }
         />
@@ -209,7 +211,7 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
                   cpuAmount={lease.cpuAmount}
                   memoryAmount={lease.memoryAmount}
                   storageAmount={lease.storageAmount}
-                  color={lease.state === "active" ? "primary" : "default"}
+                  color={isLeaseActive ? "primary" : "default"}
                 />
               </Box>
               <LabelValue

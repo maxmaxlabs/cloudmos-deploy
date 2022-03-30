@@ -42,7 +42,9 @@ const useStyles = makeStyles((theme) => ({
   },
   infoContainer: {
     flexGrow: "1",
-    padding: "0 1rem"
+    padding: "0 1rem",
+    flex: 1,
+    minWidth: 0
   },
   deploymentInfo: {
     display: "flex",
@@ -95,7 +97,7 @@ export function DeploymentListRow({ deployment, isSelectable, onSelectDeployment
   const timeLeft = getTimeLeft(deploymentCost, deployment.escrowBalance);
   const deploymentName = name ? (
     <>
-      <Typography variant="body2">
+      <Typography variant="body2" className="text-truncate">
         <strong>{name}</strong>
       </Typography>
       <span className={classes.dseq}>&nbsp;-&nbsp;{deployment.dseq}</span>
@@ -164,12 +166,14 @@ export function DeploymentListRow({ deployment, isSelectable, onSelectDeployment
 
         <div className={classes.infoContainer}>
           <div className={classes.deploymentInfo}>
-            <Box display="flex" alignItems="baseline">
+            <Box display="flex" alignItems="baseline" flex={1} minWidth={0}>
               {deploymentName}
             </Box>
+          </div>
 
+          <div className={classes.deploymentInfo}>
             {isActive && isValid(timeLeft) && (
-              <Box component="span" marginLeft="1rem" display="flex" alignItems="center">
+              <Box component="span" display="flex" alignItems="center">
                 Time left:&nbsp;<strong>~{formatDistanceToNow(timeLeft)}</strong>
                 {showWarning && <WarningIcon fontSize="small" color="error" className={classes.warningIcon} />}
               </Box>

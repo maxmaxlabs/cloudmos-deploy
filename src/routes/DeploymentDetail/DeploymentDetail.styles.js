@@ -13,11 +13,6 @@ export const useStyles = makeStyles((theme) => ({
   cardTitle: {
     display: "flex"
   },
-  title: {
-    fontWeight: "bold",
-    marginLeft: ".5rem",
-    fontSize: "1.5rem"
-  },
   tabsRoot: {
     minHeight: "36px",
     "& button": {

@@ -218,7 +218,7 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
                     </ToggleButtonGroup>
                   )}
 
-                  <ToggleButtonGroup color="primary" value={selectedLogsMode} exclusive onChange={handleModeChange}>
+                  <ToggleButtonGroup color="primary" value={selectedLogsMode} exclusive onChange={handleModeChange} size="small">
                     <ToggleButton value="logs" size="small">
                       Logs
                     </ToggleButton>

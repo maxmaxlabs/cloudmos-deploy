@@ -2,6 +2,7 @@
 
 # misc
 *.log
+logs
 
 # dependencies
 /node_modules

@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, createRef } from "react";
 import { useParams, useHistory } from "react-router-dom";
-import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-import { CircularProgress, Tabs, Tab, IconButton, Typography, Box } from "@material-ui/core";
+import { CircularProgress, Tabs, Tab, Typography, Box } from "@material-ui/core";
 import { LeaseRow } from "./LeaseRow";
 import { useStyles } from "./DeploymentDetail.styles";
 import { DeploymentSubHeader } from "./DeploymentSubHeader";
@@ -9,14 +8,13 @@ import { useWallet } from "../../context/WalletProvider";
 import { DeploymentJsonViewer } from "./DeploymentJsonViewer";
 import { ManifestEditor } from "./ManifestEditor";
 import { useDeploymentDetail, useLeaseList } from "../../queries";
-import RefreshIcon from "@material-ui/icons/Refresh";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 import { Helmet } from "react-helmet-async";
-import { useLocalNotes } from "../../context/LocalNoteProvider";
 import { DeploymentLogs } from "./DeploymentLogs";
 import { useCertificate } from "../../context/CertificateProvider";
 import Alert from "@material-ui/lab/Alert";
 import { getDeploymentLocalData } from "../../shared/utils/deploymentLocalDataUtils";
+import { DeploymentDetailTopBar } from "./DeploymentDetailTopBar";
 
 export function DeploymentDetail(props) {
   const [deployment, setDeployment] = useState(null);
@@ -24,7 +22,6 @@ export function DeploymentDetail(props) {
   const classes = useStyles();
   const history = useHistory();
   const { address } = useWallet();
-  const { getDeploymentName } = useLocalNotes();
   const { dseq } = useParams();
   const {
     data: deploymentDetail,
@@ -37,8 +34,6 @@ export function DeploymentDetail(props) {
   const { certificate, isLocalCertMatching, localCert } = useCertificate();
   const [deploymentManifest, setDeploymentManifest] = useState(null);
   const [selectedLogsMode, setSelectedLogsMode] = useState("logs");
-
-  const deploymentName = getDeploymentName(dseq);
 
   const loadLeases = useCallback(async () => {
     getLeases();
@@ -95,17 +90,21 @@ export function DeploymentDetail(props) {
     }
   }
 
-  function handleBackClick() {
-    history.goBack();
-  }
-
   return (
     <div className={classes.root}>
       <Helmet title="Deployment Detail" />
 
       <LinearLoadingSkeleton isLoading={isLoadingLeases || isLoadingDeployment} />
 
-      <Box display="flex" alignItems="center" padding="0 .5rem">
+      <DeploymentDetailTopBar
+        address={address}
+        loadDeploymentDetail={loadDeploymentDetail}
+        removeLeases={removeLeases}
+        setActiveTab={setActiveTab}
+        deployment={deployment}
+      />
+
+      {/* <Box display="flex" alignItems="center" padding="0 .5rem">
         <IconButton aria-label="back" onClick={handleBackClick}>
           <ChevronLeftIcon />
         </IconButton>
@@ -123,17 +122,10 @@ export function DeploymentDetail(props) {
             <RefreshIcon />
           </IconButton>
         </Box>
-      </Box>
+      </Box> */}
 
       {deployment && (
-        <DeploymentSubHeader
-          deployment={deployment}
-          deploymentCost={hasLeases ? leases.reduce((prev, current) => prev + current.price.amount, 0) : 0}
-          address={address}
-          loadDeploymentDetail={loadDeploymentDetail}
-          removeLeases={removeLeases}
-          setActiveTab={setActiveTab}
-        />
+        <DeploymentSubHeader deployment={deployment} deploymentCost={hasLeases ? leases.reduce((prev, current) => prev + current.price.amount, 0) : 0} />
       )}
 
       <Tabs value={activeTab} onChange={(ev, value) => setActiveTab(value)} indicatorColor="primary" textColor="primary" classes={{ root: classes.tabsRoot }}>
@@ -161,7 +153,7 @@ export function DeploymentDetail(props) {
         </Box>
       )}
       {activeTab === "DETAILS" && (
-        <Box padding="1rem">
+        <Box padding=".5rem 1rem">
           <Typography variant="h6" className={classes.title}>
             Leases
           </Typography>

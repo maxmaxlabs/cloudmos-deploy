@@ -1,41 +1,18 @@
-import { useState } from "react";
-import { Grid, Menu, makeStyles, Box, Button, IconButton, Tooltip } from "@material-ui/core";
+import { Grid, makeStyles, Box, Tooltip } from "@material-ui/core";
 import InfoIcon from "@material-ui/icons/Info";
-import MoreHorizIcon from "@material-ui/icons/MoreHoriz";
-import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
-import EditIcon from "@material-ui/icons/Edit";
 import { getAvgCostPerMonth, getTimeLeft, uaktToAKT } from "../../shared/utils/priceUtils";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import isValid from "date-fns/isValid";
 import { StatusPill } from "../../shared/components/StatusPill";
 import { LabelValue } from "../../shared/components/LabelValue";
-import { useHistory } from "react-router";
-import { useTransactionModal } from "../../context/TransactionModal";
-import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
-import { UrlService } from "../../shared/utils/urlUtils";
-import { analytics } from "../../shared/utils/analyticsUtils";
-import { useLocalNotes } from "../../context/LocalNoteProvider";
-import { DeploymentDepositModal } from "./DeploymentDepositModal";
-import PublishIcon from "@material-ui/icons/Publish";
 import { PricePerMonth } from "../../shared/components/PricePerMonth";
 import { PriceValue } from "../../shared/components/PriceValue";
 import { PriceEstimateTooltip } from "../../shared/components/PriceEstimateTooltip";
-import { CustomMenuItem } from "../../shared/components/CustomMenuItem";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    padding: "1rem 1rem .5rem"
-  },
-  actionContainer: {
-    paddingTop: ".5rem",
-    display: "flex",
-    alignItems: "center",
-    "& .MuiButtonBase-root:first-child": {
-      marginLeft: 0
-    }
-  },
-  actionButton: {
-    marginLeft: ".5rem"
+    padding: "1rem",
+    borderBottom: `1px solid ${theme.palette.grey[300]}`
   },
   tooltip: {
     fontSize: "1rem"
@@ -46,78 +23,14 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function DeploymentSubHeader({ deployment, deploymentCost, address, loadDeploymentDetail, removeLeases, setActiveTab }) {
+export function DeploymentSubHeader({ deployment, deploymentCost }) {
   const classes = useStyles();
   const timeLeft = getTimeLeft(deploymentCost, deployment.escrowBalance);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const { sendTransaction } = useTransactionModal();
-  const { changeDeploymentName, getDeploymentData } = useLocalNotes();
-  const history = useHistory();
-  const [isDepositingDeployment, setIsDepositingDeployment] = useState(false);
-  const storageDeploymentData = getDeploymentData(deployment.dseq);
   const avgCost = getAvgCostPerMonth(deploymentCost);
-
-  const onCloseDeployment = async () => {
-    handleMenuClose();
-
-    try {
-      const message = TransactionMessageData.getCloseDeploymentMsg(address, deployment.dseq);
-
-      const response = await sendTransaction([message]);
-
-      if (response) {
-        setActiveTab("DETAILS");
-
-        removeLeases();
-
-        loadDeploymentDetail();
-
-        await analytics.event("deploy", "close deployment");
-      }
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  function onChangeName() {
-    handleMenuClose();
-    changeDeploymentName(deployment.dseq);
-  }
-
-  function handleMenuClick(ev) {
-    setAnchorEl(ev.currentTarget);
-  }
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const redeploy = () => {
-    const url = UrlService.createDeployment(deployment.dseq);
-    history.push(url);
-  };
-
-  const onDeploymentDeposit = async (deposit, depositorAddress) => {
-    setIsDepositingDeployment(false);
-
-    try {
-      const message = TransactionMessageData.getDepositDeploymentMsg(address, deployment.dseq, deposit, depositorAddress);
-
-      const response = await sendTransaction([message]);
-
-      if (response) {
-        loadDeploymentDetail();
-
-        await analytics.event("deploy", "deployment deposit");
-      }
-    } catch (error) {
-      throw error;
-    }
-  };
 
   return (
     <div className={classes.root}>
-      <Grid container spacing={2}>
+      <Grid container spacing={1}>
         <Grid item xs={3}>
           <LabelValue
             label="Status:"
@@ -174,56 +87,6 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address, loadD
           </Box>
         </Grid>
       </Grid>
-
-      {deployment.state === "active" && (
-        <Box className={classes.actionContainer}>
-          <Button variant="contained" color="primary" className={classes.actionButton} onClick={() => setIsDepositingDeployment(true)} size="small">
-            Add funds
-          </Button>
-          <IconButton aria-label="settings" aria-haspopup="true" onClick={handleMenuClick} className={classes.actionButton} size="small">
-            <MoreHorizIcon fontSize="large" />
-          </IconButton>
-
-          <Menu
-            id="long-menu"
-            anchorEl={anchorEl}
-            keepMounted
-            getContentAnchorEl={null}
-            open={Boolean(anchorEl)}
-            onClose={handleMenuClose}
-            anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "right"
-            }}
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "right"
-            }}
-          >
-            <CustomMenuItem onClick={() => onChangeName()} icon={<EditIcon fontSize="small" />} text="Edit Name" />
-            {storageDeploymentData?.manifest && <CustomMenuItem onClick={() => redeploy()} icon={<PublishIcon fontSize="small" />} text="Redeploy" />}
-            <CustomMenuItem onClick={() => onCloseDeployment()} icon={<CancelPresentationIcon fontSize="small" />} text="Close" />
-          </Menu>
-        </Box>
-      )}
-
-      {deployment.state === "closed" && (
-        <Box className={classes.actionContainer}>
-          <Button onClick={() => onChangeName()} variant="contained" color="default" className={classes.actionButton} size="small">
-            <EditIcon fontSize="small" />
-            &nbsp;Edit Name
-          </Button>
-
-          {storageDeploymentData?.manifest && (
-            <Button onClick={() => redeploy()} variant="contained" color="default" className={classes.actionButton} size="small">
-              <PublishIcon fontSize="small" />
-              &nbsp;Redeploy
-            </Button>
-          )}
-        </Box>
-      )}
-
-      {isDepositingDeployment && <DeploymentDepositModal handleCancel={() => setIsDepositingDeployment(false)} onDeploymentDeposit={onDeploymentDeposit} />}
     </div>
   );
 }
