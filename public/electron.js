@@ -105,7 +105,7 @@ function createWindow() {
     ipcMain.handle("isDev", (event, arg) => {
       return Promise.resolve(isDev);
     });
-    ipcMain.handle('dialog', (event, method, params) => {       
+    ipcMain.handle("dialog", (event, method, params) => {
       return dialog[method](mainWindow, params);
     });
     ipcMain.on("show_notification", (event, notif) => {
@@ -117,6 +117,9 @@ function createWindow() {
     ipcMain.on("relaunch", () => {
       app.relaunch();
       app.exit();
+    });
+    ipcMain.handle("app_path", () => {
+      return Promise.resolve(app.getAppPath());
     });
   } catch (error) {
     logger.error(error);

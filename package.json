@@ -68,6 +68,7 @@
     "electron-updater": "^4.3.9",
     "json-stable-stringify": "^1.0.1",
     "jsrsasign": "^10.2.0",
+    "lodash": "^4.17.21",
     "nanoid": "^3.1.23",
     "node-fetch": "^2.6.1",
     "notistack": "^1.0.9",

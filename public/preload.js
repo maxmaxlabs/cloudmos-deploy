@@ -3,7 +3,6 @@ const { fork } = require("child_process");
 const providerProxy = require("./providerProxy");
 const Sentry = require("@sentry/electron");
 const path = require("path");
-
 const fs = require("fs/promises");
 
 const appVersion = window.process.argv[window.process.argv.length - 2];
@@ -17,6 +16,8 @@ Sentry.init({
 
 // whitelist channels
 const validChannels = ["update_available", "update_downloaded", "download_update", "restart_app", "show_notification", "check_update", "relaunch"];
+
+let logsWorker;
 
 // All of the Node.js APIs are available in the preload process.
 // It has the same sandbox as a Chrome extension.
@@ -41,6 +42,7 @@ contextBridge.exposeInMainWorld("electron", {
   getAppVersion: () => appVersion,
   getAppEnvironment: () => appEnvironment,
   isDev: () => ipcRenderer.invoke("isDev"),
+  appPath: () => ipcRenderer.invoke("app_path"),
   openTemplateFromFile: async () => {
     const response = await ipcRenderer.invoke("dialog", "showOpenDialog", {
       title: "Select a deployment template",
@@ -57,9 +59,61 @@ contextBridge.exposeInMainWorld("electron", {
       return { path, content };
     }
   },
+  downloadLogs: async (appPath, url, certPem, prvPem, fileName) => {
+    return new Promise((res, rej) => {
+      logsWorker = fork(path.join(__dirname, "/workers/log.worker.js"), ["args"], {
+        stdio: ["pipe", "pipe", "pipe", "ipc"]
+      });
+
+      function cleanup() {
+        logsWorker?.send("cleanup");
+      }
+
+      logsWorker.on("exit", () => {
+        console.log("clean up before exit");
+        cleanup();
+      });
+
+      logsWorker.on("error", (err) => {
+        rej("Spawn failed! (" + err + ")");
+        logsWorker.kill();
+      });
+      logsWorker.stderr.on("data", function (data) {
+        rej(data);
+        logsWorker.kill();
+      });
+      logsWorker.on("message", (data) => {
+        res(data);
+        logsWorker.kill();
+      });
+
+      logsWorker.send({ appPath, url, certPem, prvPem, fileName });
+    });
+  },
+  cancelSaveLogs: () => {
+    logsWorker?.kill();
+  },
+  saveLogFile: async (filePath) => {
+    const response = await ipcRenderer.invoke("dialog", "showSaveDialog", {
+      title: "Save log file",
+      defaultPath: filePath,
+      filters: [{ name: "txt", extensions: ["txt"] }],
+      buttonLabel: "Save",
+      properties: []
+    });
+    if (response.canceled) {
+      return null;
+    } else {
+      const path = response.filePath;
+
+      await fs.rename(filePath, path);
+
+      return path;
+    }
+  },
   executeKdf: async (password, kdfConf) => {
     return new Promise((res, rej) => {
-      const myWorker = fork(path.join(__dirname, "wallet.worker.js"), ["args"], {
+      const myWorker = fork(path.join(__dirname, "/workers/wallet.worker.js"), ["args"], {
         stdio: ["pipe", "pipe", "pipe", "ipc"]
       });
 

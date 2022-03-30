@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useCertificate } from "../../context/CertificateProvider";
-import { makeStyles, Checkbox, FormControlLabel, FormGroup, Box } from "@material-ui/core";
+import { makeStyles, Checkbox, FormControlLabel, FormGroup, Box, Button } from "@material-ui/core";
 import { useProviders } from "../../queries";
 import MonacoEditor from "react-monaco-editor";
 import { ToggleButtonGroup, ToggleButton, Alert } from "@material-ui/lab";
@@ -8,6 +8,7 @@ import * as monaco from "monaco-editor";
 import { monacoOptions } from "../../shared/constants";
 import { ViewPanel } from "../../shared/components/ViewPanel";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
+import { useDebouncedEffect } from "../../hooks/useThrottle";
 
 const useStyles = makeStyles((theme) => ({
   leaseSelector: {
@@ -27,19 +28,30 @@ const useStyles = makeStyles((theme) => ({
 
 export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }) {
   const [logs, setLogs] = useState([]);
+  const [logText, setLogText] = useState("");
   const [isWaitingForFirstLog, setIsWaitingForFirstLog] = useState(true);
   const [services, setServices] = useState([]);
   const [selectedServices, setSelectedServices] = useState([]);
   const [stickToBottom, setStickToBottom] = useState(true);
-
   const [selectedLease, setSelectedLease] = useState(null);
-
   const classes = useStyles();
   const { data: providers } = useProviders();
-
   const { localCert, isLocalCertMatching } = useCertificate();
-
   const monacoRef = useRef();
+
+  const options = {
+    ...monacoOptions,
+    readOnly: true
+  };
+
+  useDebouncedEffect(
+    () => {
+      const logText = logs.map((x) => x.message).join("\n");
+      setLogText(logText);
+    },
+    [logs],
+    1000
+  );
 
   useEffect(() => {
     if (!leases || leases.length === 0) return;
@@ -105,13 +117,6 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
     };
   }, [leases, providers, isLocalCertMatching, selectedLogsMode, selectedLease, selectedServices, localCert.certPem, localCert.keyPem, services?.length]);
 
-  const logText = logs.map((x) => x.message).join("\n");
-
-  const options = {
-    ...monacoOptions,
-    readOnly: true
-  };
-
   function setServiceCheck(service, isChecked) {
     if (isChecked) {
       setSelectedServices([...selectedServices, service]);
@@ -139,6 +144,31 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
   function handleLeaseChange(ev, val) {
     setSelectedLease(leases.find((x) => x.id === val));
   }
+
+  const onDownloadLogsClick = async () => {
+    const providerInfo = providers?.find((p) => p.owner === selectedLease.provider);
+
+    try {
+      const url = `${providerInfo.host_uri}/lease/${selectedLease.dseq}/${selectedLease.gseq}/${selectedLease.oseq}/logs?follow=true&tail=100000`;
+
+      const appPath = await window.electron.appPath();
+      const filePath = await window.electron.downloadLogs(
+        appPath,
+        url,
+        localCert.certPem,
+        localCert.keyPem,
+        `${selectedLease.dseq}_${selectedLease.gseq}_${selectedLease.oseq}`
+      );
+
+      debugger;
+
+      const res = await window.electron.saveLogFile(filePath);
+
+      console.log("success", res);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <div className={classes.root}>
@@ -168,10 +198,13 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
                   </ToggleButtonGroup>
                 </div>
 
-                <FormControlLabel
-                  control={<Checkbox color="primary" checked={stickToBottom} onChange={(ev) => setStickToBottom(ev.target.checked)} />}
-                  label={"Stick to bottom"}
-                />
+                <div>
+                  {localCert && <Button onClick={onDownloadLogsClick}>Download logs</Button>}
+                  <FormControlLabel
+                    control={<Checkbox color="primary" checked={stickToBottom} onChange={(ev) => setStickToBottom(ev.target.checked)} />}
+                    label={"Stick to bottom"}
+                  />
+                </div>
               </Box>
 
               {services?.length > 1 && (
