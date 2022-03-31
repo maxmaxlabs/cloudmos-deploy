@@ -1,9 +1,10 @@
-import { List, ListItem, ListItemText, makeStyles, ListItemIcon, IconButton, Tooltip } from "@material-ui/core";
+import { List, ListItem, ListItemText, makeStyles, ListItemIcon, IconButton, Tooltip, Button } from "@material-ui/core";
 import DashboardIcon from "@material-ui/icons/Dashboard";
 import CloudIcon from "@material-ui/icons/Cloud";
 import SettingsIcon from "@material-ui/icons/Settings";
 import CollectionsIcon from "@material-ui/icons/Collections";
 import MenuOpenIcon from "@material-ui/icons/MenuOpen";
+import MenuIcon from "@material-ui/icons/Menu";
 import { Link, useLocation } from "react-router-dom";
 import { UrlService } from "../../shared/utils/urlUtils";
 import { accountBarHeight, statusBarHeight } from "../../shared/constants";
@@ -30,7 +31,8 @@ const useStyles = makeStyles((theme) => ({
     transition: "opacity .3s ease"
   },
   closedListItemIcon: {
-    minWidth: 0
+    minWidth: 0,
+    zIndex: 100
   },
   notSelected: {
     color: theme.palette.text.secondary
@@ -41,6 +43,17 @@ const useStyles = makeStyles((theme) => ({
   tooltip: {
     fontSize: "1rem",
     fontWeight: "normal"
+  },
+  toggleButton: {
+    marginLeft: "-3px"
+  },
+  deployButtonContainer: {
+    paddingLeft: "1rem",
+    transition: "opacity .3s ease"
+  },
+  deployButton: {
+    padding: "2px 10px",
+    fontSize: ".75rem"
   }
 }));
 
@@ -59,11 +72,24 @@ export const LeftNav = ({ onOpenMenuClick, isNavOpen }) => {
     <div className={classes.root} style={{ width: isNavOpen ? drawerWidth : closedDrawerWidth }}>
       <List className={classes.list}>
         <ListItem>
-          <ListItemIcon>
-            <IconButton size="small" onClick={onOpenMenuClick}>
-              <MenuOpenIcon />
+          <ListItemIcon className={classes.closedListItemIcon}>
+            <IconButton size="small" onClick={onOpenMenuClick} className={classes.toggleButton}>
+              {isNavOpen ? <MenuOpenIcon /> : <MenuIcon />}
             </IconButton>
           </ListItemIcon>
+
+          <ListItemText
+            primary={
+              <Button size="small" variant="contained" color="primary" fullWidth component={Link} to="/createDeployment" className={classes.deployButton}>
+                Deploy
+              </Button>
+            }
+            primaryTypographyProps={{
+              component: "div",
+              className: classes.deployButtonContainer,
+              style: { opacity: isNavOpen ? 1 : 0, flex: 1 }
+            }}
+          />
         </ListItem>
 
         {routes.map((route) => {

@@ -1,41 +1,20 @@
-import { useState } from "react";
-import { Grid, Menu, makeStyles, Box, Button, IconButton, Tooltip } from "@material-ui/core";
+import { Grid, makeStyles, Box, Tooltip } from "@material-ui/core";
 import InfoIcon from "@material-ui/icons/Info";
-import MoreHorizIcon from "@material-ui/icons/MoreHoriz";
-import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
-import EditIcon from "@material-ui/icons/Edit";
-import { getAvgCostPerMonth, getTimeLeft, uaktToAKT } from "../../shared/utils/priceUtils";
+import WarningIcon from "@material-ui/icons/Warning";
+import { getAvgCostPerMonth, uaktToAKT, useRealTimeLeft } from "../../shared/utils/priceUtils";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import isValid from "date-fns/isValid";
 import { StatusPill } from "../../shared/components/StatusPill";
 import { LabelValue } from "../../shared/components/LabelValue";
-import { useHistory } from "react-router";
-import { useTransactionModal } from "../../context/TransactionModal";
-import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
-import { UrlService } from "../../shared/utils/urlUtils";
-import { analytics } from "../../shared/utils/analyticsUtils";
-import { useLocalNotes } from "../../context/LocalNoteProvider";
-import { DeploymentDepositModal } from "./DeploymentDepositModal";
-import PublishIcon from "@material-ui/icons/Publish";
 import { PricePerMonth } from "../../shared/components/PricePerMonth";
 import { PriceValue } from "../../shared/components/PriceValue";
 import { PriceEstimateTooltip } from "../../shared/components/PriceEstimateTooltip";
-import { CustomMenuItem } from "../../shared/components/CustomMenuItem";
+import clsx from "clsx";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    padding: "1rem 1rem .5rem"
-  },
-  actionContainer: {
-    paddingTop: ".5rem",
-    display: "flex",
-    alignItems: "center",
-    "& .MuiButtonBase-root:first-child": {
-      marginLeft: 0
-    }
-  },
-  actionButton: {
-    marginLeft: ".5rem"
+    padding: ".5rem 1rem",
+    borderBottom: `1px solid ${theme.palette.grey[300]}`
   },
   tooltip: {
     fontSize: "1rem"
@@ -43,81 +22,34 @@ const useStyles = makeStyles((theme) => ({
   tooltipIcon: {
     fontSize: "1rem",
     color: theme.palette.text.secondary
+  },
+  warningIcon: {
+    color: theme.palette.error.main
+  },
+  costChip: {
+    display: "inline-flex",
+    alignItems: "baseline",
+    padding: "4px 8px",
+    backgroundColor: theme.palette.grey[800],
+    color: "white",
+    borderRadius: "4px",
+    marginTop: "4px",
+    fontSize: ".75rem",
+    "& svg": {
+      color: theme.palette.primary.contrastText
+    }
   }
 }));
 
-export function DeploymentSubHeader({ deployment, deploymentCost, address, loadDeploymentDetail, removeLeases, setActiveTab }) {
+export function DeploymentSubHeader({ deployment, deploymentCost }) {
   const classes = useStyles();
-  const timeLeft = getTimeLeft(deploymentCost, deployment.escrowBalance);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const { sendTransaction } = useTransactionModal();
-  const { changeDeploymentName, getDeploymentData } = useLocalNotes();
-  const history = useHistory();
-  const [isDepositingDeployment, setIsDepositingDeployment] = useState(false);
-  const storageDeploymentData = getDeploymentData(deployment.dseq);
+  const realTimeLeft = useRealTimeLeft(deploymentCost, deployment.escrowBalance, deployment.escrowAccount.settled_at, deployment.createdAt);
   const avgCost = getAvgCostPerMonth(deploymentCost);
-
-  const onCloseDeployment = async () => {
-    handleMenuClose();
-
-    try {
-      const message = TransactionMessageData.getCloseDeploymentMsg(address, deployment.dseq);
-
-      const response = await sendTransaction([message]);
-
-      if (response) {
-        setActiveTab("DETAILS");
-
-        removeLeases();
-
-        loadDeploymentDetail();
-
-        await analytics.event("deploy", "close deployment");
-      }
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  function onChangeName() {
-    handleMenuClose();
-    changeDeploymentName(deployment.dseq);
-  }
-
-  function handleMenuClick(ev) {
-    setAnchorEl(ev.currentTarget);
-  }
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const redeploy = () => {
-    const url = UrlService.createDeployment(deployment.dseq);
-    history.push(url);
-  };
-
-  const onDeploymentDeposit = async (deposit, depositorAddress) => {
-    setIsDepositingDeployment(false);
-
-    try {
-      const message = TransactionMessageData.getDepositDeploymentMsg(address, deployment.dseq, deposit, depositorAddress);
-
-      const response = await sendTransaction([message]);
-
-      if (response) {
-        loadDeploymentDetail();
-
-        await analytics.event("deploy", "deployment deposit");
-      }
-    } catch (error) {
-      throw error;
-    }
-  };
+  const isActive = deployment.state === "active";
 
   return (
     <div className={classes.root}>
-      <Grid container spacing={2}>
+      <Grid container spacing={0}>
         <Grid item xs={3}>
           <LabelValue
             label="Status:"
@@ -132,10 +64,10 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address, loadD
         <Grid item xs={5}>
           <Box display="flex" alignItems="center">
             <LabelValue
-              label="Escrow Balance:"
+              label="Escrow balance:"
               value={
                 <>
-                  {uaktToAKT(deployment.escrowBalance, 6)}AKT{" "}
+                  {uaktToAKT(realTimeLeft?.escrow, 6)}&nbsp;AKT
                   <Box component="span" display="inline-flex" marginLeft=".5rem">
                     <Tooltip
                       classes={{ tooltip: classes.tooltip }}
@@ -144,6 +76,16 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address, loadD
                     >
                       <InfoIcon className={classes.tooltipIcon} />
                     </Tooltip>
+
+                    {!!realTimeLeft && realTimeLeft.escrow < 0 && isActive && (
+                      <Tooltip
+                        classes={{ tooltip: classes.tooltip }}
+                        arrow
+                        title="Your deployment is out of funds and can be closed by your provider at any time now. You can add funds to keep active."
+                      >
+                        <WarningIcon color="error" className={clsx(classes.tooltipIcon, classes.warningIcon)} />
+                      </Tooltip>
+                    )}
                   </Box>
                 </>
               }
@@ -152,78 +94,41 @@ export function DeploymentSubHeader({ deployment, deploymentCost, address, loadD
           </Box>
         </Grid>
         <Grid item xs={4}>
-          {deployment.state === "active" && <LabelValue label="Time left:" value={isValid(timeLeft) && formatDistanceToNow(timeLeft)} />}
+          {isActive && <LabelValue label="Time left:" value={isValid(realTimeLeft?.timeLeft) && `~${formatDistanceToNow(realTimeLeft?.timeLeft)}`} />}
         </Grid>
         <Grid item xs={3}>
           <LabelValue label="DSEQ:" value={deployment.dseq} />
         </Grid>
         <Grid item xs={5}>
-          <LabelValue label="Amount spent:" value={`${uaktToAKT(deployment.transferred.amount, 6)}AKT`} />
-
-          {deployment.transferred.amount && (
-            <strong>
-              ~<PriceValue value={uaktToAKT(deployment.transferred.amount, 6)} />
-            </strong>
-          )}
+          <LabelValue label="Amount spent:" value={`${uaktToAKT(realTimeLeft?.amountSpent, 6)} AKT`} />
         </Grid>
         <Grid item xs={4}>
-          <LabelValue label="Cost/Month:" value={`~${avgCost}AKT`} />
-          <Box display="flex" alignItems="center">
-            {deploymentCost && <PricePerMonth perBlockValue={uaktToAKT(deploymentCost, 6)} />}
-            {deploymentCost && <PriceEstimateTooltip value={uaktToAKT(deploymentCost, 6)} />}
-          </Box>
+          <LabelValue label="Cost/Month:" value={`~${avgCost} AKT`} />
         </Grid>
       </Grid>
 
-      {deployment.state === "active" && (
-        <Box className={classes.actionContainer}>
-          <Button variant="contained" color="primary" className={classes.actionButton} onClick={() => setIsDepositingDeployment(true)} size="small">
-            Add funds
-          </Button>
-          <IconButton aria-label="settings" aria-haspopup="true" onClick={handleMenuClick} className={classes.actionButton} size="small">
-            <MoreHorizIcon fontSize="large" />
-          </IconButton>
+      <Box className={classes.costChip}>
+        <div>
+          Balance:&nbsp;
+          <strong>
+            <PriceValue value={uaktToAKT(realTimeLeft?.escrow, 6)} />
+          </strong>
+        </div>
 
-          <Menu
-            id="long-menu"
-            anchorEl={anchorEl}
-            keepMounted
-            getContentAnchorEl={null}
-            open={Boolean(anchorEl)}
-            onClose={handleMenuClose}
-            anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "right"
-            }}
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "right"
-            }}
-          >
-            <CustomMenuItem onClick={() => onChangeName()} icon={<EditIcon fontSize="small" />} text="Edit Name" />
-            {storageDeploymentData?.manifest && <CustomMenuItem onClick={() => redeploy()} icon={<PublishIcon fontSize="small" />} text="Redeploy" />}
-            <CustomMenuItem onClick={() => onCloseDeployment()} icon={<CancelPresentationIcon fontSize="small" />} text="Close" />
-          </Menu>
+        <Box marginLeft="1rem">
+          Spent:&nbsp;
+          <strong>
+            <PriceValue value={uaktToAKT(realTimeLeft?.amountSpent, 6)} />
+          </strong>
         </Box>
-      )}
 
-      {deployment.state === "closed" && (
-        <Box className={classes.actionContainer}>
-          <Button onClick={() => onChangeName()} variant="contained" color="default" className={classes.actionButton} size="small">
-            <EditIcon fontSize="small" />
-            &nbsp;Edit Name
-          </Button>
-
-          {storageDeploymentData?.manifest && (
-            <Button onClick={() => redeploy()} variant="contained" color="default" className={classes.actionButton} size="small">
-              <PublishIcon fontSize="small" />
-              &nbsp;Redeploy
-            </Button>
-          )}
-        </Box>
-      )}
-
-      {isDepositingDeployment && <DeploymentDepositModal handleCancel={() => setIsDepositingDeployment(false)} onDeploymentDeposit={onDeploymentDeposit} />}
+        {deploymentCost && (
+          <Box display="flex" alignItems="center" marginLeft="1rem">
+            Cost:&nbsp; <PricePerMonth perBlockValue={uaktToAKT(deploymentCost, 6)} typoVariant="caption" />
+            <PriceEstimateTooltip value={uaktToAKT(deploymentCost, 6)} />
+          </Box>
+        )}
+      </Box>
     </div>
   );
 }

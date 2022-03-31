@@ -49,8 +49,13 @@ export function toResourceUnits(computeResources) {
 
   let units = {};
   if (computeResources.cpu) {
+    const cpu =
+      typeof computeResources.cpu.units === "string" && computeResources.cpu.units.endsWith("m")
+        ? computeResources.cpu.units.slice(0, -1)
+        : (computeResources.cpu.units * 1000).toString();
+
     units.cpu = {
-      units: { val: (computeResources.cpu.units * 1000).toString() }
+      units: { val: cpu }
       //attributes: computeResources.cpu.attributes TODO
     };
   }

@@ -44,9 +44,6 @@ export const LeaseChip = ({ lease, providers }) => {
           <Box component="span" marginLeft=".5rem">
             OSEQ: <strong>{lease.oseq}</strong>
           </Box>
-          <Box component="span" marginLeft=".5rem">
-            Status: <strong>{lease.state}</strong>
-          </Box>
 
           {providerName && (
             <Box component="span" marginLeft=".5rem">

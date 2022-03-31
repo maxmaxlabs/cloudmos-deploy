@@ -5,12 +5,14 @@ const useStyles = makeStyles((theme) => ({
   root: { display: "flex", alignItems: "center" },
   label: {
     fontWeight: "bold",
-    color: "black"
+    color: "black",
+    fontSize: ".9rem"
   },
   value: {
     display: "flex",
     alignItems: "center",
-    marginLeft: "1rem"
+    marginLeft: ".5rem",
+    fontSize: ".9rem"
   }
 }));
 

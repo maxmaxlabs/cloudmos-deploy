@@ -79,12 +79,13 @@ QontoStepIcon.propTypes = {
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    padding: "1rem 0 1.5rem"
+    padding: "1rem 0",
+    flex: 1
   },
   label: {
     "&&": {
       fontWeight: "normal",
-      marginTop: ".5rem"
+      marginTop: "0"
     }
   },
   labelCompleted: {

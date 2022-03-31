@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
-import { Box, Avatar, TextField, makeStyles, Typography, List, ListItem, ListItemText, ListItemAvatar, CircularProgress } from "@material-ui/core";
+import { Box, Avatar, TextField, makeStyles, Typography, List, ListItem, ListItemText, ListItemAvatar, CircularProgress, IconButton } from "@material-ui/core";
 import { Helmet } from "react-helmet-async";
 import { useTemplates } from "../../context/TemplatesProvider";
 import { Link } from "react-router-dom";
 import { UrlService } from "../../shared/utils/urlUtils";
 import { ViewPanel } from "../../shared/components/ViewPanel";
 import ImageIcon from "@material-ui/icons/Image";
+import { useHistory } from "react-router-dom";
+import { useQueryParams } from "../../hooks/useQueryParams";
+import CloseIcon from "@material-ui/icons/Close";
 
 const useStyles = makeStyles((theme) => ({
   gallery: {
@@ -36,40 +39,74 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+let timeoutId = null;
+
 export function TemplateGallery(props) {
   const [selectedCategoryTitle, setSelectedCategoryTitle] = useState(null);
   const [searchTerms, setSearchTerms] = useState("");
   const [searchTermsUsed, setSearchTermsUsed] = useState(null);
   const { isLoading, categories, templates } = useTemplates();
+  const query = useQueryParams();
+  const history = useHistory();
+  const selectedCategory = selectedCategoryTitle && categories.find((x) => x.title === selectedCategoryTitle);
+  const classes = useStyles();
+  const searchTermsSplit = searchTermsUsed?.split().map((x) => x.toLowerCase());
+  const searchResults =
+    searchTermsSplit && templates.filter((x) => searchTermsSplit.some((s) => x.name.toLowerCase().includes(s) || x.readme.toLowerCase().includes(s)));
 
   useEffect(() => {
-    if (categories?.length > 0) {
-      setSelectedCategoryTitle(categories[0].title);
+    const queryCategory = query.get("category");
+    const querySearch = query.get("search");
+
+    if (queryCategory) {
+      setSelectedCategoryTitle(queryCategory);
     }
-  }, [categories]);
 
-  useEffect(() => {
-    let timeoutId = null;
-    if (searchTerms) {
-      timeoutId = setTimeout(() => {
-        setSearchTermsUsed(searchTerms);
-      }, 300);
-    } else {
-      setSearchTermsUsed(searchTerms);
+    if (querySearch) {
+      setSearchTerms(querySearch);
+      setSearchTermsUsed(querySearch);
     }
 
     return () => {
       clearTimeout(timeoutId);
     };
-  }, [searchTerms]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const selectedCategory = selectedCategoryTitle && categories.find((x) => x.title === selectedCategoryTitle);
+  useEffect(() => {
+    const queryCategory = query.get("category");
+    if (categories?.length > 0 && !queryCategory) {
+      setSelectedCategoryTitle(categories[0].title);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categories]);
 
-  const classes = useStyles();
+  const onSearchChange = (event) => {
+    const searchValue = event.target.value;
+    setSearchTerms(searchValue);
 
-  const searchTermsSplit = searchTermsUsed?.split().map((x) => x.toLowerCase());
-  const searchResults =
-    searchTermsSplit && templates.filter((x) => searchTermsSplit.some((s) => x.name.toLowerCase().includes(s) || x.readme.toLowerCase().includes(s)));
+    if (searchValue) {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        setSearchTermsUsed(searchValue);
+
+        history.replace(UrlService.templates(selectedCategoryTitle, searchValue));
+      }, 300);
+    } else {
+      setSearchTermsUsed(searchValue);
+      history.replace(UrlService.templates(selectedCategoryTitle, searchValue));
+    }
+  };
+
+  const onCategoryClick = (categoryTitle) => {
+    setSelectedCategoryTitle(categoryTitle);
+    history.replace(UrlService.templates(categoryTitle, searchTerms));
+  };
+
+  const onClearSearch = () => {
+    setSearchTerms("");
+    setSearchTermsUsed("");
+  };
 
   return (
     <Box className={classes.root}>
@@ -88,13 +125,26 @@ export function TemplateGallery(props) {
           repository.
         </Box>
 
-        <TextField fullWidth label="Search" disabled={isLoading} value={searchTerms} onChange={(ev) => setSearchTerms(ev.target.value)} />
+        <TextField
+          fullWidth
+          label="Search"
+          disabled={isLoading}
+          value={searchTerms}
+          onChange={onSearchChange}
+          InputProps={{
+            endAdornment: searchTerms && (
+              <IconButton onClick={onClearSearch} size="small">
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            )
+          }}
+        />
       </Box>
 
-      {searchTermsUsed ? (
+      {searchTermsUsed || searchTerms ? (
         <ViewPanel bottomElementId="footer" overflow="auto" className={classes.templateList}>
           <List className={classes.templateList}>
-            {searchResults.map((template) => (
+            {searchResults?.map((template) => (
               <ListItem button key={template.path} component={Link} to={UrlService.templateDetails(template.path)}>
                 <ListItemAvatar>
                   {template.logoUrl ? (
@@ -131,12 +181,7 @@ export function TemplateGallery(props) {
                 {categories
                   .sort((a, b) => (a.title < b.title ? -1 : 1))
                   .map((category) => (
-                    <ListItem
-                      button
-                      key={category.title}
-                      onClick={() => setSelectedCategoryTitle(category.title)}
-                      selected={category.title === selectedCategoryTitle}
-                    >
+                    <ListItem button key={category.title} onClick={() => onCategoryClick(category.title)} selected={category.title === selectedCategoryTitle}>
                       <ListItemText primary={`${category.title} (${category.templates.length})`} />
                     </ListItem>
                   ))}

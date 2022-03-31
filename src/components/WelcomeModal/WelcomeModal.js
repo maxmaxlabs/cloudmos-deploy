@@ -37,9 +37,6 @@ export const WelcomeModal = ({ open, onClose }) => {
 
         <ul className={classes.ul}>
           <li>
-            <LinkTo onClick={() => window.electron.openUrl("https://docs.akash.network/token/funding")}>Get free tokens</LinkTo>
-          </li>
-          <li>
             <LinkTo onClick={() => window.electron.openUrl("https://docs.akash.network/token/buy")}>Buy tokens</LinkTo>
           </li>
           <Box marginTop="1rem">

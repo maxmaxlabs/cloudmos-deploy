@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useCertificate } from "../../context/CertificateProvider";
-import { makeStyles, Checkbox, FormControlLabel, FormGroup, Box } from "@material-ui/core";
+import { makeStyles, Checkbox, FormControlLabel, FormGroup, Box, Button, CircularProgress } from "@material-ui/core";
 import { useProviders } from "../../queries";
 import MonacoEditor from "react-monaco-editor";
 import { ToggleButtonGroup, ToggleButton, Alert } from "@material-ui/lab";
@@ -8,6 +8,8 @@ import * as monaco from "monaco-editor";
 import { monacoOptions } from "../../shared/constants";
 import { ViewPanel } from "../../shared/components/ViewPanel";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
+import { useDebouncedCallback } from "../../hooks/useThrottle";
+import { useAsyncTask } from "../../context/AsyncTaskProvider";
 
 const useStyles = makeStyles((theme) => ({
   leaseSelector: {
@@ -26,20 +28,34 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }) {
-  const [logs, setLogs] = useState([]);
-  const [isWaitingForFirstLog, setIsWaitingForFirstLog] = useState(true);
+  const [isLoadingLogs, setIsLoadingLogs] = useState(true);
+  const logs = useRef([]);
+  const [logText, setLogText] = useState("");
+  const [isDownloadingLogs, setIsDownloadingLogs] = useState(false);
   const [services, setServices] = useState([]);
   const [selectedServices, setSelectedServices] = useState([]);
   const [stickToBottom, setStickToBottom] = useState(true);
-
   const [selectedLease, setSelectedLease] = useState(null);
-
   const classes = useStyles();
   const { data: providers } = useProviders();
-
   const { localCert, isLocalCertMatching } = useCertificate();
-
   const monacoRef = useRef();
+  const { launchAsyncTask } = useAsyncTask();
+
+  const options = {
+    ...monacoOptions,
+    readOnly: true
+  };
+
+  const updateLogText = useDebouncedCallback(
+    () => {
+      const logText = logs.current.map((x) => x.message).join("\n");
+      setLogText(logText);
+      setIsLoadingLogs(false);
+    },
+    [],
+    1000
+  );
 
   useEffect(() => {
     if (!leases || leases.length === 0) return;
@@ -68,7 +84,7 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
     if (!isLocalCertMatching) return;
     if (!selectedLease) return;
 
-    setLogs([]);
+    logs.current = [];
 
     const providerInfo = providers?.find((p) => p.owner === selectedLease.provider);
 
@@ -84,7 +100,7 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
     }
 
     const socket = window.electron.openWebSocket(url, localCert.certPem, localCert.keyPem, (message) => {
-      setIsWaitingForFirstLog(false);
+      setIsLoadingLogs(true);
 
       let parsedLog = null;
       if (selectedLogsMode === "logs") {
@@ -97,20 +113,26 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
         parsedLog.message = `${parsedLog.service}: ${parsedLog.time} [${parsedLog.type}] [${parsedLog.reason}] [${parsedLog.object.kind}] ${parsedLog.note}`;
       }
 
-      setLogs((logs) => [...logs, parsedLog]);
+      logs.current = logs.current.concat([parsedLog]);
+
+      updateLogText();
     });
 
     return () => {
       socket.close();
     };
-  }, [leases, providers, isLocalCertMatching, selectedLogsMode, selectedLease, selectedServices, localCert.certPem, localCert.keyPem, services?.length]);
-
-  const logText = logs.map((x) => x.message).join("\n");
-
-  const options = {
-    ...monacoOptions,
-    readOnly: true
-  };
+  }, [
+    leases,
+    providers,
+    isLocalCertMatching,
+    selectedLogsMode,
+    selectedLease,
+    selectedServices,
+    localCert.certPem,
+    localCert.keyPem,
+    services?.length,
+    updateLogText
+  ]);
 
   function setServiceCheck(service, isChecked) {
     if (isChecked) {
@@ -133,12 +155,48 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
   function handleModeChange(ev, val) {
     if (val) {
       setSelectedLogsMode(val);
+
+      if (selectedLogsMode !== val) {
+        setLogText("");
+        setIsLoadingLogs(true);
+      }
     }
   }
 
   function handleLeaseChange(ev, val) {
     setSelectedLease(leases.find((x) => x.id === val));
   }
+
+  const onDownloadLogsClick = async () => {
+    setIsDownloadingLogs(true);
+
+    const providerInfo = providers?.find((p) => p.owner === selectedLease.provider);
+
+    await launchAsyncTask(
+      async () => {
+        const url = `${providerInfo.host_uri}/lease/${selectedLease.dseq}/${selectedLease.gseq}/${selectedLease.oseq}/logs?follow=true&tail=10000000`;
+
+        const appPath = await window.electron.appPath();
+        const filePath = await window.electron.downloadLogs(
+          appPath,
+          url,
+          localCert.certPem,
+          localCert.keyPem,
+          `${selectedLease.dseq}_${selectedLease.gseq}_${selectedLease.oseq}`
+        );
+
+        await window.electron.saveLogFile(filePath);
+      },
+      () => {
+        // Cancelled
+        window.electron.cancelSaveLogs();
+        setIsDownloadingLogs(false);
+      },
+      "Downloading logs..."
+    );
+
+    setIsDownloadingLogs(false);
+  };
 
   return (
     <div className={classes.root}>
@@ -158,7 +216,7 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
                     </ToggleButtonGroup>
                   )}
 
-                  <ToggleButtonGroup color="primary" value={selectedLogsMode} exclusive onChange={handleModeChange}>
+                  <ToggleButtonGroup color="primary" value={selectedLogsMode} exclusive onChange={handleModeChange} size="small">
                     <ToggleButton value="logs" size="small">
                       Logs
                     </ToggleButton>
@@ -168,10 +226,19 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
                   </ToggleButtonGroup>
                 </div>
 
-                <FormControlLabel
-                  control={<Checkbox color="primary" checked={stickToBottom} onChange={(ev) => setStickToBottom(ev.target.checked)} />}
-                  label={"Stick to bottom"}
-                />
+                <Box display="flex" alignItems="center">
+                  {localCert && (
+                    <Box marginRight="1rem">
+                      <Button onClick={onDownloadLogsClick} variant="contained" size="small" color="primary" disabled={isDownloadingLogs}>
+                        {isDownloadingLogs ? <CircularProgress size="1.5rem" color="primary" /> : "Download logs"}
+                      </Button>
+                    </Box>
+                  )}
+                  <FormControlLabel
+                    control={<Checkbox color="primary" checked={stickToBottom} onChange={(ev) => setStickToBottom(ev.target.checked)} />}
+                    label={"Stick to bottom"}
+                  />
+                </Box>
               </Box>
 
               {services?.length > 1 && (
@@ -189,7 +256,7 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
                 </FormGroup>
               )}
 
-              <LinearLoadingSkeleton isLoading={isWaitingForFirstLog} />
+              <LinearLoadingSkeleton isLoading={isLoadingLogs} />
 
               <ViewPanel bottomElementId="footer" overflow="hidden">
                 <MonacoEditor ref={monacoRef} theme="vs-dark" value={logText} options={options} />

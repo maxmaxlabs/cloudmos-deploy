@@ -1,14 +1,14 @@
 import { useQuery } from "react-query";
 import { QueryKeys } from "./queryKeys";
 import axios from "axios";
-import { ApiUrlService } from "../shared/utils/apiUtils";
+import { ApiUrlService, loadWithPagination } from "../shared/utils/apiUtils";
 import { useSettings } from "../context/SettingsProvider";
 import { providerStatusToDto, getNetworkCapacityDto } from "../shared/utils/providerUtils";
 
 async function getProviders(apiEndpoint) {
-  const response = await axios.get(ApiUrlService.providers(apiEndpoint));
+  const providers = await loadWithPagination(ApiUrlService.providers(apiEndpoint), "providers", 1000);
 
-  return response.data.providers;
+  return providers;
 }
 
 export function useProviders(options) {
