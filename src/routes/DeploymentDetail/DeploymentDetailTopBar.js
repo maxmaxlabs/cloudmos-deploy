@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "1.5rem"
   },
   actionContainer: {
-    marginLeft: "1rem",
+    marginLeft: ".5rem",
     display: "flex",
     alignItems: "center",
     "& .MuiButtonBase-root:first-child": {
@@ -141,7 +141,7 @@ export function DeploymentDetailTopBar({ address, loadDeploymentDetail, removeLe
         {deployment?.state === "active" && (
           <Box className={classes.actionContainer}>
             <IconButton aria-label="settings" aria-haspopup="true" onClick={handleMenuClick} className={classes.actionButton} size="small">
-              <MoreHorizIcon fontSize="large" />
+              <MoreHorizIcon fontSize="default" />
             </IconButton>
             <Button variant="contained" color="primary" className={classes.actionButton} onClick={() => setIsDepositingDeployment(true)} size="small">
               Add funds

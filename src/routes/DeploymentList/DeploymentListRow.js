@@ -68,7 +68,8 @@ const useStyles = makeStyles((theme) => ({
   },
   warningIcon: {
     fontSize: "1rem",
-    marginLeft: ".5rem"
+    marginLeft: ".5rem",
+    color: theme.palette.error.main
   },
   editButton: {
     marginLeft: ".5rem",
@@ -86,9 +87,6 @@ const useStyles = makeStyles((theme) => ({
   },
   tooltipIcon: {
     fontSize: "1rem"
-  },
-  warningIcon: {
-    color: theme.palette.error.main
   }
 }));
 
