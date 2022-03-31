@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, makeStyles, Typography, IconButton } from "@material-ui/core";
+import { Box, makeStyles, IconButton } from "@material-ui/core";
 import { TemplateList } from "./TemplateList";
 import { ManifestEdit } from "./ManifestEdit";
 import { CreateLease } from "./CreateLease";
@@ -33,7 +33,9 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(1)
   },
   stepContainer: {
-    width: "100%"
+    width: "100%",
+    display: "flex",
+    alignItems: "center"
   },
   stepperRoot: {
     padding: "1rem 0 1.5rem"
@@ -92,16 +94,13 @@ export function CreateDeploymentWizard() {
 
   return (
     <div className={classes.root}>
-      <Box display="flex" alignItems="center" padding=".5rem 1rem">
-        <IconButton aria-label="back" onClick={handleBackClick} size="small">
-          <ChevronLeftIcon />
-        </IconButton>
-        <Box marginLeft=".5rem">
-          <Typography variant="h6">Create a new deployment</Typography>
-        </Box>
-      </Box>
-
       <div className={classes.stepContainer}>
+        <Box padding="1rem 0 1rem 1rem">
+          <IconButton aria-label="back" onClick={handleBackClick} size="small">
+            <ChevronLeftIcon />
+          </IconButton>
+        </Box>
+
         <CustomizedSteppers steps={steps} activeStep={activeStep} />
       </div>
 

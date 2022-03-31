@@ -13,7 +13,7 @@ import clsx from "clsx";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    padding: "1rem",
+    padding: ".5rem 1rem",
     borderBottom: `1px solid ${theme.palette.grey[300]}`
   },
   tooltip: {
@@ -25,6 +25,19 @@ const useStyles = makeStyles((theme) => ({
   },
   warningIcon: {
     color: theme.palette.error.main
+  },
+  costChip: {
+    display: "inline-flex",
+    alignItems: "baseline",
+    padding: "4px 8px",
+    backgroundColor: theme.palette.grey[800],
+    color: "white",
+    borderRadius: "4px",
+    marginTop: "4px",
+    fontSize: ".75rem",
+    "& svg": {
+      color: theme.palette.primary.contrastText
+    }
   }
 }));
 
@@ -36,7 +49,7 @@ export function DeploymentSubHeader({ deployment, deploymentCost }) {
 
   return (
     <div className={classes.root}>
-      <Grid container spacing={1}>
+      <Grid container spacing={0}>
         <Grid item xs={3}>
           <LabelValue
             label="Status:"
@@ -88,21 +101,34 @@ export function DeploymentSubHeader({ deployment, deploymentCost }) {
         </Grid>
         <Grid item xs={5}>
           <LabelValue label="Amount spent:" value={`${uaktToAKT(realTimeLeft?.amountSpent, 6)} AKT`} />
-
-          {deployment.transferred.amount && (
-            <strong>
-              ~<PriceValue value={uaktToAKT(deployment.transferred.amount, 6)} />
-            </strong>
-          )}
         </Grid>
         <Grid item xs={4}>
           <LabelValue label="Cost/Month:" value={`~${avgCost} AKT`} />
-          <Box display="flex" alignItems="center">
-            {deploymentCost && <PricePerMonth perBlockValue={uaktToAKT(deploymentCost, 6)} />}
-            {deploymentCost && <PriceEstimateTooltip value={uaktToAKT(deploymentCost, 6)} />}
-          </Box>
         </Grid>
       </Grid>
+
+      <Box className={classes.costChip}>
+        <div>
+          Balance:&nbsp;
+          <strong>
+            <PriceValue value={uaktToAKT(realTimeLeft?.escrow, 6)} />
+          </strong>
+        </div>
+
+        <Box marginLeft="1rem">
+          Spent:&nbsp;
+          <strong>
+            <PriceValue value={uaktToAKT(realTimeLeft?.amountSpent, 6)} />
+          </strong>
+        </Box>
+
+        {deploymentCost && (
+          <Box display="flex" alignItems="center" marginLeft="1rem">
+            Cost:&nbsp; <PricePerMonth perBlockValue={uaktToAKT(deploymentCost, 6)} typoVariant="caption" />
+            <PriceEstimateTooltip value={uaktToAKT(deploymentCost, 6)} />
+          </Box>
+        )}
+      </Box>
     </div>
   );
 }

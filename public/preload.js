@@ -95,6 +95,7 @@ contextBridge.exposeInMainWorld("electron", {
     logsWorker?.kill();
     delete logsWorker;
 
+    // Throw error to interupt the flow of execution
     throw new Error("Cancelled export logs");
   },
   saveLogFile: async (filePath) => {

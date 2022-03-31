@@ -13,7 +13,7 @@ const logger = winston.createLogger({
 });
 
 process.on("message", async (value) => {
-  logger.info("Exporting logs " + value);
+  logger.info("Exporting logs");
 
   if (value === "cleanup") {
     logger.info("Cleanup");
@@ -56,7 +56,7 @@ process.on("message", async (value) => {
     }
   }
 
-  console.log("isFinished", isFinished);
+  logger.info("Finished exporting");
 
   process.send(filePath);
 });

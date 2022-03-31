@@ -185,11 +185,7 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
           `${selectedLease.dseq}_${selectedLease.gseq}_${selectedLease.oseq}`
         );
 
-        const res = await window.electron.saveLogFile(filePath);
-
-        setIsDownloadingLogs(false);
-
-        console.log("success", res);
+        await window.electron.saveLogFile(filePath);
       },
       () => {
         // Cancelled
@@ -198,6 +194,8 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
       },
       "Downloading logs..."
     );
+
+    setIsDownloadingLogs(false);
   };
 
   return (
