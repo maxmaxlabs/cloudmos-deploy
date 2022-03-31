@@ -228,25 +228,27 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
                 }
               />
 
-              <LabelValue
-                label="Provider:"
-                value={
-                  <>
-                    {isLoadingProviderStatus && <CircularProgress size="1rem" />}
-                    {providerStatus && (
-                      <>
-                        {providerStatus.name}
+              {isLeaseActive && (
+                <LabelValue
+                  label="Provider:"
+                  value={
+                    <>
+                      {isLoadingProviderStatus && <CircularProgress size="1rem" />}
+                      {providerStatus && (
+                        <>
+                          {providerStatus.name}
 
-                        <Box marginLeft={1}>
-                          <LinkTo onClick={() => setIsViewingProviderDetail(true)}>View details</LinkTo>
-                        </Box>
-                      </>
-                    )}
-                  </>
-                }
-                marginTop="5px"
-                marginBottom=".5rem"
-              />
+                          <Box marginLeft={1}>
+                            <LinkTo onClick={() => setIsViewingProviderDetail(true)}>View details</LinkTo>
+                          </Box>
+                        </>
+                      )}
+                    </>
+                  }
+                  marginTop="5px"
+                  marginBottom=".5rem"
+                />
+              )}
             </Box>
 
             {providerInfo && (
@@ -313,11 +315,11 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
 
                   <Box display="flex" alignItems="center" marginTop="2px">
                     <Box display="flex" alignItems="center">
-                      <Typography variant="body2">Available:&nbsp;</Typography>
+                      <Typography variant="caption">Available:&nbsp;</Typography>
                       <Chip label={service.available} size="small" color={service.available > 0 ? "primary" : "default"} className={classes.serviceChip} />
                     </Box>
                     <Box display="flex" alignItems="center">
-                      <Typography variant="body2" className={classes.marginLeft}>
+                      <Typography variant="caption" className={classes.marginLeft}>
                         Ready Replicas:&nbsp;
                       </Typography>
                       <Chip
@@ -328,7 +330,7 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
                       />
                     </Box>
                     <Box display="flex" alignItems="center">
-                      <Typography variant="body2" className={classes.marginLeft}>
+                      <Typography variant="caption" className={classes.marginLeft}>
                         Total:&nbsp;
                       </Typography>
                       <Chip label={service.total} size="small" color="primary" className={classes.serviceChip} />

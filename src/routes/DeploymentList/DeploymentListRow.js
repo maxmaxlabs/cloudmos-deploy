@@ -2,7 +2,7 @@ import { useState } from "react";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import AddIcon from "@material-ui/icons/Add";
 import WarningIcon from "@material-ui/icons/Warning";
-import { makeStyles, IconButton, Box, Typography, CircularProgress, Checkbox, Menu } from "@material-ui/core";
+import { makeStyles, IconButton, Box, Typography, CircularProgress, Checkbox, Menu, Tooltip } from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import { useHistory } from "react-router";
 import { useLocalNotes } from "../../context/LocalNoteProvider";
@@ -21,6 +21,8 @@ import { CustomMenuItem } from "../../shared/components/CustomMenuItem";
 import MoreHorizIcon from "@material-ui/icons/MoreHoriz";
 import { DeploymentDepositModal } from "../DeploymentDetail/DeploymentDepositModal";
 import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
+import { useRealTimeLeft } from "../../shared/utils/priceUtils";
+import clsx from "clsx";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -51,7 +53,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     marginBottom: "2px",
     fontSize: ".875rem",
-    lineHeight: ".875rem"
+    lineHeight: "1rem"
   },
   title: {
     fontSize: "2rem",
@@ -78,6 +80,15 @@ const useStyles = makeStyles((theme) => ({
   },
   editIcon: {
     fontSize: ".9rem"
+  },
+  tooltip: {
+    fontSize: "1rem"
+  },
+  tooltipIcon: {
+    fontSize: "1rem"
+  },
+  warningIcon: {
+    color: theme.palette.error.main
   }
 }));
 
@@ -95,6 +106,7 @@ export function DeploymentListRow({ deployment, isSelectable, onSelectDeployment
   const hasLeases = leases && !!leases.length;
   const deploymentCost = hasLeases ? leases.reduce((prev, current) => prev + current.price.amount, 0) : 0;
   const timeLeft = getTimeLeft(deploymentCost, deployment.escrowBalance);
+  const realTimeLeft = useRealTimeLeft(deploymentCost, deployment.escrowBalance, deployment.escrowAccount.settled_at, deployment.createdAt);
   const deploymentName = name ? (
     <>
       <Typography variant="body2" className="text-truncate">
@@ -172,16 +184,31 @@ export function DeploymentListRow({ deployment, isSelectable, onSelectDeployment
           </div>
 
           <div className={classes.deploymentInfo}>
-            {isActive && isValid(timeLeft) && (
+            {isActive && isValid(realTimeLeft?.timeLeft) && (
               <Box component="span" display="flex" alignItems="center">
-                Time left:&nbsp;<strong>~{formatDistanceToNow(timeLeft)}</strong>
+                Time left:&nbsp;<strong>~{formatDistanceToNow(realTimeLeft?.timeLeft)}</strong>
                 {showWarning && <WarningIcon fontSize="small" color="error" className={classes.warningIcon} />}
               </Box>
             )}
 
-            {isActive && !!deployment.escrowBalance && (
+            {isActive && !!realTimeLeft?.escrow && (
               <Box marginLeft="1rem" display="flex">
-                Escrow:&nbsp;<strong>{uaktToAKT(deployment.escrowBalance, 2)} AKT</strong>
+                Balance:&nbsp;<strong>{uaktToAKT(realTimeLeft?.escrow, 2)} AKT</strong>
+                {realTimeLeft.escrow < 0 && (
+                  <Tooltip
+                    classes={{ tooltip: classes.tooltip }}
+                    arrow
+                    title="Your deployment is out of funds and can be closed by your provider at any time now. You can add funds to keep active."
+                  >
+                    <WarningIcon color="error" className={clsx(classes.tooltipIcon, classes.warningIcon)} />
+                  </Tooltip>
+                )}
+              </Box>
+            )}
+
+            {isActive && !!realTimeLeft?.amountSpent && (
+              <Box marginLeft="1rem" display="flex">
+                Spent:&nbsp;<strong>{uaktToAKT(realTimeLeft?.amountSpent, 2)} AKT</strong>
               </Box>
             )}
           </div>

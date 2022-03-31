@@ -1,6 +1,7 @@
 import { Grid, makeStyles, Box, Tooltip } from "@material-ui/core";
 import InfoIcon from "@material-ui/icons/Info";
-import { getAvgCostPerMonth, getTimeLeft, uaktToAKT } from "../../shared/utils/priceUtils";
+import WarningIcon from "@material-ui/icons/Warning";
+import { getAvgCostPerMonth, uaktToAKT, useRealTimeLeft } from "../../shared/utils/priceUtils";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import isValid from "date-fns/isValid";
 import { StatusPill } from "../../shared/components/StatusPill";
@@ -8,6 +9,7 @@ import { LabelValue } from "../../shared/components/LabelValue";
 import { PricePerMonth } from "../../shared/components/PricePerMonth";
 import { PriceValue } from "../../shared/components/PriceValue";
 import { PriceEstimateTooltip } from "../../shared/components/PriceEstimateTooltip";
+import clsx from "clsx";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -20,13 +22,17 @@ const useStyles = makeStyles((theme) => ({
   tooltipIcon: {
     fontSize: "1rem",
     color: theme.palette.text.secondary
+  },
+  warningIcon: {
+    color: theme.palette.error.main
   }
 }));
 
 export function DeploymentSubHeader({ deployment, deploymentCost }) {
   const classes = useStyles();
-  const timeLeft = getTimeLeft(deploymentCost, deployment.escrowBalance);
+  const realTimeLeft = useRealTimeLeft(deploymentCost, deployment.escrowBalance, deployment.escrowAccount.settled_at, deployment.createdAt);
   const avgCost = getAvgCostPerMonth(deploymentCost);
+  const isActive = deployment.state === "active";
 
   return (
     <div className={classes.root}>
@@ -45,10 +51,10 @@ export function DeploymentSubHeader({ deployment, deploymentCost }) {
         <Grid item xs={5}>
           <Box display="flex" alignItems="center">
             <LabelValue
-              label="Escrow Balance:"
+              label="Escrow balance:"
               value={
                 <>
-                  {uaktToAKT(deployment.escrowBalance, 6)}AKT{" "}
+                  {uaktToAKT(realTimeLeft?.escrow, 6)}&nbsp;AKT
                   <Box component="span" display="inline-flex" marginLeft=".5rem">
                     <Tooltip
                       classes={{ tooltip: classes.tooltip }}
@@ -57,6 +63,16 @@ export function DeploymentSubHeader({ deployment, deploymentCost }) {
                     >
                       <InfoIcon className={classes.tooltipIcon} />
                     </Tooltip>
+
+                    {!!realTimeLeft && realTimeLeft.escrow < 0 && isActive && (
+                      <Tooltip
+                        classes={{ tooltip: classes.tooltip }}
+                        arrow
+                        title="Your deployment is out of funds and can be closed by your provider at any time now. You can add funds to keep active."
+                      >
+                        <WarningIcon color="error" className={clsx(classes.tooltipIcon, classes.warningIcon)} />
+                      </Tooltip>
+                    )}
                   </Box>
                 </>
               }
@@ -65,13 +81,13 @@ export function DeploymentSubHeader({ deployment, deploymentCost }) {
           </Box>
         </Grid>
         <Grid item xs={4}>
-          {deployment.state === "active" && <LabelValue label="Time left:" value={isValid(timeLeft) && formatDistanceToNow(timeLeft)} />}
+          {isActive && <LabelValue label="Time left:" value={isValid(realTimeLeft?.timeLeft) && `~${formatDistanceToNow(realTimeLeft?.timeLeft)}`} />}
         </Grid>
         <Grid item xs={3}>
           <LabelValue label="DSEQ:" value={deployment.dseq} />
         </Grid>
         <Grid item xs={5}>
-          <LabelValue label="Amount spent:" value={`${uaktToAKT(deployment.transferred.amount, 6)}AKT`} />
+          <LabelValue label="Amount spent:" value={`${uaktToAKT(realTimeLeft?.amountSpent, 6)} AKT`} />
 
           {deployment.transferred.amount && (
             <strong>
@@ -80,7 +96,7 @@ export function DeploymentSubHeader({ deployment, deploymentCost }) {
           )}
         </Grid>
         <Grid item xs={4}>
-          <LabelValue label="Cost/Month:" value={`~${avgCost}AKT`} />
+          <LabelValue label="Cost/Month:" value={`~${avgCost} AKT`} />
           <Box display="flex" alignItems="center">
             {deploymentCost && <PricePerMonth perBlockValue={uaktToAKT(deploymentCost, 6)} />}
             {deploymentCost && <PriceEstimateTooltip value={uaktToAKT(deploymentCost, 6)} />}

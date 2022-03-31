@@ -1,5 +1,6 @@
 import add from "date-fns/add";
 import { averageDaysInMonth } from "./date";
+import { useBlock } from "../../queries";
 
 export const averageBlockTime = 6.174;
 
@@ -33,4 +34,23 @@ export function getTimeLeft(pricePerBlock, balance) {
   const blocksLeft = balance / pricePerBlock;
   const timestamp = new Date().getTime();
   return add(new Date(timestamp), { seconds: blocksLeft * averageBlockTime });
+}
+
+export function useRealTimeLeft(pricePerBlock, balance, settledAt, createdAt) {
+  const { data: latestBlock } = useBlock("latest", {
+    refetchInterval: 30000
+  });
+  if (!latestBlock) return;
+
+  const latestBlockHeight = latestBlock.block.header.height;
+  const blocksPassed = Math.abs(settledAt - latestBlockHeight);
+  const blocksSinceCreation = Math.abs(createdAt - latestBlockHeight);
+
+  const blocksLeft = balance / pricePerBlock - blocksPassed;
+  const timestamp = new Date().getTime();
+  return {
+    timeLeft: add(new Date(timestamp), { seconds: blocksLeft * averageBlockTime }),
+    escrow: blocksLeft * pricePerBlock,
+    amountSpent: blocksSinceCreation * pricePerBlock
+  };
 }

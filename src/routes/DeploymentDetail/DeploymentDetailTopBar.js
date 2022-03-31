@@ -118,9 +118,10 @@ export function DeploymentDetailTopBar({ address, loadDeploymentDetail, removeLe
   return (
     <>
       <div className={classes.root}>
-        <IconButton aria-label="back" onClick={handleBackClick}>
+        <IconButton aria-label="back" onClick={handleBackClick} size="small">
           <ChevronLeftIcon />
         </IconButton>
+
         <Typography variant="h3" className={clsx(classes.title, "text-truncate")}>
           Deployment detail
           {deploymentName && (
@@ -130,7 +131,8 @@ export function DeploymentDetailTopBar({ address, loadDeploymentDetail, removeLe
             </Box>
           )}
         </Typography>
-        <Box marginLeft="1rem">
+
+        <Box marginLeft=".5rem">
           <IconButton aria-label="back" onClick={() => loadDeploymentDetail()} size="small">
             <RefreshIcon />
           </IconButton>

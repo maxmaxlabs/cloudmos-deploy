@@ -104,26 +104,6 @@ export function DeploymentDetail(props) {
         deployment={deployment}
       />
 
-      {/* <Box display="flex" alignItems="center" padding="0 .5rem">
-        <IconButton aria-label="back" onClick={handleBackClick}>
-          <ChevronLeftIcon />
-        </IconButton>
-        <Typography variant="h3" className={classes.title}>
-          Deployment detail
-          {deploymentName && (
-            <Box component="span" fontWeight="normal">
-              {" "}
-              - {deploymentName}
-            </Box>
-          )}
-        </Typography>
-        <Box marginLeft="1rem">
-          <IconButton aria-label="back" onClick={() => loadDeploymentDetail()} size="small">
-            <RefreshIcon />
-          </IconButton>
-        </Box>
-      </Box> */}
-
       {deployment && (
         <DeploymentSubHeader deployment={deployment} deploymentCost={hasLeases ? leases.reduce((prev, current) => prev + current.price.amount, 0) : 0} />
       )}
