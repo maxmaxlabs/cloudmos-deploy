@@ -1,19 +1,12 @@
-import { useEffect, useCallback } from "react";
+import { useCallback } from "react";
+import throttle from "lodash/throttle";
 
-export const useDebouncedEffect = (effect, deps, delay) => {
-  useEffect(() => {
-    const handler = setTimeout(() => effect(), delay);
-
-    return () => clearTimeout(handler);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [...(deps || []), delay]);
-};
-
-export const useDebouncedCallback = (effect, deps, delay) => {
-  return useCallback(() => {
-    const handler = setTimeout(() => effect(), delay);
-
-    return () => clearTimeout(handler);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [...(deps || []), delay]);
+export const useThrottledCallback = (effect, deps, delay) => {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  return useCallback(
+    throttle(() => {
+      effect();
+    }, delay),
+    [...(deps || []), delay]
+  );
 };

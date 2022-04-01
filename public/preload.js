@@ -43,7 +43,7 @@ contextBridge.exposeInMainWorld("electron", {
   getAppVersion: () => appVersion,
   getAppEnvironment: () => appEnvironment,
   isDev: () => ipcRenderer.invoke("isDev"),
-  appPath: () => ipcRenderer.invoke("app_path"),
+  appPath: (name) => ipcRenderer.invoke("app_path", name),
   openTemplateFromFile: async () => {
     const response = await ipcRenderer.invoke("dialog", "showOpenDialog", {
       title: "Select a deployment template",
@@ -98,10 +98,10 @@ contextBridge.exposeInMainWorld("electron", {
     // Throw error to interupt the flow of execution
     throw new Error("Cancelled export logs");
   },
-  saveLogFile: async (filePath) => {
+  saveLogFile: async (oldPath, defaultPath) => {
     const response = await ipcRenderer.invoke("dialog", "showSaveDialog", {
       title: "Save log file",
-      defaultPath: filePath,
+      defaultPath,
       filters: [{ name: "txt", extensions: ["txt"] }],
       buttonLabel: "Save",
       properties: []
@@ -111,7 +111,7 @@ contextBridge.exposeInMainWorld("electron", {
     } else {
       const path = response.filePath;
 
-      await fs.rename(filePath, path);
+      await fs.rename(oldPath, path);
 
       return path;
     }

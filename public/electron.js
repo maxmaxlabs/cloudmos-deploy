@@ -118,8 +118,8 @@ function createWindow() {
       app.relaunch();
       app.exit();
     });
-    ipcMain.handle("app_path", () => {
-      return Promise.resolve(app.getAppPath());
+    ipcMain.handle("app_path", (event, name) => {
+      return Promise.resolve(app.getPath(name));
     });
   } catch (error) {
     logger.error(error);

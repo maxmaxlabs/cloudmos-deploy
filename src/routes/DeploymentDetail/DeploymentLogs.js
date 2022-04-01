@@ -8,7 +8,7 @@ import * as monaco from "monaco-editor";
 import { monacoOptions } from "../../shared/constants";
 import { ViewPanel } from "../../shared/components/ViewPanel";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
-import { useDebouncedCallback } from "../../hooks/useThrottle";
+import { useThrottledCallback } from "../../hooks/useThrottle";
 import { useAsyncTask } from "../../context/AsyncTaskProvider";
 
 const useStyles = makeStyles((theme) => ({
@@ -47,7 +47,7 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
     readOnly: true
   };
 
-  const updateLogText = useDebouncedCallback(
+  const updateLogText = useThrottledCallback(
     () => {
       const logText = logs.current.map((x) => x.message).join("\n");
       setLogText(logText);
@@ -174,9 +174,9 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
 
     await launchAsyncTask(
       async () => {
-        const url = `${providerInfo.host_uri}/lease/${selectedLease.dseq}/${selectedLease.gseq}/${selectedLease.oseq}/logs?follow=true&tail=10000000`;
+        const url = `${providerInfo.host_uri}/lease/${selectedLease.dseq}/${selectedLease.gseq}/${selectedLease.oseq}/logs?follow=false&tail=10000000`;
 
-        const appPath = await window.electron.appPath();
+        const appPath = await window.electron.appPath("temp");
         const filePath = await window.electron.downloadLogs(
           appPath,
           url,
@@ -185,7 +185,10 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
           `${selectedLease.dseq}_${selectedLease.gseq}_${selectedLease.oseq}`
         );
 
-        await window.electron.saveLogFile(filePath);
+        const downloadsPath = await window.electron.appPath("downloads");
+        const savePath = `${downloadsPath}/${selectedLease.dseq}_${selectedLease.gseq}_${selectedLease.oseq}`;
+
+        await window.electron.saveLogFile(filePath, savePath);
       },
       () => {
         // Cancelled

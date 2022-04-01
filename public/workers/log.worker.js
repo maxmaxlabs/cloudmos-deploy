@@ -23,27 +23,30 @@ process.on("message", async (value) => {
   }
 
   const { appPath, url, certPem, prvPem, fileName } = value;
-  const dir = `${appPath}/logs`;
+  const dir = `${appPath}/akashlytics_logs`;
   const filePath = `${dir}/${fileName}.txt`;
-
-  if (!syncFs.existsSync(dir)) {
-    syncFs.mkdirSync(dir);
-  }
-
-  await fs.writeFile(filePath, "", {});
-
   let isFinished = false;
   let lastMessageTimestamp;
 
-  socket = providerProxy.openWebSocket(url, certPem, prvPem, (message) => {
-    let parsedLog = JSON.parse(message);
-    parsedLog.service = parsedLog.name.split("-")[0];
-    parsedLog.message = parsedLog.service + ": " + parsedLog.message;
+  try {
+    if (!syncFs.existsSync(dir)) {
+      syncFs.mkdirSync(dir);
+    }
 
-    syncFs.appendFileSync(filePath, `[${parsedLog.service}]: ${parsedLog.message}\n`);
+    await fs.writeFile(filePath, "", {});
 
-    lastMessageTimestamp = Date.now();
-  });
+    socket = providerProxy.openWebSocket(url, certPem, prvPem, (message) => {
+      let parsedLog = JSON.parse(message);
+      parsedLog.service = parsedLog.name.split("-")[0];
+      parsedLog.message = parsedLog.service + ": " + parsedLog.message;
+
+      syncFs.appendFileSync(filePath, `[${parsedLog.service}]: ${parsedLog.message}\n`);
+
+      lastMessageTimestamp = Date.now();
+    });
+  } catch (error) {
+    logger.error("An error has occured", error);
+  }
 
   while (!isFinished) {
     await helpers.sleep(1000);
