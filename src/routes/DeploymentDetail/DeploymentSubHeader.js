@@ -67,7 +67,7 @@ export function DeploymentSubHeader({ deployment, deploymentCost }) {
               label="Escrow balance:"
               value={
                 <>
-                  {uaktToAKT(realTimeLeft?.escrow, 6)}&nbsp;AKT
+                  {uaktToAKT(isActive ? realTimeLeft?.escrow : deployment.escrowBalance, 6)}&nbsp;AKT
                   <Box component="span" display="inline-flex" marginLeft=".5rem">
                     <Tooltip
                       classes={{ tooltip: classes.tooltip }}
@@ -100,7 +100,7 @@ export function DeploymentSubHeader({ deployment, deploymentCost }) {
           <LabelValue label="DSEQ:" value={deployment.dseq} />
         </Grid>
         <Grid item xs={5}>
-          <LabelValue label="Amount spent:" value={`${uaktToAKT(realTimeLeft?.amountSpent, 6)} AKT`} />
+          <LabelValue label="Amount spent:" value={`${uaktToAKT(isActive ? realTimeLeft?.amountSpent : deployment.transferred.amount, 6)} AKT`} />
         </Grid>
         <Grid item xs={4}>
           <LabelValue label="Cost/Month:" value={`~${avgCost} AKT`} />
@@ -111,14 +111,14 @@ export function DeploymentSubHeader({ deployment, deploymentCost }) {
         <div>
           Balance:&nbsp;
           <strong>
-            <PriceValue value={uaktToAKT(realTimeLeft?.escrow, 6)} />
+            <PriceValue value={uaktToAKT(isActive ? realTimeLeft?.escrow : deployment.escrowBalance, 6)} />
           </strong>
         </div>
 
         <Box marginLeft="1rem">
           Spent:&nbsp;
           <strong>
-            <PriceValue value={uaktToAKT(realTimeLeft?.amountSpent, 6)} />
+            <PriceValue value={uaktToAKT(isActive ? realTimeLeft?.amountSpent : deployment.transferred.amount, 6)} />
           </strong>
         </Box>
 

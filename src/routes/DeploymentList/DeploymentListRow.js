@@ -181,35 +181,37 @@ export function DeploymentListRow({ deployment, isSelectable, onSelectDeployment
             </Box>
           </div>
 
-          <div className={classes.deploymentInfo}>
-            {isActive && isValid(realTimeLeft?.timeLeft) && (
-              <Box component="span" display="flex" alignItems="center">
-                Time left:&nbsp;<strong>~{formatDistanceToNow(realTimeLeft?.timeLeft)}</strong>
-                {showWarning && <WarningIcon fontSize="small" color="error" className={classes.warningIcon} />}
-              </Box>
-            )}
+          {isActive && (
+            <div className={classes.deploymentInfo}>
+              {isValid(realTimeLeft?.timeLeft) && (
+                <Box component="span" display="flex" alignItems="center">
+                  Time left:&nbsp;<strong>~{formatDistanceToNow(realTimeLeft?.timeLeft)}</strong>
+                  {showWarning && <WarningIcon fontSize="small" color="error" className={classes.warningIcon} />}
+                </Box>
+              )}
 
-            {isActive && !!realTimeLeft?.escrow && (
-              <Box marginLeft="1rem" display="flex">
-                Balance:&nbsp;<strong>{uaktToAKT(realTimeLeft?.escrow, 2)} AKT</strong>
-                {realTimeLeft.escrow < 0 && (
-                  <Tooltip
-                    classes={{ tooltip: classes.tooltip }}
-                    arrow
-                    title="Your deployment is out of funds and can be closed by your provider at any time now. You can add funds to keep active."
-                  >
-                    <WarningIcon color="error" className={clsx(classes.tooltipIcon, classes.warningIcon)} />
-                  </Tooltip>
-                )}
-              </Box>
-            )}
+              {!!realTimeLeft?.escrow && (
+                <Box marginLeft="1rem" display="flex">
+                  Balance:&nbsp;<strong>{uaktToAKT(realTimeLeft?.escrow, 2)} AKT</strong>
+                  {realTimeLeft.escrow < 0 && (
+                    <Tooltip
+                      classes={{ tooltip: classes.tooltip }}
+                      arrow
+                      title="Your deployment is out of funds and can be closed by your provider at any time now. You can add funds to keep active."
+                    >
+                      <WarningIcon color="error" className={clsx(classes.tooltipIcon, classes.warningIcon)} />
+                    </Tooltip>
+                  )}
+                </Box>
+              )}
 
-            {isActive && !!realTimeLeft?.amountSpent && (
-              <Box marginLeft="1rem" display="flex">
-                Spent:&nbsp;<strong>{uaktToAKT(realTimeLeft?.amountSpent, 2)} AKT</strong>
-              </Box>
-            )}
-          </div>
+              {!!realTimeLeft?.amountSpent && (
+                <Box marginLeft="1rem" display="flex">
+                  Spent:&nbsp;<strong>{uaktToAKT(realTimeLeft?.amountSpent, 2)} AKT</strong>
+                </Box>
+              )}
+            </div>
+          )}
 
           {hasLeases && (
             <Box display="flex" alignItems="center" flexWrap="wrap">
