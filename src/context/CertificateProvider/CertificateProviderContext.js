@@ -20,6 +20,7 @@ export const CertificateProvider = ({ children }) => {
   const { address } = useWallet();
   const { getLocalStorageItem } = useLocalStorage();
   const { apiEndpoint } = settings;
+  const certificate = validCertificates[0];
 
   const loadValidCertificates = useCallback(
     async (showSnackbar) => {
@@ -57,6 +58,16 @@ export const CertificateProvider = ({ children }) => {
     }
   }, [address, loadValidCertificates]);
 
+  useEffect(() => {
+    let isMatching = false;
+    if (certificate && localCert) {
+      const parsed = atob(certificate.certificate.cert);
+      isMatching = parsed === localCert.certPem;
+    }
+
+    setIsLocalCertMatching(isMatching);
+  }, [certificate, localCert]);
+
   const loadLocalCert = async (address, password) => {
     const certPem = getLocalStorageItem(address + ".crt");
     const encryptedKeyPem = getLocalStorageItem(address + ".key");
@@ -65,17 +76,6 @@ export const CertificateProvider = ({ children }) => {
 
     setLocalCert(cert);
   };
-
-  const certificate = validCertificates[0];
-
-  useEffect(() => {
-    let isMatching = false;
-    if (certificate && localCert) {
-      isMatching = atob(certificate.certificate.cert) === localCert.certPem;
-    }
-
-    setIsLocalCertMatching(isMatching);
-  }, [certificate, localCert]);
 
   return (
     <CertificateProviderContext.Provider value={{ loadValidCertificates, certificate, isLoadingCertificates, loadLocalCert, localCert, isLocalCertMatching }}>
