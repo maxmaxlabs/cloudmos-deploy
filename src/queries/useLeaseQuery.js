@@ -46,6 +46,7 @@ export function useLeaseList(deployment, address, options) {
 }
 
 async function getLeaseStatus(providerUri, lease, localCert) {
+  if (!providerUri) return null;
   const leaseStatusPath = `${providerUri}/lease/${lease.dseq}/${lease.gseq}/${lease.oseq}/status`;
   const response = await window.electron.queryProvider(leaseStatusPath, "GET", null, localCert?.certPem, localCert?.keyPem);
   return response;

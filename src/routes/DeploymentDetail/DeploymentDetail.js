@@ -15,6 +15,7 @@ import { useCertificate } from "../../context/CertificateProvider";
 import Alert from "@material-ui/lab/Alert";
 import { getDeploymentLocalData } from "../../shared/utils/deploymentLocalDataUtils";
 import { DeploymentDetailTopBar } from "./DeploymentDetailTopBar";
+import { DeploymentLeaseShell } from "./DeploymentLeaseShell";
 
 export function DeploymentDetail(props) {
   const [deployment, setDeployment] = useState(null);
@@ -111,6 +112,7 @@ export function DeploymentDetail(props) {
       <Tabs value={activeTab} onChange={(ev, value) => setActiveTab(value)} indicatorColor="primary" textColor="primary" classes={{ root: classes.tabsRoot }}>
         <Tab value="DETAILS" label="Details" />
         {deployment?.state === "active" && leases?.some((x) => x.state === "active") && <Tab value="LOGS" label="Logs" />}
+        {deployment?.state === "active" && leases?.some((x) => x.state === "active") && <Tab value="SHELL" label="Shell" />}
         <Tab value="EDIT" label="View / Edit Manifest" />
         <Tab value="JSON_DATA" label="JSON Data" />
       </Tabs>
@@ -126,6 +128,7 @@ export function DeploymentDetail(props) {
         />
       )}
       {activeTab === "LOGS" && <DeploymentLogs leases={leases} selectedLogsMode={selectedLogsMode} setSelectedLogsMode={setSelectedLogsMode} />}
+      {activeTab === "SHELL" && <DeploymentLeaseShell leases={leases} />}
       {activeTab === "JSON_DATA" && deployment && (
         <Box display="flex">
           <DeploymentJsonViewer jsonObj={deployment} title="Deployment JSON" />
