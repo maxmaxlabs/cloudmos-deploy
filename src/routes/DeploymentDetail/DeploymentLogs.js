@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { useCertificate } from "../../context/CertificateProvider";
 import { makeStyles, Checkbox, FormControlLabel, Box, Button, CircularProgress } from "@material-ui/core";
 import { useProviders } from "../../queries";
-import MonacoEditor from "react-monaco-editor";
 import { ToggleButtonGroup, ToggleButton, Alert } from "@material-ui/lab";
 import * as monaco from "monaco-editor";
 import { monacoOptions } from "../../shared/constants";
@@ -28,8 +27,12 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+let socket;
+
 export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }) {
   const [isLoadingLogs, setIsLoadingLogs] = useState(true);
+  const [canSetConnection, setCanSetConnection] = useState(false);
+  const [isConnectionEstablished, setIsConnectionEstablished] = useState(false);
   const logs = useRef([]);
   const [logText, setLogText] = useState("");
   const [isDownloadingLogs, setIsDownloadingLogs] = useState(false);
@@ -49,6 +52,8 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
       if (leaseStatus) {
         setServices(Object.keys(leaseStatus.services));
         setSelectedServices(Object.keys(leaseStatus.services));
+
+        setCanSetConnection(true);
       }
     }
   });
@@ -81,9 +86,7 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
   }, [selectedLease, providers, getLeaseStatus]);
 
   useEffect(() => {
-    if (!providers) return;
-    if (!isLocalCertMatching) return;
-    if (!selectedLease) return;
+    if (!canSetConnection || !providers || !isLocalCertMatching || !selectedLease || isConnectionEstablished) return;
 
     logs.current = [];
 
@@ -99,8 +102,10 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
     }
 
     setIsLoadingLogs(true);
-    const socket = window.electron.openWebSocket(url, localCert.certPem, localCert.keyPem, (message) => {
+    socket?.close();
+    socket = window.electron.openWebSocket(url, localCert.certPem, localCert.keyPem, (message) => {
       setIsLoadingLogs(true);
+
       let parsedLog = null;
       if (selectedLogsMode === "logs") {
         parsedLog = JSON.parse(message);
@@ -115,10 +120,12 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
       logs.current = logs.current.concat([parsedLog]);
 
       updateLogText();
+
+      setIsConnectionEstablished(true);
     });
 
     return () => {
-      socket.close();
+      socket?.close();
     };
   }, [
     leases,
@@ -130,12 +137,11 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
     localCert.certPem,
     localCert.keyPem,
     services?.length,
-    updateLogText
+    updateLogText,
+    canSetConnection,
+    isConnectionEstablished,
+    providerInfo?.host_uri
   ]);
-
-  const onSelectedChange = (selected) => {
-    setSelectedServices(selected);
-  };
 
   useEffect(() => {
     if (stickToBottom && monacoRef.current) {
@@ -154,6 +160,7 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
       if (selectedLogsMode !== val) {
         setLogText("");
         setIsLoadingLogs(true);
+        setIsConnectionEstablished(false);
       }
     }
   }
@@ -166,8 +173,18 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
       setServices([]);
       setSelectedServices([]);
       setIsLoadingLogs(true);
+      setCanSetConnection(false);
+      setIsConnectionEstablished(false);
     }
   }
+
+  const onSelectedServicesChange = (selected) => {
+    setSelectedServices(selected);
+
+    setLogText("");
+    setIsLoadingLogs(true);
+    setIsConnectionEstablished(false);
+  };
 
   const onDownloadLogsClick = async () => {
     setIsDownloadingLogs(true);
@@ -230,7 +247,7 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
                     <Box marginLeft=".5rem">
                       <SelectCheckbox
                         options={services}
-                        onSelectedChange={onSelectedChange}
+                        onSelectedChange={onSelectedServicesChange}
                         label="Services"
                         disabled={selectedLogsMode !== "logs"}
                         defaultValue={selectedServices}

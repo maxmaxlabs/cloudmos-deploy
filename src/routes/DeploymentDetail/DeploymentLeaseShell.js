@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useCertificate } from "../../context/CertificateProvider";
-import { makeStyles, CircularProgress, Checkbox, FormControlLabel, FormGroup, Box, TextField, FormControl, InputAdornment, Button } from "@material-ui/core";
+import { makeStyles, CircularProgress, Box, TextField, FormControl, InputAdornment, Button } from "@material-ui/core";
 import { useProviders } from "../../queries";
 import { Alert } from "@material-ui/lab";
 import * as monaco from "monaco-editor";
@@ -77,6 +77,8 @@ const _monacoOptions = {
   colorDecorators: false
 };
 
+let socket;
+
 export function DeploymentLeaseShell({ leases }) {
   const classes = useStyles();
   const [canSetConnection, setCanSetConnection] = useState(false);
@@ -150,7 +152,8 @@ export function DeploymentLeaseShell({ leases }) {
     const url = `${providerInfo.host_uri}/lease/${selectedLease.dseq}/${selectedLease.gseq}/${selectedLease.oseq}/shell?stdin=0&tty=0&podIndex=0&cmd0=ls&service=${selectedService}`;
     setIsLoadingData(true);
 
-    const socket = window.electron.openWebSocket(url, localCert.certPem, localCert.keyPem, (message) => {
+    socket?.close();
+    socket = window.electron.openWebSocket(url, localCert.certPem, localCert.keyPem, (message) => {
       let parsedData = Buffer.from(message.data).toString("utf-8", 1);
       let jsonData, exitCode, errorMessage;
       try {
@@ -176,7 +179,7 @@ export function DeploymentLeaseShell({ leases }) {
     });
 
     return () => {
-      socket.close();
+      socket?.close();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [leases, providers, isLocalCertMatching, selectedLease, selectedService, localCert.certPem, localCert.keyPem, services?.length, isConnectionEstablished]);
@@ -233,6 +236,7 @@ export function DeploymentLeaseShell({ leases }) {
     if (id !== selectedLease.id) {
       setShellText("");
       setIsLoadingData(true);
+      setServices([]);
       setSelectedService(null);
       setCanSetConnection(false);
       setIsConnectionEstablished(false);
