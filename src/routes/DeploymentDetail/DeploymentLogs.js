@@ -13,6 +13,7 @@ import { useAsyncTask } from "../../context/AsyncTaskProvider";
 import { SelectCheckbox } from "../../shared/components/SelectCheckbox";
 import { useLeaseStatus } from "../../queries/useLeaseQuery";
 import { LeaseSelect } from "./LeaseSelect";
+import { MemoMonaco } from "../../shared/components/MemoMonaco";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -162,6 +163,9 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
 
     if (id !== selectedLease.id) {
       setLogText("");
+      setServices([]);
+      setSelectedServices([]);
+      setIsLoadingLogs(true);
     }
   }
 
@@ -205,7 +209,7 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
         <>
           {selectedLease && (
             <>
-              <Box display="flex" alignItems="center" justifyContent="space-between" padding=".2rem .5rem">
+              <Box display="flex" alignItems="center" justifyContent="space-between" padding=".2rem .5rem" height="45px">
                 <Box display="flex" alignItems="center">
                   <ToggleButtonGroup color="primary" value={selectedLogsMode} exclusive onChange={handleModeChange} size="small">
                     <ToggleButton value="logs" size="small">
@@ -222,7 +226,7 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
                     </Box>
                   )}
 
-                  {services?.length > 1 && (
+                  {services?.length > 0 && (
                     <Box marginLeft=".5rem">
                       <SelectCheckbox
                         options={services}
@@ -250,7 +254,7 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
                     </Box>
                   )}
                   <FormControlLabel
-                    control={<Checkbox color="primary" checked={stickToBottom} onChange={(ev) => setStickToBottom(ev.target.checked)} />}
+                    control={<Checkbox color="primary" checked={stickToBottom} onChange={(ev) => setStickToBottom(ev.target.checked)} size="small" />}
                     label={"Stick to bottom"}
                   />
                 </Box>
@@ -259,7 +263,7 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
               <LinearLoadingSkeleton isLoading={isLoadingLogs} />
 
               <ViewPanel bottomElementId="footer" overflow="hidden">
-                <MonacoEditor ref={monacoRef} theme="vs-dark" value={logText} options={options} />
+                <MemoMonaco monacoRef={monacoRef} value={logText} options={options} />
               </ViewPanel>
             </>
           )}

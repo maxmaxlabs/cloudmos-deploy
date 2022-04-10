@@ -52,7 +52,12 @@ const useStyles = makeStyles((theme) => ({
   },
   selectLabel: {
     top: "2px",
-    left: "4px"
+    left: "4px",
+    transform: "translate(0, 1.5px) scale(0.75)",
+    transformOrigin: "top left"
+  },
+  checkboxRoot: {
+    padding: "4px"
   }
 }));
 
@@ -98,9 +103,10 @@ export const SelectCheckbox = ({ defaultValue, options, onSelectedChange, label,
         >
           <ListItemIcon>
             <Checkbox
-              classes={{ indeterminate: classes.indeterminateColor }}
+              classes={{ root: classes.checkboxRoot, indeterminate: classes.indeterminateColor }}
               checked={isAllSelected}
               indeterminate={selected.length > 0 && selected.length < options.length}
+              size="small"
             />
           </ListItemIcon>
           <ListItemText classes={{ primary: classes.selectAllText }} primary="Select All" />
@@ -108,7 +114,7 @@ export const SelectCheckbox = ({ defaultValue, options, onSelectedChange, label,
         {options.map((option) => (
           <MenuItem key={option} value={option}>
             <ListItemIcon>
-              <Checkbox checked={selected.indexOf(option) > -1} />
+              <Checkbox checked={selected.indexOf(option) > -1} size="small" classes={{ root: classes.checkboxRoot }} />
             </ListItemIcon>
             <ListItemText primary={option} />
           </MenuItem>

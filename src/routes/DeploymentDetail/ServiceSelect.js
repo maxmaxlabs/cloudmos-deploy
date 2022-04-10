@@ -18,13 +18,10 @@ const useStyles = makeStyles((theme) => ({
   selectLabel: {
     top: "2px",
     left: "4px"
-  },
-  selectItem: {
-    lineHeight: "1rem"
   }
 }));
 
-export const LeaseSelect = ({ defaultValue, leases, onSelectedChange }) => {
+export const ServiceSelect = ({ defaultValue, services, onSelectedChange }) => {
   const classes = useStyles();
   const [selected, setSelected] = useState(defaultValue);
 
@@ -37,11 +34,11 @@ export const LeaseSelect = ({ defaultValue, leases, onSelectedChange }) => {
 
   return (
     <FormControl className={classes.formControl}>
-      <InputLabel id="lease-select-label" className={classes.selectLabel}>
-        Lease
+      <InputLabel id="service-select-label" className={classes.selectLabel}>
+        Services
       </InputLabel>
       <Select
-        labelId="lease-select-label"
+        labelId="service-select-label"
         value={selected}
         onChange={handleChange}
         variant="outlined"
@@ -49,11 +46,9 @@ export const LeaseSelect = ({ defaultValue, leases, onSelectedChange }) => {
           selectMenu: classes.menuRoot
         }}
       >
-        {leases.map((l) => (
-          <MenuItem key={l.id} value={l.id} size="small">
-            <Typography variant="caption" className={classes.selectItem}>
-              GSEQ: {l.gseq}
-            </Typography>
+        {services.map((service) => (
+          <MenuItem key={service} value={service} size="small">
+            <Typography variant="caption">{service}</Typography>
           </MenuItem>
         ))}
       </Select>

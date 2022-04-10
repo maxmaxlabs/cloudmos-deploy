@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
 //   { id: "windows", title: "Windows" }
 // ];
 
-export const ShellDownloadModal = ({ selectedLease, localCert, onCloseClick, selectedServices, providerInfo, setIsDownloadingFile, isDownloadingFile }) => {
+export const ShellDownloadModal = ({ selectedLease, localCert, onCloseClick, selectedService, providerInfo, setIsDownloadingFile, isDownloadingFile }) => {
   const [selectedOs] = useState("linux");
   const formRef = useRef();
   const classes = useStyles();
@@ -52,7 +52,7 @@ export const ShellDownloadModal = ({ selectedLease, localCert, onCloseClick, sel
         const url = `${providerInfo.host_uri}/lease/${selectedLease.dseq}/${selectedLease.gseq}/${selectedLease.oseq}/shell?stdin=0&tty=0&podIndex=0${command
           .split(" ")
           .map((c, i) => `&cmd${i}=${encodeURIComponent(c.replace(" ", "+"))}`)
-          .join("")}${`&service=${selectedServices[0]}`}`;
+          .join("")}${`&service=${selectedService}`}`;
         const fileName = filePath.split("\\").pop().split("/").pop();
 
         const appPath = await window.electron.appPath("temp");

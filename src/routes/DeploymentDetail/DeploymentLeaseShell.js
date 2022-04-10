@@ -2,8 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useCertificate } from "../../context/CertificateProvider";
 import { makeStyles, CircularProgress, Checkbox, FormControlLabel, FormGroup, Box, TextField, FormControl, InputAdornment, Button } from "@material-ui/core";
 import { useProviders } from "../../queries";
-import MonacoEditor from "react-monaco-editor";
-import { ToggleButtonGroup, ToggleButton, Alert } from "@material-ui/lab";
+import { Alert } from "@material-ui/lab";
 import * as monaco from "monaco-editor";
 import { monacoOptions } from "../../shared/constants";
 import { ViewPanel } from "../../shared/components/ViewPanel";
@@ -11,9 +10,10 @@ import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkel
 import { useThrottledCallback } from "../../hooks/useThrottle";
 import { useLeaseStatus } from "../../queries/useLeaseQuery";
 import { useForm, Controller } from "react-hook-form";
-import isEqual from "lodash/isEqual";
 import { ShellDownloadModal } from "./ShellDownloadModal";
 import { LeaseSelect } from "./LeaseSelect";
+import { MemoMonaco } from "../../shared/components/MemoMonaco";
+import { ServiceSelect } from "./ServiceSelect";
 
 // TODO Colors theme
 const vsDark = "#1e1e1e";
@@ -83,25 +83,25 @@ export function DeploymentLeaseShell({ leases }) {
   const [isConnectionEstablished, setIsConnectionEstablished] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const formRef = useRef();
-  const logs = useRef([]);
+  const shell = useRef([]);
   const monacoRef = useRef();
   const commandRef = useRef();
-  const [logText, setLogText] = useState("");
+  const [shellText, setShellText] = useState("");
   const [services, setServices] = useState([]);
-  const [selectedServices, setSelectedServices] = useState([]);
+  const [selectedService, setSelectedService] = useState(null);
   const [selectedLease, setSelectedLease] = useState(null);
   const [isDownloadingFile, setIsDownloadingFile] = useState(false);
   const [isShowingDownloadModal, setIsShowingDownloadModal] = useState(false);
   const { data: providers } = useProviders();
   const { localCert, isLocalCertMatching } = useCertificate();
   const providerInfo = providers?.find((p) => p.owner === selectedLease?.provider);
-  const { refetch: getLeaseStatus } = useLeaseStatus(providerInfo?.host_uri, selectedLease || {}, {
+  const { refetch: getLeaseStatus, isFetching: isLoadingStatus } = useLeaseStatus(providerInfo?.host_uri, selectedLease || {}, {
     enabled: false,
     onSuccess: (leaseStatus) => {
       if (leaseStatus) {
         setServices(Object.keys(leaseStatus.services));
-        // TODO only one service at a time
-        setSelectedServices(Object.keys(leaseStatus.services));
+        // Set the first service as default
+        setSelectedService(Object.keys(leaseStatus.services)[0]);
 
         setCanSetConnection(true);
       }
@@ -113,10 +113,10 @@ export function DeploymentLeaseShell({ leases }) {
     }
   });
 
-  const updateLogText = useThrottledCallback(
+  const updateShellText = useThrottledCallback(
     () => {
-      const logText = logs.current.map((x) => x).join("\n");
-      setLogText(logText);
+      const shellText = shell.current.map((x) => x).join("\n");
+      setShellText(shellText);
       setIsLoadingData(false);
 
       const editor = monacoRef.current.editor;
@@ -144,12 +144,10 @@ export function DeploymentLeaseShell({ leases }) {
   }, [selectedLease, providers, getLeaseStatus]);
 
   useEffect(() => {
-    if (!canSetConnection || !providers || !isLocalCertMatching || !selectedLease || !selectedServices || !selectedServices.length || isConnectionEstablished)
-      return;
+    if (!canSetConnection || !providers || !isLocalCertMatching || !selectedLease || !selectedService || isConnectionEstablished) return;
 
-    logs.current = [];
-    console.log("Connection with service = ", selectedServices[0]);
-    const url = `${providerInfo.host_uri}/lease/${selectedLease.dseq}/${selectedLease.gseq}/${selectedLease.oseq}/shell?stdin=0&tty=0&podIndex=0&cmd0=ls&service=${selectedServices[0]}`;
+    shell.current = [];
+    const url = `${providerInfo.host_uri}/lease/${selectedLease.dseq}/${selectedLease.gseq}/${selectedLease.oseq}/shell?stdin=0&tty=0&podIndex=0&cmd0=ls&service=${selectedService}`;
     setIsLoadingData(true);
 
     const socket = window.electron.openWebSocket(url, localCert.certPem, localCert.keyPem, (message) => {
@@ -165,12 +163,12 @@ export function DeploymentLeaseShell({ leases }) {
         if (errorMessage) {
           parsedData = `An error has occured: ${errorMessage}`;
         } else {
-          parsedData = "// Connection established! ☁ 🚀 🌙\n// Type a command below like 'ls':";
+          parsedData = `// Connection established to service '${selectedService}'! ☁ 🚀 🌙\n// Type a command below like 'ls':`;
         }
 
-        logs.current = logs.current.concat([parsedData]);
+        shell.current = shell.current.concat([parsedData]);
 
-        updateLogText();
+        updateShellText();
 
         setIsLoadingData(false);
         setIsConnectionEstablished(true);
@@ -181,15 +179,7 @@ export function DeploymentLeaseShell({ leases }) {
       socket.close();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [leases, providers, isLocalCertMatching, selectedLease, selectedServices, localCert.certPem, localCert.keyPem, services?.length, isConnectionEstablished]);
-
-  function setServiceCheck(service, isChecked) {
-    if (isChecked) {
-      setSelectedServices([...selectedServices, service]);
-    } else {
-      setSelectedServices((selectedServices) => selectedServices.filter((x) => x !== service));
-    }
-  }
+  }, [leases, providers, isLocalCertMatching, selectedLease, selectedService, localCert.certPem, localCert.keyPem, services?.length, isConnectionEstablished]);
 
   // On command submit
   const onSubmit = async ({ command }) => {
@@ -198,10 +188,10 @@ export function DeploymentLeaseShell({ leases }) {
     const url = `${providerInfo.host_uri}/lease/${selectedLease.dseq}/${selectedLease.gseq}/${selectedLease.oseq}/shell?stdin=0&tty=0&podIndex=0${command
       .split(" ")
       .map((c, i) => `&cmd${i}=${encodeURIComponent(c.replace(" ", "+"))}`)
-      .join("")}${`&service=${selectedServices[0]}`}`;
+      .join("")}${`&service=${selectedService}`}`;
 
-    logs.current = logs.current.concat([`\n// command: ${command}\n// ---------------------------`]);
-    updateLogText();
+    shell.current = shell.current.concat([`\n// command: ${command}\n// ---------------------------`]);
+    updateShellText();
     // Clear current command
     setValue("command", "");
 
@@ -231,8 +221,8 @@ export function DeploymentLeaseShell({ leases }) {
       }
 
       if (parsedData) {
-        logs.current = logs.current.concat([parsedData]);
-        updateLogText();
+        shell.current = shell.current.concat([parsedData]);
+        updateShellText();
       }
     });
   };
@@ -241,15 +231,26 @@ export function DeploymentLeaseShell({ leases }) {
     setSelectedLease(leases.find((x) => x.id === id));
 
     if (id !== selectedLease.id) {
-      setLogText("");
+      setShellText("");
+      setIsLoadingData(true);
+      setSelectedService(null);
       setCanSetConnection(false);
       setIsConnectionEstablished(false);
     }
   }
 
+  const onSelectedServiceChange = (value) => {
+    setSelectedService(value);
+
+    if (value !== selectedService) {
+      setShellText("");
+      setIsConnectionEstablished(false);
+    }
+  };
+
   const onClearShell = () => {
-    logs.current = [];
-    updateLogText();
+    shell.current = [];
+    updateShellText();
   };
 
   const onDownloadFileClick = async () => {
@@ -269,7 +270,7 @@ export function DeploymentLeaseShell({ leases }) {
           selectedLease={selectedLease}
           localCert={localCert}
           providerInfo={providerInfo}
-          selectedServices={selectedServices}
+          selectedService={selectedService}
           isDownloadingFile={isDownloadingFile}
           setIsDownloadingFile={setIsDownloadingFile}
         />
@@ -279,31 +280,20 @@ export function DeploymentLeaseShell({ leases }) {
         <>
           {selectedLease && (
             <>
-              <Box display="flex" alignItems="center" justifyContent="space-between" padding=".2rem .5rem">
+              <Box display="flex" alignItems="center" justifyContent="space-between" padding=".2rem .5rem" height="45px">
                 <Box display="flex" alignItems="center">
-                  {leases?.length > 1 && (
-                    <div>
-                      <LeaseSelect leases={leases} defaultValue={selectedLease.id} onSelectedChange={handleLeaseChange} />
-                    </div>
+                  {leases?.length > 1 && <LeaseSelect leases={leases} defaultValue={selectedLease.id} onSelectedChange={handleLeaseChange} />}
+
+                  {services?.length > 0 && selectedService && (
+                    <Box marginLeft={leases?.length > 1 ? ".5rem" : 0}>
+                      <ServiceSelect services={services} defaultValue={selectedService} onSelectedChange={onSelectedServiceChange} />
+                    </Box>
                   )}
 
-                  {/** TODO Set service radio button */}
-                  {services?.length > 1 && (
-                    <FormGroup row>
-                      {services.map((service) => (
-                        <FormControlLabel
-                          key={service}
-                          control={
-                            <Checkbox
-                              color="primary"
-                              checked={selectedServices.includes(service)}
-                              onChange={(ev) => setServiceCheck(service, ev.target.checked)}
-                            />
-                          }
-                          label={service}
-                        />
-                      ))}
-                    </FormGroup>
+                  {isLoadingStatus && (
+                    <Box marginLeft="1rem">
+                      <CircularProgress size="1rem" />
+                    </Box>
                   )}
                 </Box>
 
@@ -327,7 +317,7 @@ export function DeploymentLeaseShell({ leases }) {
               <LinearLoadingSkeleton isLoading={isLoadingData} />
 
               <ViewPanel bottomElementId="footer" overflow="hidden" offset={39}>
-                <MemoMonaco logText={logText} monacoRef={monacoRef} />
+                <MemoMonaco value={shellText} monacoRef={monacoRef} options={_monacoOptions} />
               </ViewPanel>
 
               <div id="terminal-command">
@@ -380,12 +370,3 @@ export function DeploymentLeaseShell({ leases }) {
     </div>
   );
 }
-
-const MemoMonaco = React.memo(
-  function MemoMonaco({ logText, monacoRef }) {
-    return <MonacoEditor ref={monacoRef} theme="vs-dark" value={logText} options={_monacoOptions} />;
-  },
-  (prevProps, nextProps) => {
-    return isEqual(prevProps, nextProps);
-  }
-);

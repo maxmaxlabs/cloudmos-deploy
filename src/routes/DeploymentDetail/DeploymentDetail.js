@@ -110,11 +110,15 @@ export function DeploymentDetail(props) {
       )}
 
       <Tabs value={activeTab} onChange={(ev, value) => setActiveTab(value)} indicatorColor="primary" textColor="primary" classes={{ root: classes.tabsRoot }}>
-        <Tab value="DETAILS" label="Details" />
-        {deployment?.state === "active" && leases?.some((x) => x.state === "active") && <Tab value="LOGS" label="Logs" />}
-        {deployment?.state === "active" && leases?.some((x) => x.state === "active") && <Tab value="SHELL" label="Shell" />}
-        <Tab value="EDIT" label="View / Edit Manifest" />
-        <Tab value="JSON_DATA" label="JSON Data" />
+        <Tab value="DETAILS" label="Details" classes={{ selected: classes.selectedTab }} />
+        {deployment?.state === "active" && leases?.some((x) => x.state === "active") && (
+          <Tab value="LOGS" label="Logs" classes={{ selected: classes.selectedTab }} />
+        )}
+        {deployment?.state === "active" && leases?.some((x) => x.state === "active") && (
+          <Tab value="SHELL" label="Shell" classes={{ selected: classes.selectedTab }} />
+        )}
+        <Tab value="EDIT" label="View / Edit Manifest" classes={{ selected: classes.selectedTab }} />
+        <Tab value="JSON_DATA" label="JSON Data" classes={{ selected: classes.selectedTab }} />
       </Tabs>
 
       {activeTab === "EDIT" && deployment && leases && (
