@@ -17,8 +17,15 @@ Sentry.init({
 
 // whitelist channels
 const validChannels = ["update_available", "update_downloaded", "download_update", "restart_app", "show_notification", "check_update", "relaunch"];
+const defaultSaveDialogOptions = {
+  dialogTitle: "Save",
+  buttonLabel: "Save",
+  filters: [{ name: "txt", extensions: ["txt"] }],
+  properties: []
+};
 
 let logsWorker;
+let downloadWorker
 
 // All of the Node.js APIs are available in the preload process.
 // It has the same sandbox as a Chrome extension.
@@ -98,13 +105,11 @@ contextBridge.exposeInMainWorld("electron", {
     // Throw error to interupt the flow of execution
     throw new Error("Cancelled export logs");
   },
-  saveLogFile: async (oldPath, defaultPath) => {
+  saveFileFromTemp: async (oldPath, defaultPath, options = defaultSaveDialogOptions) => {
     const response = await ipcRenderer.invoke("dialog", "showSaveDialog", {
-      title: "Save log file",
       defaultPath,
-      filters: [{ name: "txt", extensions: ["txt"] }],
-      buttonLabel: "Save",
-      properties: []
+      ...defaultSaveDialogOptions,
+      ...options
     });
     if (response.canceled) {
       return null;
@@ -115,6 +120,44 @@ contextBridge.exposeInMainWorld("electron", {
 
       return path;
     }
+  },
+  downloadFile: async (appPath, url, certPem, prvPem, fileName) => {
+    return new Promise((res, rej) => {
+      downloadWorker = fork(path.join(__dirname, "/workers/download.worker.js"), ["args"], {
+        stdio: ["pipe", "pipe", "pipe", "ipc"]
+      });
+
+      function cleanup() {
+        downloadWorker.kill();
+        delete downloadWorker;
+      }
+
+      downloadWorker.on("error", (err) => {
+        rej("Spawn failed! (" + err + ")");
+        cleanup();
+      });
+      downloadWorker.stderr.on("data", function (data) {
+        rej(data);
+        cleanup();
+      });
+      downloadWorker.on("message", (data) => {
+        res(data);
+        cleanup();
+      });
+
+      downloadWorker.send({ appPath, url, certPem, prvPem, fileName });
+    });
+  },
+  cancelDownloadFile: async () => {
+    downloadWorker?.send("cleanup");
+
+    await helpers.sleep(500);
+
+    downloadWorker?.kill();
+    delete downloadWorker;
+
+    // Throw error to interupt the flow of execution
+    throw new Error("Cancelled download file");
   },
   executeKdf: async (password, kdfConf) => {
     return new Promise((res, rej) => {

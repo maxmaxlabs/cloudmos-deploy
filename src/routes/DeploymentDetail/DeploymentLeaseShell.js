@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useCertificate } from "../../context/CertificateProvider";
-import { makeStyles, Checkbox, FormControlLabel, FormGroup, Box, TextField, FormControl, InputAdornment, Button } from "@material-ui/core";
+import { makeStyles, CircularProgress, Checkbox, FormControlLabel, FormGroup, Box, TextField, FormControl, InputAdornment, Button } from "@material-ui/core";
 import { useProviders } from "../../queries";
 import MonacoEditor from "react-monaco-editor";
 import { ToggleButtonGroup, ToggleButton, Alert } from "@material-ui/lab";
@@ -12,7 +12,10 @@ import { useThrottledCallback } from "../../hooks/useThrottle";
 import { useLeaseStatus } from "../../queries/useLeaseQuery";
 import { useForm, Controller } from "react-hook-form";
 import isEqual from "lodash/isEqual";
+import { ShellDownloadModal } from "./ShellDownloadModal";
+import { LeaseSelect } from "./LeaseSelect";
 
+// TODO Colors theme
 const vsDark = "#1e1e1e";
 const vsDarkFont = "#d4d4d4";
 
@@ -75,6 +78,8 @@ const _monacoOptions = {
 };
 
 export function DeploymentLeaseShell({ leases }) {
+  const classes = useStyles();
+  const [canSetConnection, setCanSetConnection] = useState(false);
   const [isConnectionEstablished, setIsConnectionEstablished] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const formRef = useRef();
@@ -84,17 +89,21 @@ export function DeploymentLeaseShell({ leases }) {
   const [logText, setLogText] = useState("");
   const [services, setServices] = useState([]);
   const [selectedServices, setSelectedServices] = useState([]);
-  const [selectedLease, setSelectedLease] = useState({});
-  const classes = useStyles();
+  const [selectedLease, setSelectedLease] = useState(null);
+  const [isDownloadingFile, setIsDownloadingFile] = useState(false);
+  const [isShowingDownloadModal, setIsShowingDownloadModal] = useState(false);
   const { data: providers } = useProviders();
   const { localCert, isLocalCertMatching } = useCertificate();
   const providerInfo = providers?.find((p) => p.owner === selectedLease?.provider);
-  const { refetch: getLeaseStatus } = useLeaseStatus(providerInfo?.host_uri, selectedLease, {
+  const { refetch: getLeaseStatus } = useLeaseStatus(providerInfo?.host_uri, selectedLease || {}, {
     enabled: false,
     onSuccess: (leaseStatus) => {
       if (leaseStatus) {
         setServices(Object.keys(leaseStatus.services));
+        // TODO only one service at a time
         setSelectedServices(Object.keys(leaseStatus.services));
+
+        setCanSetConnection(true);
       }
     }
   });
@@ -103,7 +112,6 @@ export function DeploymentLeaseShell({ leases }) {
       command: ""
     }
   });
-  // const { command } = watch();
 
   const updateLogText = useThrottledCallback(
     () => {
@@ -136,29 +144,31 @@ export function DeploymentLeaseShell({ leases }) {
   }, [selectedLease, providers, getLeaseStatus]);
 
   useEffect(() => {
-    if (!providers || !isLocalCertMatching || !selectedLease || !selectedServices || !selectedServices.length || isConnectionEstablished) return;
+    if (!canSetConnection || !providers || !isLocalCertMatching || !selectedLease || !selectedServices || !selectedServices.length || isConnectionEstablished)
+      return;
 
     logs.current = [];
+    console.log("Connection with service = ", selectedServices[0]);
     const url = `${providerInfo.host_uri}/lease/${selectedLease.dseq}/${selectedLease.gseq}/${selectedLease.oseq}/shell?stdin=0&tty=0&podIndex=0&cmd0=ls&service=${selectedServices[0]}`;
     setIsLoadingData(true);
 
     const socket = window.electron.openWebSocket(url, localCert.certPem, localCert.keyPem, (message) => {
-      let parsedLog = Buffer.from(message.data).toString("utf-8", 1);
+      let parsedData = Buffer.from(message.data).toString("utf-8", 1);
       let jsonData, exitCode, errorMessage;
       try {
-        jsonData = JSON.parse(parsedLog);
+        jsonData = JSON.parse(parsedData);
         exitCode = jsonData["exit_code"];
         errorMessage = jsonData["message"];
       } catch (error) {}
 
       if (exitCode !== undefined) {
         if (errorMessage) {
-          parsedLog = `An error has occured: ${errorMessage}`;
+          parsedData = `An error has occured: ${errorMessage}`;
         } else {
-          parsedLog = "// Connection established!\n\n// Type a command below like 'ls':\n";
+          parsedData = "// Connection established! ☁ 🚀 🌙\n// Type a command below like 'ls':";
         }
 
-        logs.current = logs.current.concat([parsedLog]);
+        logs.current = logs.current.concat([parsedData]);
 
         updateLogText();
 
@@ -185,7 +195,7 @@ export function DeploymentLeaseShell({ leases }) {
   const onSubmit = async ({ command }) => {
     if (!isConnectionEstablished || isLoadingData) return;
 
-    let url = `${providerInfo.host_uri}/lease/${selectedLease.dseq}/${selectedLease.gseq}/${selectedLease.oseq}/shell?stdin=0&tty=0&podIndex=0${command
+    const url = `${providerInfo.host_uri}/lease/${selectedLease.dseq}/${selectedLease.gseq}/${selectedLease.oseq}/shell?stdin=0&tty=0&podIndex=0${command
       .split(" ")
       .map((c, i) => `&cmd${i}=${encodeURIComponent(c.replace(" ", "+"))}`)
       .join("")}${`&service=${selectedServices[0]}`}`;
@@ -197,22 +207,22 @@ export function DeploymentLeaseShell({ leases }) {
 
     setIsLoadingData(true);
     const socket = window.electron.openWebSocket(url, localCert.certPem, localCert.keyPem, (message) => {
-      let parsedLog = Buffer.from(message.data)
+      let parsedData = Buffer.from(message.data)
         .toString("utf-8", 1)
         .replace(/^\n|\n$/g, "");
 
       let jsonData, exitCode, errorMessage;
       try {
-        jsonData = JSON.parse(parsedLog);
+        jsonData = JSON.parse(parsedData);
         exitCode = jsonData["exit_code"];
         errorMessage = jsonData["message"];
       } catch (error) {}
 
       if (exitCode !== undefined) {
         if (errorMessage) {
-          parsedLog = `An error has occured: ${errorMessage}`;
+          parsedData = `An error has occured: ${errorMessage}`;
         } else {
-          parsedLog = "";
+          parsedData = "";
         }
 
         setIsLoadingData(false);
@@ -220,15 +230,21 @@ export function DeploymentLeaseShell({ leases }) {
         socket.close();
       }
 
-      if (parsedLog) {
-        logs.current = logs.current.concat([parsedLog]);
+      if (parsedData) {
+        logs.current = logs.current.concat([parsedData]);
         updateLogText();
       }
     });
   };
 
-  function handleLeaseChange(ev, val) {
-    setSelectedLease(leases.find((x) => x.id === val));
+  function handleLeaseChange(id) {
+    setSelectedLease(leases.find((x) => x.id === id));
+
+    if (id !== selectedLease.id) {
+      setLogText("");
+      setCanSetConnection(false);
+      setIsConnectionEstablished(false);
+    }
   }
 
   const onClearShell = () => {
@@ -236,40 +252,77 @@ export function DeploymentLeaseShell({ leases }) {
     updateLogText();
   };
 
+  const onDownloadFileClick = async () => {
+    setIsShowingDownloadModal(true);
+  };
+
+  const onCloseDownloadClick = () => {
+    // setIsDownloadingFile(false);
+    setIsShowingDownloadModal(false);
+  };
+
   return (
     <div className={classes.root}>
+      {isShowingDownloadModal && (
+        <ShellDownloadModal
+          onCloseClick={onCloseDownloadClick}
+          selectedLease={selectedLease}
+          localCert={localCert}
+          providerInfo={providerInfo}
+          selectedServices={selectedServices}
+          isDownloadingFile={isDownloadingFile}
+          setIsDownloadingFile={setIsDownloadingFile}
+        />
+      )}
+
       {isLocalCertMatching ? (
         <>
           {selectedLease && (
             <>
               <Box display="flex" alignItems="center" justifyContent="space-between" padding=".2rem .5rem">
-                <div>
+                <Box display="flex" alignItems="center">
                   {leases?.length > 1 && (
-                    <ToggleButtonGroup className={classes.leaseSelector} color="primary" value={selectedLease.id} exclusive onChange={handleLeaseChange}>
-                      {leases.map((l) => (
-                        <ToggleButton key={l.id} value={l.id} size="small">
-                          GSEQ: {l.gseq}
-                        </ToggleButton>
-                      ))}
-                    </ToggleButtonGroup>
+                    <div>
+                      <LeaseSelect leases={leases} defaultValue={selectedLease.id} onSelectedChange={handleLeaseChange} />
+                    </div>
                   )}
-                </div>
-              </Box>
 
-              {/** TODO Set service radio button */}
-              {services?.length > 1 && (
-                <FormGroup row>
-                  {services.map((service) => (
-                    <FormControlLabel
-                      key={service}
-                      control={
-                        <Checkbox color="primary" checked={selectedServices.includes(service)} onChange={(ev) => setServiceCheck(service, ev.target.checked)} />
-                      }
-                      label={service}
-                    />
-                  ))}
-                </FormGroup>
-              )}
+                  {/** TODO Set service radio button */}
+                  {services?.length > 1 && (
+                    <FormGroup row>
+                      {services.map((service) => (
+                        <FormControlLabel
+                          key={service}
+                          control={
+                            <Checkbox
+                              color="primary"
+                              checked={selectedServices.includes(service)}
+                              onChange={(ev) => setServiceCheck(service, ev.target.checked)}
+                            />
+                          }
+                          label={service}
+                        />
+                      ))}
+                    </FormGroup>
+                  )}
+                </Box>
+
+                <Box display="flex" alignItems="center">
+                  {localCert && (
+                    <div>
+                      <Button
+                        onClick={onDownloadFileClick}
+                        variant="contained"
+                        size="small"
+                        color="primary"
+                        disabled={isDownloadingFile || !isConnectionEstablished}
+                      >
+                        {isDownloadingFile ? <CircularProgress size="1.5rem" color="primary" /> : "Download file"}
+                      </Button>
+                    </div>
+                  )}
+                </Box>
+              </Box>
 
               <LinearLoadingSkeleton isLoading={isLoadingData} />
 
