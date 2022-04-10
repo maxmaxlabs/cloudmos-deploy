@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { akashlyticsApi } from "../../shared/constants";
 
 const TemplatesProviderContext = React.createContext({});
 
@@ -17,8 +18,7 @@ export const TemplatesProvider = ({ children }) => {
     (async () => {
       setIsLoading(true);
 
-      const templateEndpoint = "https://raw.githubusercontent.com/Akashlytics/akashlytics-deploy/master/templates.json";
-      const response = await axios.get(templateEndpoint);
+      const response = await axios.get(`${akashlyticsApi}/templates`);
       let categories = response.data.filter((x) => (x.templates || []).length > 0);
       categories.forEach((c) => {
         c.templates.forEach((t) => (t.category = c.title));
