@@ -164,8 +164,6 @@ export function DeploymentLeaseShell({ leases }) {
         shell.current = shell.current.concat([parsedData]);
 
         updateShellText();
-
-        setIsLoadingData(false);
         setIsConnectionEstablished(true);
       }
     });
@@ -215,8 +213,6 @@ export function DeploymentLeaseShell({ leases }) {
         } else {
           parsedData = "";
         }
-
-        setIsLoadingData(false);
 
         socket.close();
       }
