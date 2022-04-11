@@ -151,17 +151,19 @@ export function DeploymentDetail(props) {
           <Typography variant="h6" className={classes.title}>
             Leases
           </Typography>
+
+          {leases && (!localCert || !isLocalCertMatching) && (
+            <Box marginBottom="1rem">
+              <Alert severity="warning">You do not have a valid local certificate. You need to create a new one to view lease status and details.</Alert>
+            </Box>
+          )}
+
           {leases &&
             leases.map((lease, i) => (
               <LeaseRow key={lease.id} lease={lease} setActiveTab={setActiveTab} ref={leaseRefs[i]} deploymentManifest={deploymentManifest} dseq={dseq} />
             ))}
-          {!hasLeases && !isLoadingLeases && !isLoadingDeployment && <>This deployment doesn't have any leases</>}
 
-          {leases && certificate && (!localCert || !isLocalCertMatching) && (
-            <Box marginTop="1rem">
-              <Alert severity="warning">You do not have a valid local certificate. You need to create a new one to view lease status and details.</Alert>
-            </Box>
-          )}
+          {!hasLeases && !isLoadingLeases && !isLoadingDeployment && <>This deployment doesn't have any leases</>}
 
           {(isLoadingLeases || isLoadingDeployment) && !hasLeases && (
             <Box textAlign="center" padding="2rem">

@@ -47,22 +47,28 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
   const monacoRef = useRef();
   const { launchAsyncTask } = useAsyncTask();
   const providerInfo = providers?.find((p) => p.owner === selectedLease?.provider);
-  const { refetch: getLeaseStatus, isFetching: isLoadingStatus } = useLeaseStatus(providerInfo?.host_uri, selectedLease || {}, {
-    enabled: false,
-    onSuccess: (leaseStatus) => {
-      if (leaseStatus) {
-        setServices(Object.keys(leaseStatus.services));
-        setSelectedServices(Object.keys(leaseStatus.services));
-
-        setCanSetConnection(true);
-      }
-    }
+  const {
+    data: leaseStatus,
+    refetch: getLeaseStatus,
+    isFetching: isLoadingStatus
+  } = useLeaseStatus(providerInfo?.host_uri, selectedLease || {}, {
+    enabled: false
   });
-
   const options = {
     ...monacoOptions,
     readOnly: true
   };
+
+  useEffect(() => {
+    // Set the services and default selected services
+    if (leaseStatus) {
+      setServices(Object.keys(leaseStatus.services));
+      // Set all services as default
+      setSelectedServices(Object.keys(leaseStatus.services));
+
+      setCanSetConnection(true);
+    }
+  }, [leaseStatus]);
 
   const updateLogText = useThrottledCallback(
     () => {
@@ -81,13 +87,13 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
   }, [leases]);
 
   useEffect(() => {
-    if (!selectedLease || !providers || providers.length === 0) return;
+    if (!selectedLease || !providerInfo) return;
 
     getLeaseStatus();
-  }, [selectedLease, providers, getLeaseStatus]);
+  }, [selectedLease, providerInfo, getLeaseStatus]);
 
   useEffect(() => {
-    if (!canSetConnection || !providers || !isLocalCertMatching || !selectedLease || isConnectionEstablished) return;
+    if (!canSetConnection || !providerInfo || !isLocalCertMatching || !selectedLease || isConnectionEstablished) return;
 
     logs.current = [];
 
@@ -129,8 +135,6 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
       socket?.close();
     };
   }, [
-    leases,
-    providers,
     isLocalCertMatching,
     selectedLogsMode,
     selectedLease,
@@ -141,7 +145,7 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
     updateLogText,
     canSetConnection,
     isConnectionEstablished,
-    providerInfo?.host_uri
+    providerInfo
   ]);
 
   useEffect(() => {
@@ -189,8 +193,6 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
 
   const onDownloadLogsClick = async () => {
     setIsDownloadingLogs(true);
-
-    const providerInfo = providers?.find((p) => p.owner === selectedLease.provider);
 
     await launchAsyncTask(
       async () => {
@@ -246,7 +248,7 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
                     </Box>
                   )}
 
-                  {services?.length > 0 && (
+                  {services?.length > 0 && canSetConnection && (
                     <Box marginLeft=".5rem">
                       <SelectCheckbox
                         options={services}

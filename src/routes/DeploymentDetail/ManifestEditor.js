@@ -165,7 +165,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
       ) : (
         <>
           <div>
-            <Box display="flex" alignItems="center" justifyContent="space-between" padding=".5rem">
+            <Box display="flex" alignItems="center" justifyContent="space-between" padding=".2rem .5rem" height="45px">
               <Box display="flex" alignItems="center">
                 <Typography variant="h6" className={classes.title}>
                   Update Manifest

@@ -89,23 +89,29 @@ export function DeploymentLeaseShell({ leases }) {
   const { data: providers } = useProviders();
   const { localCert, isLocalCertMatching } = useCertificate();
   const providerInfo = providers?.find((p) => p.owner === selectedLease?.provider);
-  const { refetch: getLeaseStatus, isFetching: isLoadingStatus } = useLeaseStatus(providerInfo?.host_uri, selectedLease || {}, {
-    enabled: false,
-    onSuccess: (leaseStatus) => {
-      if (leaseStatus) {
-        setServices(Object.keys(leaseStatus.services));
-        // Set the first service as default
-        setSelectedService(Object.keys(leaseStatus.services)[0]);
-
-        setCanSetConnection(true);
-      }
-    }
+  const {
+    data: leaseStatus,
+    refetch: getLeaseStatus,
+    isFetching: isLoadingStatus
+  } = useLeaseStatus(providerInfo?.host_uri, selectedLease || {}, {
+    enabled: false
   });
   const { handleSubmit, control, setValue } = useForm({
     defaultValues: {
       command: ""
     }
   });
+
+  useEffect(() => {
+    // Set the services and default selected service
+    if (leaseStatus) {
+      setServices(Object.keys(leaseStatus.services));
+      // Set the first service as default
+      setSelectedService(Object.keys(leaseStatus.services)[0]);
+
+      setCanSetConnection(true);
+    }
+  }, [leaseStatus]);
 
   const updateShellText = useThrottledCallback(
     () => {
@@ -132,13 +138,13 @@ export function DeploymentLeaseShell({ leases }) {
   }, [leases]);
 
   useEffect(() => {
-    if (!selectedLease || !providers || providers.length === 0) return;
+    if (!selectedLease || !providerInfo) return;
 
     getLeaseStatus();
-  }, [selectedLease, providers, getLeaseStatus]);
+  }, [selectedLease, providerInfo, getLeaseStatus]);
 
   useEffect(() => {
-    if (!canSetConnection || !providers || !isLocalCertMatching || !selectedLease || !selectedService || isConnectionEstablished) return;
+    if (!canSetConnection || !providerInfo || !isLocalCertMatching || !selectedLease || !selectedService || isConnectionEstablished) return;
 
     shell.current = [];
     const url = `${providerInfo.host_uri}/lease/${selectedLease.dseq}/${selectedLease.gseq}/${selectedLease.oseq}/shell?stdin=0&tty=0&podIndex=0&cmd0=ls&service=${selectedService}`;
@@ -172,7 +178,7 @@ export function DeploymentLeaseShell({ leases }) {
       socket?.close();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [leases, providers, isLocalCertMatching, selectedLease, selectedService, localCert.certPem, localCert.keyPem, services?.length, isConnectionEstablished]);
+  }, [providerInfo, isLocalCertMatching, selectedLease, selectedService, localCert.certPem, localCert.keyPem, isConnectionEstablished]);
 
   // On command submit
   const onSubmit = async ({ command }) => {
@@ -385,7 +391,7 @@ export function DeploymentLeaseShell({ leases }) {
         </>
       ) : (
         <Box mt={1}>
-          <Alert severity="info">You need a valid certificate to view deployment logs.</Alert>
+          <Alert severity="info">You need a valid certificate to access the lease shell.</Alert>
         </Box>
       )}
     </div>
