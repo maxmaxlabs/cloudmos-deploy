@@ -1,11 +1,12 @@
-import { Typography, makeStyles } from "@material-ui/core";
+import { Typography, makeStyles, CircularProgress, Box } from "@material-ui/core";
 import clsx from "clsx";
 
 const useStyles = makeStyles((theme) => ({
   snackBarTitle: {
     fontSize: "1rem",
     lineHeight: "1rem",
-    fontWeight: "bold"
+    fontWeight: "bold",
+    flexGrow: 1
   },
   marginBottom: {
     marginBottom: ".5rem"
@@ -16,18 +17,27 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function Snackbar({ title, subTitle }) {
+export function Snackbar({ title, subTitle, showLoading = false }) {
   const classes = useStyles();
   return (
     <div>
-      <Typography
-        variant="h5"
-        className={clsx(classes.snackBarTitle, {
+      <Box
+        display="flex"
+        alignItems="center"
+        className={clsx({
           [classes.marginBottom]: !!subTitle
         })}
       >
-        {title}
-      </Typography>
+        {showLoading && (
+          <Box display="flex" alignItems="center" paddingRight=".5rem">
+            <CircularProgress size="1rem" />
+          </Box>
+        )}
+        <Typography variant="h5" className={classes.snackBarTitle}>
+          {title}
+        </Typography>
+      </Box>
+
       {subTitle && (
         <Typography variant="body1" className={classes.snackBarSubTitle}>
           {subTitle}

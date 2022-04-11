@@ -16,6 +16,7 @@ import Alert from "@material-ui/lab/Alert";
 import { getDeploymentLocalData } from "../../shared/utils/deploymentLocalDataUtils";
 import { DeploymentDetailTopBar } from "./DeploymentDetailTopBar";
 import { DeploymentLeaseShell } from "./DeploymentLeaseShell";
+import { analytics } from "../../shared/utils/analyticsUtils";
 
 export function DeploymentDetail(props) {
   const [deployment, setDeployment] = useState(null);
@@ -91,6 +92,12 @@ export function DeploymentDetail(props) {
     }
   }
 
+  const onChangeTab = async (ev, value) => {
+    setActiveTab(value);
+
+    await analytics.event("deploy", `navigate tab ${value}`);
+  };
+
   return (
     <div className={classes.root}>
       <Helmet title="Deployment Detail" />
@@ -109,7 +116,7 @@ export function DeploymentDetail(props) {
         <DeploymentSubHeader deployment={deployment} deploymentCost={hasLeases ? leases.reduce((prev, current) => prev + current.price.amount, 0) : 0} />
       )}
 
-      <Tabs value={activeTab} onChange={(ev, value) => setActiveTab(value)} indicatorColor="primary" textColor="primary" classes={{ root: classes.tabsRoot }}>
+      <Tabs value={activeTab} onChange={onChangeTab} indicatorColor="primary" textColor="primary" classes={{ root: classes.tabsRoot }}>
         <Tab value="DETAILS" label="Details" classes={{ selected: classes.selectedTab }} />
         {deployment?.state === "active" && leases?.some((x) => x.state === "active") && (
           <Tab value="LOGS" label="Logs" classes={{ selected: classes.selectedTab }} />
