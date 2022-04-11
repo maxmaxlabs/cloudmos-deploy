@@ -337,7 +337,7 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
                     </Box>
                   </Box>
 
-                  {leaseStatus.forwarded_ports[service.name]?.length > 0 && (
+                  {leaseStatus.forwarded_ports && leaseStatus.forwarded_ports[service.name]?.length > 0 && (
                     <>
                       Forwarded Ports:{" "}
                       {leaseStatus.forwarded_ports[service.name].map((p) => (

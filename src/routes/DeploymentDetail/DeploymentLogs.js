@@ -13,6 +13,7 @@ import { SelectCheckbox } from "../../shared/components/SelectCheckbox";
 import { useLeaseStatus } from "../../queries/useLeaseQuery";
 import { LeaseSelect } from "./LeaseSelect";
 import { MemoMonaco } from "../../shared/components/MemoMonaco";
+import { analytics } from "../../shared/utils/analyticsUtils";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -216,6 +217,8 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
       },
       "Downloading logs..."
     );
+
+    await analytics.event("deploy", "downloaded logs");
 
     setIsDownloadingLogs(false);
   };

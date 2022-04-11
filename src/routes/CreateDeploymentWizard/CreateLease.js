@@ -157,7 +157,7 @@ export function CreateLease({ dseq }) {
     if (localDeploymentData && localDeploymentData.manifest) {
       // Send the manifest
 
-      const sendManifestKey = enqueueSnackbar(<Snackbar title="Sending Manifest! 🚀" subTitle={`Please wait a few seconds...`} />, {
+      const sendManifestKey = enqueueSnackbar(<Snackbar title="Sending Manifest! 🚀" subTitle={`Please wait a few seconds...`} showLoading/>, {
         variant: "success",
         autoHideDuration: null
       });

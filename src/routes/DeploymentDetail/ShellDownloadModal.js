@@ -3,6 +3,7 @@ import { makeStyles, Dialog, DialogContent, DialogActions, Button, CircularProgr
 import { useAsyncTask } from "../../context/AsyncTaskProvider";
 import { useForm, Controller } from "react-hook-form";
 import Alert from "@material-ui/lab/Alert";
+import { analytics } from "../../shared/utils/analyticsUtils";
 
 const useStyles = makeStyles((theme) => ({
   dialogTitle: {
@@ -76,6 +77,8 @@ export const ShellDownloadModal = ({ selectedLease, localCert, onCloseClick, sel
       },
       "Downloading file..."
     );
+
+    await analytics.event("deploy", "downloaded shell file");
 
     setIsDownloadingFile(false);
   };
