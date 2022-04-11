@@ -23,7 +23,7 @@ process.on("message", async (value) => {
   }
 
   const { appPath, url, certPem, prvPem, fileName } = value;
-  const dir = `${appPath}/akashlytics_logs`;
+  const dir = `${appPath}/akashlytics`;
   const filePath = `${dir}/${fileName}`;
   let isFinished = false;
 
