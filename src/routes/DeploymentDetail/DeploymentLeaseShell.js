@@ -23,16 +23,6 @@ const useStyles = makeStyles((theme) => ({
   leaseSelector: {
     margin: theme.spacing(1)
   },
-  root: {
-    "& .MuiToggleButton-root": {
-      color: "rgba(0, 0, 0, 0.54)",
-      fontWeight: "bold",
-      "&.Mui-selected": {
-        color: "rgb(25, 118, 210)",
-        backgroundColor: "rgba(25, 118, 210, 0.08)"
-      }
-    }
-  },
   commandForm: {
     backgroundColor: vsDark,
     borderTop: `1px solid ${theme.palette.grey[800]}`
@@ -88,6 +78,8 @@ export function DeploymentLeaseShell({ leases }) {
   const shell = useRef([]);
   const monacoRef = useRef();
   const commandRef = useRef();
+  const commandHistoryRef = useRef([]);
+  const commandIndexRef = useRef(0);
   const [shellText, setShellText] = useState("");
   const [services, setServices] = useState([]);
   const [selectedService, setSelectedService] = useState(null);
@@ -195,6 +187,12 @@ export function DeploymentLeaseShell({ leases }) {
 
     shell.current = shell.current.concat([`\n// command: ${command}\n// ---------------------------`]);
     updateShellText();
+
+    // Add the command to history
+    commandHistoryRef.current = commandHistoryRef.current.concat([command]);
+    // Set the index to the latest (length)
+    commandIndexRef.current = commandHistoryRef.current.length;
+
     // Clear current command
     setValue("command", "");
 
@@ -264,6 +262,28 @@ export function DeploymentLeaseShell({ leases }) {
   const onCloseDownloadClick = () => {
     // setIsDownloadingFile(false);
     setIsShowingDownloadModal(false);
+  };
+
+  const onCommandKeyPress = (event) => {
+    if (commandHistoryRef.current.length === 0) return;
+
+    const code = event.code;
+
+    // Navigate local command history with arrows
+    if (code === "ArrowUp" || code === "ArrowDown") {
+      const newIndex =
+        code === "ArrowUp" ? Math.max(commandIndexRef.current - 1, 0) : Math.min(commandIndexRef.current + 1, commandHistoryRef.current.length - 1);
+      const newCommand = commandHistoryRef.current[newIndex];
+      commandIndexRef.current = newIndex;
+
+      setValue("command", newCommand || "");
+    }
+
+    // Clear command history
+    if (code === "Escape") {
+      commandIndexRef.current = commandHistoryRef.current.length;
+      setValue("command", "");
+    }
   };
 
   return (
@@ -339,6 +359,7 @@ export function DeploymentLeaseShell({ leases }) {
                             autoFocus
                             placeholder="Type command"
                             fullWidth
+                            onKeyDown={onCommandKeyPress}
                             InputProps={{
                               ref: commandRef,
                               classes: { input: classes.commandInput, root: classes.commandInputBase },

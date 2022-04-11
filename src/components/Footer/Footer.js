@@ -85,7 +85,7 @@ export const Footer = () => {
           )}
 
           <LinkTo onClick={() => window.electron.openUrl("https://akash.network")} className={classes.akashLink}>
-            <img src="./images/powered-by-akash.png" alt="Akashlytics Logo" className={classes.akashImage} />
+            <img src="./images/powered-by-akash.svg" alt="Akashlytics Logo" className={classes.akashImage} />
           </LinkTo>
         </Box>
 
