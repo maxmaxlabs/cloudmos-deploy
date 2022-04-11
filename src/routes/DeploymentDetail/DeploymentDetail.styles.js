@@ -23,5 +23,8 @@ export const useStyles = makeStyles((theme) => ({
   title: {
     marginBottom: ".5rem",
     fontWeight: "bold"
+  },
+  selectedTab: {
+    fontWeight: "bold"
   }
 }));

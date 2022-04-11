@@ -122,7 +122,7 @@ export function DeploymentSubHeader({ deployment, deploymentCost }) {
           </strong>
         </Box>
 
-        {deploymentCost && (
+        {!!deploymentCost && (
           <Box display="flex" alignItems="center" marginLeft="1rem">
             Cost:&nbsp; <PricePerMonth perBlockValue={uaktToAKT(deploymentCost, 6)} typoVariant="caption" />
             <PriceEstimateTooltip value={uaktToAKT(deploymentCost, 6)} />

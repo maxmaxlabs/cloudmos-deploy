@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useCertificate } from "../../context/CertificateProvider";
-import { makeStyles, Checkbox, FormControlLabel, FormGroup, Box, Button, CircularProgress } from "@material-ui/core";
+import { makeStyles, Checkbox, FormControlLabel, Box, Button, CircularProgress } from "@material-ui/core";
 import { useProviders } from "../../queries";
-import MonacoEditor from "react-monaco-editor";
 import { ToggleButtonGroup, ToggleButton, Alert } from "@material-ui/lab";
 import * as monaco from "monaco-editor";
 import { monacoOptions } from "../../shared/constants";
@@ -10,25 +9,30 @@ import { ViewPanel } from "../../shared/components/ViewPanel";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 import { useThrottledCallback } from "../../hooks/useThrottle";
 import { useAsyncTask } from "../../context/AsyncTaskProvider";
+import { SelectCheckbox } from "../../shared/components/SelectCheckbox";
+import { useLeaseStatus } from "../../queries/useLeaseQuery";
+import { LeaseSelect } from "./LeaseSelect";
+import { MemoMonaco } from "../../shared/components/MemoMonaco";
 
 const useStyles = makeStyles((theme) => ({
-  leaseSelector: {
-    margin: theme.spacing(1)
-  },
   root: {
     "& .MuiToggleButton-root": {
-      color: "rgba(0, 0, 0, 0.54)",
+      color: theme.palette.grey[500],
       fontWeight: "bold",
       "&.Mui-selected": {
-        color: "rgb(25, 118, 210)",
-        backgroundColor: "rgba(25, 118, 210, 0.08)"
+        color: theme.palette.primary.contrastText,
+        backgroundColor: theme.palette.primary.main
       }
     }
   }
 }));
 
+let socket;
+
 export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }) {
   const [isLoadingLogs, setIsLoadingLogs] = useState(true);
+  const [canSetConnection, setCanSetConnection] = useState(false);
+  const [isConnectionEstablished, setIsConnectionEstablished] = useState(false);
   const logs = useRef([]);
   const [logText, setLogText] = useState("");
   const [isDownloadingLogs, setIsDownloadingLogs] = useState(false);
@@ -41,6 +45,18 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
   const { localCert, isLocalCertMatching } = useCertificate();
   const monacoRef = useRef();
   const { launchAsyncTask } = useAsyncTask();
+  const providerInfo = providers?.find((p) => p.owner === selectedLease?.provider);
+  const { refetch: getLeaseStatus, isFetching: isLoadingStatus } = useLeaseStatus(providerInfo?.host_uri, selectedLease || {}, {
+    enabled: false,
+    onSuccess: (leaseStatus) => {
+      if (leaseStatus) {
+        setServices(Object.keys(leaseStatus.services));
+        setSelectedServices(Object.keys(leaseStatus.services));
+
+        setCanSetConnection(true);
+      }
+    }
+  });
 
   const options = {
     ...monacoOptions,
@@ -66,27 +82,13 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
   useEffect(() => {
     if (!selectedLease || !providers || providers.length === 0) return;
 
-    (async () => {
-      const providerInfo = providers?.find((p) => p.owner === selectedLease.provider);
-
-      if (!providerInfo) return;
-
-      const leaseStatusPath = `${providerInfo.host_uri}/lease/${selectedLease.dseq}/${selectedLease.gseq}/${selectedLease.oseq}/status`;
-      const leaseStatus = await window.electron.queryProvider(leaseStatusPath, "GET", null, localCert.certPem, localCert.keyPem);
-
-      setServices(Object.keys(leaseStatus.services));
-      setSelectedServices(Object.keys(leaseStatus.services));
-    })();
-  }, [selectedLease, providers, localCert?.certPem, localCert?.keyPem]);
+    getLeaseStatus();
+  }, [selectedLease, providers, getLeaseStatus]);
 
   useEffect(() => {
-    if (!providers) return;
-    if (!isLocalCertMatching) return;
-    if (!selectedLease) return;
+    if (!canSetConnection || !providers || !isLocalCertMatching || !selectedLease || isConnectionEstablished) return;
 
     logs.current = [];
-
-    const providerInfo = providers?.find((p) => p.owner === selectedLease.provider);
 
     let url = null;
     if (selectedLogsMode === "logs") {
@@ -99,7 +101,9 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
       url = `${providerInfo.host_uri}/lease/${selectedLease.dseq}/${selectedLease.gseq}/${selectedLease.oseq}/kubeevents?follow=true`;
     }
 
-    const socket = window.electron.openWebSocket(url, localCert.certPem, localCert.keyPem, (message) => {
+    setIsLoadingLogs(true);
+    socket?.close();
+    socket = window.electron.openWebSocket(url, localCert.certPem, localCert.keyPem, (message) => {
       setIsLoadingLogs(true);
 
       let parsedLog = null;
@@ -116,10 +120,12 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
       logs.current = logs.current.concat([parsedLog]);
 
       updateLogText();
+
+      setIsConnectionEstablished(true);
     });
 
     return () => {
-      socket.close();
+      socket?.close();
     };
   }, [
     leases,
@@ -131,16 +137,11 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
     localCert.certPem,
     localCert.keyPem,
     services?.length,
-    updateLogText
+    updateLogText,
+    canSetConnection,
+    isConnectionEstablished,
+    providerInfo?.host_uri
   ]);
-
-  function setServiceCheck(service, isChecked) {
-    if (isChecked) {
-      setSelectedServices([...selectedServices, service]);
-    } else {
-      setSelectedServices((selectedServices) => selectedServices.filter((x) => x !== service));
-    }
-  }
 
   useEffect(() => {
     if (stickToBottom && monacoRef.current) {
@@ -159,13 +160,31 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
       if (selectedLogsMode !== val) {
         setLogText("");
         setIsLoadingLogs(true);
+        setIsConnectionEstablished(false);
       }
     }
   }
 
-  function handleLeaseChange(ev, val) {
-    setSelectedLease(leases.find((x) => x.id === val));
+  function handleLeaseChange(id) {
+    setSelectedLease(leases.find((x) => x.id === id));
+
+    if (id !== selectedLease.id) {
+      setLogText("");
+      setServices([]);
+      setSelectedServices([]);
+      setIsLoadingLogs(true);
+      setCanSetConnection(false);
+      setIsConnectionEstablished(false);
+    }
   }
+
+  const onSelectedServicesChange = (selected) => {
+    setSelectedServices(selected);
+
+    setLogText("");
+    setIsLoadingLogs(true);
+    setIsConnectionEstablished(false);
+  };
 
   const onDownloadLogsClick = async () => {
     setIsDownloadingLogs(true);
@@ -188,7 +207,7 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
         const downloadsPath = await window.electron.appPath("downloads");
         const savePath = `${downloadsPath}/${selectedLease.dseq}_${selectedLease.gseq}_${selectedLease.oseq}`;
 
-        await window.electron.saveLogFile(filePath, savePath);
+        await window.electron.saveFileFromTemp(filePath, savePath, { dialogTitle: "Save log file" });
       },
       () => {
         // Cancelled
@@ -207,18 +226,8 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
         <>
           {selectedLease && (
             <>
-              <Box display="flex" alignItems="center" justifyContent="space-between" padding=".2rem .5rem">
-                <div>
-                  {leases?.length > 1 && (
-                    <ToggleButtonGroup className={classes.leaseSelector} color="primary" value={selectedLease.id} exclusive onChange={handleLeaseChange}>
-                      {leases.map((l) => (
-                        <ToggleButton key={l.id} value={l.id} size="small">
-                          GSEQ: {l.gseq}
-                        </ToggleButton>
-                      ))}
-                    </ToggleButtonGroup>
-                  )}
-
+              <Box display="flex" alignItems="center" justifyContent="space-between" padding=".2rem .5rem" height="45px">
+                <Box display="flex" alignItems="center">
                   <ToggleButtonGroup color="primary" value={selectedLogsMode} exclusive onChange={handleModeChange} size="small">
                     <ToggleButton value="logs" size="small">
                       Logs
@@ -227,7 +236,31 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
                       Events
                     </ToggleButton>
                   </ToggleButtonGroup>
-                </div>
+
+                  {leases?.length > 1 && (
+                    <Box marginLeft=".5rem">
+                      <LeaseSelect leases={leases} defaultValue={selectedLease.id} onSelectedChange={handleLeaseChange} />
+                    </Box>
+                  )}
+
+                  {services?.length > 0 && (
+                    <Box marginLeft=".5rem">
+                      <SelectCheckbox
+                        options={services}
+                        onSelectedChange={onSelectedServicesChange}
+                        label="Services"
+                        disabled={selectedLogsMode !== "logs"}
+                        defaultValue={selectedServices}
+                      />
+                    </Box>
+                  )}
+
+                  {isLoadingStatus && (
+                    <Box marginLeft="1rem">
+                      <CircularProgress size="1rem" />
+                    </Box>
+                  )}
+                </Box>
 
                 <Box display="flex" alignItems="center">
                   {localCert && (
@@ -238,31 +271,16 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
                     </Box>
                   )}
                   <FormControlLabel
-                    control={<Checkbox color="primary" checked={stickToBottom} onChange={(ev) => setStickToBottom(ev.target.checked)} />}
+                    control={<Checkbox color="primary" checked={stickToBottom} onChange={(ev) => setStickToBottom(ev.target.checked)} size="small" />}
                     label={"Stick to bottom"}
                   />
                 </Box>
               </Box>
 
-              {services?.length > 1 && (
-                <FormGroup row>
-                  {services.map((service) => (
-                    <FormControlLabel
-                      key={service}
-                      disabled={selectedLogsMode !== "logs"}
-                      control={
-                        <Checkbox color="primary" checked={selectedServices.includes(service)} onChange={(ev) => setServiceCheck(service, ev.target.checked)} />
-                      }
-                      label={service}
-                    />
-                  ))}
-                </FormGroup>
-              )}
-
               <LinearLoadingSkeleton isLoading={isLoadingLogs} />
 
               <ViewPanel bottomElementId="footer" overflow="hidden">
-                <MonacoEditor ref={monacoRef} theme="vs-dark" value={logText} options={options} />
+                <MemoMonaco monacoRef={monacoRef} value={logText} options={options} />
               </ViewPanel>
             </>
           )}

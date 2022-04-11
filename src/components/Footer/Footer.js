@@ -10,7 +10,8 @@ const useStyles = makeStyles((theme) => ({
   root: {
     top: "auto",
     bottom: 0,
-    borderTop: `1px solid ${theme.palette.grey[300]}`
+    borderTop: `1px solid ${theme.palette.grey[300]}`,
+    overflow: "hidden"
   },
   toolbar: {
     minHeight: "30px",
@@ -56,6 +57,12 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "10px",
     fontWeight: "bold",
     marginLeft: ".5rem"
+  },
+  akashLink: {
+    marginLeft: "1rem"
+  },
+  akashImage: {
+    height: "20px"
   }
 }));
 
@@ -66,7 +73,7 @@ export const Footer = () => {
   return (
     <AppBar position="fixed" color="default" elevation={0} component="footer" className={classes.root} id="footer">
       <Toolbar variant="dense" className={classes.toolbar}>
-        <Box>
+        <Box display="flex" alignItems="center">
           {appVersion && (
             <>
               <Typography variant="caption" className={classes.caption}>
@@ -76,6 +83,10 @@ export const Footer = () => {
               <Chip label="beta" color="secondary" size="small" className={classes.betaChip} />
             </>
           )}
+
+          <LinkTo onClick={() => window.electron.openUrl("https://akash.network")} className={classes.akashLink}>
+            <img src="./images/powered-by-akash.svg" alt="Akashlytics Logo" className={classes.akashImage} />
+          </LinkTo>
         </Box>
 
         <Box display="flex" alignItems="center">

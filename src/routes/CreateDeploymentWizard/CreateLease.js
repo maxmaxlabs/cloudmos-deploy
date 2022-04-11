@@ -25,6 +25,7 @@ import { ViewPanel } from "../../shared/components/ViewPanel";
 import InfoIcon from "@material-ui/icons/Info";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 import clsx from "clsx";
+import { Snackbar } from "../../shared/components/Snackbar";
 
 const yaml = require("js-yaml");
 
@@ -66,7 +67,7 @@ export function CreateLease({ dseq }) {
   const { sendTransaction } = useTransactionModal();
   const { address } = useWallet();
   const { localCert } = useCertificate();
-  const { enqueueSnackbar } = useSnackbar();
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const history = useHistory();
   const { data: providers } = useProviders();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -156,6 +157,11 @@ export function CreateLease({ dseq }) {
     if (localDeploymentData && localDeploymentData.manifest) {
       // Send the manifest
 
+      const sendManifestKey = enqueueSnackbar(<Snackbar title="Sending Manifest! 🚀" subTitle={`Please wait a few seconds...`} />, {
+        variant: "success",
+        autoHideDuration: null
+      });
+
       try {
         const yamlJson = yaml.load(localDeploymentData.manifest);
         const mani = deploymentData.Manifest(yamlJson);
@@ -168,6 +174,8 @@ export function CreateLease({ dseq }) {
       } catch (err) {
         console.error(err);
       }
+
+      closeSnackbar(sendManifestKey);
     }
 
     setIsSendingManifest(false);

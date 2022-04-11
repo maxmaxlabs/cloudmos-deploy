@@ -28,6 +28,11 @@ const useStyles = makeStyles((theme) => ({
   },
   formControl: {
     marginTop: 10
+  },
+  dialogActions: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between"
   }
 }));
 
@@ -85,7 +90,7 @@ export const GrantModal = ({ address, onClose }) => {
       <DialogTitle id="deposit-dialog-title">Authorize Spending</DialogTitle>
       <DialogContent dividers className={classes.dialogContent}>
         <form onSubmit={handleSubmit(onSubmit)} ref={formRef}>
-          <Alert severity="info" className={classes.alert}>
+          <Alert severity="info">
             <Typography variant="caption">
               <LinkTo onClick={(ev) => handleDocClick(ev, "https://docs.akash.network/testnet-technical-docs/authorized-spend")}>Authorized Spend</LinkTo>{" "}
               allows users to authorize spend of a set number of tokens from a source wallet to a destination, funded wallet. The authorized spend is restricted
@@ -183,7 +188,7 @@ export const GrantModal = ({ address, onClose }) => {
           )}
         </form>
       </DialogContent>
-      <DialogActions>
+      <DialogActions className={classes.dialogActions}>
         <Button autoFocus onClick={onClose}>
           Cancel
         </Button>

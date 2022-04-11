@@ -78,6 +78,14 @@ exports.openWebSocket = function (url, certPem, keyPem, onMessage) {
       });
       // console.log("sent websocket_close");
       delete openSockets[requestId];
+    },
+    // TODO send
+    send: (command) => {
+      child.send({
+        id: requestId,
+        type: "message",
+        command
+      });
     }
   };
 };

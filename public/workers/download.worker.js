@@ -9,11 +9,11 @@ let socket;
 const logger = winston.createLogger({
   level: "info",
   format: winston.format.simple(),
-  transports: [new winston.transports.File({ filename: "electron.export.log" })]
+  transports: [new winston.transports.File({ filename: "electron.download.log" })]
 });
 
 process.on("message", async (value) => {
-  logger.info("Exporting logs");
+  logger.info("Downloading file");
 
   if (value === "cleanup") {
     logger.info("Cleanup");
@@ -24,9 +24,8 @@ process.on("message", async (value) => {
 
   const { appPath, url, certPem, prvPem, fileName } = value;
   const dir = `${appPath}/akashlytics`;
-  const filePath = `${dir}/${fileName}.txt`;
+  const filePath = `${dir}/${fileName}`;
   let isFinished = false;
-  let lastMessageTimestamp;
 
   try {
     if (!syncFs.existsSync(dir)) {
@@ -36,13 +35,27 @@ process.on("message", async (value) => {
     await fs.writeFile(filePath, "", {});
 
     socket = providerProxy.openWebSocket(url, certPem, prvPem, (message) => {
-      let parsedLog = JSON.parse(message);
-      parsedLog.service = parsedLog.name.split("-")[0];
-      parsedLog.message = parsedLog.service + ": " + parsedLog.message;
+      const bufferData = Buffer.from(message.data.slice(1));
+      const stringData = bufferData.toString("utf-8").replace(/^\n|\n$/g, "");
 
-      syncFs.appendFileSync(filePath, `[${parsedLog.service}]: ${parsedLog.message}\n`);
+      // logger.info(stringData);
 
-      lastMessageTimestamp = Date.now();
+      let jsonData, exitCode, errorMessage;
+      try {
+        jsonData = JSON.parse(stringData);
+        exitCode = jsonData["exit_code"];
+        errorMessage = jsonData["message"];
+      } catch (error) {}
+
+      if (exitCode !== undefined) {
+        if (errorMessage) {
+          logger.error(`An error has occured: ${errorMessage}`);
+        }
+
+        isFinished = true;
+      } else {
+        syncFs.appendFileSync(filePath, bufferData);
+      }
     });
   } catch (error) {
     logger.error("An error has occured", error);
@@ -50,16 +63,9 @@ process.on("message", async (value) => {
 
   while (!isFinished) {
     await helpers.sleep(1000);
-
-    const elapsed = Date.now() - lastMessageTimestamp;
-
-    if (Math.floor(elapsed / 1000) > 3) {
-      isFinished = true;
-      socket.close();
-    }
   }
 
-  logger.info("Finished exporting");
+  logger.info("Finished downloading");
 
   process.send(filePath);
 });
