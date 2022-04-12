@@ -33,7 +33,7 @@ export function DeploymentDetail(props) {
   const { data: leases, isLoading: isLoadingLeases, refetch: getLeases, remove: removeLeases } = useLeaseList(deployment, address, { enabled: !!deployment });
   const hasLeases = leases && leases.length > 0;
   const [leaseRefs, setLeaseRefs] = useState([]);
-  const { certificate, isLocalCertMatching, localCert } = useCertificate();
+  const { isLocalCertMatching, localCert } = useCertificate();
   const [deploymentManifest, setDeploymentManifest] = useState(null);
   const [selectedLogsMode, setSelectedLogsMode] = useState("logs");
 

@@ -25,7 +25,7 @@ const defaultSaveDialogOptions = {
 };
 
 let logsWorker;
-let downloadWorker
+let downloadWorker;
 
 // All of the Node.js APIs are available in the preload process.
 // It has the same sandbox as a Chrome extension.
@@ -54,7 +54,7 @@ contextBridge.exposeInMainWorld("electron", {
   openTemplateFromFile: async () => {
     const response = await ipcRenderer.invoke("dialog", "showOpenDialog", {
       title: "Select a deployment template",
-      filters: [{ name: "Deployment template", extensions: ["yml", "yaml"] }],
+      filters: [{ name: "Deployment template", extensions: ["yml", "yaml", "txt"] }],
       properties: ["openFile"]
     });
     if (response.canceled) {

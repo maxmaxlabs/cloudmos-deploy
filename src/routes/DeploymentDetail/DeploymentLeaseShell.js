@@ -103,6 +103,13 @@ export function DeploymentLeaseShell({ leases }) {
   });
 
   useEffect(() => {
+    // Clean up the socket if opened
+    return () => {
+      socket?.close();
+    };
+  }, []);
+
+  useEffect(() => {
     // Set the services and default selected service
     if (leaseStatus) {
       setServices(Object.keys(leaseStatus.services));
@@ -173,10 +180,6 @@ export function DeploymentLeaseShell({ leases }) {
         setIsConnectionEstablished(true);
       }
     });
-
-    return () => {
-      socket?.close();
-    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [providerInfo, isLocalCertMatching, selectedLease, selectedService, localCert.certPem, localCert.keyPem, isConnectionEstablished]);
 
@@ -223,10 +226,8 @@ export function DeploymentLeaseShell({ leases }) {
         socket.close();
       }
 
-      if (parsedData) {
-        shell.current = shell.current.concat([parsedData]);
-        updateShellText();
-      }
+      shell.current = shell.current.concat([parsedData]);
+      updateShellText();
     });
   };
 

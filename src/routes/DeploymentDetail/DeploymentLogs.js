@@ -60,6 +60,13 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
   };
 
   useEffect(() => {
+    // Clean up the socket if opened
+    return () => {
+      socket?.close();
+    };
+  }, []);
+
+  useEffect(() => {
     // Set the services and default selected services
     if (leaseStatus) {
       setServices(Object.keys(leaseStatus.services));
@@ -109,6 +116,7 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
     }
 
     setIsLoadingLogs(true);
+
     socket?.close();
     socket = window.electron.openWebSocket(url, localCert.certPem, localCert.keyPem, (message) => {
       setIsLoadingLogs(true);
@@ -130,10 +138,6 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
 
       setIsConnectionEstablished(true);
     });
-
-    return () => {
-      socket?.close();
-    };
   }, [
     isLocalCertMatching,
     selectedLogsMode,
