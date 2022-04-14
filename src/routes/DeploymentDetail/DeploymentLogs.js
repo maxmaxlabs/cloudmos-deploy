@@ -18,7 +18,7 @@ import { analytics } from "../../shared/utils/analyticsUtils";
 const useStyles = makeStyles((theme) => ({
   root: {
     "& .MuiToggleButton-root": {
-      color: theme.palette.grey[500],
+      color: theme.palette.primary.main,
       fontWeight: "bold",
       "&.Mui-selected": {
         color: theme.palette.primary.contrastText,
@@ -129,7 +129,7 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
       } else {
         parsedLog = JSON.parse(message);
         parsedLog.service = parsedLog.object.name.split("-")[0];
-        parsedLog.message = `${parsedLog.service}: ${parsedLog.time} [${parsedLog.type}] [${parsedLog.reason}] [${parsedLog.object.kind}] ${parsedLog.note}`;
+        parsedLog.message = `${parsedLog.service}: [${parsedLog.type}] [${parsedLog.reason}] [${parsedLog.object.kind}] ${parsedLog.note}`;
       }
 
       logs.current = logs.current.concat([parsedLog]);

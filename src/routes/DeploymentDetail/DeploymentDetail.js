@@ -17,14 +17,17 @@ import { getDeploymentLocalData } from "../../shared/utils/deploymentLocalDataUt
 import { DeploymentDetailTopBar } from "./DeploymentDetailTopBar";
 import { DeploymentLeaseShell } from "./DeploymentLeaseShell";
 import { analytics } from "../../shared/utils/analyticsUtils";
+import { useQueryParams } from "../../hooks/useQueryParams";
 
-export function DeploymentDetail(props) {
+export function DeploymentDetail({ deployments }) {
   const [deployment, setDeployment] = useState(null);
+  const queryParams = useQueryParams();
+  const { dseq } = useParams();
   const [activeTab, setActiveTab] = useState("LEASES");
+  const [selectedLogsMode, setSelectedLogsMode] = useState("logs");
   const classes = useStyles();
   const history = useHistory();
   const { address } = useWallet();
-  const { dseq } = useParams();
   const {
     data: deploymentDetail,
     isFetching: isLoadingDeployment,
@@ -35,7 +38,21 @@ export function DeploymentDetail(props) {
   const [leaseRefs, setLeaseRefs] = useState([]);
   const { isLocalCertMatching, localCert } = useCertificate();
   const [deploymentManifest, setDeploymentManifest] = useState(null);
-  const [selectedLogsMode, setSelectedLogsMode] = useState("logs");
+
+  useEffect(() => {
+    if (leases && leases.some((l) => l.state === "active")) {
+      const tabQuery = queryParams.get("tab");
+      const logsModeQuery = queryParams.get("logsMode");
+
+      if (tabQuery) {
+        setActiveTab(tabQuery);
+      }
+
+      if (logsModeQuery) {
+        setSelectedLogsMode(logsModeQuery);
+      }
+    }
+  }, [queryParams, leases]);
 
   const loadLeases = useCallback(async () => {
     getLeases();
@@ -74,7 +91,7 @@ export function DeploymentDetail(props) {
   }, [deploymentDetail]);
 
   useEffect(() => {
-    let deploymentFromList = props.deployments?.find((d) => d.dseq === dseq);
+    let deploymentFromList = deployments?.find((d) => d.dseq === dseq);
     if (deploymentFromList) {
       setDeployment(deploymentFromList);
     } else {

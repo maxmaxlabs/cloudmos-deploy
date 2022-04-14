@@ -157,7 +157,7 @@ export function CreateLease({ dseq }) {
     if (localDeploymentData && localDeploymentData.manifest) {
       // Send the manifest
 
-      const sendManifestKey = enqueueSnackbar(<Snackbar title="Sending Manifest! 🚀" subTitle={`Please wait a few seconds...`} showLoading/>, {
+      const sendManifestKey = enqueueSnackbar(<Snackbar title="Sending Manifest! 🚀" subTitle={`Please wait a few seconds...`} showLoading />, {
         variant: "success",
         autoHideDuration: null
       });
@@ -182,7 +182,7 @@ export function CreateLease({ dseq }) {
 
     await analytics.event("deploy", "send manifest");
 
-    history.replace(UrlService.deploymentDetails(dseq));
+    history.replace(UrlService.deploymentDetails(dseq, "LOGS", "events"));
   }
 
   async function handleCloseDeployment() {

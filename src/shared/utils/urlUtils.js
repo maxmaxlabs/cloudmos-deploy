@@ -6,7 +6,7 @@ export class UrlService {
 
   static dashboard = () => "/";
   static deploymentList = () => `/deployments`;
-  static deploymentDetails = (dseq) => `/deployment/${dseq}`;
+  static deploymentDetails = (dseq, tab, logsMode) => `/deployment/${dseq}${appendSearchParams({ tab, logsMode })}`;
   static templates = (category, search) => `/templates${appendSearchParams({ category, search })}`;
   static templateDetails = (templatePath) => `/templates/${templatePath}`;
   static settings = () => "/settings";
