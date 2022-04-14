@@ -1,14 +1,27 @@
 import React from "react";
-import { Box, Typography, IconButton, makeStyles, List, ListItem, ListItemSecondaryAction, ListItemText } from "@material-ui/core";
+import { Box, Typography, IconButton, makeStyles, List, ListItem, ListItemSecondaryAction, ListItemText, ListItemAvatar } from "@material-ui/core";
 import GitHubIcon from "@material-ui/icons/GitHub";
 import { useHistory } from "react-router";
 import { Helmet } from "react-helmet-async";
 import { UrlService } from "../../shared/utils/urlUtils";
+import InsertDriveFileIcon from "@material-ui/icons/InsertDriveFile";
+import CloudIcon from '@material-ui/icons/Cloud';
+import DescriptionIcon from '@material-ui/icons/Description';
+import CollectionsIcon from "@material-ui/icons/Collections";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
     backgroundColor: theme.palette.background.paper
+  },
+  logoItem: {
+    width: "2.7rem",
+    height: "2.7rem",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: theme.palette.grey[200],
+    borderRadius: "50%"
   }
 }));
 
@@ -50,11 +63,16 @@ export function TemplateList(props) {
       <Helmet title="Create Deployment - Template List" />
 
       <Box padding="1rem">
-        <Typography variant="h6">What do you want to deploy?</Typography>
+        <Typography variant="h5"><strong>What do you want to deploy?</strong></Typography>
       </Box>
 
       <List className={classes.root}>
         <ListItem dense button onClick={() => selectTemplate(emptyTemplate)}>
+          <ListItemAvatar>
+            <div className={classes.logoItem}>
+              <InsertDriveFileIcon />
+            </div>
+          </ListItemAvatar>
           <ListItemText primary={emptyTemplate.title} secondary={emptyTemplate.description} />
           {emptyTemplate.githubUrl && (
             <ListItemSecondaryAction>
@@ -65,6 +83,11 @@ export function TemplateList(props) {
           )}
         </ListItem>
         <ListItem dense button onClick={() => selectTemplate(helloWorldTemplate)}>
+          <ListItemAvatar>
+            <div className={classes.logoItem}>
+              <CloudIcon />
+            </div>
+          </ListItemAvatar>
           <ListItemText primary={helloWorldTemplate.title} secondary={helloWorldTemplate.description} />
           {helloWorldTemplate.githubUrl && (
             <ListItemSecondaryAction>
@@ -75,9 +98,19 @@ export function TemplateList(props) {
           )}
         </ListItem>
         <ListItem dense button onClick={() => fromFile()}>
+          <ListItemAvatar>
+            <div className={classes.logoItem}>
+              <DescriptionIcon />
+            </div>
+          </ListItemAvatar>
           <ListItemText primary="From a file" secondary="Load a deploy.yml file from the computer." />
         </ListItem>
         <ListItem dense button onClick={() => fromGallery()}>
+          <ListItemAvatar>
+            <div className={classes.logoItem}>
+              <CollectionsIcon />
+            </div>
+          </ListItemAvatar>
           <ListItemText primary="Browse template gallery" secondary="Explore the template gallery for a great variety of pre-made template by the community." />
         </ListItem>
       </List>
@@ -93,51 +126,62 @@ const emptyTemplate = {
   content: ""
 };
 const helloWorldTemplate = {
-  title: "Hello-world",
+  title: "Hello Akash World",
   code: "hello-world",
   category: "General",
   description: "Simple web application showing hello world.",
-  githubUrl: "https://github.com/tombeynon/akash-hello-world",
-  valuesToChange: [{ field: "accept", initialValue: "www.yourwebsite.com" }],
+  githubUrl: "https://github.com/Akashlytics/hello-akash-world",
+  valuesToChange: [],
   content: `---
 version: "2.0"
 
+# The top-level services entry contains a map of workloads to be ran on the Akash deployment. Each key is a service name; values are a map containing the following keys:
+# https://docs.akash.network/intro-to-akash/stack-definition-language#services
 services:
+  # The name of the service "web"
   web:
-    image: tombeynon/akash-hello-world:release-v0.1.1
+    # The docker container image with version. You must specify a version, the "latest" tag doesn't work.
+    image: akashlytics/hello-akash-world:0.1.3
+    # You can map ports here https://docs.akash.network/intro-to-akash/stack-definition-language#services.expose
     expose:
-      - port: 80
+      - port: 3000
         as: 80
-        accept:
-          - www.yourwebsite.com
         to:
           - global: true
 
+# The profiles section contains named compute and placement profiles to be used in the deployment.
+# https://docs.akash.network/intro-to-akash/stack-definition-language#profiles
 profiles:
+  # profiles.compute is map of named compute profiles. Each profile specifies compute resources to be leased for each service instance uses uses the profile.
+  # https://docs.akash.network/intro-to-akash/stack-definition-language#profiles.compute
   compute:
+    # The name of the service
     web:
       resources:
         cpu:
           units: 0.5
         memory:
-          size: 512Mi
+          size: 1Gi
         storage:
-          size: 512Mi
+          size: 2Gi
+
+# profiles.placement is map of named datacenter profiles. Each profile specifies required datacenter attributes and pricing configuration for each compute profile that will be used within the datacenter. It also specifies optional list of signatures of which tenants expects audit of datacenter attributes.
+# https://docs.akash.network/intro-to-akash/stack-definition-language#profiles.placement
   placement:
     dcloud:
-      attributes:
-        host: akash
-      signedBy:
-        anyOf:
-          - "akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63"
       pricing:
+        # The name of the service
         web:
           denom: uakt
-          amount: 100
+          amount: 1000
 
+# The deployment section defines how to deploy the services. It is a mapping of service name to deployment configuration.
+# https://docs.akash.network/intro-to-akash/stack-definition-language#deployment
 deployment:
+  # The name of the service
   web:
     dcloud:
       profile: web
-      count: 1`
+      count: 1
+`
 };

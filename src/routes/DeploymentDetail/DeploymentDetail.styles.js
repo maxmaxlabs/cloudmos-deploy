@@ -20,10 +20,6 @@ export const useStyles = makeStyles((theme) => ({
       minHeight: "36px"
     }
   },
-  title: {
-    marginBottom: ".5rem",
-    fontWeight: "bold"
-  },
   selectedTab: {
     fontWeight: "bold"
   }

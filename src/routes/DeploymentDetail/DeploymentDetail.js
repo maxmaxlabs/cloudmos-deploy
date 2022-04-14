@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, createRef } from "react";
 import { useParams, useHistory } from "react-router-dom";
-import { CircularProgress, Tabs, Tab, Typography, Box } from "@material-ui/core";
+import { CircularProgress, Tabs, Tab, Box } from "@material-ui/core";
 import { LeaseRow } from "./LeaseRow";
 import { useStyles } from "./DeploymentDetail.styles";
 import { DeploymentSubHeader } from "./DeploymentSubHeader";
@@ -20,7 +20,7 @@ import { analytics } from "../../shared/utils/analyticsUtils";
 
 export function DeploymentDetail(props) {
   const [deployment, setDeployment] = useState(null);
-  const [activeTab, setActiveTab] = useState("DETAILS");
+  const [activeTab, setActiveTab] = useState("LEASES");
   const classes = useStyles();
   const history = useHistory();
   const { address } = useWallet();
@@ -117,7 +117,7 @@ export function DeploymentDetail(props) {
       )}
 
       <Tabs value={activeTab} onChange={onChangeTab} indicatorColor="primary" textColor="primary" classes={{ root: classes.tabsRoot }}>
-        <Tab value="DETAILS" label="Details" classes={{ selected: classes.selectedTab }} />
+        <Tab value="LEASES" label="Leases" classes={{ selected: classes.selectedTab }} />
         {deployment?.state === "active" && leases?.some((x) => x.state === "active") && (
           <Tab value="LOGS" label="Logs" classes={{ selected: classes.selectedTab }} />
         )}
@@ -125,7 +125,7 @@ export function DeploymentDetail(props) {
           <Tab value="SHELL" label="Shell" classes={{ selected: classes.selectedTab }} />
         )}
         <Tab value="EDIT" label="View / Edit Manifest" classes={{ selected: classes.selectedTab }} />
-        <Tab value="JSON_DATA" label="JSON Data" classes={{ selected: classes.selectedTab }} />
+        <Tab value="RAW_DATA" label="Raw Data" classes={{ selected: classes.selectedTab }} />
       </Tabs>
 
       {activeTab === "EDIT" && deployment && leases && (
@@ -140,18 +140,14 @@ export function DeploymentDetail(props) {
       )}
       {activeTab === "LOGS" && <DeploymentLogs leases={leases} selectedLogsMode={selectedLogsMode} setSelectedLogsMode={setSelectedLogsMode} />}
       {activeTab === "SHELL" && <DeploymentLeaseShell leases={leases} />}
-      {activeTab === "JSON_DATA" && deployment && (
+      {activeTab === "RAW_DATA" && deployment && (
         <Box display="flex">
           <DeploymentJsonViewer jsonObj={deployment} title="Deployment JSON" />
           <DeploymentJsonViewer jsonObj={leases} title="Leases JSON" />
         </Box>
       )}
-      {activeTab === "DETAILS" && (
-        <Box padding=".5rem 1rem">
-          <Typography variant="h6" className={classes.title}>
-            Leases
-          </Typography>
-
+      {activeTab === "LEASES" && (
+        <Box padding="1rem">
           {leases && (!localCert || !isLocalCertMatching) && (
             <Box marginBottom="1rem">
               <Alert severity="warning">You do not have a valid local certificate. You need to create a new one to view lease status and details.</Alert>

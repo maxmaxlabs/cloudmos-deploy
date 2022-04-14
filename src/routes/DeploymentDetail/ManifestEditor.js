@@ -19,6 +19,7 @@ import InfoIcon from "@material-ui/icons/Info";
 import { ViewPanel } from "../../shared/components/ViewPanel";
 import { monacoOptions } from "../../shared/constants";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
+import { Snackbar } from "../../shared/components/Snackbar";
 
 const yaml = require("js-yaml");
 
@@ -48,7 +49,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
   const { address } = useWallet();
   const { localCert, isLocalCertMatching } = useCertificate();
   const { sendTransaction } = useTransactionModal();
-  const { enqueueSnackbar } = useSnackbar();
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const { data: providers } = useProviders();
 
   useEffect(() => {
@@ -129,6 +130,11 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
 
         saveDeploymentManifest(dd.deploymentId.dseq, editedManifest, dd.version, address);
 
+        const sendManifestKey = enqueueSnackbar(<Snackbar title="Sending Manifest! 🚀" subTitle={`Please wait a few seconds...`} showLoading />, {
+          variant: "success",
+          autoHideDuration: null
+        });
+
         const leaseProviders = leases.map((lease) => lease.provider).filter((v, i, s) => s.indexOf(v) === i);
 
         for (const provider of leaseProviders) {
@@ -139,6 +145,8 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
         await analytics.event("deploy", "update deployment");
 
         setIsSendingManifest(false);
+
+        closeSnackbar(sendManifestKey);
 
         closeManifestEditor();
       }
