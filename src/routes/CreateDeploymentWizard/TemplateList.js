@@ -21,7 +21,8 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: theme.palette.grey[200],
-    borderRadius: "50%"
+    borderRadius: "50%",
+    color: theme.palette.primary.main
   }
 }));
 
@@ -129,10 +130,17 @@ const helloWorldTemplate = {
   title: "Hello Akash World",
   code: "hello-world",
   category: "General",
-  description: "Simple web application showing hello world.",
+  description: "Simple next.js web application showing hello world.",
   githubUrl: "https://github.com/Akashlytics/hello-akash-world",
   valuesToChange: [],
-  content: `---
+  content: `# Welcome to the Akash Network! 🚀☁
+# This file is called a Stack Definition Laguage (SDL)
+# SDL is a human friendly data standard for declaring deployment attributes. 
+# The SDL file is a "form" to request resources from the Network. 
+# SDL is compatible with the YAML standard and similar to Docker Compose files.
+
+---
+# Indicates version of Akash configuration file. Currently only "2.0" is accepted.
 version: "2.0"
 
 # The top-level services entry contains a map of workloads to be ran on the Akash deployment. Each key is a service name; values are a map containing the following keys:
