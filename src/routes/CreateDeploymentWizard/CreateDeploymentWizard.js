@@ -95,8 +95,8 @@ export function CreateDeploymentWizard() {
   return (
     <div className={classes.root}>
       <div className={classes.stepContainer}>
-        <Box padding="1rem 0 1rem 1rem">
-          <IconButton aria-label="back" onClick={handleBackClick} size="small">
+        <Box padding="1rem 0 1rem .5rem">
+          <IconButton aria-label="back" onClick={handleBackClick} size="medium">
             <ChevronLeftIcon />
           </IconButton>
         </Box>

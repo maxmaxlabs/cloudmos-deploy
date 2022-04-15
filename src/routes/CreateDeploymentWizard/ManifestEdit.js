@@ -146,19 +146,13 @@ export function ManifestEdit(props) {
     }
   }
 
-  function handleChangeTemplate() {
-    history.replace("/createDeployment/chooseTemplate");
-  }
-
   return (
     <>
       <Helmet title="Create Deployment - Manifest Edit" />
 
       <Box padding="0 1rem">
         <Box marginBottom=".5rem" display="flex" alignItems="center" justifyContent="space-between">
-          <Button onClick={handleChangeTemplate}>Change Template</Button>
-
-          <Box flexGrow={1} margin="0 1rem">
+          <Box flexGrow={1} paddingRight="1rem">
             <TextField
               value={deploymentName}
               onChange={(ev) => setDeploymentName(ev.target.value)}
