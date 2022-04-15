@@ -12,16 +12,30 @@ import {
   TableCell,
   TableBody,
   Paper,
-  Typography
+  Typography,
+  Tooltip
 } from "@material-ui/core";
 import { Address } from "../../shared/components/Address";
 import { SpecDetail } from "../../shared/components/SpecDetail";
 import { roundDecimal } from "../../shared/utils/math";
 import { getTotalProviderResource } from "../../shared/utils/providerUtils";
+import InfoIcon from "@material-ui/icons/Info";
+import clsx from "clsx";
 
 const useStyles = makeStyles((theme) => ({
   content: {
     padding: "1rem"
+  },
+  tooltip: {
+    fontSize: "1rem",
+    padding: ".5rem"
+  },
+  tooltipIcon: {
+    fontSize: "1rem",
+    color: theme.palette.text.secondary
+  },
+  marginLeft: {
+    marginLeft: ".5rem"
   }
 }));
 
@@ -88,14 +102,39 @@ export const ProviderDetail = ({ provider, address, onClose }) => {
         <Box marginTop="1rem">
           <Box marginBottom={1}>
             <Typography variant="body2">
-              <strong>Available resources</strong>
+              <strong>Immediately available resources</strong>
+            </Typography>
+          </Box>
+          <SpecDetail
+            cpuAmount={roundDecimal(availableResources.cpu - pendingResources.cpu)}
+            memoryAmount={availableResources.memory - pendingResources.memory}
+            storageAmount={availableResources.storage - pendingResources.storage}
+            size="medium"
+            color="primary"
+          />
+        </Box>
+
+        <Box marginTop="1rem">
+          <Box marginBottom={1}>
+            <Typography variant="body2">
+              <Box component="strong" display="flex" alignItems="center">
+                Available resources{" "}
+                <Tooltip
+                  classes={{ tooltip: classes.tooltip }}
+                  arrow
+                  interactive
+                  title="Some of these resources might not be available right away because there might be open bids that haven't timed out yet."
+                >
+                  <InfoIcon className={clsx(classes.tooltipIcon, classes.marginLeft)} />
+                </Tooltip>
+              </Box>
             </Typography>
           </Box>
           <SpecDetail
             cpuAmount={roundDecimal(availableResources.cpu)}
             memoryAmount={availableResources.memory}
             storageAmount={availableResources.storage}
-            size="medium"
+            size="small"
             color="primary"
           />
         </Box>
