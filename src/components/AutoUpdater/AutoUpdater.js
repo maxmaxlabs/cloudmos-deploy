@@ -59,7 +59,7 @@ export const AutoUpdater = () => {
     // Check for udpates every 30 seconds
     intervalUpdateCheck.current = setInterval(() => {
       ipcApi.send("check_update");
-    }, 30000);
+    }, 60000);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
