@@ -66,7 +66,7 @@ export function DeploymentDetailTopBar({ address, loadDeploymentDetail, removeLe
       const response = await sendTransaction([message]);
 
       if (response) {
-        setActiveTab("DETAILS");
+        setActiveTab("LEASES");
 
         removeLeases();
 

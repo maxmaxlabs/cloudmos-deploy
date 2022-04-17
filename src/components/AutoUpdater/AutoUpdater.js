@@ -35,6 +35,7 @@ export const AutoUpdater = () => {
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const newUpdateSnackbarKey = useRef(null);
   const downloadSnackbarKey = useRef(null);
+  const intervalUpdateCheck = useRef(null);
   const classes = useStyles();
 
   useEffect(() => {
@@ -54,6 +55,11 @@ export const AutoUpdater = () => {
     });
 
     ipcApi.send("check_update");
+
+    // Check for udpates every 30 seconds
+    intervalUpdateCheck.current = setInterval(() => {
+      ipcApi.send("check_update");
+    }, 60000);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -62,6 +68,9 @@ export const AutoUpdater = () => {
    * Show snackbar when there's a new update to download
    */
   const showNewUpdateSnackbar = (releaseNotes, releaseName, releaseDate) => {
+    // Cancel the interval
+    clearInterval(intervalUpdateCheck.current);
+
     const key = enqueueSnackbar(
       <div>
         <Box marginBottom={1}>
