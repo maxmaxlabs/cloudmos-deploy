@@ -29,6 +29,11 @@ const specSuffixes = {
   Eb: 1000 * 1000 * 1000 * 1000 * 1000 * 1000
 };
 
+// Replicate the HTML escape logic from https://pkg.go.dev/encoding/json#Marshal
+function escapeHtml(unsafe) {
+  return unsafe.replace(/</g, "\\u003c").replace(/>/g, "\\u003e").replace(/&/g, "\\u0026");
+}
+
 // https://github.com/ovrclk/akash/blob/04e7a7667dd94b5a15fa039e4f7df5c9ad93be4f/sdl/sdl.go#L120
 export async function ManifestVersion(manifest) {
   var enc = new TextEncoder();
@@ -51,7 +56,7 @@ export async function ManifestVersion(manifest) {
 
 // https://github.com/cosmos/cosmos-sdk/blob/9fd866e3820b3510010ae172b682d71594cd8c14/types/utils.go#L29
 export function SortJSON(jsonStr) {
-  return stableStringify(JSON.parse(jsonStr));
+  return escapeHtml(stableStringify(JSON.parse(jsonStr)));
 }
 
 function _arrayBufferToBase64(buffer) {
