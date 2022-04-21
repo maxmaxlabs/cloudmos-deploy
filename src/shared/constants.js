@@ -28,17 +28,17 @@ export function setNetworkVersion() {
 
   switch (selectedNetworkId) {
     case mainnetId:
-      networkVersion = "v1beta1";
+      networkVersion = "v1beta2";
       break;
     case testnetId:
-      networkVersion = "v1beta1";
+      networkVersion = "v1beta2";
       break;
     case edgenetId:
       networkVersion = "v1beta2";
       break;
 
     default:
-      networkVersion = "v1beta1";
+      networkVersion = "v1beta2";
       break;
   }
 }

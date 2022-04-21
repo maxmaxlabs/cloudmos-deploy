@@ -11,7 +11,6 @@ import { Helmet } from "react-helmet-async";
 import { UrlService } from "../../shared/utils/urlUtils";
 import { useLocalNotes } from "../../context/LocalNoteProvider";
 import { useTemplates } from "../../context/TemplatesProvider";
-import { hasDepositorSupport } from "../../shared/deploymentData";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -36,7 +35,7 @@ export function PrerequisiteList({ selectedTemplate, setSelectedTemplate }) {
   const { getDeploymentData } = useLocalNotes();
   const { getTemplateByPath } = useTemplates();
 
-  const allCheckSucceeded = (isBalanceValidated || hasDepositorSupport) && isCertificateValidated && isLocalCertificateValidated;
+  const allCheckSucceeded = isCertificateValidated && isLocalCertificateValidated;
 
   useEffect(() => {
     const redeployTemplate = getRedeployTemplate();
@@ -71,7 +70,7 @@ export function PrerequisiteList({ selectedTemplate, setSelectedTemplate }) {
       // Auto redirect when all is good
       const redeployTemplate = getRedeployTemplate();
       const galleryTemplate = getGalleryTemplate();
-      if ((isBalanceValidated || hasDepositorSupport) && isCertificateValidated && isLocalCertificateValidated) {
+      if (isCertificateValidated && isLocalCertificateValidated) {
         if (redeployTemplate || galleryTemplate) {
           history.replace(UrlService.createDeploymentStepManifest());
         } else {

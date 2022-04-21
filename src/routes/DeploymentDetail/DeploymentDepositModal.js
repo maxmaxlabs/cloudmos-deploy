@@ -21,7 +21,6 @@ import { aktToUakt, coinToUAkt, uaktToAKT } from "../../shared/utils/priceUtils"
 import { useForm, Controller } from "react-hook-form";
 import { LinkTo } from "../../shared/components/LinkTo";
 import { fees } from "../../shared/utils/blockchainUtils";
-import { hasDepositorSupport } from "../../shared/deploymentData";
 import { useSettings } from "../../context/SettingsProvider";
 import { useSnackbar } from "notistack";
 import { Snackbar } from "../../shared/components/Snackbar";
@@ -206,45 +205,41 @@ export function DeploymentDepositModal({ handleCancel, onDeploymentDeposit, min 
             />
           </FormControl>
 
-          {hasDepositorSupport && (
-            <>
-              <FormControl className={classes.formControl} fullWidth>
-                <Controller
-                  control={control}
-                  name="useDepositor"
-                  render={({ fieldState, field }) => {
-                    return <FormControlLabel control={<Checkbox {...field} color="primary" />} label="Use depositor" />;
-                  }}
-                />
-              </FormControl>
+          <FormControl className={classes.formControl} fullWidth>
+            <Controller
+              control={control}
+              name="useDepositor"
+              render={({ fieldState, field }) => {
+                return <FormControlLabel control={<Checkbox {...field} color="primary" />} label="Use depositor" />;
+              }}
+            />
+          </FormControl>
 
-              {useDepositor && (
-                <FormControl className={classes.formControl} fullWidth>
-                  <Controller
-                    control={control}
-                    name="depositorAddress"
-                    defaultValue=""
-                    rules={{
-                      required: true
-                    }}
-                    render={({ fieldState, field }) => {
-                      return (
-                        <TextField
-                          {...field}
-                          type="text"
-                          variant="outlined"
-                          label="Depositor address"
-                          autoFocus
-                          error={!!fieldState.invalid}
-                          helperText={fieldState.invalid && "Depositor address is required."}
-                          className={classes.formValue}
-                        />
-                      );
-                    }}
-                  />
-                </FormControl>
-              )}
-            </>
+          {useDepositor && (
+            <FormControl className={classes.formControl} fullWidth>
+              <Controller
+                control={control}
+                name="depositorAddress"
+                defaultValue=""
+                rules={{
+                  required: true
+                }}
+                render={({ fieldState, field }) => {
+                  return (
+                    <TextField
+                      {...field}
+                      type="text"
+                      variant="outlined"
+                      label="Depositor address"
+                      autoFocus
+                      error={!!fieldState.invalid}
+                      helperText={fieldState.invalid && "Depositor address is required."}
+                      className={classes.formValue}
+                    />
+                  );
+                }}
+              />
+            </FormControl>
           )}
 
           {error && (

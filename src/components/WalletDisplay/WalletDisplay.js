@@ -29,7 +29,6 @@ import { ChangeAccountNameModal } from "./ChangeAccountNameModal";
 import { accountBarHeight } from "../../shared/constants";
 import { CustomMenuItem } from "../../shared/components/CustomMenuItem";
 import { GrantModal } from "../GrantModal";
-import { hasDepositorSupport } from "../../shared/deploymentData";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -193,7 +192,7 @@ export function WalletDisplay() {
       >
         <CustomMenuItem onClick={() => onSendClick()} icon={<SendIcon fontSize="small" />} text="Send" />
         <CustomMenuItem onClick={() => onDepositClick()} icon={<MoveToInboxIcon fontSize="small" />} text="Deposit" />
-        {hasDepositorSupport && <CustomMenuItem onClick={() => onAuthorizeSpendingClick()} icon={<AccountBalanceIcon fontSize="small" />} text="Authorize Spending" />}
+        <CustomMenuItem onClick={() => onAuthorizeSpendingClick()} icon={<AccountBalanceIcon fontSize="small" />} text="Authorize Spending" />
         <CustomMenuItem onClick={() => onViewMnemonic()} icon={<KeyIcon fontSize="small" />} text="View Mnemonic" />
         <CustomMenuItem onClick={() => onChangeAccountName()} icon={<EditIcon fontSize="small" />} text="Change Account Name" />
         <CustomMenuItem onClick={() => onSignOutClick()} icon={<ExitToAppIcon fontSize="small" />} text="Sign Out" />
