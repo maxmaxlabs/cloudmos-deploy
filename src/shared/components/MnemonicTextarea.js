@@ -26,7 +26,7 @@ export function MnemonicTextarea({ mnemonic }) {
 
   const onCopyClick = () => {
     copyTextToClipboard(mnemonic);
-    enqueueSnackbar(<Snackbar title="Mnemonic copied to clipboard!" />, {
+    enqueueSnackbar(<Snackbar title="Mnemonic copied to clipboard!" iconVariant="success" />, {
       variant: "success",
       autoHideDuration: 2000
     });

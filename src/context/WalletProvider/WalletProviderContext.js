@@ -33,7 +33,7 @@ export const WalletProvider = ({ children }) => {
         setIsRefreshingBalance(false);
 
         if (showSnackbar) {
-          enqueueSnackbar(<Snackbar title="Balance refreshed!" />, { variant: "success" });
+          enqueueSnackbar(<Snackbar title="Balance refreshed!" iconVariant="success" />, { variant: "success" });
         }
 
         return balance;
@@ -41,7 +41,7 @@ export const WalletProvider = ({ children }) => {
         console.log(error);
 
         setIsRefreshingBalance(false);
-        enqueueSnackbar(<Snackbar title="Error fetching balance." />, { variant: "error" });
+        enqueueSnackbar(<Snackbar title="Error fetching balance." iconVariant="error" />, { variant: "error" });
 
         return 0;
       }

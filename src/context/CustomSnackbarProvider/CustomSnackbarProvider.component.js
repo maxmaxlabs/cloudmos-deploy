@@ -9,6 +9,9 @@ const useStyles = makeStyles((theme) => ({
     width: "360px !important",
     "& #notistack-snackbar": {
       paddingRight: "1rem"
+    },
+    "& .MuiCollapse-container": {
+      width: "100%"
     }
   },
   success: {
@@ -53,7 +56,7 @@ export const CustomSnackbarProvider = ({ children }) => {
       action={(key) => (
         <Box width="2rem">
           <IconButton onClick={onClickDismiss(key)} size="small" className={classes.action}>
-            <CloseIcon fontSize="1rem" />
+            <CloseIcon fontSize="small" />
           </IconButton>
         </Box>
       )}

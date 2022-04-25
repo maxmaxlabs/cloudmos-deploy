@@ -31,7 +31,7 @@ export const CodeSnippet = ({ code }) => {
 
   const onCopyClick = () => {
     copyTextToClipboard(code);
-    enqueueSnackbar(<Snackbar title="Copied to clipboard!" />, { variant: "success", autoHideDuration: 1500 });
+    enqueueSnackbar(<Snackbar title="Copied to clipboard!" iconVariant="success" />, { variant: "success", autoHideDuration: 1500 });
   };
 
   const onCodeClick = () => {

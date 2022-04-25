@@ -75,10 +75,10 @@ export function ConfirmPasswordModal(props) {
       props.onConfirmPassword(password);
     } catch (err) {
       if (err.message === "ciphertext cannot be decrypted using that key") {
-        enqueueSnackbar(<Snackbar title="Invalid password" />, { variant: "error" });
+        enqueueSnackbar(<Snackbar title="Invalid password" iconVariant="error" />, { variant: "error" });
       } else {
         console.error(err);
-        enqueueSnackbar(<Snackbar title="Error while decrypting wallet" />, { variant: "error" });
+        enqueueSnackbar(<Snackbar title="Error while decrypting wallet" iconVariant="error" />, { variant: "error" });
       }
     } finally {
       setIsLoading(false);

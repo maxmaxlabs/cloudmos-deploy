@@ -18,7 +18,7 @@ export const DepositModal = ({ address, onClose }) => {
 
   const onQRClick = () => {
     copyTextToClipboard(address);
-    enqueueSnackbar(<Snackbar title="Address copied to clipboard!" />, {
+    enqueueSnackbar(<Snackbar title="Address copied to clipboard!" iconVariant="success" />, {
       variant: "success",
       autoHideDuration: 2000
     });

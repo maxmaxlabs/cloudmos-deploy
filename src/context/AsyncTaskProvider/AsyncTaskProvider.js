@@ -1,6 +1,7 @@
 import React from "react";
-import { Button, Box, CircularProgress } from "@material-ui/core";
+import { Button } from "@material-ui/core";
 import { useSnackbar } from "notistack";
+import { Snackbar } from "../../shared/components/Snackbar";
 
 const AsyncTaskProviderContext = React.createContext({});
 
@@ -19,22 +20,15 @@ export const AsyncTaskProvider = ({ children }) => {
     };
 
     const key = enqueueSnackbar(
-      <>
-        <Box display="flex" alignItems="center" justifyContent="space-between" width="100%">
-          <Box display="flex" alignItems="center" paddingRight=".5rem">
-            <CircularProgress size="1rem" />
-          </Box>
-
-          <Box flexGrow={1} paddingRight="1rem">
-            {message}
-          </Box>
-          <div>
-            <Button onClick={onCancel} variant="contained" color="primary" size="small">
-              Cancel
-            </Button>
-          </div>
-        </Box>
-      </>,
+      <Snackbar
+        title={message}
+        subTitle={
+          <Button onClick={onCancel} variant="contained" color="primary" size="small">
+            Cancel
+          </Button>
+        }
+        showLoading
+      />,
       { variant: "info", persist: true, action: (key) => null }
     );
 

@@ -34,7 +34,6 @@ export const PriceProvider = ({ children }) => {
       console.log(error);
 
       setIsLoadingPriceData(false);
-      // enqueueSnackbar(<Snackbar title="Error loading price data." />, { variant: "error" });
     }
   }, [isLoadingPriceData]);
 

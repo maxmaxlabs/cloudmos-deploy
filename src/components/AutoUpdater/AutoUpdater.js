@@ -78,7 +78,7 @@ export const AutoUpdater = () => {
     const key = enqueueSnackbar(
       <Snackbar
         title="Update available!"
-        iconVariant="success"
+        iconVariant="info"
         subTitle={
           <div>
             <Box marginBottom={1}>

@@ -50,14 +50,14 @@ export function ChangeAccountNameModal(props) {
 
       setSelectedWallet(selectedWallet);
 
-      enqueueSnackbar(<Snackbar title="Success!" />, { variant: "success", autoHideDuration: 1000 });
+      enqueueSnackbar(<Snackbar title="Success!" iconVariant="success" />, { variant: "success", autoHideDuration: 1000 });
 
       await analytics.event("deploy", "change account name");
 
       props.onClose();
     } catch (err) {
       console.error(err);
-      enqueueSnackbar(<Snackbar title={err.message} />, { variant: "error" });
+      enqueueSnackbar(<Snackbar title={err.message} iconVariant="error" />, { variant: "error" });
     }
   }
 
