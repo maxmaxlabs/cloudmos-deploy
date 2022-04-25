@@ -1,8 +1,8 @@
-import { useEffect, forwardRef, useCallback, useRef } from "react";
-import { Box, makeStyles, Button, Typography, CircularProgress, CardContent, Card, CardActions, IconButton } from "@material-ui/core";
-import { SnackbarContent, useSnackbar } from "notistack";
-import CloseIcon from "@material-ui/icons/Close";
+import { useEffect, useRef } from "react";
+import { Box, makeStyles, Button } from "@material-ui/core";
+import { useSnackbar } from "notistack";
 import { LinkTo } from "../../shared/components/LinkTo";
+import { Snackbar } from "../../shared/components/Snackbar";
 
 const ipcApi = window.electron.api;
 
@@ -60,6 +60,10 @@ export const AutoUpdater = () => {
     intervalUpdateCheck.current = setInterval(() => {
       ipcApi.send("check_update");
     }, 60000);
+
+    return () => {
+      clearInterval(intervalUpdateCheck.current);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -72,29 +76,34 @@ export const AutoUpdater = () => {
     clearInterval(intervalUpdateCheck.current);
 
     const key = enqueueSnackbar(
-      <div>
-        <Box marginBottom={1}>
-          <strong>A new update {releaseName} is available!</strong> Download now?
-        </Box>
-        <Box marginBottom="1rem">
-          <LinkTo className={classes.white} onClick={() => window.electron.openUrl("https://github.com/Akashlytics/akashlytics-deploy/releases")}>
-            View release notes
-          </LinkTo>
-        </Box>
-        <Button
-          size="small"
-          variant="contained"
-          onClick={() => {
-            ipcApi.send("download_update");
-            closeSnackbar(key);
+      <Snackbar
+        title="Update available!"
+        iconVariant="success"
+        subTitle={
+          <div>
+            <Box marginBottom={1}>
+              A new update {releaseName} is available! Download now?{" "}
+              <LinkTo className={classes.white} onClick={() => window.electron.openUrl("https://github.com/Akashlytics/akashlytics-deploy/releases")}>
+                View release notes
+              </LinkTo>
+            </Box>
 
-            newUpdateSnackbarKey.current = null;
-            showDownloadingUpdateSnackbar();
-          }}
-        >
-          Download
-        </Button>
-      </div>,
+            <Button
+              size="small"
+              variant="contained"
+              onClick={() => {
+                ipcApi.send("download_update");
+                closeSnackbar(key);
+
+                newUpdateSnackbarKey.current = null;
+                showDownloadingUpdateSnackbar();
+              }}
+            >
+              Download
+            </Button>
+          </div>
+        }
+      />,
       {
         variant: "info",
         autoHideDuration: null
@@ -109,9 +118,8 @@ export const AutoUpdater = () => {
    * Show snackbar when downloading the update
    */
   const showDownloadingUpdateSnackbar = () => {
-    const key = enqueueSnackbar("Downloading new update...", {
+    const key = enqueueSnackbar(<Snackbar title="Downloading update..." showLoading />, {
       variant: "info",
-      content: (key, message) => <DownloadingUpdate id={key} message={message} />,
       autoHideDuration: null // Wait for download to finish
     });
 
@@ -130,25 +138,29 @@ export const AutoUpdater = () => {
     newUpdateSnackbarKey.current = null;
 
     enqueueSnackbar(
-      <div>
-        <Box marginBottom=".5rem">
-          <strong>Update {releaseName} Downloaded!</strong> It will be installed on restart.
-          <br />
-          <LinkTo className={classes.white} onClick={() => window.electron.openUrl("https://github.com/Akashlytics/akashlytics-deploy/releases")}>
-            View release notes
-          </LinkTo>
-          <Typography variant="h6">Restart now?</Typography>
-        </Box>
-        <Button
-          size="small"
-          variant="contained"
-          onClick={() => {
-            ipcApi.send("restart_app");
-          }}
-        >
-          Restart App
-        </Button>
-      </div>,
+      <Snackbar
+        title="Restart now?"
+        subTitle={
+          <div>
+            <Box marginBottom=".5rem">
+              Update {releaseName} Downloaded! It will be installed on restart.{" "}
+              <LinkTo className={classes.white} onClick={() => window.electron.openUrl("https://github.com/Akashlytics/akashlytics-deploy/releases")}>
+                View release notes
+              </LinkTo>
+            </Box>
+            <Button
+              size="small"
+              variant="contained"
+              onClick={() => {
+                ipcApi.send("restart_app");
+              }}
+            >
+              Restart App
+            </Button>
+          </div>
+        }
+        iconVariant="info"
+      />,
       {
         variant: "info",
         autoHideDuration: 5 * 60 * 1000 // 5 minutes
@@ -158,49 +170,18 @@ export const AutoUpdater = () => {
 
   return null;
   // return (
-  //   <>
+  //   <Box position="absolute" top="40px">
   //     <Button onClick={showNewUpdateSnackbar}>Update available</Button>
   //     <Button onClick={showUpdateDownloadedSnackbar}>Update downloaded</Button>
   //     <Button onClick={showDownloadingUpdateSnackbar}>Downloading Update</Button>
   //     <Button
   //       onClick={() => {
-  //         closeSnackbar(downloadSnackbarKey);
+  //         closeSnackbar(downloadSnackbarKey.current);
   //         downloadSnackbarKey.current = null;
-  //         // setDownloadSnackbarKey(null);
   //       }}
   //     >
   //       Close snackbar
   //     </Button>
-  //   </>
+  //   </Box>
   // );
 };
-
-const DownloadingUpdate = forwardRef(({ message, id }, ref) => {
-  const { closeSnackbar } = useSnackbar();
-  const classes = useStyles();
-
-  const handleDismiss = useCallback(() => {
-    closeSnackbar(id);
-  }, [id, closeSnackbar]);
-
-  return (
-    <SnackbarContent ref={ref} className={classes.root}>
-      <Card className={classes.card}>
-        <CardActions classes={{ root: classes.actionRoot }}>
-          <Typography variant="subtitle2" className={classes.typography}>
-            {message}
-          </Typography>
-
-          <div className={classes.icons}>
-            <IconButton onClick={handleDismiss} className={classes.actionButton} size="small">
-              <CloseIcon />
-            </IconButton>
-          </div>
-        </CardActions>
-        <CardContent className={classes.actionRoot}>
-          <CircularProgress size="2rem" className={classes.white} />
-        </CardContent>
-      </Card>
-    </SnackbarContent>
-  );
-});
