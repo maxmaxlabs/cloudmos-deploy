@@ -134,13 +134,6 @@ function DeploymentGroups(yamlJson) {
 
       let group = groups[placementName];
 
-      const akashAuditingAddress = "akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63";
-      if (infra.signedBy?.allOf?.includes(akashAuditingAddress) || infra.signedBy?.anyOf?.includes(akashAuditingAddress)) {
-        throw new CustomValidationError(
-          `The auditing address "${akashAuditingAddress}" is only valid on the mainnet. You must remove it from the signedBy section to continue.`
-        );
-      }
-
       if (!group) {
         group = {
           name: placementName,
