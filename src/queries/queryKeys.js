@@ -9,4 +9,5 @@ export class QueryKeys {
   static getNetworkCapacity = () => ["NETWORK_CAPACITY"];
   static getBlockKey = (id) => ["BLOCK", id];
   static getBalancesKey = (address) => ["BALANCES", address];
+  static getTemplatesKey = () => ["TEMPLATES"];
 }

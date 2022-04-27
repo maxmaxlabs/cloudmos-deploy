@@ -23,8 +23,11 @@ export function useProviders(options) {
 }
 
 async function getProviderStatus(providerUri) {
-  const response = await window.electron.queryProvider(`${providerUri}/status`, "GET");
-  return providerStatusToDto(response);
+  const statusResponse = await window.electron.queryProvider(`${providerUri}/status`, "GET");
+  const versionResponse = await window.electron.queryProvider(`${providerUri}/version`, "GET");
+  const result = providerStatusToDto(statusResponse, versionResponse);
+
+  return result;
 }
 
 export function useProviderStatus(providerUri, options) {

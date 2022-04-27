@@ -169,9 +169,9 @@ profiles:
         cpu:
           units: 0.5
         memory:
-          size: 1Gi
+          size: 512Mi
         storage:
-          size: 2Gi
+          size: 512Mi
 
 # profiles.placement is map of named datacenter profiles. Each profile specifies required datacenter attributes and pricing configuration for each compute profile that will be used within the datacenter. It also specifies optional list of signatures of which tenants expects audit of datacenter attributes.
 # https://docs.akash.network/intro-to-akash/stack-definition-language#profiles.placement
