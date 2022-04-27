@@ -70,7 +70,7 @@ export function PrerequisiteList({ selectedTemplate, setSelectedTemplate }) {
       // Auto redirect when all is good
       const redeployTemplate = getRedeployTemplate();
       const galleryTemplate = getGalleryTemplate();
-      if (isCertificateValidated && isLocalCertificateValidated) {
+      if (isBalanceValidated && isCertificateValidated && isLocalCertificateValidated) {
         if (redeployTemplate || galleryTemplate) {
           history.replace(UrlService.createDeploymentStepManifest());
         } else {

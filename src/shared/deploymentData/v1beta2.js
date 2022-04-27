@@ -55,27 +55,27 @@ export function toResourceUnits(computeResources) {
 
     units.cpu = {
       units: { val: cpu },
-      attributes:
-        computeResources.cpu.attributes &&
-        Object.keys(computeResources.cpu.attributes)
-          .sort()
-          .map((key) => ({
-            key: key,
-            value: computeResources.cpu.attributes[key].toString()
-          }))
+      attributes: computeResources.cpu.attributes
+        ? Object.keys(computeResources.cpu.attributes)
+            .sort()
+            .map((key) => ({
+              key: key,
+              value: computeResources.cpu.attributes[key].toString()
+            }))
+        : []
     };
   }
   if (computeResources.memory) {
     units.memory = {
       quantity: { val: parseSizeStr(computeResources.memory.size) },
-      attributes:
-        computeResources.memory.attributes &&
-        Object.keys(computeResources.memory.attributes)
-          .sort()
-          .map((key) => ({
-            key: key,
-            value: computeResources.memory.attributes[key].toString()
-          }))
+      attributes: computeResources.memory.attributes
+        ? Object.keys(computeResources.memory.attributes)
+            .sort()
+            .map((key) => ({
+              key: key,
+              value: computeResources.memory.attributes[key].toString()
+            }))
+        : []
     };
   }
   if (computeResources.storage) {
@@ -84,14 +84,14 @@ export function toResourceUnits(computeResources) {
       storages.map((storage) => ({
         name: storage.name || "default",
         quantity: { val: parseSizeStr(storage.size) },
-        attributes:
-          storage.attributes &&
-          Object.keys(storage.attributes)
-            .sort()
-            .map((key) => ({
-              key: key,
-              value: storage.attributes[key].toString()
-            }))
+        attributes: storage.attributes
+          ? Object.keys(storage.attributes)
+              .sort()
+              .map((key) => ({
+                key: key,
+                value: storage.attributes[key].toString()
+              }))
+          : []
       })) || [];
   }
 
