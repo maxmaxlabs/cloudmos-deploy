@@ -1,4 +1,4 @@
-export function providerStatusToDto(providerStatus) {
+export function providerStatusToDto(providerStatus, providerVersion) {
   return {
     name: providerStatus.cluster_public_hostname,
     orderCount: providerStatus.bidengine.orders,
@@ -7,7 +7,9 @@ export function providerStatusToDto(providerStatus) {
     active: providerStatus.cluster.inventory.active,
     available: providerStatus.cluster.inventory.available,
     pending: providerStatus.cluster.inventory.pending,
-    error: providerStatus.cluster.inventory.error
+    error: providerStatus.cluster.inventory.error,
+    akash: providerVersion.akash,
+    kube: providerVersion.kube
   };
 }
 

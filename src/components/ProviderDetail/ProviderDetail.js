@@ -70,6 +70,26 @@ export const ProviderDetail = ({ provider, address, onClose }) => {
               )}
               <TableRow>
                 <TableCell component="th" scope="row">
+                  <strong>Akash version</strong>
+                </TableCell>
+                <TableCell align="center">{provider.akash.version}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell component="th" scope="row">
+                  <strong>Kube version</strong>
+                </TableCell>
+                <TableCell align="center">
+                  {provider.kube.major}.{provider.kube.minor}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell component="th" scope="row">
+                  <strong>Platform</strong>
+                </TableCell>
+                <TableCell align="center">{provider.kube.platform}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell component="th" scope="row">
                   <strong>Orders</strong>
                 </TableCell>
                 <TableCell align="center">{provider.orderCount}</TableCell>

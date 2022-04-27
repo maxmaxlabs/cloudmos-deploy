@@ -1,4 +1,3 @@
-import * as v1beta1 from "./v1beta1";
 import * as v1beta2 from "./v1beta2";
 import { mainnetId, testnetId, edgenetId } from "../constants";
 
@@ -19,7 +18,7 @@ export function initProtoTypes() {
       break;
 
     default:
-      protoTypes = v1beta1;
+      protoTypes = v1beta2;
       break;
   }
 }
