@@ -62,7 +62,10 @@ export function TransactionModal(props) {
     ev.preventDefault();
     setIsSendingTransaction(true);
 
-    let pendingSnackbarKey = enqueueSnackbar(<Snackbar title="Tx is pending..." subTitle="Please wait a few seconds" />, { variant: "info" });
+    let pendingSnackbarKey = enqueueSnackbar(<Snackbar title="Broadcasting transaction..." subTitle="Please wait a few seconds" showLoading />, {
+      variant: "info",
+      autoHideDuration: null
+    });
 
     try {
       const client = await SigningStargateClient.connectWithSigner(settings.rpcEndpoint, selectedWallet, {
@@ -86,7 +89,7 @@ export function TransactionModal(props) {
         throw new BroadcastingError("Code " + response.code + " : " + response.rawLog, transactionHash);
       }
 
-      showTransactionSnackbar("Tx succeeds!", "", transactionHash, "success");
+      showTransactionSnackbar("Transaction succeeds!", "", transactionHash, "success");
 
       await analytics.event("deploy", "successful transaction");
 
@@ -139,7 +142,7 @@ export function TransactionModal(props) {
         }
       }
 
-      showTransactionSnackbar("Tx has failed...", errorMsg, transactionHash, "error");
+      showTransactionSnackbar("Transaction has failed...", errorMsg, transactionHash, "error");
 
       setIsSendingTransaction(false);
     } finally {
@@ -148,10 +151,17 @@ export function TransactionModal(props) {
   }
 
   const showTransactionSnackbar = (snackTitle, snackMessage, transactionHash, snackVariant) => {
-    enqueueSnackbar(<Snackbar title={snackTitle} subTitle={<TransactionSnackbarContent snackMessage={snackMessage} transactionHash={transactionHash} />} />, {
-      variant: snackVariant,
-      autoHideDuration: 10000
-    });
+    enqueueSnackbar(
+      <Snackbar
+        title={snackTitle}
+        subTitle={<TransactionSnackbarContent snackMessage={snackMessage} transactionHash={transactionHash} />}
+        iconVariant={snackVariant}
+      />,
+      {
+        variant: snackVariant,
+        autoHideDuration: 10000
+      }
+    );
   };
 
   const handleTabChange = (event, newValue) => {

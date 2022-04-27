@@ -111,7 +111,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
 
       return response;
     } catch (err) {
-      enqueueSnackbar(<ManifestErrorSnackbar err={err} />, { variant: "error", autoHideDuration: null });
+      enqueueSnackbar(<ManifestErrorSnackbar err={err} iconVariant="error" />, { variant: "error", autoHideDuration: null });
       throw err;
     }
   }
@@ -130,7 +130,7 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
 
         saveDeploymentManifest(dd.deploymentId.dseq, editedManifest, dd.version, address);
 
-        const sendManifestKey = enqueueSnackbar(<Snackbar title="Sending Manifest! 🚀" subTitle={`Please wait a few seconds...`} showLoading />, {
+        const sendManifestKey = enqueueSnackbar(<Snackbar title="Sending Manifest! 🚀" subTitle="Please wait a few seconds..." showLoading />, {
           variant: "success",
           autoHideDuration: null
         });

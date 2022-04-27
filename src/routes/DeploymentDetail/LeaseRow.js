@@ -167,9 +167,9 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
 
       await sendManifestToProvider(providerInfo, manifest, dseq, localCert);
 
-      enqueueSnackbar(<Snackbar title="Manifest sent!" />, { variant: "success", autoHideDuration: 10_000 });
+      enqueueSnackbar(<Snackbar title="Manifest sent!" iconVariant="success" />, { variant: "success", autoHideDuration: 10_000 });
     } catch (err) {
-      enqueueSnackbar(<ManifestErrorSnackbar err={err} />, { variant: "error", autoHideDuration: null });
+      enqueueSnackbar(<ManifestErrorSnackbar err={err} iconVariant="error" />, { variant: "error", autoHideDuration: null });
     }
     setIsSendingManifest(false);
   }
@@ -371,7 +371,7 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
                                     size="small"
                                     onClick={(ev) => {
                                       copyTextToClipboard(uri);
-                                      enqueueSnackbar("Uri copied to clipboard!", {
+                                      enqueueSnackbar(<Snackbar title="Uri copied to clipboard!" iconVariant="success" />, {
                                         variant: "success",
                                         autoHideDuration: 2000
                                       });

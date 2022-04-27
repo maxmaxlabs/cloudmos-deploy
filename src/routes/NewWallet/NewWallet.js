@@ -171,7 +171,7 @@ export function NewWallet() {
         history.replace(UrlService.dashboard());
       } catch (error) {
         console.error(error);
-        enqueueSnackbar(<Snackbar title="An error has occured" subTitle={error.message} />, { variant: "error" });
+        enqueueSnackbar(<Snackbar title="An error has occured" subTitle={error.message} iconVariant="error" />, { variant: "error" });
         setIsCreatingWallet(false);
       }
     } else {

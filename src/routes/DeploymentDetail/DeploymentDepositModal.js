@@ -110,7 +110,7 @@ export function DeploymentDepositModal({ handleCancel, onDeploymentDeposit, min 
       return true;
     } catch (err) {
       console.error(err);
-      enqueueSnackbar(<Snackbar title={err.message} />, { variant: "error" });
+      enqueueSnackbar(<Snackbar title={err.message} iconVariant="error" />, { variant: "error" });
       return false;
     } finally {
       setIsCheckingDepositor(false);

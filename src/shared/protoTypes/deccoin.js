@@ -2,10 +2,10 @@ import { Type, Writer, Reader } from "protobufjs";
 
 export const DecCoin = new Type("DecCoin");
 DecCoin.ctor = function (...args) {
-  console.log("ctor: ", args);
+  // console.log("ctor: ", args);
 };
 DecCoin.encode = function (message, writer) {
-  console.log("Encode: ", message, writer);
+  // console.log("Encode: ", message, writer);
   if (!writer) {
     writer = Writer.create();
   }

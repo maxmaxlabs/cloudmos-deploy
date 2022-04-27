@@ -1,15 +1,12 @@
-import { useRef, useEffect } from "react";
+import { useEffect } from "react";
 import { PasswordConfirmationModalProvider } from "./context/ConfirmPasswordModal";
 import { CertificateProvider } from "./context/CertificateProvider";
 import { TransactionModalProvider } from "./context/TransactionModal";
 import { WalletProvider } from "./context/WalletProvider";
-import { SnackbarProvider } from "notistack";
-import { IconButton, makeStyles } from "@material-ui/core";
 import { QueryClientProvider } from "react-query";
 import { SettingsProvider } from "./context/SettingsProvider";
 import { LocalNoteProvider } from "./context/LocalNoteProvider";
 import { Router } from "react-router-dom";
-import CloseIcon from "@material-ui/icons/Close";
 import { createMemoryHistory } from "history";
 import { HelmetProvider } from "react-helmet-async";
 import { Helmet } from "react-helmet-async";
@@ -21,34 +18,15 @@ import { PriceProvider } from "./context/PriceProvider";
 import { IntlProvider } from "react-intl";
 import { TemplatesProvider } from "./context/TemplatesProvider/TemplatesProviderContext";
 import { AsyncTaskProvider } from "./context/AsyncTaskProvider";
+import { CustomSnackbarProvider } from "./context/CustomSnackbarProvider";
 
 let history = createMemoryHistory({
   initialEntries: ["/"],
   initialIndex: 1
 });
 
-const useStyles = makeStyles((theme) => ({
-  snackbarRoot: {
-    maxWidth: "300px"
-  },
-  snackbarClose: {
-    color: "#ffffff"
-  },
-  footer: {
-    top: "auto",
-    bottom: 0,
-    padding: "2px 1rem"
-  }
-}));
-
 function App() {
-  const notistackRef = useRef();
-  const classes = useStyles();
-
-  const onClickDismiss = (key) => () => {
-    notistackRef.current.closeSnackbar(key);
-  };
-
+  // Init analytics
   useEffect(() => {
     const init = async () => {
       const shouldLog = isLegitPath(window.location.pathname);
@@ -77,18 +55,7 @@ function App() {
       <Router history={history}>
         <HelmetProvider>
           <QueryClientProvider client={queryClient}>
-            <SnackbarProvider
-              maxSnack={3}
-              anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-              ref={notistackRef}
-              action={(key) => (
-                <IconButton onClick={onClickDismiss(key)} className={classes.snackbarClose}>
-                  <CloseIcon />
-                </IconButton>
-              )}
-              classes={{ root: classes.snackbarRoot }}
-              dense
-            >
+            <CustomSnackbarProvider>
               <AsyncTaskProvider>
                 <PriceProvider>
                   <SettingsProvider>
@@ -110,7 +77,7 @@ function App() {
                   </SettingsProvider>
                 </PriceProvider>
               </AsyncTaskProvider>
-            </SnackbarProvider>
+            </CustomSnackbarProvider>
           </QueryClientProvider>
         </HelmetProvider>
       </Router>

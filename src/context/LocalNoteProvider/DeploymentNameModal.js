@@ -42,7 +42,7 @@ export const DeploymentNameModal = ({ dseq, onClose, onSaved, getDeploymentName 
   function onSubmit({ name }) {
     updateDeploymentLocalData(dseq, { name: name });
 
-    enqueueSnackbar(<Snackbar title="Success!" />, { variant: "success", autoHideDuration: 1000 });
+    enqueueSnackbar(<Snackbar title="Success!" iconVariant="success" />, { variant: "success", autoHideDuration: 1000 });
 
     onSaved();
   }
