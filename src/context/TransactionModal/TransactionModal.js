@@ -142,7 +142,7 @@ export function TransactionModal(props) {
         }
       }
 
-      showTransactionSnackbar("Tx has failed...", errorMsg, transactionHash, "error");
+      showTransactionSnackbar("Transaction has failed...", errorMsg, transactionHash, "error");
 
       setIsSendingTransaction(false);
     } finally {
