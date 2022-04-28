@@ -133,13 +133,10 @@ export class TransactionMessageData {
         amount: {
           denom: "uakt",
           amount: depositAmount.toString()
-        }
+        },
+        depositor: depositorAddress || address
       }
     };
-
-    if (depositorAddress) {
-      message.value.depositor = depositorAddress;
-    }
 
     const err = protoTypes.MsgDepositDeployment.verify(message.value);
 
