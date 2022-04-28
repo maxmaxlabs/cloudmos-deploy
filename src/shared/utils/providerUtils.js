@@ -1,3 +1,5 @@
+import { roundDecimal } from "./math";
+
 export function providerStatusToDto(providerStatus, providerVersion) {
   return {
     name: providerStatus.cluster_public_hostname,
@@ -40,11 +42,12 @@ export function getTotalProviderResource(resources) {
 }
 
 function getCpuValue(cpu) {
-  return typeof cpu === "number" ? cpu : Number(cpu.units.val) / 1000;
+  const _cpu = typeof cpu === "number" ? cpu : parseInt(cpu.units.val);
+  return roundDecimal(_cpu / 1000, 1);
 }
 
 function getByteValue(val) {
-  return typeof val === "number" ? val : Number(val.size.val);
+  return typeof val === "number" ? val : parseInt(val.size.val);
 }
 
 export function getNetworkCapacityDto(networkCapacity) {

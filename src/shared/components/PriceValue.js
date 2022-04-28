@@ -5,7 +5,7 @@ import { ceilDecimal } from "../utils/math";
 
 export const PriceValue = ({ value, showLt }) => {
   const { priceData, isLoadingPriceData } = usePrice();
-  const _value = Number(value) * priceData?.price;
+  const _value = parseFloat(value) * priceData?.price;
   const computedValue = _value > 0 ? ceilDecimal(_value) : 0;
 
   return (
