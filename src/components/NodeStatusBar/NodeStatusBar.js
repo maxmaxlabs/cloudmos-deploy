@@ -8,6 +8,7 @@ import { networks } from "../../shared/networks";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 import { SelectNetworkModal } from "../SelectNetworkModal";
 import { LinkTo } from "../../shared/components/LinkTo";
+import GitHubButton from "react-github-btn";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: {
@@ -47,6 +48,12 @@ const useStyles = makeStyles((theme) => ({
   flexAlign: {
     display: "flex",
     alignItems: "center"
+  },
+  stars: {
+    marginRight: "1rem",
+    "& span": {
+      display: "flex"
+    }
   }
 }));
 
@@ -127,6 +134,18 @@ export const NodeStatusBar = () => {
         </Box>
 
         <Box display="flex" alignItems="center" whiteSpace="nowrap">
+          <div className={classes.stars}>
+            <GitHubButton
+              href="https://github.com/Akashlytics/akashlytics-deploy"
+              data-icon="octicon-star"
+              // data-size="small"
+              data-show-count="true"
+              aria-label="Star Akashlytics/akashlytics-deploy on GitHub"
+            >
+              Star
+            </GitHubButton>
+          </div>
+
           <Button onClick={() => window.electron.openUrl("https://github.com/Akashlytics/akashlytics-deploy/issues")} size="small">
             <Typography variant="caption" className={classes.caption}>
               Submit an issue
