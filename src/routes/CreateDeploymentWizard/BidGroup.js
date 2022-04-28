@@ -56,7 +56,7 @@ export function BidGroup({ bids, gseq, selectedBid, handleBidSelected, disabled,
   const allBidsClosed = bids.every((b) => b.state === "closed");
 
   useEffect(() => {
-    const currentGroup = deploymentDetail?.groups.find((g) => g.group_id.gseq === Number(gseq));
+    const currentGroup = deploymentDetail?.groups.find((g) => g.group_id.gseq === parseInt(gseq));
     if (currentGroup) {
       const resourcesSum = {
         cpuAmount: deploymentGroupResourceSum(currentGroup, (r) => parseInt(r.cpu.units.val) / 1000),
