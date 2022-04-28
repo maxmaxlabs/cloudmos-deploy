@@ -66,8 +66,6 @@ export const MsgCreateDeployment = new Type("MsgCreateDeployment")
 export const MsgUpdateDeployment = new Type("MsgUpdateDeployment")
   .add(new Field("id", 1, "DeploymentID"))
   .add(DeploymentID)
-  .add(new Field("groups", 2, "GroupSpec", "repeated"))
-  .add(GroupSpec)
   .add(new Field("version", 3, "bytes"));
 
 export const MsgDepositDeployment = new Type("MsgDepositDeployment")

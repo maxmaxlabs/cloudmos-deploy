@@ -110,7 +110,6 @@ export class TransactionMessageData {
       typeUrl: TransactionMessageData.Types.MSG_UPDATE_DEPLOYMENT.type,
       value: {
         id: deploymentData.deploymentId,
-        groups: deploymentData.groups,
         version: deploymentData.version
       }
     };
