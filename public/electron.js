@@ -63,9 +63,15 @@ function createWindow() {
 
     logger.info("Created Browser Window");
 
+    // Open links in the browser instead of electron window
     mainWindow.webContents.setWindowOpenHandler(({ url }) => {
       shell.openExternal(url);
-      return { action: "deny" };
+      return {
+        action: "allow",
+        overrideBrowserWindowOptions: {
+          show: false
+        }
+      };
     });
 
     if (isDev) {
