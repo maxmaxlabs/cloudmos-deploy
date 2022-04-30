@@ -1,10 +1,12 @@
-<div align="center">
-
-![Akashlytics](./public/icons/android-chrome-192x192.png)
-
-<h1>Akashlytics Deploy</h1>
+<div align="left">
   
-**Akashlytics Deploy is an app that let's you deploy any [docker container](https://www.docker.com/) on the [Akash Network](https://akash.network) in a few clicks... 🛠**
+  <a href="https://aimeos.org/">
+    <img src="./public/icons/android-chrome-192x192.png" alt="Akashlytics Deploy logo" title="Akashlytics Deploy" align="left" height="40" />
+</a>
+  
+  # Akashlytics Deploy
+ 
+**Akashlytics Deploy** is an app that let's you deploy any [docker container](https://www.docker.com/) on the [Akash Network](https://akash.network) in a few clicks... 🛠
   
 ![version](https://img.shields.io/github/stars/Akashlytics/akashlytics-deploy)
 ![license](https://img.shields.io/github/license/Akashlytics/akashlytics-deploy)
