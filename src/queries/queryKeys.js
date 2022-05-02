@@ -8,6 +8,7 @@ export class QueryKeys {
   static getDataNodeProvidersKey = () => ["DATA_NODE_PROVIDERS"];
   static getProviderStatusKey = (providerUri) => ["PROVIDER_STATUS", providerUri];
   static getNetworkCapacity = () => ["NETWORK_CAPACITY"];
+  static getAuditorsKey = () => ["AUDITORS"];
   static getBlockKey = (id) => ["BLOCK", id];
   static getBalancesKey = (address) => ["BALANCES", address];
   static getTemplatesKey = () => ["TEMPLATES"];

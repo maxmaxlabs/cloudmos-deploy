@@ -59,3 +59,19 @@ async function getNetworkCapacity() {
 export function useNetworkCapacity(options) {
   return useQuery(QueryKeys.getNetworkCapacity(), () => getNetworkCapacity(), options);
 }
+
+async function getAuditors() {
+  const response = await axios.get("https://raw.githubusercontent.com/Akashlytics/akashlytics-deploy/master/auditors.json");
+
+  return response.data;
+}
+
+export function useAuditors(options) {
+  return useQuery(QueryKeys.getAuditorsKey(), () => getAuditors(), {
+    ...options,
+    refetchInterval: false,
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false
+  });
+}
