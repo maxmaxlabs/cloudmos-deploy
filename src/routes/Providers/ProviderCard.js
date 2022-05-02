@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { makeStyles, Box, Grid, Paper, IconButton } from "@material-ui/core";
-import { useHistory } from "react-router";
 import { Address } from "../../shared/components/Address";
-import { ProviderDetail } from "../../components/ProviderDetail/ProviderDetail";
 import { LinkTo } from "../../shared/components/LinkTo";
 import StarBorderIcon from "@material-ui/icons/StarBorder";
 import StarIcon from "@material-ui/icons/Star";
 import clsx from "clsx";
 import { ResourceBars } from "../../shared/components/ResourceBars";
 import { updateProviderLocalData } from "../../shared/utils/providerUtils";
+import { LoadProviderDetail } from "./LoadProviderDetail";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -24,7 +23,6 @@ const useStyles = makeStyles((theme) => ({
 
 export function ProviderCard({ provider, favoriteProviders, setFavoriteProviders }) {
   const classes = useStyles();
-  const history = useHistory();
   const [isViewingDetail, setIsViewingDetail] = useState(false);
   const isFavorite = favoriteProviders.some((x) => provider.owner === x);
 
@@ -82,7 +80,7 @@ export function ProviderCard({ provider, favoriteProviders, setFavoriteProviders
           </Box>
         </Box>
 
-        {/* {isViewingDetail && providerStatus && <ProviderDetail provider={providerStatus} address={bid.provider} onClose={() => setIsViewingDetail(false)} />} */}
+        {isViewingDetail && <LoadProviderDetail provider={provider} address={provider.owner} onClose={() => setIsViewingDetail(false)} />}
       </Paper>
     </Grid>
   );
