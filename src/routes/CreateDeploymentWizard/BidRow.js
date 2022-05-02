@@ -4,7 +4,7 @@ import { PriceEstimateTooltip } from "../../shared/components/PriceEstimateToolt
 import { PricePerMonth } from "../../shared/components/PricePerMonth";
 import { ProviderAttributes } from "../../shared/components/ProviderAttributes";
 import { useEffect, useState } from "react";
-import { useProviderStatus } from "../../queries/useProvidersQuery";
+import { useProviderStatus } from "../../queries";
 import CloudOffIcon from "@material-ui/icons/CloudOff";
 import clsx from "clsx";
 import { LinkTo } from "../../shared/components/LinkTo";

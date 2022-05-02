@@ -4,6 +4,7 @@ import axios from "axios";
 import { ApiUrlService, loadWithPagination } from "../shared/utils/apiUtils";
 import { useSettings } from "../context/SettingsProvider";
 import { providerStatusToDto, getNetworkCapacityDto } from "../shared/utils/providerUtils";
+import { akashlyticsApi } from "../shared/constants";
 
 async function getProviders(apiEndpoint) {
   const providers = await loadWithPagination(ApiUrlService.providers(apiEndpoint), "providers", 1000);
@@ -18,6 +19,22 @@ export function useProviders(options) {
     refetchInterval: false,
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: false,
+    refetchOnReconnect: false
+  });
+}
+
+async function getDataNodeProviders() {
+  const response = await axios.get(`${akashlyticsApi}/providers`);
+
+  return response.data;
+}
+
+export function useDataNodeProviders(options) {
+  return useQuery(QueryKeys.getDataNodeProvidersKey(), () => getDataNodeProviders(), {
+    ...options,
+    refetchInterval: 15000,
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: true,
     refetchOnReconnect: false
   });
 }

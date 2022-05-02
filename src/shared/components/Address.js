@@ -32,7 +32,7 @@ export const Address = ({ address, isCopyable, ...rest }) => {
   const [isOver, setIsOver] = useState(false);
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
-  const formattedAddress = [address?.slice(0, 10), ".....", address?.slice(address?.length - 10)].join("");
+  const formattedAddress = [address?.slice(0, 10), ".....", address?.slice(address?.length - 6)].join("");
 
   const onClick = (event) => {
     event.preventDefault();

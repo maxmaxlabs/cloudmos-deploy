@@ -26,8 +26,7 @@ import { SpecDetail } from "../../shared/components/SpecDetail";
 import { useCertificate } from "../../context/CertificateProvider";
 import { copyTextToClipboard } from "../../shared/utils/copyClipboard";
 import { useSnackbar } from "notistack";
-import { useLeaseStatus } from "../../queries/useLeaseQuery";
-import { useProviders } from "../../queries";
+import { useProviders, useLeaseStatus, useProviderStatus } from "../../queries";
 import { sendManifestToProvider } from "../../shared/utils/deploymentUtils";
 import { deploymentData } from "../../shared/deploymentData";
 import { ManifestErrorSnackbar } from "../../shared/components/ManifestErrorSnackbar";
@@ -39,7 +38,6 @@ import LaunchIcon from "@material-ui/icons/Launch";
 import InfoIcon from "@material-ui/icons/Info";
 import { ProviderAttributes } from "../../shared/components/ProviderAttributes";
 import { ProviderDetail } from "../../components/ProviderDetail/ProviderDetail";
-import { useProviderStatus } from "../../queries/useProvidersQuery";
 import { FormattedNumber } from "react-intl";
 
 const yaml = require("js-yaml");

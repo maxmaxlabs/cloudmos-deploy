@@ -5,6 +5,7 @@ export class QueryKeys {
   static getLeaseStatusKey = (dseq, gseq, oseq) => ["LEASE_STATUS", dseq, gseq, oseq];
   static getBidListKey = (address, dseq) => ["BID_LIST", address, dseq];
   static getProvidersKey = () => ["PROVIDERS"];
+  static getDataNodeProvidersKey = () => ["DATA_NODE_PROVIDERS"];
   static getProviderStatusKey = (providerUri) => ["PROVIDER_STATUS", providerUri];
   static getNetworkCapacity = () => ["NETWORK_CAPACITY"];
   static getBlockKey = (id) => ["BLOCK", id];

@@ -12,11 +12,9 @@ import { TransactionMessageData } from "../../shared/utils/TransactionMessageDat
 import { useTransactionModal } from "../../context/TransactionModal";
 import { useSettings } from "../../context/SettingsProvider";
 import { UrlService } from "../../shared/utils/urlUtils";
-import { useBalances } from "../../queries/useBalancesQuery";
 import { DashboardInfoPanel } from "./DashboardInfoPanel";
-import { useProviders } from "../../queries";
+import { useProviders, useBalances, useNetworkCapacity } from "../../queries";
 import { LinkTo } from "../../shared/components/LinkTo";
-import { useNetworkCapacity } from "../../queries/useProvidersQuery";
 
 const useStyles = makeStyles((theme) => ({
   titleContainer: {
