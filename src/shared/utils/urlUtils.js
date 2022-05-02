@@ -9,6 +9,7 @@ export class UrlService {
   static deploymentDetails = (dseq, tab, logsMode) => `/deployment/${dseq}${appendSearchParams({ tab, logsMode })}`;
   static templates = (category, search) => `/templates${appendSearchParams({ category, search })}`;
   static templateDetails = (templatePath) => `/templates/${templatePath}`;
+  static providers = () => "/providers";
   static settings = () => "/settings";
 
   static createDeployment = (dseq) => `/createDeployment${dseq ? "?redeploy=" + dseq : ""}`;

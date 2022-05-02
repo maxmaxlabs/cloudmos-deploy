@@ -8,6 +8,7 @@ import { useDeploymentList } from "../../queries";
 import { Dashboard } from "../../routes/Dashboard";
 import { Settings } from "../../routes/Settings";
 import { TemplateDetails } from "../../routes/TemplateDetails";
+import { Providers } from "../../routes/Providers";
 
 export function RightContent() {
   const { address } = useWallet();
@@ -29,6 +30,9 @@ export function RightContent() {
       </Route>
       <Route exact path="/templates">
         <TemplateGallery />
+      </Route>
+      <Route exact path="/providers">
+        <Providers />
       </Route>
       <Route exact path="/settings">
         <Settings />

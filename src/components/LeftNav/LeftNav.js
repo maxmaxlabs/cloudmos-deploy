@@ -9,6 +9,7 @@ import { Link, useLocation } from "react-router-dom";
 import { UrlService } from "../../shared/utils/urlUtils";
 import { accountBarHeight, statusBarHeight } from "../../shared/constants";
 import clsx from "clsx";
+import DnsIcon from "@material-ui/icons/Dns";
 
 export const closedDrawerWidth = 58;
 export const drawerWidth = 200;
@@ -65,6 +66,7 @@ export const LeftNav = ({ onOpenMenuClick, isNavOpen }) => {
     { title: "Dashboard", icon: (props) => <DashboardIcon {...props} />, url: UrlService.dashboard() },
     { title: "Deployments", icon: (props) => <CloudIcon {...props} />, url: UrlService.deploymentList() },
     { title: "Templates", icon: (props) => <CollectionsIcon {...props} />, url: UrlService.templates() },
+    { title: "Providers", icon: (props) => <DnsIcon {...props} />, url: UrlService.providers() },
     { title: "Settings", icon: (props) => <SettingsIcon {...props} />, url: UrlService.settings() }
   ];
 

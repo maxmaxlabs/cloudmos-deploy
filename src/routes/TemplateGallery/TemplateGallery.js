@@ -109,7 +109,7 @@ export function TemplateGallery(props) {
   };
 
   return (
-    <Box className={classes.root}>
+    <>
       <Helmet title="Template Gallery" />
 
       <Box padding="1rem">
@@ -225,6 +225,6 @@ export function TemplateGallery(props) {
           </Box>
         </>
       )}
-    </Box>
+    </>
   );
 }
