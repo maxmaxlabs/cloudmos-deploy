@@ -7,6 +7,7 @@ import RefreshIcon from "@material-ui/icons/Refresh";
 import Pagination from "@material-ui/lab/Pagination";
 import { useSettings } from "../../context/SettingsProvider";
 import { ProviderCard } from "./ProviderCard";
+import { getProviderLocalData } from "../../shared/utils/providerUtils";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -29,7 +30,9 @@ export function Providers({}) {
   const classes = useStyles();
   const [page, setPage] = useState(1);
   const [isFilteringActive, setIsFilteringActive] = useState(true);
+  const [isFilteringFavorites, setIsFilteringFavorites] = useState(false);
   const [filteredProviders, setFilteredProviders] = useState([]);
+  const [favoriteProviders, setFavoriteProviders] = useState([]);
   const { data: providers, isFetching: isFetchingProviders, refetch: getProviders } = useProviders({ enabled: false });
   const { data: dataNodeProviders, isFetching: isFetchingDataNodeProviders, refetch: getDataNodeProviders } = useDataNodeProviders({ enabled: false });
   const { settings } = useSettings();
@@ -39,6 +42,13 @@ export function Providers({}) {
   const end = start + rowsPerPage;
   const currentPageProviders = filteredProviders.slice(start, end);
   const pageCount = Math.ceil(filteredProviders.length / rowsPerPage);
+
+  useEffect(() => {
+    const localProviderData = getProviderLocalData();
+    setFavoriteProviders(localProviderData.favorites);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     getProviders();
@@ -68,9 +78,13 @@ export function Providers({}) {
         filteredProviders = filteredProviders.filter((x) => x.isActive);
       }
 
+      if (isFilteringFavorites) {
+        filteredProviders = filteredProviders.filter((x) => favoriteProviders.some((y) => y === x.owner));
+      }
+
       setFilteredProviders(filteredProviders);
     }
-  }, [providers, dataNodeProviders, isFilteringActive]);
+  }, [providers, dataNodeProviders, isFilteringActive, isFilteringFavorites]);
 
   const refresh = () => {
     getProviders();
@@ -104,11 +118,17 @@ export function Providers({}) {
               label="Active"
             />
           </Box>
+          <Box marginLeft="1rem">
+            <FormControlLabel
+              control={<Checkbox checked={isFilteringFavorites} onChange={(ev, value) => setIsFilteringFavorites(value)} color="primary" />}
+              label="Favorites"
+            />
+          </Box>
         </Box>
-        <Box padding="1rem">
+        <Box padding="0 1rem">
           <Grid container spacing={2}>
             {currentPageProviders.map((provider) => (
-              <ProviderCard key={provider.owner} provider={provider} />
+              <ProviderCard key={provider.owner} provider={provider} favoriteProviders={favoriteProviders} setFavoriteProviders={setFavoriteProviders} />
             ))}
           </Grid>
         </Box>

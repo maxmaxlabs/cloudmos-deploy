@@ -8,6 +8,7 @@ import StarBorderIcon from "@material-ui/icons/StarBorder";
 import StarIcon from "@material-ui/icons/Star";
 import clsx from "clsx";
 import { ResourceBars } from "../../shared/components/ResourceBars";
+import { updateProviderLocalData } from "../../shared/utils/providerUtils";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -21,16 +22,22 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function ProviderCard({ provider }) {
+export function ProviderCard({ provider, favoriteProviders, setFavoriteProviders }) {
   const classes = useStyles();
   const history = useHistory();
   const [isViewingDetail, setIsViewingDetail] = useState(false);
+  const isFavorite = favoriteProviders.some((x) => provider.owner === x);
 
-  const onStarClick = () => {};
+  const onStarClick = () => {
+    const newFavorites = isFavorite ? favoriteProviders.filter((x) => x !== provider.owner) : favoriteProviders.concat([provider.owner]);
+
+    updateProviderLocalData({ favorites: newFavorites });
+    setFavoriteProviders(newFavorites);
+  };
 
   return (
     <Grid item xs={12}>
-      <Paper elevation={2} className={classes.root}>
+      <Paper elevation={1} className={classes.root}>
         <Box display="flex" marginBottom=".3rem">
           <Box display="flex" flexGrow={1}>
             <Box flexBasis="100px" fontWeight="bold">
@@ -66,7 +73,7 @@ export function ProviderCard({ provider }) {
         <Box display="flex" alignItems="center" justifyContent="space-between">
           <Box>
             <IconButton onClick={onStarClick} size="small">
-              <StarBorderIcon fontSize="small" />
+              {isFavorite ? <StarIcon fontSize="small" color="primary" /> : <StarBorderIcon fontSize="small" />}
             </IconButton>
           </Box>
 
