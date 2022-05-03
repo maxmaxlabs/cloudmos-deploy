@@ -6,6 +6,7 @@ import { LabelValue } from "../../shared/components/LabelValue";
 import { BidRow } from "./BidRow";
 import { getStorageAmount } from "../../shared/utils/deploymentDetailUtils";
 import { Alert } from "@material-ui/lab";
+import CheckIcon from "@material-ui/icons/Check";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -14,10 +15,12 @@ const useStyles = makeStyles((theme) => ({
   subHeader: {
     display: "flex",
     alignItems: "center",
+    justifyContent: "space-between",
     paddingBottom: "6px",
     paddingTop: "6px",
     zIndex: 100,
-    backgroundColor: theme.palette.common.white
+    lineHeight: "2rem",
+    backgroundColor: theme.palette.grey[100]
   },
   secondaryText: {
     fontSize: ".8rem"
@@ -62,7 +65,9 @@ export function BidGroup({
   deploymentDetail,
   isFilteringFavorites,
   favoriteProviders,
-  setFavoriteProviders
+  setFavoriteProviders,
+  groupIndex,
+  totalBids
 }) {
   const classes = useStyles();
   const [resources, setResources] = useState();
@@ -86,21 +91,30 @@ export function BidGroup({
       <List
         subheader={
           <ListSubheader component="div" className={classes.subHeader}>
-            <Typography variant="h6">
-              <LabelValue label="GSEQ:" value={gseq} />
-            </Typography>
+            <Box display="flex" alignItemx="center">
+              <Typography variant="h6">
+                <LabelValue label="GSEQ:" value={gseq} />
+              </Typography>
 
-            {resources && (
-              <Box marginLeft={2}>
-                <SpecDetail
-                  cpuAmount={resources.cpuAmount}
-                  memoryAmount={resources.memoryAmount}
-                  storageAmount={resources.storageAmount}
-                  color={allBidsClosed ? "default" : "primary"}
-                  size="small"
-                />
+              {resources && (
+                <Box marginLeft={2}>
+                  <SpecDetail
+                    cpuAmount={resources.cpuAmount}
+                    memoryAmount={resources.memoryAmount}
+                    storageAmount={resources.storageAmount}
+                    color={allBidsClosed ? "default" : "primary"}
+                    size="small"
+                  />
+                </Box>
+              )}
+            </Box>
+
+            <Box display="flex" alignItems="center">
+              {!!selectedBid && <CheckIcon color="primary" />}
+              <Box marginLeft="1rem">
+                {groupIndex + 1} of {totalBids}
               </Box>
-            )}
+            </Box>
           </ListSubheader>
         }
       >

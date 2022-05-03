@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Box, makeStyles, Typography, IconButton, Grid, FormControlLabel, Checkbox } from "@material-ui/core";
 import { Helmet } from "react-helmet-async";
-import { useProviders, useDataNodeProviders, useAuditors } from "../../queries";
+import { useProviders, useDataNodeProviders } from "../../queries";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import Pagination from "@material-ui/lab/Pagination";
@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function Providers({}) {
+export function Providers() {
   const classes = useStyles();
   const [page, setPage] = useState(1);
   const [isFilteringActive, setIsFilteringActive] = useState(true);
@@ -35,7 +35,7 @@ export function Providers({}) {
   const [favoriteProviders, setFavoriteProviders] = useState([]);
   const { data: providers, isFetching: isFetchingProviders, refetch: getProviders } = useProviders({ enabled: false });
   const { data: dataNodeProviders, isFetching: isFetchingDataNodeProviders, refetch: getDataNodeProviders } = useDataNodeProviders({ enabled: false });
-  const { data: auditors, isFetching: isFetchingAuditors, refetch: getAuditors } = useAuditors({ enabled: false });
+  // const { data: auditors, isFetching: isFetchingAuditors, refetch: getAuditors } = useAuditors({ enabled: false });
   const { settings } = useSettings();
   const { apiEndpoint } = settings;
   const rowsPerPage = 12;
@@ -54,7 +54,7 @@ export function Providers({}) {
   useEffect(() => {
     getProviders();
     getDataNodeProviders();
-    getAuditors();
+    // getAuditors();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [apiEndpoint]);
@@ -86,6 +86,7 @@ export function Providers({}) {
 
       setFilteredProviders(filteredProviders);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [providers, dataNodeProviders, isFilteringActive, isFilteringFavorites]);
 
   const refresh = () => {

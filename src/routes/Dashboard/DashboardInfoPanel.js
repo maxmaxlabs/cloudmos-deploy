@@ -4,7 +4,6 @@ import { ResponsivePie } from "@nivo/pie";
 import { uaktToAKT } from "../../shared/utils/priceUtils";
 import { customColors } from "../../shared/theme";
 import { PriceValue } from "../../shared/components/PriceValue";
-import { humanFileSize } from "../../shared/utils/unitUtils";
 import { ResourceBars } from "../../shared/components/ResourceBars";
 
 const useStyles = makeStyles((theme) => ({

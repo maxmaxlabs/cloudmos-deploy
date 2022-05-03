@@ -147,6 +147,7 @@ export function CreateLease({ dseq }) {
     }
 
     setFilteredBids(fBids);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, bids, providers, isFilteringFavorites]);
 
   const handleBidSelected = (bid) => {
@@ -403,7 +404,7 @@ export function CreateLease({ dseq }) {
 
       {dseqList.length > 0 && (
         <ViewPanel bottomElementId="footer" overflow="auto" padding="0 1rem 2rem">
-          {dseqList.map((gseq) => (
+          {dseqList.map((gseq, i) => (
             <BidGroup
               key={gseq}
               gseq={gseq}
@@ -417,6 +418,8 @@ export function CreateLease({ dseq }) {
               isFilteringFavorites={isFilteringFavorites}
               favoriteProviders={favoriteProviders}
               setFavoriteProviders={setFavoriteProviders}
+              groupIndex={i}
+              totalBids={dseqList.length}
             />
           ))}
         </ViewPanel>
