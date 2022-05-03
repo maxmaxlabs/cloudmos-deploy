@@ -1,13 +1,12 @@
 import { useState } from "react";
-import { makeStyles, Box, Grid, Paper, IconButton } from "@material-ui/core";
+import { makeStyles, Box, Grid, Paper } from "@material-ui/core";
 import { Address } from "../../shared/components/Address";
 import { LinkTo } from "../../shared/components/LinkTo";
-import StarBorderIcon from "@material-ui/icons/StarBorder";
-import StarIcon from "@material-ui/icons/Star";
 import clsx from "clsx";
 import { ResourceBars } from "../../shared/components/ResourceBars";
 import { updateProviderLocalData } from "../../shared/utils/providerUtils";
 import { LoadProviderDetail } from "./LoadProviderDetail";
+import { FavoriteButton } from "../../shared/components/FavoriteButton";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -70,9 +69,7 @@ export function ProviderCard({ provider, favoriteProviders, setFavoriteProviders
 
         <Box display="flex" alignItems="center" justifyContent="space-between">
           <Box>
-            <IconButton onClick={onStarClick} size="small">
-              {isFavorite ? <StarIcon fontSize="small" color="primary" /> : <StarBorderIcon fontSize="small" />}
-            </IconButton>
+            <FavoriteButton isFavorite={isFavorite} onClick={onStarClick} />
           </Box>
 
           <Box>

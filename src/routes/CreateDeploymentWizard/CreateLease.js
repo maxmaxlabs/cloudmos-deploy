@@ -1,6 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
-import { Button, CircularProgress, Box, Typography, Menu, MenuItem, IconButton, makeStyles, TextField, InputAdornment, Tooltip } from "@material-ui/core";
+import {
+  Button,
+  CircularProgress,
+  Box,
+  Typography,
+  Menu,
+  MenuItem,
+  IconButton,
+  makeStyles,
+  TextField,
+  InputAdornment,
+  Tooltip,
+  FormControlLabel,
+  Checkbox
+} from "@material-ui/core";
 import { useWallet } from "../../context/WalletProvider";
 import { BidGroup } from "./BidGroup";
 import { useHistory } from "react-router";
@@ -24,16 +38,11 @@ import InfoIcon from "@material-ui/icons/Info";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 import clsx from "clsx";
 import { Snackbar } from "../../shared/components/Snackbar";
+import { getProviderLocalData } from "../../shared/utils/providerUtils";
 
 const yaml = require("js-yaml");
 
 const useStyles = makeStyles((theme) => ({
-  title: {
-    fontSize: "1.2rem",
-    display: "flex",
-    alignItems: "center",
-    fontWeight: "bold"
-  },
   tooltip: {
     fontSize: "1rem",
     padding: ".5rem"
@@ -59,8 +68,10 @@ const WARNING_NUM_OF_BID_REQUESTS = Math.round((60 * 1000) / REFRESH_BIDS_INTERV
 
 export function CreateLease({ dseq }) {
   const [isSendingManifest, setIsSendingManifest] = useState(false);
+  const [isFilteringFavorites, setIsFilteringFavorites] = useState(false);
   const [selectedBids, setSelectedBids] = useState({});
   const [filteredBids, setFilteredBids] = useState([]);
+  const [favoriteProviders, setFavoriteProviders] = useState([]);
   const [search, setSearch] = useState("");
   const { sendTransaction } = useTransactionModal();
   const { address } = useWallet();
@@ -93,29 +104,50 @@ export function CreateLease({ dseq }) {
 
   useEffect(() => {
     getDeploymentDetail();
-  }, [getDeploymentDetail]);
+
+    const localProviderData = getProviderLocalData();
+    setFavoriteProviders(localProviderData.favorites);
+
+    if (localProviderData.favorites?.length > 0) {
+      setIsFilteringFavorites(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Filter bids by search
   useEffect(() => {
-    if (search) {
-      const fBids = [];
-
+    let fBids = [];
+    if (search || isFilteringFavorites) {
       bids?.forEach((bid) => {
-        const provider = providers.find((p) => p.owner === bid.provider);
+        let isAdded = false;
 
-        // Filter by attribute value
-        provider?.attributes.forEach((att) => {
-          if (att.value?.includes(search)) {
+        // Filter for search
+        if (search) {
+          const provider = providers.find((p) => p.owner === bid.provider);
+          // Filter by attribute value
+          provider?.attributes.forEach((att) => {
+            if (att.value?.includes(search)) {
+              fBids.push(bid.id);
+              isAdded = true;
+            }
+          });
+        }
+
+        // Filter for favorites
+        if (!isAdded && isFilteringFavorites) {
+          const provider = favoriteProviders.find((p) => p === bid.provider);
+
+          if (provider) {
             fBids.push(bid.id);
           }
-        });
+        }
       });
-
-      setFilteredBids(fBids);
     } else {
-      setFilteredBids(bids?.map((b) => b.id) || []);
+      fBids = bids?.map((b) => b.id) || [];
     }
-  }, [search, bids, providers]);
+
+    setFilteredBids(fBids);
+  }, [search, bids, providers, isFilteringFavorites]);
 
   const handleBidSelected = (bid) => {
     setSelectedBids({ ...selectedBids, [bid.gseq]: bid });
@@ -216,10 +248,7 @@ export function CreateLease({ dseq }) {
       <Box padding="0 1rem">
         {!isLoadingBids && bids.length > 0 && !allClosed && (
           <Box display="flex" alignItems="center" justifyContent="space-between">
-            <Typography variant="h3" className={classes.title}>
-              Choose a provider
-            </Typography>
-            <Box flexGrow={1} marginLeft={2}>
+            <Box flexGrow={1}>
               <TextField
                 label="Search by attribute..."
                 disabled={bids.length === 0 || isSendingManifest}
@@ -298,7 +327,7 @@ export function CreateLease({ dseq }) {
           </Box>
         )}
 
-        <Box mb={1} display="flex" alignItems="center">
+        <Box display="flex" alignItems="center">
           {!isLoadingBids && (allClosed || bids.length === 0) && (
             <Button variant="contained" color={allClosed ? "primary" : "secondary"} onClick={handleCloseDeployment} size="small">
               Close Deployment
@@ -347,14 +376,25 @@ export function CreateLease({ dseq }) {
           </Box>
         )}
 
-        {bids.length > 0 && !maxRequestsReached && (
-          <Box lineHeight="1rem" fontSize=".7rem" display="flex" alignItems="center" justifyContent="flex-end">
-            <div style={{ color: "grey" }}>
-              <Typography variant="caption">Waiting for more bids...</Typography>
-            </div>
-            <Box marginLeft=".5rem">
-              <CircularProgress size=".7rem" />
+        {bids.length > 0 && (
+          <Box display="flex" alignItems="center" justifyContent="space-between">
+            <Box>
+              <FormControlLabel
+                control={<Checkbox checked={isFilteringFavorites} onChange={(ev, value) => setIsFilteringFavorites(value)} color="primary" size="small" />}
+                label="Favorites"
+              />
             </Box>
+
+            {!maxRequestsReached && (
+              <Box display="flex" alignItems="center" lineHeight="1rem" fontSize=".7rem">
+                <div style={{ color: "grey" }}>
+                  <Typography variant="caption">Waiting for more bids...</Typography>
+                </div>
+                <Box marginLeft=".5rem">
+                  <CircularProgress size=".7rem" />
+                </Box>
+              </Box>
+            )}
           </Box>
         )}
 
@@ -374,6 +414,9 @@ export function CreateLease({ dseq }) {
               providers={providers}
               filteredBids={filteredBids}
               deploymentDetail={deploymentDetail}
+              isFilteringFavorites={isFilteringFavorites}
+              favoriteProviders={favoriteProviders}
+              setFavoriteProviders={setFavoriteProviders}
             />
           ))}
         </ViewPanel>

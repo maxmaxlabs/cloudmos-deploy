@@ -140,9 +140,8 @@ export function ManifestEdit(props) {
         await analytics.event("deploy", "create deployment");
       }
     } catch (error) {
-      throw error;
-    } finally {
       setIsCreatingDeployment(false);
+      throw error;
     }
   }
 

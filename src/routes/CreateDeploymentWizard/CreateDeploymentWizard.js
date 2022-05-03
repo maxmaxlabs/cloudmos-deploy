@@ -9,7 +9,7 @@ import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import { UrlService } from "../../shared/utils/urlUtils";
 import { CustomizedSteppers } from "./Stepper";
 
-const steps = ["Checking Prerequisites", "Choose Template", "Create Deployment", "Accept Bids"];
+const steps = ["Checking Prerequisites", "Choose Template", "Create Deployment", "Choose providers"];
 
 const useStyles = makeStyles((theme) => ({
   root: {

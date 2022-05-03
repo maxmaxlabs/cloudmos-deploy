@@ -10,6 +10,8 @@ import clsx from "clsx";
 import { LinkTo } from "../../shared/components/LinkTo";
 import { FormattedNumber } from "react-intl";
 import { ProviderDetail } from "../../components/ProviderDetail/ProviderDetail";
+import { updateProviderLocalData } from "../../shared/utils/providerUtils";
+import { FavoriteButton } from "../../shared/components/FavoriteButton";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -36,9 +38,10 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function BidRow({ bid, selectedBid, handleBidSelected, disabled, provider }) {
+export function BidRow({ bid, selectedBid, handleBidSelected, disabled, provider, favoriteProviders, setFavoriteProviders }) {
   const classes = useStyles();
   const [isViewingDetail, setIsViewingDetail] = useState(false);
+  const isFavorite = favoriteProviders.some((x) => provider.owner === x);
   const {
     data: providerStatus,
     isLoading: isLoadingStatus,
@@ -48,6 +51,13 @@ export function BidRow({ bid, selectedBid, handleBidSelected, disabled, provider
     enabled: false,
     retry: false
   });
+
+  const onStarClick = () => {
+    const newFavorites = isFavorite ? favoriteProviders.filter((x) => x !== provider.owner) : favoriteProviders.concat([provider.owner]);
+
+    updateProviderLocalData({ favorites: newFavorites });
+    setFavoriteProviders(newFavorites);
+  };
 
   useEffect(() => {
     if (provider) {
@@ -105,6 +115,7 @@ export function BidRow({ bid, selectedBid, handleBidSelected, disabled, provider
             {isLoadingStatus && <CircularProgress size="1rem" />}
 
             {providerStatus && <div>Name: {providerStatus?.name}</div>}
+
             {error && (
               <Box display="flex" alignItems="center">
                 <strong>OFFLINE</strong> <CloudOffIcon className={clsx(classes.stateIcon, classes.stateInactive)} fontSize="small" />
@@ -112,9 +123,13 @@ export function BidRow({ bid, selectedBid, handleBidSelected, disabled, provider
             )}
 
             {providerStatus && (
-              <div>
-                <LinkTo onClick={() => setIsViewingDetail(true)}>View details</LinkTo>
-              </div>
+              <Box display="flex" alignItemx="center">
+                <FavoriteButton isFavorite={isFavorite} onClick={onStarClick} />
+
+                <Box marginLeft=".5rem" display="flex">
+                  <LinkTo onClick={() => setIsViewingDetail(true)}>View details</LinkTo>
+                </Box>
+              </Box>
             )}
           </div>
         }

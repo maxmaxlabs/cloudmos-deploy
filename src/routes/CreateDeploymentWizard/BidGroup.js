@@ -5,6 +5,7 @@ import { SpecDetail } from "../../shared/components/SpecDetail";
 import { LabelValue } from "../../shared/components/LabelValue";
 import { BidRow } from "./BidRow";
 import { getStorageAmount } from "../../shared/utils/deploymentDetailUtils";
+import { Alert } from "@material-ui/lab";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -50,10 +51,23 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function BidGroup({ bids, gseq, selectedBid, handleBidSelected, disabled, providers, filteredBids, deploymentDetail }) {
+export function BidGroup({
+  bids,
+  gseq,
+  selectedBid,
+  handleBidSelected,
+  disabled,
+  providers,
+  filteredBids,
+  deploymentDetail,
+  isFilteringFavorites,
+  favoriteProviders,
+  setFavoriteProviders
+}) {
   const classes = useStyles();
   const [resources, setResources] = useState();
   const allBidsClosed = bids.every((b) => b.state === "closed");
+  const fBids = bids.filter((bid) => filteredBids.includes(bid.id));
 
   useEffect(() => {
     const currentGroup = deploymentDetail?.groups.find((g) => g.group_id.gseq === parseInt(gseq));
@@ -90,12 +104,29 @@ export function BidGroup({ bids, gseq, selectedBid, handleBidSelected, disabled,
           </ListSubheader>
         }
       >
-        {bids
-          .filter((bid) => filteredBids.includes(bid.id))
-          .map((bid) => {
-            const provider = providers && providers.find((x) => x.owner === bid.provider);
-            return <BidRow key={bid.id} bid={bid} provider={provider} handleBidSelected={handleBidSelected} disabled={disabled} selectedBid={selectedBid} />;
-          })}
+        {fBids.map((bid) => {
+          const provider = providers && providers.find((x) => x.owner === bid.provider);
+          return (
+            <BidRow
+              key={bid.id}
+              bid={bid}
+              provider={provider}
+              handleBidSelected={handleBidSelected}
+              disabled={disabled}
+              selectedBid={selectedBid}
+              favoriteProviders={favoriteProviders}
+              setFavoriteProviders={setFavoriteProviders}
+            />
+          );
+        })}
+
+        {isFilteringFavorites && fBids.length === 0 && (
+          <Box padding=".5rem 1rem">
+            <Alert severity="info" variant="outlined">
+              <Typography variant="caption">There are no favorite providers for this group...</Typography>
+            </Alert>
+          </Box>
+        )}
       </List>
     </Paper>
   );
