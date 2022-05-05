@@ -41,7 +41,14 @@ export function useDataNodeProviders(options) {
 
 async function getProviderStatus(providerUri) {
   const statusResponse = await window.electron.queryProvider(`${providerUri}/status`, "GET");
-  const versionResponse = await window.electron.queryProvider(`${providerUri}/version`, "GET");
+  let versionResponse = {};
+
+  try {
+    versionResponse = await window.electron.queryProvider(`${providerUri}/version`, "GET");
+  } catch (error) {
+    console.log(error)
+  }
+
   const result = providerStatusToDto(statusResponse, versionResponse);
 
   return result;

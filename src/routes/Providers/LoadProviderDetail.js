@@ -2,6 +2,7 @@ import { makeStyles, Button, Dialog, DialogContent, DialogActions, DialogTitle, 
 import { useEffect } from "react";
 import { useProviderStatus } from "../../queries";
 import { ProviderDetailContent } from "../../components/ProviderDetail/ProviderDetailContent";
+import Alert from "@material-ui/lab/Alert";
 
 const useStyles = makeStyles((theme) => ({
   content: {
@@ -11,7 +12,6 @@ const useStyles = makeStyles((theme) => ({
 
 export const LoadProviderDetail = ({ provider, address, onClose }) => {
   const classes = useStyles();
-  // TODO Replace with data node info
   const {
     data: providerStatus,
     isLoading: isLoadingStatus,
@@ -40,7 +40,7 @@ export const LoadProviderDetail = ({ provider, address, onClose }) => {
             <ProviderDetailContent provider={providerStatus} address={address} />
           )
         ) : (
-          <>An error has occured</>
+          <Alert variant="outlined" severity="warning">Provider details not available for this provider... :(</Alert>
         )}
       </DialogContent>
       <DialogActions>
