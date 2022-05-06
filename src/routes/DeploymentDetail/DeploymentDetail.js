@@ -33,7 +33,7 @@ export function DeploymentDetail({ deployments }) {
     isFetching: isLoadingDeployment,
     refetch: getDeploymentDetail
   } = useDeploymentDetail(address, dseq, { refetchOnMount: false, enabled: false });
-  const { data: leases, isLoading: isLoadingLeases, refetch: getLeases, remove: removeLeases } = useLeaseList(deployment, address, { enabled: !!deployment });
+  const { data: leases, isLoading: isLoadingLeases, refetch: getLeases, remove: removeLeases } = useLeaseList(address, deployment, { enabled: !!deployment });
   const hasLeases = leases && leases.length > 0;
   const [leaseRefs, setLeaseRefs] = useState([]);
   const { isLocalCertMatching, localCert } = useCertificate();

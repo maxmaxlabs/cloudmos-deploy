@@ -17,13 +17,34 @@ const useStyles = makeStyles((theme) => ({
   dataRow: {
     lineHeight: "1rem",
     marginBottom: ".5rem"
+  },
+  summaryRow: {
+    display: "flex",
+    marginBottom: ".3rem"
+  },
+  buttonRow: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between"
+  },
+  summaryLabelValues: {
+    display: "flex",
+    flexGrow: 1
+  },
+  summaryLabels: {
+    flexBasis: "150px",
+    fontWeight: "bold"
+  },
+  summaryValues: {
+    flexBasis: "75%"
   }
 }));
 
-export function ProviderCard({ provider, favoriteProviders, setFavoriteProviders }) {
+export function ProviderCard({ provider, favoriteProviders, setFavoriteProviders, leases }) {
   const classes = useStyles();
   const [isViewingDetail, setIsViewingDetail] = useState(false);
   const isFavorite = favoriteProviders.some((x) => provider.owner === x);
+  const numberOfDeployments = leases?.filter(d => d.provider === provider.owner).length || 0;
 
   const onStarClick = () => {
     const newFavorites = isFavorite ? favoriteProviders.filter((x) => x !== provider.owner) : favoriteProviders.concat([provider.owner]);
@@ -35,21 +56,24 @@ export function ProviderCard({ provider, favoriteProviders, setFavoriteProviders
   return (
     <Grid item xs={12}>
       <Paper elevation={1} className={classes.root}>
-        <Box display="flex" marginBottom=".3rem">
-          <Box display="flex" flexGrow={1}>
-            <Box flexBasis="100px" fontWeight="bold">
+        <div className={classes.summaryRow}>
+          <div className={classes.summaryLabelValues}>
+            <div className={classes.summaryLabels}>
               <div className={classes.dataRow}>Owner</div>
               <div className={classes.dataRow}>Uri</div>
               {provider.isActive && <div className={classes.dataRow}>Active leases</div>}
-            </Box>
-            <Box flexBasis="75%" className="text-truncate">
+              <div className={classes.dataRow}>Your leases</div>
+              {/** Audited by: address */}
+            </div>
+            <div className={clsx("text-truncate", classes.summaryValues)}>
               <div className={classes.dataRow}>
                 <Address address={provider.owner} isCopyable />
               </div>
               <div className={clsx("text-truncate", classes.dataRow)}>{provider.host_uri}</div>
-              {provider.isActive && <div className={clsx("text-truncate", classes.dataRow)}>{provider.leaseCount}</div>}
-            </Box>
-          </Box>
+              {provider.isActive && <div className={classes.dataRow}>{provider.leaseCount}</div>}
+              <div className={classes.dataRow}>{numberOfDeployments}</div>
+            </div>
+          </div>
           {provider.isActive && (
             <Box flexBasis="50%">
               <ResourceBars
@@ -65,20 +89,20 @@ export function ProviderCard({ provider, favoriteProviders, setFavoriteProviders
               />
             </Box>
           )}
-        </Box>
+        </div>
 
-        <Box display="flex" alignItems="center" justifyContent="space-between">
-          <Box>
+        <div className={classes.buttonRow}>
+          <div>
             <FavoriteButton isFavorite={isFavorite} onClick={onStarClick} />
-          </Box>
+          </div>
 
-          <Box>
+          <div>
             <LinkTo onClick={() => setIsViewingDetail(true)}>View details</LinkTo>
-          </Box>
-        </Box>
+          </div>
+        </div>
 
         {isViewingDetail && <LoadProviderDetail provider={provider} address={provider.owner} onClose={() => setIsViewingDetail(false)} />}
       </Paper>
-    </Grid>
+    </Grid >
   );
 }

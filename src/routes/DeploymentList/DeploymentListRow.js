@@ -99,7 +99,7 @@ export function DeploymentListRow({ deployment, isSelectable, onSelectDeployment
   const { getDeploymentName, changeDeploymentName } = useLocalNotes();
   const { address } = useWallet();
   const isActive = deployment.state === "active";
-  const { data: leases, isLoading: isLoadingLeases } = useLeaseList(deployment, address, { enabled: !!deployment && isActive });
+  const { data: leases, isLoading: isLoadingLeases } = useLeaseList(address, deployment, { enabled: !!deployment && isActive });
   const name = getDeploymentName(deployment.dseq);
   const hasLeases = leases && !!leases.length;
   const deploymentCost = hasLeases ? leases.reduce((prev, current) => prev + current.price.amount, 0) : 0;

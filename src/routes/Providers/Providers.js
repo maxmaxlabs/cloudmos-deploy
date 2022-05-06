@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { Box, makeStyles, Typography, IconButton, Grid, FormControlLabel, Checkbox } from "@material-ui/core";
 import { Helmet } from "react-helmet-async";
-import { useProviders, useDataNodeProviders } from "../../queries";
+import { useProviders, useDataNodeProviders, useLeaseList } from "../../queries";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import Pagination from "@material-ui/lab/Pagination";
 import { useSettings } from "../../context/SettingsProvider";
 import { ProviderCard } from "./ProviderCard";
 import { getProviderLocalData } from "../../shared/utils/providerUtils";
+import { useWallet } from "../../context/WalletProvider";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -33,8 +34,10 @@ export function Providers() {
   const [isFilteringFavorites, setIsFilteringFavorites] = useState(false);
   const [filteredProviders, setFilteredProviders] = useState([]);
   const [favoriteProviders, setFavoriteProviders] = useState([]);
+  const { address } = useWallet();
   const { data: providers, isFetching: isFetchingProviders, refetch: getProviders } = useProviders({ enabled: false });
   const { data: dataNodeProviders, isFetching: isFetchingDataNodeProviders, refetch: getDataNodeProviders } = useDataNodeProviders({ enabled: false });
+  const { data: leases, isFetching: isFetchingLeases, refetch: getLeases } = useLeaseList(address, null, { enabled: false });
   // const { data: auditors, isFetching: isFetchingAuditors, refetch: getAuditors } = useAuditors({ enabled: false });
   const { settings } = useSettings();
   const { apiEndpoint } = settings;
@@ -54,6 +57,7 @@ export function Providers() {
   useEffect(() => {
     getProviders();
     getDataNodeProviders();
+    getLeases();
     // getAuditors();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -102,7 +106,7 @@ export function Providers() {
     <>
       <Helmet title="Providers" />
 
-      <LinearLoadingSkeleton isLoading={isFetchingProviders || isFetchingDataNodeProviders} />
+      <LinearLoadingSkeleton isLoading={isFetchingProviders || isFetchingDataNodeProviders || isFetchingLeases} />
       <Box className={classes.root}>
         <Box className={classes.titleContainer}>
           <Typography variant="h3" className={classes.title}>
@@ -131,7 +135,7 @@ export function Providers() {
         <Box padding="0 1rem">
           <Grid container spacing={2}>
             {currentPageProviders.map((provider) => (
-              <ProviderCard key={provider.owner} provider={provider} favoriteProviders={favoriteProviders} setFavoriteProviders={setFavoriteProviders} />
+              <ProviderCard key={provider.owner} provider={provider} favoriteProviders={favoriteProviders} setFavoriteProviders={setFavoriteProviders} leases={leases} />
             ))}
           </Grid>
         </Box>

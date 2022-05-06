@@ -12,7 +12,7 @@ export class ApiUrlService {
     return `${apiEndpoint}/akash/market/${networkVersion}/bids/list?filters.owner=${address}&filters.dseq=${dseq}`;
   }
   static leaseList(apiEndpoint, address, dseq) {
-    return `${apiEndpoint}/akash/market/${networkVersion}/leases/list?filters.owner=${address}&filters.dseq=${dseq}`;
+    return `${apiEndpoint}/akash/market/${networkVersion}/leases/list?filters.owner=${address}${dseq ? "&filters.dseq=" + dseq : ""}`;
   }
   static providers(apiEndpoint) {
     return `${apiEndpoint}/akash/provider/${networkVersion}/providers`;
