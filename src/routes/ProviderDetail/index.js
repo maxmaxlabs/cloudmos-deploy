@@ -1,0 +1,1 @@
+export { ProviderDetail } from "./ProviderDetail";

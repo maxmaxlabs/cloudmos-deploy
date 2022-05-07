@@ -6,7 +6,7 @@ import { makeStyles, IconButton, Box, Typography, CircularProgress, Checkbox, Me
 import EditIcon from "@material-ui/icons/Edit";
 import { useHistory } from "react-router";
 import { useLocalNotes } from "../../context/LocalNoteProvider";
-import { useLeaseList } from "../../queries";
+import { useDeploymentLeaseList } from "../../queries";
 import { useWallet } from "../../context/WalletProvider";
 import { SpecDetailNew } from "../../shared/components/SpecDetailNew";
 import { LeaseChip } from "./LeaseChip";
@@ -99,7 +99,7 @@ export function DeploymentListRow({ deployment, isSelectable, onSelectDeployment
   const { getDeploymentName, changeDeploymentName } = useLocalNotes();
   const { address } = useWallet();
   const isActive = deployment.state === "active";
-  const { data: leases, isLoading: isLoadingLeases } = useLeaseList(address, deployment, { enabled: !!deployment && isActive });
+  const { data: leases, isLoading: isLoadingLeases } = useDeploymentLeaseList(address, deployment, { enabled: !!deployment && isActive });
   const name = getDeploymentName(deployment.dseq);
   const hasLeases = leases && !!leases.length;
   const deploymentCost = hasLeases ? leases.reduce((prev, current) => prev + current.price.amount, 0) : 0;

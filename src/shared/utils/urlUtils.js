@@ -10,6 +10,7 @@ export class UrlService {
   static templates = (category, search) => `/templates${appendSearchParams({ category, search })}`;
   static templateDetails = (templatePath) => `/templates/${templatePath}`;
   static providers = () => "/providers";
+  static providerDetail = (owner) => `/providers/${owner}`;
   static settings = () => "/settings";
 
   static createDeployment = (dseq) => `/createDeployment${dseq ? "?redeploy=" + dseq : ""}`;

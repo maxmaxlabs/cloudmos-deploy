@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
   },
   titleContainer: {
     display: "flex",
-    padding: "1rem"
+    padding: "0.5rem 1rem"
   },
   deployBtn: {
     marginLeft: "2rem"
@@ -50,10 +50,10 @@ export function TemplateDetails() {
   }
 
   return (
-    <Box className={classes.root}>
+    <div className={classes.root}>
       <Helmet title="Deployment Detail" />
 
-      <Box className={classes.titleContainer}>
+      <div className={classes.titleContainer}>
         <Box display="flex" alignItems="center">
           <IconButton aria-label="back" onClick={handleBackClick}>
             <ChevronLeftIcon />
@@ -80,7 +80,7 @@ export function TemplateDetails() {
           <PublishIcon />
           &nbsp;Deploy
         </Button>
-      </Box>
+      </div>
 
       <Tabs value={activeTab} onChange={(ev, value) => setActiveTab(value)} indicatorColor="primary" textColor="primary">
         <Tab value="README" label="README" />
@@ -103,6 +103,6 @@ export function TemplateDetails() {
           <ReactMarkdown linkTarget="_blank">{template.guide}</ReactMarkdown>
         </ViewPanel>
       )}
-    </Box>
+    </div>
   );
 }

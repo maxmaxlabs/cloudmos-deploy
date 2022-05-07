@@ -7,7 +7,7 @@ import { DeploymentSubHeader } from "./DeploymentSubHeader";
 import { useWallet } from "../../context/WalletProvider";
 import { DeploymentJsonViewer } from "./DeploymentJsonViewer";
 import { ManifestEditor } from "./ManifestEditor";
-import { useDeploymentDetail, useLeaseList } from "../../queries";
+import { useDeploymentDetail, useDeploymentLeaseList } from "../../queries";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 import { Helmet } from "react-helmet-async";
 import { DeploymentLogs } from "./DeploymentLogs";
@@ -33,7 +33,12 @@ export function DeploymentDetail({ deployments }) {
     isFetching: isLoadingDeployment,
     refetch: getDeploymentDetail
   } = useDeploymentDetail(address, dseq, { refetchOnMount: false, enabled: false });
-  const { data: leases, isLoading: isLoadingLeases, refetch: getLeases, remove: removeLeases } = useLeaseList(address, deployment, { enabled: !!deployment });
+  const {
+    data: leases,
+    isLoading: isLoadingLeases,
+    refetch: getLeases,
+    remove: removeLeases
+  } = useDeploymentLeaseList(address, deployment, { enabled: !!deployment });
   const hasLeases = leases && leases.length > 0;
   const [leaseRefs, setLeaseRefs] = useState([]);
   const { isLocalCertMatching, localCert } = useCertificate();

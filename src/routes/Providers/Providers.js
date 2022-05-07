@@ -1,14 +1,12 @@
 import { useState, useEffect } from "react";
 import { Box, makeStyles, Typography, IconButton, Grid, FormControlLabel, Checkbox } from "@material-ui/core";
 import { Helmet } from "react-helmet-async";
-import { useProviders, useDataNodeProviders, useLeaseList } from "../../queries";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import Pagination from "@material-ui/lab/Pagination";
 import { useSettings } from "../../context/SettingsProvider";
 import { ProviderCard } from "./ProviderCard";
-import { getProviderLocalData } from "../../shared/utils/providerUtils";
-import { useWallet } from "../../context/WalletProvider";
+import { useLocalNotes } from "../../context/LocalNoteProvider";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -27,32 +25,31 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function Providers() {
+export function Providers({
+  providers,
+  isLoadingProviders,
+  getProviders,
+  leases,
+  isLoadingLeases,
+  getLeases,
+  dataNodeProviders,
+  isLoadingDataNodeProviders,
+  getDataNodeProviders
+}) {
   const classes = useStyles();
   const [page, setPage] = useState(1);
   const [isFilteringActive, setIsFilteringActive] = useState(true);
   const [isFilteringFavorites, setIsFilteringFavorites] = useState(false);
   const [filteredProviders, setFilteredProviders] = useState([]);
-  const [favoriteProviders, setFavoriteProviders] = useState([]);
-  const { address } = useWallet();
-  const { data: providers, isFetching: isFetchingProviders, refetch: getProviders } = useProviders({ enabled: false });
-  const { data: dataNodeProviders, isFetching: isFetchingDataNodeProviders, refetch: getDataNodeProviders } = useDataNodeProviders({ enabled: false });
-  const { data: leases, isFetching: isFetchingLeases, refetch: getLeases } = useLeaseList(address, null, { enabled: false });
   // const { data: auditors, isFetching: isFetchingAuditors, refetch: getAuditors } = useAuditors({ enabled: false });
   const { settings } = useSettings();
+  const { favoriteProviders, updateFavoriteProviders } = useLocalNotes();
   const { apiEndpoint } = settings;
   const rowsPerPage = 12;
   const start = (page - 1) * rowsPerPage;
   const end = start + rowsPerPage;
   const currentPageProviders = filteredProviders.slice(start, end);
   const pageCount = Math.ceil(filteredProviders.length / rowsPerPage);
-
-  useEffect(() => {
-    const localProviderData = getProviderLocalData();
-    setFavoriteProviders(localProviderData.favorites);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   useEffect(() => {
     getProviders();
@@ -65,6 +62,7 @@ export function Providers() {
 
   useEffect(() => {
     if (providers && dataNodeProviders) {
+      // TODO Once data-node provider endpoint it finalized, only use data node provider
       let filteredProviders = providers.map((provider) => {
         const dataNodeProvider = dataNodeProviders.find((x) => x.owner === provider.owner);
 
@@ -90,8 +88,7 @@ export function Providers() {
 
       setFilteredProviders(filteredProviders);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [providers, dataNodeProviders, isFilteringActive, isFilteringFavorites]);
+  }, [providers, dataNodeProviders, isFilteringActive, isFilteringFavorites, favoriteProviders]);
 
   const refresh = () => {
     getProviders();
@@ -106,7 +103,7 @@ export function Providers() {
     <>
       <Helmet title="Providers" />
 
-      <LinearLoadingSkeleton isLoading={isFetchingProviders || isFetchingDataNodeProviders || isFetchingLeases} />
+      <LinearLoadingSkeleton isLoading={isLoadingProviders || isLoadingDataNodeProviders || isLoadingLeases} />
       <Box className={classes.root}>
         <Box className={classes.titleContainer}>
           <Typography variant="h3" className={classes.title}>
@@ -135,7 +132,13 @@ export function Providers() {
         <Box padding="0 1rem">
           <Grid container spacing={2}>
             {currentPageProviders.map((provider) => (
-              <ProviderCard key={provider.owner} provider={provider} favoriteProviders={favoriteProviders} setFavoriteProviders={setFavoriteProviders} leases={leases} />
+              <ProviderCard
+                key={provider.owner}
+                provider={provider}
+                favoriteProviders={favoriteProviders}
+                setFavoriteProviders={updateFavoriteProviders}
+                leases={leases}
+              />
             ))}
           </Grid>
         </Box>

@@ -6,6 +6,19 @@ import { useSettings } from "../context/SettingsProvider";
 import { providerStatusToDto, getNetworkCapacityDto } from "../shared/utils/providerUtils";
 import { akashlyticsApi } from "../shared/constants";
 
+async function getProviderDetail(apiEndpoint, owner) {
+  if (!owner) return {};
+
+  const response = await axios.get(ApiUrlService.providerDetail(apiEndpoint, owner));
+
+  return response.data;
+}
+
+export function useProviderDetail(owner, options) {
+  const { settings } = useSettings();
+  return useQuery(QueryKeys.getProviderDetailKey(owner), () => getProviderDetail(settings.apiEndpoint, owner), options);
+}
+
 async function getProviders(apiEndpoint) {
   const providers = await loadWithPagination(ApiUrlService.providers(apiEndpoint), "providers", 1000);
 
@@ -46,7 +59,7 @@ async function getProviderStatus(providerUri) {
   try {
     versionResponse = await window.electron.queryProvider(`${providerUri}/version`, "GET");
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 
   const result = providerStatusToDto(statusResponse, versionResponse);

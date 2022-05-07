@@ -17,6 +17,9 @@ export class ApiUrlService {
   static providers(apiEndpoint) {
     return `${apiEndpoint}/akash/provider/${networkVersion}/providers`;
   }
+  static providerDetail(apiEndpoint, owner) {
+    return `${apiEndpoint}/akash/provider/${networkVersion}/providers/${owner}`;
+  }
   static block(apiEndpoint, id) {
     return `${apiEndpoint}/blocks/${id}`;
   }
