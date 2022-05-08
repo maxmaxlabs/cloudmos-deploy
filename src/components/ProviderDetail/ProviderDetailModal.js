@@ -7,7 +7,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export const ProviderDetail = ({ provider, address, onClose }) => {
+export const ProviderDetailModal = ({ provider, address, onClose }) => {
   const classes = useStyles();
 
   return (

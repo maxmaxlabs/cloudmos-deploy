@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function ProviderCard({ provider, favoriteProviders, setFavoriteProviders, leases }) {
+export function ProviderCard({ provider, leases }) {
   const classes = useStyles();
   const history = useHistory();
 
@@ -27,7 +27,7 @@ export function ProviderCard({ provider, favoriteProviders, setFavoriteProviders
   return (
     <Grid item xs={12}>
       <Paper elevation={1} className={classes.root} onClick={cardClick}>
-        <ProviderSummary provider={provider} favoriteProviders={favoriteProviders} setFavoriteProviders={setFavoriteProviders} leases={leases} />
+        <ProviderSummary provider={provider} leases={leases} />
       </Paper>
     </Grid >
   );

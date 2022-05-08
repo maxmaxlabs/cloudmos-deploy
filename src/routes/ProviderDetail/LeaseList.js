@@ -82,44 +82,54 @@ export function LeaseList({ leases, isLoadingLeases }) {
 
       {isLoadingLeases && <CircularProgress />}
 
-      <TableContainer component={Paper}>
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell>State</TableCell>
-              <TableCell>Dseq</TableCell>
-              <TableCell>Price</TableCell>
-            </TableRow>
-          </TableHead>
+      {currentPageLeases?.length === 0 && (
+        <>
+          <Typography variant="body2">You have 0 {isFilteringActive ? "active" : ""} lease for this provider.</Typography>
+        </>
+      )}
 
-          <TableBody>
-            {currentPageLeases?.map((lease, i) => (
-              <TableRow key={i}>
-                <TableCell component="th" scope="row">
-                  <StatusPill state={lease.state} size="small" />
-                </TableCell>
-                <TableCell>
-                  <Link to={UrlService.deploymentDetails(lease.dseq)}>{lease.dseq}</Link>
-                </TableCell>
-                <TableCell>
-                  <div className={classes.flexCenter}>
-                    <PricePerMonth perBlockValue={uaktToAKT(lease.price.amount, 6)} />
-                    <PriceEstimateTooltip value={uaktToAKT(lease.price.amount, 6)} />
-                    <span className={classes.monthlyCost}>
-                      <FormattedNumber value={lease.price.amount} maximumSignificantDigits={18} />
-                      uakt ({`~${getAvgCostPerMonth(lease.price.amount)}akt/month`})
-                    </span>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      {currentPageLeases?.length > 0 && (
+        <>
+          <TableContainer component={Paper}>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>State</TableCell>
+                  <TableCell>Dseq</TableCell>
+                  <TableCell>Price</TableCell>
+                </TableRow>
+              </TableHead>
 
-      <Box padding="1rem 1rem 2rem">
-        <Pagination count={pageCount} onChange={handleChangePage} page={page} size="large" />
-      </Box>
+              <TableBody>
+                {currentPageLeases.map((lease, i) => (
+                  <TableRow key={i}>
+                    <TableCell component="th" scope="row">
+                      <StatusPill state={lease.state} size="small" />
+                    </TableCell>
+                    <TableCell>
+                      <Link to={UrlService.deploymentDetails(lease.dseq)}>{lease.dseq}</Link>
+                    </TableCell>
+                    <TableCell>
+                      <div className={classes.flexCenter}>
+                        <PricePerMonth perBlockValue={uaktToAKT(lease.price.amount, 6)} />
+                        <PriceEstimateTooltip value={uaktToAKT(lease.price.amount, 6)} />
+                        <span className={classes.monthlyCost}>
+                          <FormattedNumber value={lease.price.amount} maximumSignificantDigits={18} />
+                          uakt ({`~${getAvgCostPerMonth(lease.price.amount)}akt/month`})
+                        </span>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          <Box padding="1rem 1rem 2rem">
+            <Pagination count={pageCount} onChange={handleChangePage} page={page} size="large" />
+          </Box>
+        </>
+      )}
     </>
   );
 }

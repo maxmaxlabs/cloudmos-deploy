@@ -1,21 +1,11 @@
-import {
-  makeStyles,
-  Box,
-  TableContainer,
-  Table,
-  TableRow,
-  TableCell,
-  TableBody,
-  Paper,
-  Typography,
-  Tooltip
-} from "@material-ui/core";
+import { makeStyles, Box, TableContainer, Table, TableRow, TableCell, TableBody, Paper, Typography, Tooltip } from "@material-ui/core";
 import { Address } from "../../shared/components/Address";
 import { SpecDetail } from "../../shared/components/SpecDetail";
 import { roundDecimal } from "../../shared/utils/math";
 import { getTotalProviderResource } from "../../shared/utils/providerUtils";
 import InfoIcon from "@material-ui/icons/Info";
 import clsx from "clsx";
+import { ProviderAttributes } from "../../shared/components/ProviderAttributes";
 
 const useStyles = makeStyles((theme) => ({
   tooltip: {
@@ -68,9 +58,7 @@ export const ProviderDetailContent = ({ provider, address }) => {
               <TableCell component="th" scope="row">
                 <strong>Kube version</strong>
               </TableCell>
-              <TableCell align="center">
-                {provider.kube ? `${provider.kube?.major}.${provider.kube?.minor}` : "unkown"}
-              </TableCell>
+              <TableCell align="center">{provider.kube ? `${provider.kube?.major}.${provider.kube?.minor}` : "unkown"}</TableCell>
             </TableRow>
             <TableRow>
               <TableCell component="th" scope="row">
@@ -177,6 +165,10 @@ export const ProviderDetailContent = ({ provider, address }) => {
           size="small"
           color="default"
         />
+      </Box>
+
+      <Box marginTop="1rem">
+        <ProviderAttributes provider={provider} />
       </Box>
     </>
   );

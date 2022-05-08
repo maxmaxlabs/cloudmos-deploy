@@ -62,20 +62,22 @@ export const ProviderAttributes = ({ provider }) => {
       <Typography variant="body2" className={classes.attributeTitle}>
         <strong>Attributes</strong>
       </Typography>
-      {provider.attributes.map((a) => (
-        <div className={classes.attributeRow} key={a.key}>
-          <div>
-            <Typography variant="caption" className={classes.attributeText}>
-              {a.key}:
-            </Typography>
+      {provider?.attributes?.map((a) => {
+        return (
+          <div className={classes.attributeRow} key={a.key}>
+            <div>
+              <Typography variant="caption" className={classes.attributeText}>
+                {a.key}:
+              </Typography>
+            </div>
+            <Box marginLeft="1rem">
+              <Typography variant="caption" className={classes.attributeText}>
+                {a.value}
+              </Typography>
+            </Box>
           </div>
-          <Box marginLeft="1rem">
-            <Typography variant="caption" className={classes.attributeText}>
-              {a.value}
-            </Typography>
-          </Box>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };

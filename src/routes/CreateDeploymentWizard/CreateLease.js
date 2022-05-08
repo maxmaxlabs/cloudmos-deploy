@@ -38,7 +38,7 @@ import InfoIcon from "@material-ui/icons/Info";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 import clsx from "clsx";
 import { Snackbar } from "../../shared/components/Snackbar";
-import { getProviderLocalData } from "../../shared/utils/providerUtils";
+import { useLocalNotes } from "../../context/LocalNoteProvider";
 
 const yaml = require("js-yaml");
 
@@ -71,7 +71,6 @@ export function CreateLease({ dseq }) {
   const [isFilteringFavorites, setIsFilteringFavorites] = useState(false);
   const [selectedBids, setSelectedBids] = useState({});
   const [filteredBids, setFilteredBids] = useState([]);
-  const [favoriteProviders, setFavoriteProviders] = useState([]);
   const [search, setSearch] = useState("");
   const { sendTransaction } = useTransactionModal();
   const { address } = useWallet();
@@ -84,6 +83,7 @@ export function CreateLease({ dseq }) {
   const [numberOfRequests, setNumberOfRequests] = useState(0);
   const warningRequestsReached = numberOfRequests > WARNING_NUM_OF_BID_REQUESTS;
   const maxRequestsReached = numberOfRequests > MAX_NUM_OF_BID_REQUESTS;
+  const { favoriteProviders } = useLocalNotes();
   const { data: bids, isLoading: isLoadingBids } = useBidList(address, dseq, {
     initialData: [],
     refetchInterval: REFRESH_BIDS_INTERVAL,
@@ -105,10 +105,7 @@ export function CreateLease({ dseq }) {
   useEffect(() => {
     getDeploymentDetail();
 
-    const localProviderData = getProviderLocalData();
-    setFavoriteProviders(localProviderData.favorites);
-
-    if (localProviderData.favorites?.length > 0) {
+    if (favoriteProviders.length > 0) {
       setIsFilteringFavorites(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -166,7 +163,6 @@ export function CreateLease({ dseq }) {
   }
 
   async function handleNext() {
-    console.log("Accepting bids...");
     const bidKeys = Object.keys(selectedBids);
 
     // Create the lease
@@ -416,8 +412,6 @@ export function CreateLease({ dseq }) {
               filteredBids={filteredBids}
               deploymentDetail={deploymentDetail}
               isFilteringFavorites={isFilteringFavorites}
-              favoriteProviders={favoriteProviders}
-              setFavoriteProviders={setFavoriteProviders}
               groupIndex={i}
               totalBids={dseqList.length}
             />

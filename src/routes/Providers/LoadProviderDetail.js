@@ -1,6 +1,6 @@
 import { makeStyles, Button, Dialog, DialogContent, DialogActions, DialogTitle, CircularProgress, Box } from "@material-ui/core";
-import { useEffect } from "react";
-import { useProviderStatus } from "../../queries";
+import { useEffect, useState } from "react";
+import { useProviderStatus, useProviderDetail } from "../../queries";
 import { ProviderDetailContent } from "../../components/ProviderDetail/ProviderDetailContent";
 import Alert from "@material-ui/lab/Alert";
 
@@ -37,10 +37,12 @@ export const LoadProviderDetail = ({ provider, address, onClose }) => {
               <CircularProgress size="3rem" />
             </Box>
           ) : (
-            <ProviderDetailContent provider={providerStatus} address={address} />
+            <ProviderDetailContent provider={{ ...provider, ...providerStatus }} address={address} />
           )
         ) : (
-          <Alert variant="outlined" severity="warning">Provider details not available for this provider... :(</Alert>
+          <Alert variant="outlined" severity="warning">
+            Provider details not available for this provider... :(
+          </Alert>
         )}
       </DialogContent>
       <DialogActions>

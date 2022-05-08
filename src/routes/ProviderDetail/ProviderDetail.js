@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { makeStyles, IconButton, Typography, Box, Paper } from "@material-ui/core";
 import { useProviderDetail } from "../../queries";
 import { ProviderSummary } from "../Providers/ProviderSummary";
-import { useLocalNotes } from "../../context/LocalNoteProvider";
 import { Helmet } from "react-helmet-async";
 import { useParams, useHistory } from "react-router-dom";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
@@ -37,7 +36,6 @@ export function ProviderDetail({ providers, leases, getLeases, isLoadingLeases, 
   const classes = useStyles();
   const [provider, setProvider] = useState(null);
   const [filteredLeases, setFilteredLeases] = useState(null);
-  const { favoriteProviders, updateFavoriteProviders } = useLocalNotes();
   const history = useHistory();
   const { owner } = useParams();
   const {
@@ -117,7 +115,7 @@ export function ProviderDetail({ providers, leases, getLeases, isLoadingLeases, 
       {provider && (
         <div className={classes.content}>
           <Paper elevation={1} className={classes.summaryContainer}>
-            <ProviderSummary provider={provider} favoriteProviders={favoriteProviders} setFavoriteProviders={updateFavoriteProviders} leases={leases} />
+            <ProviderSummary provider={provider} leases={leases} />
           </Paper>
 
           <LeaseList isLoadingLeases={isLoadingLeases} leases={filteredLeases} />

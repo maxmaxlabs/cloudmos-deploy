@@ -64,8 +64,6 @@ export function BidGroup({
   filteredBids,
   deploymentDetail,
   isFilteringFavorites,
-  favoriteProviders,
-  setFavoriteProviders,
   groupIndex,
   totalBids
 }) {
@@ -120,18 +118,7 @@ export function BidGroup({
       >
         {fBids.map((bid) => {
           const provider = providers && providers.find((x) => x.owner === bid.provider);
-          return (
-            <BidRow
-              key={bid.id}
-              bid={bid}
-              provider={provider}
-              handleBidSelected={handleBidSelected}
-              disabled={disabled}
-              selectedBid={selectedBid}
-              favoriteProviders={favoriteProviders}
-              setFavoriteProviders={setFavoriteProviders}
-            />
-          );
+          return <BidRow key={bid.id} bid={bid} provider={provider} handleBidSelected={handleBidSelected} disabled={disabled} selectedBid={selectedBid} />;
         })}
 
         {isFilteringFavorites && fBids.length === 0 && (

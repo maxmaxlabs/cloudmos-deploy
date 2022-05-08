@@ -9,9 +9,9 @@ import CloudOffIcon from "@material-ui/icons/CloudOff";
 import clsx from "clsx";
 import { LinkTo } from "../../shared/components/LinkTo";
 import { FormattedNumber } from "react-intl";
-import { ProviderDetail } from "../../components/ProviderDetail/ProviderDetail";
-import { updateProviderLocalData } from "../../shared/utils/providerUtils";
+import { ProviderDetailModal } from "../../components/ProviderDetail";
 import { FavoriteButton } from "../../shared/components/FavoriteButton";
+import { useLocalNotes } from "../../context/LocalNoteProvider";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -38,9 +38,10 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function BidRow({ bid, selectedBid, handleBidSelected, disabled, provider, favoriteProviders, setFavoriteProviders }) {
+export function BidRow({ bid, selectedBid, handleBidSelected, disabled, provider }) {
   const classes = useStyles();
   const [isViewingDetail, setIsViewingDetail] = useState(false);
+  const { favoriteProviders, updateFavoriteProviders } = useLocalNotes();
   const isFavorite = favoriteProviders.some((x) => provider.owner === x);
   const {
     data: providerStatus,
@@ -55,8 +56,7 @@ export function BidRow({ bid, selectedBid, handleBidSelected, disabled, provider
   const onStarClick = () => {
     const newFavorites = isFavorite ? favoriteProviders.filter((x) => x !== provider.owner) : favoriteProviders.concat([provider.owner]);
 
-    updateProviderLocalData({ favorites: newFavorites });
-    setFavoriteProviders(newFavorites);
+    updateFavoriteProviders(newFavorites);
   };
 
   useEffect(() => {
@@ -136,7 +136,7 @@ export function BidRow({ bid, selectedBid, handleBidSelected, disabled, provider
       />
 
       {provider && <ProviderAttributes provider={provider} />}
-      {isViewingDetail && providerStatus && <ProviderDetail provider={providerStatus} address={bid.provider} onClose={() => setIsViewingDetail(false)} />}
+      {isViewingDetail && providerStatus && <ProviderDetailModal provider={providerStatus} address={bid.provider} onClose={() => setIsViewingDetail(false)} />}
     </ListItem>
   );
 }

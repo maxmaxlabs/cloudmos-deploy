@@ -4,9 +4,9 @@ import { Address } from "../../shared/components/Address";
 import { LinkTo } from "../../shared/components/LinkTo";
 import clsx from "clsx";
 import { ResourceBars } from "../../shared/components/ResourceBars";
-import { updateProviderLocalData } from "../../shared/utils/providerUtils";
 import { LoadProviderDetail } from "./LoadProviderDetail";
 import { FavoriteButton } from "../../shared/components/FavoriteButton";
+import { useLocalNotes } from "../../context/LocalNoteProvider";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -45,11 +45,12 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function ProviderSummary({ provider, favoriteProviders, setFavoriteProviders, leases }) {
+export function ProviderSummary({ provider, leases }) {
   const classes = useStyles();
   const [isViewingDetail, setIsViewingDetail] = useState(false);
+  const { favoriteProviders, updateFavoriteProviders } = useLocalNotes();
   const isFavorite = favoriteProviders.some((x) => provider.owner === x);
-  const numberOfDeployments = leases?.filter(d => d.provider === provider.owner).length || 0;
+  const numberOfDeployments = leases?.filter((d) => d.provider === provider.owner).length || 0;
 
   const onStarClick = (event) => {
     event.preventDefault();
@@ -57,15 +58,14 @@ export function ProviderSummary({ provider, favoriteProviders, setFavoriteProvid
 
     const newFavorites = isFavorite ? favoriteProviders.filter((x) => x !== provider.owner) : favoriteProviders.concat([provider.owner]);
 
-    updateProviderLocalData({ favorites: newFavorites });
-    setFavoriteProviders(newFavorites);
+    updateFavoriteProviders(newFavorites);
   };
 
   const onViewDetailsClick = (event) => {
     event.preventDefault();
     event.stopPropagation();
 
-    setIsViewingDetail(true)
+    setIsViewingDetail(true);
   };
 
   return (

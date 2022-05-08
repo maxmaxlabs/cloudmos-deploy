@@ -37,8 +37,10 @@ import { PriceEstimateTooltip } from "../../shared/components/PriceEstimateToolt
 import LaunchIcon from "@material-ui/icons/Launch";
 import InfoIcon from "@material-ui/icons/Info";
 import { ProviderAttributes } from "../../shared/components/ProviderAttributes";
-import { ProviderDetail } from "../../components/ProviderDetail/ProviderDetail";
+import { ProviderDetailModal } from "../../components/ProviderDetail";
 import { FormattedNumber } from "react-intl";
+import { FavoriteButton } from "../../shared/components/FavoriteButton";
+import { useLocalNotes } from "../../context/LocalNoteProvider";
 
 const yaml = require("js-yaml");
 
@@ -90,7 +92,9 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
   const { localCert } = useCertificate();
   const isLeaseActive = lease.state === "active";
   const [isServicesAvailable, setIsServicesAvailable] = useState(false);
+  const { favoriteProviders, updateFavoriteProviders } = useLocalNotes();
   const [isViewingProviderDetail, setIsViewingProviderDetail] = useState(false);
+  const isFavorite = favoriteProviders.some((x) => lease?.provider === x);
   const {
     data: leaseStatus,
     error,
@@ -172,9 +176,20 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
     setIsSendingManifest(false);
   }
 
+  const onStarClick = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const newFavorites = isFavorite ? favoriteProviders.filter((x) => x !== lease.provider) : favoriteProviders.concat([lease.provider]);
+
+    updateFavoriteProviders(newFavorites);
+  };
+
   return (
     <>
-      {isViewingProviderDetail && <ProviderDetail provider={providerStatus} onClose={() => setIsViewingProviderDetail(false)} address={lease.provider} />}
+      {isViewingProviderDetail && (
+        <ProviderDetailModal provider={{ ...providerStatus, ...providerInfo }} onClose={() => setIsViewingProviderDetail(false)} address={lease.provider} />
+      )}
 
       <Card className={classes.root} elevation={4}>
         <CardHeader
@@ -236,8 +251,11 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
                         <>
                           {providerStatus.name}
 
-                          <Box marginLeft={1}>
-                            <LinkTo onClick={() => setIsViewingProviderDetail(true)}>View details</LinkTo>
+                          <Box display="flex" alignItemx="center" marginLeft={1}>
+                            <FavoriteButton isFavorite={isFavorite} onClick={onStarClick} />
+                            <Box marginLeft=".5rem" display="flex">
+                              <LinkTo onClick={() => setIsViewingProviderDetail(true)}>View details</LinkTo>
+                            </Box>
                           </Box>
                         </>
                       )}

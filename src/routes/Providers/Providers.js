@@ -43,7 +43,7 @@ export function Providers({
   const [filteredProviders, setFilteredProviders] = useState([]);
   // const { data: auditors, isFetching: isFetchingAuditors, refetch: getAuditors } = useAuditors({ enabled: false });
   const { settings } = useSettings();
-  const { favoriteProviders, updateFavoriteProviders } = useLocalNotes();
+  const { favoriteProviders } = useLocalNotes();
   const { apiEndpoint } = settings;
   const rowsPerPage = 12;
   const start = (page - 1) * rowsPerPage;
@@ -135,8 +135,6 @@ export function Providers({
               <ProviderCard
                 key={provider.owner}
                 provider={provider}
-                favoriteProviders={favoriteProviders}
-                setFavoriteProviders={updateFavoriteProviders}
                 leases={leases}
               />
             ))}
