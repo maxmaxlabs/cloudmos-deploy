@@ -40,7 +40,8 @@ const useStyles = makeStyles((theme) => ({
     fontSize: ".875rem",
     borderRight: `1px solid ${theme.palette.grey[300]}`,
     whiteSpace: "nowrap",
-    display: "flex"
+    display: "flex",
+    height: "100%"
   }
 }));
 

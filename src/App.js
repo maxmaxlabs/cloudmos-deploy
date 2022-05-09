@@ -35,8 +35,10 @@ function App() {
 
     history.listen(async (location, action) => {
       try {
-        const shouldLog = isLegitPath(location.pathname);
-        shouldLog && (await analytics.pageview(HOSTNAME, location.pathname + location.search, document.title));
+        setTimeout(async () => {
+          const shouldLog = isLegitPath(location.pathname);
+          shouldLog && (await analytics.pageview(HOSTNAME, location.pathname + location.search, document.title));
+        }, 100);
       } catch (error) {
         console.log(error);
       }

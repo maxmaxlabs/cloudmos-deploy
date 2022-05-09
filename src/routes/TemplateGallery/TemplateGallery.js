@@ -9,6 +9,7 @@ import ImageIcon from "@material-ui/icons/Image";
 import { useHistory } from "react-router-dom";
 import { useQueryParams } from "../../hooks/useQueryParams";
 import CloseIcon from "@material-ui/icons/Close";
+import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 
 const useStyles = makeStyles((theme) => ({
   gallery: {
@@ -112,6 +113,8 @@ export function TemplateGallery(props) {
     <>
       <Helmet title="Template Gallery" />
 
+      <LinearLoadingSkeleton isLoading={isLoading} />
+
       <Box padding="1rem">
         <Typography variant="h3" className={classes.title}>
           Template Gallery
@@ -169,12 +172,6 @@ export function TemplateGallery(props) {
         </ViewPanel>
       ) : (
         <>
-          {isLoading && (
-            <Box textAlign="center">
-              <CircularProgress />
-            </Box>
-          )}
-
           <Box className={classes.gallery}>
             <ViewPanel bottomElementId="footer" overflow="auto" className={classes.categoryList}>
               <List>

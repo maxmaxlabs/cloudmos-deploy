@@ -21,7 +21,18 @@ export class UrlService {
 }
 
 // Must update this when adding a route for analytics logging
-export const legitPaths = ["wallet-import", "wallet-open", "deployments", "deployment", "settings", "createDeployment", "templates", "register", "new-wallet"];
+export const legitPaths = [
+  "wallet-import",
+  "wallet-open",
+  "deployments",
+  "deployment",
+  "settings",
+  "createDeployment",
+  "templates",
+  "register",
+  "new-wallet",
+  "providers"
+];
 
 function appendSearchParams(params) {
   const urlParams = new URLSearchParams("");
