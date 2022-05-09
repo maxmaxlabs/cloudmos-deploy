@@ -82,7 +82,7 @@ export function LeaseList({ leases, isLoadingLeases }) {
 
       {isLoadingLeases && <CircularProgress />}
 
-      {currentPageLeases?.length === 0 && (
+      {currentPageLeases?.length === 0 && !isLoadingLeases && (
         <>
           <Typography variant="body2">You have 0 {isFilteringActive ? "active" : ""} lease for this provider.</Typography>
         </>

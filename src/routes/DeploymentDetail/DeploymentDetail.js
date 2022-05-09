@@ -146,7 +146,7 @@ export function DeploymentDetail({ deployments }) {
         {deployment?.state === "active" && leases?.some((x) => x.state === "active") && (
           <Tab value="SHELL" label="Shell" classes={{ selected: classes.selectedTab }} />
         )}
-        <Tab value="EDIT" label="View / Edit Manifest" classes={{ selected: classes.selectedTab }} />
+        <Tab value="EDIT" label="Update" classes={{ selected: classes.selectedTab }} />
         <Tab value="RAW_DATA" label="Raw Data" classes={{ selected: classes.selectedTab }} />
       </Tabs>
 
