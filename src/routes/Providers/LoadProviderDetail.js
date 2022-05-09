@@ -1,6 +1,6 @@
 import { makeStyles, Button, Dialog, DialogContent, DialogActions, DialogTitle, CircularProgress, Box } from "@material-ui/core";
-import { useEffect, useState } from "react";
-import { useProviderStatus, useProviderDetail } from "../../queries";
+import { useEffect } from "react";
+import { useProviderStatus } from "../../queries";
 import { ProviderDetailContent } from "../../components/ProviderDetail/ProviderDetailContent";
 import Alert from "@material-ui/lab/Alert";
 

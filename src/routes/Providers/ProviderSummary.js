@@ -9,16 +9,6 @@ import { FavoriteButton } from "../../shared/components/FavoriteButton";
 import { useLocalNotes } from "../../context/LocalNoteProvider";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    height: "100%",
-    padding: ".5rem",
-    borderRadius: ".3rem",
-    cursor: "pointer",
-    transition: "background-color .2s ease",
-    "&:hover": {
-      backgroundColor: theme.palette.grey[200]
-    }
-  },
   dataRow: {
     lineHeight: "1rem",
     marginBottom: ".5rem"
@@ -68,6 +58,13 @@ export function ProviderSummary({ provider, leases }) {
     setIsViewingDetail(true);
   };
 
+  const onCloseClick = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    setIsViewingDetail(false);
+  };
+
   return (
     <>
       <div className={classes.summaryRow}>
@@ -115,7 +112,7 @@ export function ProviderSummary({ provider, leases }) {
         </div>
       </div>
 
-      {isViewingDetail && <LoadProviderDetail provider={provider} address={provider.owner} onClose={() => setIsViewingDetail(false)} />}
+      {isViewingDetail && <LoadProviderDetail provider={provider} address={provider.owner} onClose={onCloseClick} />}
     </>
   );
 }

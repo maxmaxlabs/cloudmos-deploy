@@ -1,4 +1,4 @@
-import { Grid, makeStyles, Box, Tooltip, lighten } from "@material-ui/core";
+import { makeStyles, Box, Tooltip } from "@material-ui/core";
 import InfoIcon from "@material-ui/icons/Info";
 import WarningIcon from "@material-ui/icons/Warning";
 import { getAvgCostPerMonth, uaktToAKT, useRealTimeLeft } from "../../shared/utils/priceUtils";
@@ -13,6 +13,7 @@ import clsx from "clsx";
 
 const useStyles = makeStyles((theme) => ({
   root: {
+    height: "77px",
     borderBottom: `1px solid ${theme.palette.grey[300]}`
   },
   tooltip: {

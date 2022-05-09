@@ -86,8 +86,6 @@ export function ProviderDetail({ providers, leases, getLeases, isLoadingLeases, 
       getProviderDetail();
       getLeases();
       getDataNodeProviders();
-
-      // leaseRefs.forEach((lr) => lr.current?.getLeaseStatus());
     }
   }
 

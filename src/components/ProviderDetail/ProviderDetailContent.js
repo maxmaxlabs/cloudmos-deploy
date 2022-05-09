@@ -50,6 +50,18 @@ export const ProviderDetailContent = ({ provider, address }) => {
             )}
             <TableRow>
               <TableCell component="th" scope="row">
+                <strong>Email</strong>
+              </TableCell>
+              <TableCell align="center">{provider.email}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell component="th" scope="row">
+                <strong>Website</strong>
+              </TableCell>
+              <TableCell align="center">{provider.website}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell component="th" scope="row">
                 <strong>Akash version</strong>
               </TableCell>
               <TableCell align="center">{provider.akash?.version || "< 0.16.0"}</TableCell>
