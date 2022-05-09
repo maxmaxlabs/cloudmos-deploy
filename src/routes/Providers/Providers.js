@@ -57,6 +57,10 @@ export function Providers({
     getLeases();
     // getAuditors();
 
+    if (favoriteProviders.length > 0) {
+      setIsFilteringFavorites(true);
+    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [apiEndpoint]);
 
@@ -132,11 +136,7 @@ export function Providers({
         <Box padding="0 1rem">
           <Grid container spacing={2}>
             {currentPageProviders.map((provider) => (
-              <ProviderCard
-                key={provider.owner}
-                provider={provider}
-                leases={leases}
-              />
+              <ProviderCard key={provider.owner} provider={provider} leases={leases} />
             ))}
           </Grid>
         </Box>
