@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Box, Avatar, TextField, makeStyles, Typography, List, ListItem, ListItemText, ListItemAvatar, CircularProgress, IconButton } from "@material-ui/core";
+import { Box, Avatar, TextField, makeStyles, Typography, List, ListItem, ListItemText, ListItemAvatar, IconButton } from "@material-ui/core";
 import { Helmet } from "react-helmet-async";
 import { useTemplates } from "../../context/TemplatesProvider";
 import { Link } from "react-router-dom";

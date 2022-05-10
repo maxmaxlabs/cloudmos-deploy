@@ -251,7 +251,7 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
                         <>
                           {providerStatus.name}
 
-                          <Box display="flex" alignItemx="center" marginLeft={1}>
+                          <Box display="flex" alignItems="center" marginLeft={1}>
                             <FavoriteButton isFavorite={isFavorite} onClick={onStarClick} />
                             <Box marginLeft=".5rem" display="flex">
                               <LinkTo onClick={() => setIsViewingProviderDetail(true)}>View details</LinkTo>

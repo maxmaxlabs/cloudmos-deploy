@@ -89,7 +89,7 @@ export function BidGroup({
       <List
         subheader={
           <ListSubheader component="div" className={classes.subHeader}>
-            <Box display="flex" alignItemx="center">
+            <Box display="flex" alignItems="center">
               <Typography variant="h6">
                 <LabelValue label="GSEQ:" value={gseq} />
               </Typography>

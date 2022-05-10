@@ -51,10 +51,16 @@ export const ProviderAttributes = ({ provider }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const onViewAllClick = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsExpanded((prev) => !prev)
+  }
+
   return (
     <div className={clsx(classes.attributesContainer, { [classes.expanded]: isExpanded, [classes.hasShadow]: isShowingViewAll && !isExpanded })}>
       {isShowingViewAll && (
-        <LinkTo onClick={() => setIsExpanded((prev) => !prev)} className={classes.viewAllButton}>
+        <LinkTo onClick={onViewAllClick} className={classes.viewAllButton}>
           View all
         </LinkTo>
       )}

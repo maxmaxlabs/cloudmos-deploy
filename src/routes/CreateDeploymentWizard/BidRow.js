@@ -123,7 +123,7 @@ export function BidRow({ bid, selectedBid, handleBidSelected, disabled, provider
             )}
 
             {providerStatus && (
-              <Box display="flex" alignItemx="center">
+              <Box display="flex" alignItems="center">
                 <FavoriteButton isFavorite={isFavorite} onClick={onStarClick} />
 
                 <Box marginLeft=".5rem" display="flex">
