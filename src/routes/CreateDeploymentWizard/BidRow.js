@@ -12,6 +12,7 @@ import { FormattedNumber } from "react-intl";
 import { ProviderDetailModal } from "../../components/ProviderDetail";
 import { FavoriteButton } from "../../shared/components/FavoriteButton";
 import { useLocalNotes } from "../../context/LocalNoteProvider";
+import { AuditorButton } from "../Providers/AuditorButton";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -126,6 +127,12 @@ export function BidRow({ bid, selectedBid, handleBidSelected, disabled, provider
               <Box display="flex" alignItems="center">
                 <FavoriteButton isFavorite={isFavorite} onClick={onStarClick} />
 
+                {provider.isAudited && (
+                  <Box marginLeft=".5rem">
+                    <AuditorButton provider={provider} />
+                  </Box>
+                )}
+
                 <Box marginLeft=".5rem" display="flex">
                   <LinkTo onClick={() => setIsViewingDetail(true)}>View details</LinkTo>
                 </Box>
@@ -136,7 +143,9 @@ export function BidRow({ bid, selectedBid, handleBidSelected, disabled, provider
       />
 
       {provider && <ProviderAttributes provider={provider} />}
-      {isViewingDetail && providerStatus && <ProviderDetailModal provider={providerStatus} address={bid.provider} onClose={() => setIsViewingDetail(false)} />}
+      {isViewingDetail && provider && providerStatus && (
+        <ProviderDetailModal provider={{ ...provider, ...providerStatus }} address={bid.provider} onClose={() => setIsViewingDetail(false)} />
+      )}
     </ListItem>
   );
 }

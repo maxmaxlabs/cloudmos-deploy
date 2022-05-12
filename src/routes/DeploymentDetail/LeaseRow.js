@@ -26,7 +26,7 @@ import { SpecDetail } from "../../shared/components/SpecDetail";
 import { useCertificate } from "../../context/CertificateProvider";
 import { copyTextToClipboard } from "../../shared/utils/copyClipboard";
 import { useSnackbar } from "notistack";
-import { useProviders, useLeaseStatus, useProviderStatus } from "../../queries";
+import { useLeaseStatus, useProviderStatus } from "../../queries";
 import { sendManifestToProvider } from "../../shared/utils/deploymentUtils";
 import { deploymentData } from "../../shared/deploymentData";
 import { ManifestErrorSnackbar } from "../../shared/components/ManifestErrorSnackbar";
@@ -41,6 +41,9 @@ import { ProviderDetailModal } from "../../components/ProviderDetail";
 import { FormattedNumber } from "react-intl";
 import { FavoriteButton } from "../../shared/components/FavoriteButton";
 import { useLocalNotes } from "../../context/LocalNoteProvider";
+import { AuditorButton } from "../Providers/AuditorButton";
+import { Link } from "react-router-dom";
+import { UrlService } from "../../shared/utils/urlUtils";
 
 const yaml = require("js-yaml");
 
@@ -85,9 +88,8 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManifest, dseq }, ref) => {
+export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManifest, dseq, providers }, ref) => {
   const { enqueueSnackbar } = useSnackbar();
-  const { data: providers } = useProviders();
   const providerInfo = providers?.find((p) => p.owner === lease?.provider);
   const { localCert } = useCertificate();
   const isLeaseActive = lease.state === "active";
@@ -249,10 +251,17 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
                       {isLoadingProviderStatus && <CircularProgress size="1rem" />}
                       {providerStatus && (
                         <>
-                          {providerStatus.name}
+                          <Link to={UrlService.providerDetail(lease.provider)}>{providerStatus.name}</Link>
 
                           <Box display="flex" alignItems="center" marginLeft={1}>
                             <FavoriteButton isFavorite={isFavorite} onClick={onStarClick} />
+
+                            {providerInfo.isAudited && (
+                              <Box marginLeft=".5rem">
+                                <AuditorButton provider={providerInfo} />
+                              </Box>
+                            )}
+
                             <Box marginLeft=".5rem" display="flex">
                               <LinkTo onClick={() => setIsViewingProviderDetail(true)}>View details</LinkTo>
                             </Box>

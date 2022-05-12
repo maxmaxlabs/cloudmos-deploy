@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { makeStyles, IconButton, Typography, Box, Paper } from "@material-ui/core";
-import { useProviderDetail } from "../../queries";
+import { useAkash } from "../../context/AkashProvider";
 import { ProviderSummary } from "../Providers/ProviderSummary";
 import { Helmet } from "react-helmet-async";
 import { useParams, useHistory } from "react-router-dom";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import { LeaseList } from "./LeaseList";
+import RefreshIcon from "@material-ui/icons/Refresh";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -32,47 +33,28 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function ProviderDetail({ providers, leases, getLeases, isLoadingLeases, dataNodeProviders, isLoadingDataNodeProviders, getDataNodeProviders }) {
+export function ProviderDetail({ leases, getLeases, isLoadingLeases }) {
   const classes = useStyles();
   const [provider, setProvider] = useState(null);
   const [filteredLeases, setFilteredLeases] = useState(null);
   const history = useHistory();
   const { owner } = useParams();
-  const {
-    data: providerDetail,
-    isFetching: isLoadingProvider,
-    refetch: getProviderDetail
-  } = useProviderDetail(owner, { refetchOnMount: false, enabled: false });
+  const { providers, getProviders } = useAkash();
 
   useEffect(() => {
     const providerFromList = providers?.find((d) => d.owner === owner);
-    if (providerFromList && dataNodeProviders) {
-      // TODO Once data-node provider endpoint it finalized, only use data node provider
-      const dataNodeProvider = dataNodeProviders.find((x) => x.owner === providerFromList.owner);
-      const _provider = {
-        ...providerFromList,
-        ...dataNodeProvider,
-        isActive: true
-      };
-      setProvider(_provider);
-    } else {
-      loadProviderDetail();
+    setProvider(providerFromList);
+
+    if (!isLoadingLeases) {
+      getLeases();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    if (providerDetail && dataNodeProviders) {
-      // TODO Once data-node provider endpoint it finalized, only use data node provider
-      const dataNodeProvider = dataNodeProviders.find((x) => x.owner === providerDetail.owner);
-      const _provider = {
-        ...providerDetail,
-        ...dataNodeProvider,
-        isActive: true
-      };
-      setProvider(_provider);
-    }
-  }, [providerDetail, dataNodeProviders]);
+  const refresh = () => {
+    getProviders();
+    getLeases();
+  };
 
   useEffect(() => {
     if (provider && leases && leases.length > 0) {
@@ -80,14 +62,6 @@ export function ProviderDetail({ providers, leases, getLeases, isLoadingLeases, 
       setFilteredLeases(_leases);
     }
   }, [leases, provider]);
-
-  function loadProviderDetail() {
-    if (!isLoadingProvider) {
-      getProviderDetail();
-      getLeases();
-      getDataNodeProviders();
-    }
-  }
 
   function handleBackClick() {
     history.goBack();
@@ -97,7 +71,7 @@ export function ProviderDetail({ providers, leases, getLeases, isLoadingLeases, 
     <div className={classes.root}>
       <Helmet title="Provider Detail" />
 
-      <LinearLoadingSkeleton isLoading={isLoadingLeases || isLoadingProvider || isLoadingDataNodeProviders} />
+      <LinearLoadingSkeleton isLoading={isLoadingLeases} />
 
       <div className={classes.titleContainer}>
         <Box display="flex" alignItems="center">
@@ -107,6 +81,12 @@ export function ProviderDetail({ providers, leases, getLeases, isLoadingLeases, 
           <Typography variant="h3" className={classes.title}>
             Provider detail
           </Typography>
+
+          <Box marginLeft="1rem">
+            <IconButton aria-label="back" onClick={() => refresh()} size="small">
+              <RefreshIcon />
+            </IconButton>
+          </Box>
         </Box>
       </div>
 

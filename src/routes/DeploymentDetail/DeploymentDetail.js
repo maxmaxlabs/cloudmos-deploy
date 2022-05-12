@@ -18,6 +18,7 @@ import { DeploymentDetailTopBar } from "./DeploymentDetailTopBar";
 import { DeploymentLeaseShell } from "./DeploymentLeaseShell";
 import { analytics } from "../../shared/utils/analyticsUtils";
 import { useQueryParams } from "../../hooks/useQueryParams";
+import { useAkash } from "../../context/AkashProvider";
 
 export function DeploymentDetail({ deployments }) {
   const [deployment, setDeployment] = useState(null);
@@ -43,6 +44,7 @@ export function DeploymentDetail({ deployments }) {
   const [leaseRefs, setLeaseRefs] = useState([]);
   const { isLocalCertMatching, localCert } = useCertificate();
   const [deploymentManifest, setDeploymentManifest] = useState(null);
+  const { providers, getProviders, isLoadingProviders } = useAkash();
 
   useEffect(() => {
     if (leases && leases.some((l) => l.state === "active")) {
@@ -82,6 +84,7 @@ export function DeploymentDetail({ deployments }) {
   useEffect(() => {
     if (deployment) {
       loadLeases();
+      getProviders();
 
       const deploymentData = getDeploymentLocalData(dseq);
       setDeploymentManifest(deploymentData?.manifest);
@@ -124,7 +127,7 @@ export function DeploymentDetail({ deployments }) {
     <div className={classes.root}>
       <Helmet title="Deployment Detail" />
 
-      <LinearLoadingSkeleton isLoading={isLoadingLeases || isLoadingDeployment} />
+      <LinearLoadingSkeleton isLoading={isLoadingLeases || isLoadingDeployment || isLoadingProviders} />
 
       <DeploymentDetailTopBar
         address={address}
@@ -178,7 +181,15 @@ export function DeploymentDetail({ deployments }) {
 
           {leases &&
             leases.map((lease, i) => (
-              <LeaseRow key={lease.id} lease={lease} setActiveTab={setActiveTab} ref={leaseRefs[i]} deploymentManifest={deploymentManifest} dseq={dseq} />
+              <LeaseRow
+                key={lease.id}
+                lease={lease}
+                setActiveTab={setActiveTab}
+                ref={leaseRefs[i]}
+                deploymentManifest={deploymentManifest}
+                dseq={dseq}
+                providers={providers}
+              />
             ))}
 
           {!hasLeases && !isLoadingLeases && !isLoadingDeployment && <>This deployment doesn't have any leases</>}

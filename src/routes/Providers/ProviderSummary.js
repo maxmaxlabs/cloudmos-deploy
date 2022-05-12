@@ -7,6 +7,7 @@ import { ResourceBars } from "../../shared/components/ResourceBars";
 import { LoadProviderDetail } from "./LoadProviderDetail";
 import { FavoriteButton } from "../../shared/components/FavoriteButton";
 import { useLocalNotes } from "../../context/LocalNoteProvider";
+import { AuditorButton } from "./AuditorButton";
 
 const useStyles = makeStyles((theme) => ({
   dataRow: {
@@ -41,6 +42,7 @@ export function ProviderSummary({ provider, leases }) {
   const { favoriteProviders, updateFavoriteProviders } = useLocalNotes();
   const isFavorite = favoriteProviders.some((x) => provider.owner === x);
   const numberOfDeployments = leases?.filter((d) => d.provider === provider.owner).length || 0;
+  const numberOfActiveLeases = leases?.filter((d) => d.provider === provider.owner && d.state === "active").length || 0;
 
   const onStarClick = (event) => {
     event.preventDefault();
@@ -74,7 +76,7 @@ export function ProviderSummary({ provider, leases }) {
             <div className={classes.dataRow}>Uri</div>
             {provider.isActive && <div className={classes.dataRow}>Active leases</div>}
             <div className={classes.dataRow}>Your leases</div>
-            {/** Audited by: address */}
+            <div className={classes.dataRow}>Active leases</div>
           </div>
           <div className={clsx("text-truncate", classes.summaryValues)}>
             <div className={classes.dataRow}>
@@ -83,6 +85,7 @@ export function ProviderSummary({ provider, leases }) {
             <div className={clsx("text-truncate", classes.dataRow)}>{provider.host_uri}</div>
             {provider.isActive && <div className={classes.dataRow}>{provider.leaseCount}</div>}
             <div className={classes.dataRow}>{numberOfDeployments}</div>
+            <div className={classes.dataRow}>{numberOfActiveLeases}</div>
           </div>
         </div>
         {provider.isActive && (
@@ -103,9 +106,15 @@ export function ProviderSummary({ provider, leases }) {
       </div>
 
       <div className={classes.buttonRow}>
-        <div>
+        <Box display="flex" alignItems="center">
           <FavoriteButton isFavorite={isFavorite} onClick={onStarClick} />
-        </div>
+
+          {provider.isAudited && (
+            <Box marginLeft=".5rem">
+              <AuditorButton provider={provider} />
+            </Box>
+          )}
+        </Box>
 
         <div>
           <LinkTo onClick={onViewDetailsClick}>View details</LinkTo>

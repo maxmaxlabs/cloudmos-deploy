@@ -7,6 +7,7 @@ import Pagination from "@material-ui/lab/Pagination";
 import { useSettings } from "../../context/SettingsProvider";
 import { ProviderCard } from "./ProviderCard";
 import { useLocalNotes } from "../../context/LocalNoteProvider";
+import { useAkash } from "../../context/AkashProvider";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -22,29 +23,23 @@ const useStyles = makeStyles((theme) => ({
   title: {
     fontSize: "1.5rem",
     fontWeight: "bold"
+  },
+  checkbox: {
+    padding: "4px"
   }
 }));
 
-export function Providers({
-  providers,
-  isLoadingProviders,
-  getProviders,
-  leases,
-  isLoadingLeases,
-  getLeases,
-  dataNodeProviders,
-  isLoadingDataNodeProviders,
-  getDataNodeProviders
-}) {
+export function Providers({ leases, isLoadingLeases, getLeases }) {
   const classes = useStyles();
   const [page, setPage] = useState(1);
   const [isFilteringActive, setIsFilteringActive] = useState(true);
   const [isFilteringFavorites, setIsFilteringFavorites] = useState(false);
+  const [isFilteringAudited, setIsFilteringAudited] = useState(false);
   const [filteredProviders, setFilteredProviders] = useState([]);
-  // const { data: auditors, isFetching: isFetchingAuditors, refetch: getAuditors } = useAuditors({ enabled: false });
   const { settings } = useSettings();
   const { favoriteProviders } = useLocalNotes();
   const { apiEndpoint } = settings;
+  const { providers, isLoadingProviders, getProviders } = useAkash();
   const rowsPerPage = 12;
   const start = (page - 1) * rowsPerPage;
   const end = start + rowsPerPage;
@@ -53,9 +48,7 @@ export function Providers({
 
   useEffect(() => {
     getProviders();
-    getDataNodeProviders();
     getLeases();
-    // getAuditors();
 
     if (favoriteProviders.length > 0) {
       setIsFilteringFavorites(true);
@@ -65,22 +58,8 @@ export function Providers({
   }, [apiEndpoint]);
 
   useEffect(() => {
-    if (providers && dataNodeProviders) {
-      // TODO Once data-node provider endpoint it finalized, only use data node provider
-      let filteredProviders = providers.map((provider) => {
-        const dataNodeProvider = dataNodeProviders.find((x) => x.owner === provider.owner);
-
-        if (dataNodeProvider) {
-          // Merge the data from akash node + data node
-          return {
-            ...provider,
-            ...dataNodeProvider,
-            isActive: true
-          };
-        } else {
-          return provider;
-        }
-      });
+    if (providers) {
+      let filteredProviders = [...providers];
 
       if (isFilteringActive) {
         filteredProviders = filteredProviders.filter((x) => x.isActive);
@@ -90,48 +69,100 @@ export function Providers({
         filteredProviders = filteredProviders.filter((x) => favoriteProviders.some((y) => y === x.owner));
       }
 
+      if (isFilteringAudited) {
+        filteredProviders = filteredProviders.filter((x) => x.isAudited);
+      }
+
       setFilteredProviders(filteredProviders);
     }
-  }, [providers, dataNodeProviders, isFilteringActive, isFilteringFavorites, favoriteProviders]);
+  }, [providers, isFilteringActive, isFilteringFavorites, isFilteringAudited, favoriteProviders]);
 
   const refresh = () => {
     getProviders();
-    getDataNodeProviders();
   };
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
 
+  const onIsFilteringActiveClick = (ev, value) => {
+    setPage(1);
+    setIsFilteringActive(value);
+  };
+
+  const onIsFilteringFavoritesClick = (ev, value) => {
+    setPage(1);
+    setIsFilteringFavorites(value);
+  };
+
+  const onIsFilteringAuditedClick = (ev, value) => {
+    setPage(1);
+    setIsFilteringAudited(value);
+  };
+
   return (
     <>
       <Helmet title="Providers" />
 
-      <LinearLoadingSkeleton isLoading={isLoadingProviders || isLoadingDataNodeProviders || isLoadingLeases} />
+      <LinearLoadingSkeleton isLoading={isLoadingProviders || isLoadingLeases} />
       <Box className={classes.root}>
         <Box className={classes.titleContainer}>
           <Typography variant="h3" className={classes.title}>
             Providers
           </Typography>
 
-          <Box marginLeft="1rem">
-            <IconButton aria-label="back" onClick={() => refresh()} size="small">
-              <RefreshIcon />
-            </IconButton>
-          </Box>
+          {providers && (
+            <>
+              <Box marginLeft="1rem">
+                <IconButton aria-label="back" onClick={() => refresh()} size="small">
+                  <RefreshIcon />
+                </IconButton>
+              </Box>
 
-          <Box marginLeft="1rem">
-            <FormControlLabel
-              control={<Checkbox checked={isFilteringActive} onChange={(ev, value) => setIsFilteringActive(value)} color="primary" />}
-              label="Active"
-            />
-          </Box>
-          <Box marginLeft="1rem">
-            <FormControlLabel
-              control={<Checkbox checked={isFilteringFavorites} onChange={(ev, value) => setIsFilteringFavorites(value)} color="primary" />}
-              label="Favorites"
-            />
-          </Box>
+              <Box marginLeft="2rem">
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={isFilteringActive}
+                      onChange={onIsFilteringActiveClick}
+                      color="primary"
+                      size="small"
+                      classes={{ root: classes.checkbox }}
+                    />
+                  }
+                  label="Active"
+                />
+              </Box>
+              <Box marginLeft="1rem">
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={isFilteringFavorites}
+                      onChange={onIsFilteringFavoritesClick}
+                      color="primary"
+                      size="small"
+                      classes={{ root: classes.checkbox }}
+                    />
+                  }
+                  label="Favorites"
+                />
+              </Box>
+              <Box marginLeft="1rem">
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={isFilteringAudited}
+                      onChange={onIsFilteringAuditedClick}
+                      color="primary"
+                      size="small"
+                      classes={{ root: classes.checkbox }}
+                    />
+                  }
+                  label="Audited"
+                />
+              </Box>
+            </>
+          )}
         </Box>
         <Box padding="0 1rem">
           <Grid container spacing={2}>

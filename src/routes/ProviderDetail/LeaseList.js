@@ -49,7 +49,7 @@ export function LeaseList({ leases, isLoadingLeases }) {
 
   useEffect(() => {
     if (leases) {
-      let _filteredLeases = [...leases];
+      let _filteredLeases = [...leases].sort((a, b) => (a.state === "active" ? -1 : 1));
 
       if (isFilteringActive) {
         _filteredLeases = _filteredLeases.filter((x) => x.state === "active");
@@ -80,7 +80,7 @@ export function LeaseList({ leases, isLoadingLeases }) {
         </Box>
       </Box>
 
-      {isLoadingLeases && <CircularProgress />}
+      {currentPageLeases?.length === 0 && isLoadingLeases && <CircularProgress />}
 
       {currentPageLeases?.length === 0 && !isLoadingLeases && (
         <>

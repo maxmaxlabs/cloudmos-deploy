@@ -63,10 +63,9 @@ export function getNetworkCapacityDto(networkCapacity) {
 export function getProviderLocalData() {
   const selectedNetworkId = localStorage.getItem("selectedNetworkId");
   const dataStr = localStorage.getItem(`${selectedNetworkId}/provider.data`);
-  if (!dataStr)
-    return {
-      favorites: []
-    };
+  if (!dataStr) {
+    return { favorites: [] };
+  }
 
   const parsedData = JSON.parse(dataStr);
 

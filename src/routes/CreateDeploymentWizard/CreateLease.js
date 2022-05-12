@@ -24,7 +24,8 @@ import { useCertificate } from "../../context/CertificateProvider";
 import { getDeploymentLocalData } from "../../shared/utils/deploymentLocalDataUtils";
 import { useTransactionModal } from "../../context/TransactionModal";
 import { UrlService } from "../../shared/utils/urlUtils";
-import { useBidList, useProviders, useDeploymentDetail } from "../../queries";
+import { useBidList, useDeploymentDetail } from "../../queries";
+import { useAkash } from "../../context/AkashProvider";
 import { useSnackbar } from "notistack";
 import MoreHorizIcon from "@material-ui/icons/MoreHoriz";
 import CloseIcon from "@material-ui/icons/Close";
@@ -77,10 +78,10 @@ export function CreateLease({ dseq }) {
   const { localCert } = useCertificate();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const history = useHistory();
-  const { data: providers } = useProviders();
   const [anchorEl, setAnchorEl] = useState(null);
   const classes = useStyles();
   const [numberOfRequests, setNumberOfRequests] = useState(0);
+  const { providers, getProviders } = useAkash();
   const warningRequestsReached = numberOfRequests > WARNING_NUM_OF_BID_REQUESTS;
   const maxRequestsReached = numberOfRequests > MAX_NUM_OF_BID_REQUESTS;
   const { favoriteProviders } = useLocalNotes();
@@ -104,6 +105,7 @@ export function CreateLease({ dseq }) {
 
   useEffect(() => {
     getDeploymentDetail();
+    getProviders();
 
     if (favoriteProviders.length > 0) {
       setIsFilteringFavorites(true);
@@ -114,7 +116,7 @@ export function CreateLease({ dseq }) {
   // Filter bids by search
   useEffect(() => {
     let fBids = [];
-    if (search || isFilteringFavorites) {
+    if ((search || isFilteringFavorites) && providers) {
       bids?.forEach((bid) => {
         let isAdded = false;
 

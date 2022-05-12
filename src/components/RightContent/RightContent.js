@@ -9,14 +9,12 @@ import { Settings } from "../../routes/Settings";
 import { TemplateDetails } from "../../routes/TemplateDetails";
 import { Providers } from "../../routes/Providers";
 import { ProviderDetail } from "../../routes/ProviderDetail";
-import { useProviders, useAllLeases, useDeploymentList, useDataNodeProviders } from "../../queries";
+import { useAllLeases, useDeploymentList } from "../../queries";
 
 export function RightContent() {
   const { address } = useWallet();
   const { data: deployments, isFetching: isFetchingDeployments, refetch: getDeployments } = useDeploymentList(address, { enabled: false });
-  const { data: providers, isFetching: isFetchingProviders, refetch: getProviders } = useProviders({ enabled: false });
   const { data: leases, isFetching: isFetchingLeases, refetch: getLeases } = useAllLeases(address, { enabled: false });
-  const { data: dataNodeProviders, isFetching: isFetchingDataNodeProviders, refetch: getDataNodeProviders } = useDataNodeProviders({ enabled: false });
 
   return (
     <>
@@ -36,28 +34,10 @@ export function RightContent() {
         <TemplateGallery />
       </Route>
       <Route exact path="/providers">
-        <Providers
-          providers={providers}
-          getProviders={getProviders}
-          isLoadingProviders={isFetchingProviders}
-          leases={leases}
-          isLoadingLeases={isFetchingLeases}
-          getLeases={getLeases}
-          dataNodeProviders={dataNodeProviders}
-          isLoadingDataNodeProviders={isFetchingDataNodeProviders}
-          getDataNodeProviders={getDataNodeProviders}
-        />
+        <Providers leases={leases} isLoadingLeases={isFetchingLeases} getLeases={getLeases} />
       </Route>
       <Route exact path="/providers/:owner">
-        <ProviderDetail
-          providers={providers}
-          leases={leases}
-          getLeases={getLeases}
-          isLoadingLeases={isFetchingLeases}
-          dataNodeProviders={dataNodeProviders}
-          isLoadingDataNodeProviders={isFetchingDataNodeProviders}
-          getDataNodeProviders={getDataNodeProviders}
-        />
+        <ProviderDetail leases={leases} getLeases={getLeases} isLoadingLeases={isFetchingLeases} />
       </Route>
       <Route exact path="/settings">
         <Settings />
