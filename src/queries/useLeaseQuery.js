@@ -1,48 +1,43 @@
 import { useQuery } from "react-query";
 import { QueryKeys } from "./queryKeys";
-import axios from "axios";
-import { ApiUrlService } from "../shared/utils/apiUtils";
+import { ApiUrlService, loadWithPagination } from "../shared/utils/apiUtils";
 import { useSettings } from "../context/SettingsProvider";
-import { deploymentGroupResourceSum, convertToArrayIfNeeded } from "../shared/utils/deploymentDetailUtils";
+import { leaseToDto } from "../shared/utils/deploymentDetailUtils";
 import { useCertificate } from "../context/CertificateProvider";
 
 // Leases
-async function getLeases(apiEndpoint, deployment, address) {
-  if (!address || !deployment) {
+async function getDeploymentLeases(apiEndpoint, address, deployment) {
+  if (!address) {
     return null;
   }
 
-  const response = await axios.get(ApiUrlService.leaseList(apiEndpoint, address, deployment.dseq));
+  const response = await loadWithPagination(ApiUrlService.leaseList(apiEndpoint, address, deployment?.dseq), "leases", 1000);
 
-  const leases = response.data.leases.map((l) => {
-    const group = deployment.groups.filter((g) => g.group_id.gseq === l.lease.lease_id.gseq)[0] || {};
-
-    return {
-      id: l.lease.lease_id.dseq + l.lease.lease_id.gseq + l.lease.lease_id.oseq,
-      owner: l.lease.lease_id.owner,
-      provider: l.lease.lease_id.provider,
-      dseq: l.lease.lease_id.dseq,
-      gseq: l.lease.lease_id.gseq,
-      oseq: l.lease.lease_id.oseq,
-      state: l.lease.state,
-      price: l.lease.price,
-      cpuAmount: deploymentGroupResourceSum(group, (r) => parseInt(r.cpu.units.val) / 1000),
-      memoryAmount: deploymentGroupResourceSum(group, (r) => parseInt(r.memory.quantity.val)),
-      storageAmount: deploymentGroupResourceSum(group, (r) =>
-        convertToArrayIfNeeded(r.storage)
-          .map((x) => parseInt(x.quantity.val))
-          .reduce((a, b) => a + b, 0)
-      ),
-      group
-    };
-  });
+  const leases = response.map((l) => leaseToDto(l, deployment));
 
   return leases;
 }
 
-export function useLeaseList(deployment, address, options) {
+export function useDeploymentLeaseList(address, deployment, options) {
   const { settings } = useSettings();
-  return useQuery(QueryKeys.getLeasesKey(address, deployment?.dseq), () => getLeases(settings.apiEndpoint, deployment, address), options);
+  return useQuery(QueryKeys.getLeasesKey(address, deployment?.dseq), () => getDeploymentLeases(settings.apiEndpoint, address, deployment), options);
+}
+
+async function getAllLeases(apiEndpoint, address, deployment) {
+  if (!address) {
+    return null;
+  }
+
+  const response = await loadWithPagination(ApiUrlService.leaseList(apiEndpoint, address, deployment?.dseq), "leases", 1000);
+
+  const leases = response.map((l) => leaseToDto(l, deployment));
+
+  return leases;
+}
+
+export function useAllLeases(address, options) {
+  const { settings } = useSettings();
+  return useQuery(QueryKeys.getAllLeasesKey(address), () => getAllLeases(settings.apiEndpoint, address), options);
 }
 
 async function getLeaseStatus(providerUri, lease, localCert) {

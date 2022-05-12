@@ -19,6 +19,7 @@ import { IntlProvider } from "react-intl";
 import { TemplatesProvider } from "./context/TemplatesProvider/TemplatesProviderContext";
 import { AsyncTaskProvider } from "./context/AsyncTaskProvider";
 import { CustomSnackbarProvider } from "./context/CustomSnackbarProvider";
+import { AkashProvider } from "./context/AkashProvider";
 
 let history = createMemoryHistory({
   initialEntries: ["/"],
@@ -35,8 +36,10 @@ function App() {
 
     history.listen(async (location, action) => {
       try {
-        const shouldLog = isLegitPath(location.pathname);
-        shouldLog && (await analytics.pageview(HOSTNAME, location.pathname + location.search, document.title));
+        setTimeout(async () => {
+          const shouldLog = isLegitPath(location.pathname);
+          shouldLog && (await analytics.pageview(HOSTNAME, location.pathname + location.search, document.title));
+        }, 100);
       } catch (error) {
         console.log(error);
       }
@@ -64,11 +67,13 @@ function App() {
                         <PasswordConfirmationModalProvider>
                           <CertificateProvider>
                             <LocalNoteProvider>
-                              <TemplatesProvider>
-                                <Helmet defaultTitle="Akashlytics Deploy" titleTemplate="Akashlytics Deploy - %s" />
+                              <AkashProvider>
+                                <TemplatesProvider>
+                                  <Helmet defaultTitle="Akashlytics Deploy" titleTemplate="Akashlytics Deploy - %s" />
 
-                                <AppSettingsContainer />
-                              </TemplatesProvider>
+                                  <AppSettingsContainer />
+                                </TemplatesProvider>
+                              </AkashProvider>
                             </LocalNoteProvider>
                           </CertificateProvider>
                         </PasswordConfirmationModalProvider>

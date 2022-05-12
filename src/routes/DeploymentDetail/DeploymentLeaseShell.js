@@ -1,14 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useCertificate } from "../../context/CertificateProvider";
 import { makeStyles, CircularProgress, Box, TextField, FormControl, InputAdornment, Button } from "@material-ui/core";
-import { useProviders } from "../../queries";
+import { useProviders, useLeaseStatus } from "../../queries";
 import { Alert } from "@material-ui/lab";
 import * as monaco from "monaco-editor";
 import { monacoOptions } from "../../shared/constants";
 import { ViewPanel } from "../../shared/components/ViewPanel";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 import { useThrottledCallback } from "../../hooks/useThrottle";
-import { useLeaseStatus } from "../../queries/useLeaseQuery";
 import { useForm, Controller } from "react-hook-form";
 import { ShellDownloadModal } from "./ShellDownloadModal";
 import { LeaseSelect } from "./LeaseSelect";

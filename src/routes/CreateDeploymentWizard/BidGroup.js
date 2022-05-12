@@ -5,6 +5,8 @@ import { SpecDetail } from "../../shared/components/SpecDetail";
 import { LabelValue } from "../../shared/components/LabelValue";
 import { BidRow } from "./BidRow";
 import { getStorageAmount } from "../../shared/utils/deploymentDetailUtils";
+import { Alert } from "@material-ui/lab";
+import CheckIcon from "@material-ui/icons/Check";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -13,10 +15,12 @@ const useStyles = makeStyles((theme) => ({
   subHeader: {
     display: "flex",
     alignItems: "center",
+    justifyContent: "space-between",
     paddingBottom: "6px",
     paddingTop: "6px",
     zIndex: 100,
-    backgroundColor: theme.palette.common.white
+    lineHeight: "2rem",
+    backgroundColor: theme.palette.grey[100]
   },
   secondaryText: {
     fontSize: ".8rem"
@@ -50,10 +54,23 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function BidGroup({ bids, gseq, selectedBid, handleBidSelected, disabled, providers, filteredBids, deploymentDetail }) {
+export function BidGroup({
+  bids,
+  gseq,
+  selectedBid,
+  handleBidSelected,
+  disabled,
+  providers,
+  filteredBids,
+  deploymentDetail,
+  isFilteringFavorites,
+  groupIndex,
+  totalBids
+}) {
   const classes = useStyles();
   const [resources, setResources] = useState();
   const allBidsClosed = bids.every((b) => b.state === "closed");
+  const fBids = bids.filter((bid) => filteredBids.includes(bid.id));
 
   useEffect(() => {
     const currentGroup = deploymentDetail?.groups.find((g) => g.group_id.gseq === parseInt(gseq));
@@ -72,30 +89,45 @@ export function BidGroup({ bids, gseq, selectedBid, handleBidSelected, disabled,
       <List
         subheader={
           <ListSubheader component="div" className={classes.subHeader}>
-            <Typography variant="h6">
-              <LabelValue label="GSEQ:" value={gseq} />
-            </Typography>
+            <Box display="flex" alignItems="center">
+              <Typography variant="h6">
+                <LabelValue label="GSEQ:" value={gseq} />
+              </Typography>
 
-            {resources && (
-              <Box marginLeft={2}>
-                <SpecDetail
-                  cpuAmount={resources.cpuAmount}
-                  memoryAmount={resources.memoryAmount}
-                  storageAmount={resources.storageAmount}
-                  color={allBidsClosed ? "default" : "primary"}
-                  size="small"
-                />
+              {resources && (
+                <Box marginLeft={2}>
+                  <SpecDetail
+                    cpuAmount={resources.cpuAmount}
+                    memoryAmount={resources.memoryAmount}
+                    storageAmount={resources.storageAmount}
+                    color={allBidsClosed ? "default" : "primary"}
+                    size="small"
+                  />
+                </Box>
+              )}
+            </Box>
+
+            <Box display="flex" alignItems="center">
+              {!!selectedBid && <CheckIcon color="primary" />}
+              <Box marginLeft="1rem">
+                {groupIndex + 1} of {totalBids}
               </Box>
-            )}
+            </Box>
           </ListSubheader>
         }
       >
-        {bids
-          .filter((bid) => filteredBids.includes(bid.id))
-          .map((bid) => {
-            const provider = providers && providers.find((x) => x.owner === bid.provider);
-            return <BidRow key={bid.id} bid={bid} provider={provider} handleBidSelected={handleBidSelected} disabled={disabled} selectedBid={selectedBid} />;
-          })}
+        {fBids.map((bid) => {
+          const provider = providers && providers.find((x) => x.owner === bid.provider);
+          return <BidRow key={bid.id} bid={bid} provider={provider} handleBidSelected={handleBidSelected} disabled={disabled} selectedBid={selectedBid} />;
+        })}
+
+        {isFilteringFavorites && fBids.length === 0 && (
+          <Box padding=".5rem 1rem">
+            <Alert severity="info" variant="outlined">
+              <Typography variant="caption">There are no favorite providers for this group...</Typography>
+            </Alert>
+          </Box>
+        )}
       </List>
     </Paper>
   );

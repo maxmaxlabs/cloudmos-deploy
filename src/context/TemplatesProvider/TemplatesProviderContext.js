@@ -1,5 +1,5 @@
 import React from "react";
-import { useTemplates as useTemplatesQuery } from "../../queries/useTemplatesQuery";
+import { useTemplates as useTemplatesQuery } from "../../queries";
 
 const TemplatesProviderContext = React.createContext({});
 

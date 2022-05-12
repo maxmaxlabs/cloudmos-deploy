@@ -4,12 +4,15 @@ import { PriceEstimateTooltip } from "../../shared/components/PriceEstimateToolt
 import { PricePerMonth } from "../../shared/components/PricePerMonth";
 import { ProviderAttributes } from "../../shared/components/ProviderAttributes";
 import { useEffect, useState } from "react";
-import { useProviderStatus } from "../../queries/useProvidersQuery";
+import { useProviderStatus } from "../../queries";
 import CloudOffIcon from "@material-ui/icons/CloudOff";
 import clsx from "clsx";
 import { LinkTo } from "../../shared/components/LinkTo";
 import { FormattedNumber } from "react-intl";
-import { ProviderDetail } from "../../components/ProviderDetail/ProviderDetail";
+import { ProviderDetailModal } from "../../components/ProviderDetail";
+import { FavoriteButton } from "../../shared/components/FavoriteButton";
+import { useLocalNotes } from "../../context/LocalNoteProvider";
+import { AuditorButton } from "../Providers/AuditorButton";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -39,6 +42,8 @@ const useStyles = makeStyles((theme) => ({
 export function BidRow({ bid, selectedBid, handleBidSelected, disabled, provider }) {
   const classes = useStyles();
   const [isViewingDetail, setIsViewingDetail] = useState(false);
+  const { favoriteProviders, updateFavoriteProviders } = useLocalNotes();
+  const isFavorite = favoriteProviders.some((x) => provider.owner === x);
   const {
     data: providerStatus,
     isLoading: isLoadingStatus,
@@ -48,6 +53,12 @@ export function BidRow({ bid, selectedBid, handleBidSelected, disabled, provider
     enabled: false,
     retry: false
   });
+
+  const onStarClick = () => {
+    const newFavorites = isFavorite ? favoriteProviders.filter((x) => x !== provider.owner) : favoriteProviders.concat([provider.owner]);
+
+    updateFavoriteProviders(newFavorites);
+  };
 
   useEffect(() => {
     if (provider) {
@@ -105,6 +116,7 @@ export function BidRow({ bid, selectedBid, handleBidSelected, disabled, provider
             {isLoadingStatus && <CircularProgress size="1rem" />}
 
             {providerStatus && <div>Name: {providerStatus?.name}</div>}
+
             {error && (
               <Box display="flex" alignItems="center">
                 <strong>OFFLINE</strong> <CloudOffIcon className={clsx(classes.stateIcon, classes.stateInactive)} fontSize="small" />
@@ -112,16 +124,28 @@ export function BidRow({ bid, selectedBid, handleBidSelected, disabled, provider
             )}
 
             {providerStatus && (
-              <div>
-                <LinkTo onClick={() => setIsViewingDetail(true)}>View details</LinkTo>
-              </div>
+              <Box display="flex" alignItems="center">
+                <FavoriteButton isFavorite={isFavorite} onClick={onStarClick} />
+
+                {provider.isAudited && (
+                  <Box marginLeft=".5rem">
+                    <AuditorButton provider={provider} />
+                  </Box>
+                )}
+
+                <Box marginLeft=".5rem" display="flex">
+                  <LinkTo onClick={() => setIsViewingDetail(true)}>View details</LinkTo>
+                </Box>
+              </Box>
             )}
           </div>
         }
       />
 
       {provider && <ProviderAttributes provider={provider} />}
-      {isViewingDetail && providerStatus && <ProviderDetail provider={providerStatus} address={bid.provider} onClose={() => setIsViewingDetail(false)} />}
+      {isViewingDetail && provider && providerStatus && (
+        <ProviderDetailModal provider={{ ...provider, ...providerStatus }} address={bid.provider} onClose={() => setIsViewingDetail(false)} />
+      )}
     </ListItem>
   );
 }

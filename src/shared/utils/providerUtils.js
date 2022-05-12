@@ -59,3 +59,23 @@ export function getNetworkCapacityDto(networkCapacity) {
     totalCPU: networkCapacity.totalCPU / 1000
   };
 }
+
+export function getProviderLocalData() {
+  const selectedNetworkId = localStorage.getItem("selectedNetworkId");
+  const dataStr = localStorage.getItem(`${selectedNetworkId}/provider.data`);
+  if (!dataStr) {
+    return { favorites: [] };
+  }
+
+  const parsedData = JSON.parse(dataStr);
+
+  return parsedData;
+}
+
+export function updateProviderLocalData(data) {
+  const oldData = getProviderLocalData();
+  const newData = { ...oldData, ...data };
+
+  const selectedNetworkId = localStorage.getItem("selectedNetworkId");
+  localStorage.setItem(`${selectedNetworkId}/provider.data`, JSON.stringify(newData));
+}

@@ -51,10 +51,16 @@ export const ProviderAttributes = ({ provider }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const onViewAllClick = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsExpanded((prev) => !prev)
+  }
+
   return (
     <div className={clsx(classes.attributesContainer, { [classes.expanded]: isExpanded, [classes.hasShadow]: isShowingViewAll && !isExpanded })}>
       {isShowingViewAll && (
-        <LinkTo onClick={() => setIsExpanded((prev) => !prev)} className={classes.viewAllButton}>
+        <LinkTo onClick={onViewAllClick} className={classes.viewAllButton}>
           View all
         </LinkTo>
       )}
@@ -62,20 +68,22 @@ export const ProviderAttributes = ({ provider }) => {
       <Typography variant="body2" className={classes.attributeTitle}>
         <strong>Attributes</strong>
       </Typography>
-      {provider.attributes.map((a) => (
-        <div className={classes.attributeRow} key={a.key}>
-          <div>
-            <Typography variant="caption" className={classes.attributeText}>
-              {a.key}:
-            </Typography>
+      {provider?.attributes?.map((a) => {
+        return (
+          <div className={classes.attributeRow} key={a.key}>
+            <div>
+              <Typography variant="caption" className={classes.attributeText}>
+                {a.key}:
+              </Typography>
+            </div>
+            <Box marginLeft="1rem">
+              <Typography variant="caption" className={classes.attributeText}>
+                {a.value}
+              </Typography>
+            </Box>
           </div>
-          <Box marginLeft="1rem">
-            <Typography variant="caption" className={classes.attributeText}>
-              {a.value}
-            </Typography>
-          </Box>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };

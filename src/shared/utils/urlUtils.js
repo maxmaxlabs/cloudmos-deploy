@@ -9,6 +9,8 @@ export class UrlService {
   static deploymentDetails = (dseq, tab, logsMode) => `/deployment/${dseq}${appendSearchParams({ tab, logsMode })}`;
   static templates = (category, search) => `/templates${appendSearchParams({ category, search })}`;
   static templateDetails = (templatePath) => `/templates/${templatePath}`;
+  static providers = () => "/providers";
+  static providerDetail = (owner) => `/providers/${owner}`;
   static settings = () => "/settings";
 
   static createDeployment = (dseq) => `/createDeployment${dseq ? "?redeploy=" + dseq : ""}`;
@@ -19,7 +21,18 @@ export class UrlService {
 }
 
 // Must update this when adding a route for analytics logging
-export const legitPaths = ["wallet-import", "wallet-open", "deployments", "deployment", "settings", "createDeployment", "templates", "register", "new-wallet"];
+export const legitPaths = [
+  "wallet-import",
+  "wallet-open",
+  "deployments",
+  "deployment",
+  "settings",
+  "createDeployment",
+  "templates",
+  "register",
+  "new-wallet",
+  "providers"
+];
 
 function appendSearchParams(params) {
   const urlParams = new URLSearchParams("");

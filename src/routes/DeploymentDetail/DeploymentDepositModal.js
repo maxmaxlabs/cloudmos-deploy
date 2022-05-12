@@ -12,7 +12,6 @@ import {
   InputAdornment,
   Box,
   TextField,
-  Chip,
   CircularProgress
 } from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
@@ -47,7 +46,6 @@ export function DeploymentDepositModal({ handleCancel, onDeploymentDeposit, min 
   const { settings } = useSettings();
   const { enqueueSnackbar } = useSnackbar();
   const [error, setError] = useState("");
-  const [isBalanceClicked, setIsBalanceClicked] = useState(false);
   const [isCheckingDepositor, setIsCheckingDepositor] = useState(false);
   const { balance, address } = useWallet();
   const {
@@ -122,7 +120,6 @@ export function DeploymentDepositModal({ handleCancel, onDeploymentDeposit, min 
   };
 
   const onBalanceClick = () => {
-    setIsBalanceClicked((prev) => !prev);
     clearErrors();
     setValue("amount", uaktToAKT(balance - fees.high, 6));
   };
@@ -154,7 +151,6 @@ export function DeploymentDepositModal({ handleCancel, onDeploymentDeposit, min 
       return;
     }
 
-    setIsBalanceClicked(false);
     onDeploymentDeposit(deposit, depositorAddress);
   };
 
@@ -191,14 +187,8 @@ export function DeploymentDepositModal({ handleCancel, onDeploymentDeposit, min 
                     className={classes.formValue}
                     inputProps={{ min: min, step: 0.000001, max: uaktToAKT(balance - fees.high, 6) }}
                     InputProps={{
-                      startAdornment: <InputAdornment position="start">AKT</InputAdornment>,
-                      endAdornment: isBalanceClicked && (
-                        <InputAdornment position="end">
-                          <Chip label="MAX" size="small" color="primary" />
-                        </InputAdornment>
-                      )
+                      startAdornment: <InputAdornment position="start">AKT</InputAdornment>
                     }}
-                    disabled={isBalanceClicked}
                   />
                 );
               }}

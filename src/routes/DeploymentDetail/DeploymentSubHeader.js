@@ -1,4 +1,4 @@
-import { Grid, makeStyles, Box, Tooltip } from "@material-ui/core";
+import { makeStyles, Box, Tooltip } from "@material-ui/core";
 import InfoIcon from "@material-ui/icons/Info";
 import WarningIcon from "@material-ui/icons/Warning";
 import { getAvgCostPerMonth, uaktToAKT, useRealTimeLeft } from "../../shared/utils/priceUtils";
@@ -13,7 +13,7 @@ import clsx from "clsx";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    padding: ".5rem 1rem",
+    height: "77px",
     borderBottom: `1px solid ${theme.palette.grey[300]}`
   },
   tooltip: {
@@ -26,18 +26,22 @@ const useStyles = makeStyles((theme) => ({
   warningIcon: {
     color: theme.palette.error.main
   },
-  costChip: {
-    display: "inline-flex",
-    alignItems: "baseline",
-    padding: "4px 8px",
-    backgroundColor: theme.palette.grey[800],
-    color: "white",
-    borderRadius: "4px",
-    marginTop: "4px",
-    fontSize: ".75rem",
-    "& svg": {
-      color: theme.palette.primary.contrastText
-    }
+  grid: {
+    padding: ".5rem 0",
+    maxWidth: "800px",
+    display: "flex"
+  },
+  gridItem: {
+    padding: "0 1rem",
+    lineHeight: "1.5rem"
+  },
+  costPanel: {
+    padding: ".5rem 1rem",
+    fontSize: ".875rem",
+    borderRight: `1px solid ${theme.palette.grey[300]}`,
+    whiteSpace: "nowrap",
+    display: "flex",
+    height: "100%"
   }
 }));
 
@@ -49,85 +53,90 @@ export function DeploymentSubHeader({ deployment, deploymentCost }) {
 
   return (
     <div className={classes.root}>
-      <Grid container spacing={0}>
-        <Grid item xs={3}>
-          <LabelValue
-            label="Status:"
-            value={
-              <>
-                <div>{deployment.state}</div>
-                <StatusPill state={deployment.state} />
-              </>
-            }
-          />
-        </Grid>
-        <Grid item xs={5}>
-          <Box display="flex" alignItems="center">
+      <Box display="flex" alignItems="center">
+        <Box className={classes.costPanel}>
+          <div>
+            <div>Balance:</div>
+            <div>Spent:</div>
+            {!!deploymentCost && (
+              <Box display="flex" alignItems="center">
+                Cost:
+                <PriceEstimateTooltip value={uaktToAKT(deploymentCost, 6)} />
+              </Box>
+            )}
+          </div>
+
+          <Box paddingLeft="1rem">
+            <div>
+              <strong>
+                <PriceValue value={uaktToAKT(isActive ? realTimeLeft?.escrow : deployment.escrowBalance, 6)} />
+              </strong>
+            </div>
+            <div>
+              <strong>
+                <PriceValue value={uaktToAKT(isActive ? realTimeLeft?.amountSpent : deployment.transferred.amount, 6)} />
+              </strong>
+            </div>
+
+            {!!deploymentCost && (
+              <Box display="flex" alignItems="center">
+                <PricePerMonth perBlockValue={uaktToAKT(deploymentCost, 6)} typoVariant="body2" />
+              </Box>
+            )}
+          </Box>
+        </Box>
+
+        <div className={classes.grid}>
+          <div className={classes.gridItem}>
             <LabelValue
-              label="Escrow balance:"
+              label="Status:"
               value={
                 <>
-                  {uaktToAKT(isActive ? realTimeLeft?.escrow : deployment.escrowBalance, 6)}&nbsp;AKT
-                  <Box component="span" display="inline-flex" marginLeft=".5rem">
-                    <Tooltip
-                      classes={{ tooltip: classes.tooltip }}
-                      arrow
-                      title="The escrow account balance will be fully returned to your wallet balance when the deployment is closed."
-                    >
-                      <InfoIcon className={classes.tooltipIcon} />
-                    </Tooltip>
-
-                    {!!realTimeLeft && realTimeLeft.escrow < 0 && isActive && (
-                      <Tooltip
-                        classes={{ tooltip: classes.tooltip }}
-                        arrow
-                        title="Your deployment is out of funds and can be closed by your provider at any time now. You can add funds to keep active."
-                      >
-                        <WarningIcon color="error" className={clsx(classes.tooltipIcon, classes.warningIcon)} />
-                      </Tooltip>
-                    )}
-                  </Box>
+                  <div>{deployment.state}</div>
+                  <StatusPill state={deployment.state} style={{ marginLeft: ".5rem" }} />
                 </>
               }
             />
-            <Box marginLeft=".5rem"></Box>
-          </Box>
-        </Grid>
-        <Grid item xs={4}>
-          {isActive && <LabelValue label="Time left:" value={isValid(realTimeLeft?.timeLeft) && `~${formatDistanceToNow(realTimeLeft?.timeLeft)}`} />}
-        </Grid>
-        <Grid item xs={3}>
-          <LabelValue label="DSEQ:" value={deployment.dseq} />
-        </Grid>
-        <Grid item xs={5}>
-          <LabelValue label="Amount spent:" value={`${uaktToAKT(isActive ? realTimeLeft?.amountSpent : deployment.transferred.amount, 6)} AKT`} />
-        </Grid>
-        <Grid item xs={4}>
-          <LabelValue label="Cost/Month:" value={`~${avgCost} AKT`} />
-        </Grid>
-      </Grid>
+            <LabelValue label="DSEQ:" value={deployment.dseq} />
+          </div>
 
-      <Box className={classes.costChip}>
-        <div>
-          Balance:&nbsp;
-          <strong>
-            <PriceValue value={uaktToAKT(isActive ? realTimeLeft?.escrow : deployment.escrowBalance, 6)} />
-          </strong>
+          <div className={classes.gridItem}>
+            <Box display="flex" alignItems="center">
+              <LabelValue
+                label="Balance:"
+                value={
+                  <>
+                    {uaktToAKT(isActive ? realTimeLeft?.escrow : deployment.escrowBalance, 6)}&nbsp;AKT
+                    <Box component="span" display="inline-flex" marginLeft=".5rem">
+                      <Tooltip
+                        classes={{ tooltip: classes.tooltip }}
+                        arrow
+                        title="The escrow account balance will be fully returned to your wallet balance when the deployment is closed."
+                      >
+                        <InfoIcon className={classes.tooltipIcon} />
+                      </Tooltip>
+
+                      {!!realTimeLeft && realTimeLeft.escrow < 0 && isActive && (
+                        <Tooltip
+                          classes={{ tooltip: classes.tooltip }}
+                          arrow
+                          title="Your deployment is out of funds and can be closed by your provider at any time now. You can add funds to keep active."
+                        >
+                          <WarningIcon color="error" className={clsx(classes.tooltipIcon, classes.warningIcon)} />
+                        </Tooltip>
+                      )}
+                    </Box>
+                  </>
+                }
+              />
+            </Box>
+            <LabelValue label="Spent:" value={`${uaktToAKT(isActive ? realTimeLeft?.amountSpent : deployment.transferred.amount, 6)} AKT`} />
+          </div>
+          <div className={classes.gridItem}>
+            {isActive && <LabelValue label="Time left:" value={isValid(realTimeLeft?.timeLeft) && `~${formatDistanceToNow(realTimeLeft?.timeLeft)}`} />}
+            <LabelValue label="Cost/Month:" value={`${avgCost} AKT`} />
+          </div>
         </div>
-
-        <Box marginLeft="1rem">
-          Spent:&nbsp;
-          <strong>
-            <PriceValue value={uaktToAKT(isActive ? realTimeLeft?.amountSpent : deployment.transferred.amount, 6)} />
-          </strong>
-        </Box>
-
-        {!!deploymentCost && (
-          <Box display="flex" alignItems="center" marginLeft="1rem">
-            Cost:&nbsp; <PricePerMonth perBlockValue={uaktToAKT(deploymentCost, 6)} typoVariant="caption" />
-            <PriceEstimateTooltip value={uaktToAKT(deploymentCost, 6)} />
-          </Box>
-        )}
       </Box>
     </div>
   );

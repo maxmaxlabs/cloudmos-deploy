@@ -4,7 +4,7 @@ import { ResponsivePie } from "@nivo/pie";
 import { uaktToAKT } from "../../shared/utils/priceUtils";
 import { customColors } from "../../shared/theme";
 import { PriceValue } from "../../shared/components/PriceValue";
-import { humanFileSize } from "../../shared/utils/unitUtils";
+import { ResourceBars } from "../../shared/components/ResourceBars";
 
 const useStyles = makeStyles((theme) => ({
   legendRow: {
@@ -32,28 +32,6 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "1rem",
     fontWeight: "bold",
     marginBottom: ".5rem"
-  },
-  networkCapacityContainer: {
-    padding: "1rem"
-  },
-  networkCapacityBar: {
-    height: "10px",
-    width: "100%",
-    border: `1px solid ${theme.palette.grey[300]}`,
-    borderRadius: "10px",
-    overflow: "hidden"
-  },
-  networkCapacityIndicator: {
-    backgroundColor: theme.palette.primary.main,
-    height: "100%"
-  },
-  networkCapacityDesc: {
-    paddingTop: "2px",
-    fontSize: ".6rem",
-    lineHeight: ".6rem",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between"
   }
 }));
 
@@ -148,56 +126,18 @@ export const DashboardInfoPanel = ({ balances, isLoadingBalances, escrowSum, net
           <Typography variant="h1" className={classes.title}>
             Network Capacity
           </Typography>
-          <Box marginBottom=".5rem">
-            <div className={classes.networkCapacityBar}>
-              <div
-                className={classes.networkCapacityIndicator}
-                style={{ width: `${Math.round(((networkCapacity.activeCPU + networkCapacity.pendingCPU) / networkCapacity.totalCPU) * 100)}%` }}
-              />
-            </div>
-            <div className={classes.networkCapacityDesc}>
-              <div>
-                <strong>CPU</strong>
-              </div>
-              <div>
-                {Math.round(networkCapacity.activeCPU + networkCapacity.pendingCPU)}&nbsp;CPU&nbsp;/&nbsp;{Math.round(networkCapacity.totalCPU)}&nbsp;CPU
-              </div>
-            </div>
-          </Box>
 
-          <Box marginBottom=".5rem">
-            <div className={classes.networkCapacityBar}>
-              <div
-                className={classes.networkCapacityIndicator}
-                style={{ width: `${Math.round(((networkCapacity.activeMemory + networkCapacity.pendingMemory) / networkCapacity.totalMemory) * 100)}%` }}
-              />
-            </div>
-            <div className={classes.networkCapacityDesc}>
-              <div>
-                <strong>RAM</strong>
-              </div>
-              <div>
-                {humanFileSize(networkCapacity.activeMemory + networkCapacity.pendingMemory)}&nbsp;/&nbsp;{humanFileSize(networkCapacity.totalMemory)}
-              </div>
-            </div>
-          </Box>
-
-          <Box marginBottom=".5rem">
-            <div className={classes.networkCapacityBar}>
-              <div
-                className={classes.networkCapacityIndicator}
-                style={{ width: `${Math.round(((networkCapacity.activeStorage + networkCapacity.pendingStorage) / networkCapacity.totalStorage) * 100)}%` }}
-              />
-            </div>
-            <div className={classes.networkCapacityDesc}>
-              <div>
-                <strong>STORAGE</strong>
-              </div>
-              <div>
-                {humanFileSize(networkCapacity.activeStorage + networkCapacity.pendingStorage)}&nbsp;/&nbsp;{humanFileSize(networkCapacity.totalStorage)}
-              </div>
-            </div>
-          </Box>
+          <ResourceBars
+            activeCPU={networkCapacity.activeCPU}
+            pendingCPU={networkCapacity.pendingCPU}
+            totalCPU={networkCapacity.totalCPU}
+            activeMemory={networkCapacity.activeMemory}
+            pendingMemory={networkCapacity.pendingMemory}
+            totalMemory={networkCapacity.totalMemory}
+            activeStorage={networkCapacity.activeStorage}
+            pendingStorage={networkCapacity.pendingStorage}
+            totalStorage={networkCapacity.totalStorage}
+          />
         </Box>
       )}
     </Box>

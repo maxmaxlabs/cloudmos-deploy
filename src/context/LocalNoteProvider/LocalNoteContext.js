@@ -1,11 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { getDeploymentLocalData } from "../../shared/utils/deploymentLocalDataUtils";
 import { DeploymentNameModal } from "./DeploymentNameModal";
+import { updateProviderLocalData } from "../../shared/utils/providerUtils";
+import { getProviderLocalData } from "../../shared/utils/providerUtils";
 
 const LocalNoteProviderContext = React.createContext({});
 
 export const LocalNoteProvider = ({ children }) => {
   const [dseq, setDseq] = useState(null);
+  const [favoriteProviders, setFavoriteProviders] = useState([]);
+
+  useEffect(() => {
+    const localProviderData = getProviderLocalData();
+    setFavoriteProviders(localProviderData.favorites);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const updateFavoriteProviders = (newFavorites) => {
+    updateProviderLocalData({ favorites: newFavorites });
+    setFavoriteProviders(newFavorites);
+  }
 
   const getDeploymentName = (dseq) => {
     const localData = getDeploymentLocalData(dseq);
@@ -32,7 +47,7 @@ export const LocalNoteProvider = ({ children }) => {
   };
 
   return (
-    <LocalNoteProviderContext.Provider value={{ getDeploymentName, changeDeploymentName, getDeploymentData }}>
+    <LocalNoteProviderContext.Provider value={{ getDeploymentName, changeDeploymentName, getDeploymentData, favoriteProviders, updateFavoriteProviders }}>
       <DeploymentNameModal dseq={dseq} onClose={() => setDseq(null)} onSaved={() => setDseq(null)} getDeploymentName={getDeploymentName} />
       {children}
     </LocalNoteProviderContext.Provider>

@@ -17,7 +17,7 @@ async function getTemplates() {
 export function useTemplates(options) {
   return useQuery(QueryKeys.getTemplatesKey(), () => getTemplates(), {
     ...options,
-    refetchInterval: 60000, // Refetch templates every minute
+    refetchInterval: 60000 * 2, // Refetch templates every 2 minutes
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false

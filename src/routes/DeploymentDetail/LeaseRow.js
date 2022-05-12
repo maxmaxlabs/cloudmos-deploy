@@ -26,8 +26,7 @@ import { SpecDetail } from "../../shared/components/SpecDetail";
 import { useCertificate } from "../../context/CertificateProvider";
 import { copyTextToClipboard } from "../../shared/utils/copyClipboard";
 import { useSnackbar } from "notistack";
-import { useLeaseStatus } from "../../queries/useLeaseQuery";
-import { useProviders } from "../../queries";
+import { useLeaseStatus, useProviderStatus } from "../../queries";
 import { sendManifestToProvider } from "../../shared/utils/deploymentUtils";
 import { deploymentData } from "../../shared/deploymentData";
 import { ManifestErrorSnackbar } from "../../shared/components/ManifestErrorSnackbar";
@@ -38,9 +37,13 @@ import { PriceEstimateTooltip } from "../../shared/components/PriceEstimateToolt
 import LaunchIcon from "@material-ui/icons/Launch";
 import InfoIcon from "@material-ui/icons/Info";
 import { ProviderAttributes } from "../../shared/components/ProviderAttributes";
-import { ProviderDetail } from "../../components/ProviderDetail/ProviderDetail";
-import { useProviderStatus } from "../../queries/useProvidersQuery";
+import { ProviderDetailModal } from "../../components/ProviderDetail";
 import { FormattedNumber } from "react-intl";
+import { FavoriteButton } from "../../shared/components/FavoriteButton";
+import { useLocalNotes } from "../../context/LocalNoteProvider";
+import { AuditorButton } from "../Providers/AuditorButton";
+import { Link } from "react-router-dom";
+import { UrlService } from "../../shared/utils/urlUtils";
 
 const yaml = require("js-yaml");
 
@@ -85,14 +88,15 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManifest, dseq }, ref) => {
+export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManifest, dseq, providers }, ref) => {
   const { enqueueSnackbar } = useSnackbar();
-  const { data: providers } = useProviders();
   const providerInfo = providers?.find((p) => p.owner === lease?.provider);
   const { localCert } = useCertificate();
   const isLeaseActive = lease.state === "active";
   const [isServicesAvailable, setIsServicesAvailable] = useState(false);
+  const { favoriteProviders, updateFavoriteProviders } = useLocalNotes();
   const [isViewingProviderDetail, setIsViewingProviderDetail] = useState(false);
+  const isFavorite = favoriteProviders.some((x) => lease?.provider === x);
   const {
     data: leaseStatus,
     error,
@@ -174,9 +178,20 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
     setIsSendingManifest(false);
   }
 
+  const onStarClick = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const newFavorites = isFavorite ? favoriteProviders.filter((x) => x !== lease.provider) : favoriteProviders.concat([lease.provider]);
+
+    updateFavoriteProviders(newFavorites);
+  };
+
   return (
     <>
-      {isViewingProviderDetail && <ProviderDetail provider={providerStatus} onClose={() => setIsViewingProviderDetail(false)} address={lease.provider} />}
+      {isViewingProviderDetail && (
+        <ProviderDetailModal provider={{ ...providerStatus, ...providerInfo }} onClose={() => setIsViewingProviderDetail(false)} address={lease.provider} />
+      )}
 
       <Card className={classes.root} elevation={4}>
         <CardHeader
@@ -236,10 +251,20 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
                       {isLoadingProviderStatus && <CircularProgress size="1rem" />}
                       {providerStatus && (
                         <>
-                          {providerStatus.name}
+                          <Link to={UrlService.providerDetail(lease.provider)}>{providerStatus.name}</Link>
 
-                          <Box marginLeft={1}>
-                            <LinkTo onClick={() => setIsViewingProviderDetail(true)}>View details</LinkTo>
+                          <Box display="flex" alignItems="center" marginLeft={1}>
+                            <FavoriteButton isFavorite={isFavorite} onClick={onStarClick} />
+
+                            {providerInfo.isAudited && (
+                              <Box marginLeft=".5rem">
+                                <AuditorButton provider={providerInfo} />
+                              </Box>
+                            )}
+
+                            <Box marginLeft=".5rem" display="flex">
+                              <LinkTo onClick={() => setIsViewingProviderDetail(true)}>View details</LinkTo>
+                            </Box>
                           </Box>
                         </>
                       )}
@@ -338,17 +363,20 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
                   </Box>
 
                   {leaseStatus.forwarded_ports && leaseStatus.forwarded_ports[service.name]?.length > 0 && (
-                    <>
-                      Forwarded Ports:{" "}
-                      {leaseStatus.forwarded_ports[service.name].map((p) => (
-                        <Box key={"port_" + p.externalPort} display="inline" mr={0.5}>
-                          <LinkTo label={``} disabled={p.available < 1} onClick={(ev) => handleExternalUrlClick(ev, `${p.host}:${p.externalPort}`)}>
-                            {p.externalPort}:{p.port}
-                          </LinkTo>
-                        </Box>
-                      ))}
-                    </>
+                    <Box marginTop="4px">
+                      <LabelValue
+                        label="Forwarded Ports:"
+                        value={leaseStatus.forwarded_ports[service.name].map((p) => (
+                          <Box key={"port_" + p.externalPort} display="inline" mr={0.5}>
+                            <LinkTo label={``} disabled={p.available < 1} onClick={(ev) => handleExternalUrlClick(ev, `${p.host}:${p.externalPort}`)}>
+                              {p.externalPort}:{p.port}
+                            </LinkTo>
+                          </Box>
+                        ))}
+                      />
+                    </Box>
                   )}
+
                   {service.uris?.length > 0 && (
                     <>
                       <Box marginTop=".5rem">

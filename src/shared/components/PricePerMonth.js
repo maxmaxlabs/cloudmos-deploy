@@ -7,7 +7,7 @@ export const PricePerMonth = ({ perBlockValue, typoVariant = "body1" }) => {
   return (
     <Typography variant={typoVariant}>
       <strong>
-        ~<PriceValue value={perBlockValue * (60 / averageBlockTime) * 60 * 24 * averageDaysInMonth} />
+        <PriceValue value={perBlockValue * (60 / averageBlockTime) * 60 * 24 * averageDaysInMonth} />
       </strong>{" "}
       / month
     </Typography>

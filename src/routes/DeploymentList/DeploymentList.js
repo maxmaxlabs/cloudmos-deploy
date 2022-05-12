@@ -34,6 +34,12 @@ export function DeploymentList({ deployments, isLoadingDeployments, refreshDeplo
   const classes = useStyles();
   const { settings } = useSettings();
   const { apiEndpoint } = settings;
+  const rowsPerPage = 10;
+  const orderedDeployments = deployments ? [...deployments].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)) : [];
+  const start = (page - 1) * rowsPerPage;
+  const end = start + rowsPerPage;
+  const currentPageDeployments = orderedDeployments.slice(start, end);
+  const pageCount = Math.ceil(orderedDeployments.length / rowsPerPage);
 
   useEffect(() => {
     refreshDeployments();
@@ -42,13 +48,6 @@ export function DeploymentList({ deployments, isLoadingDeployments, refreshDeplo
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
-
-  const rowsPerPage = 10;
-  const orderedDeployments = deployments ? [...deployments].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)) : [];
-  const start = (page - 1) * rowsPerPage;
-  const end = start + rowsPerPage;
-  const currentPageDeployments = orderedDeployments.slice(start, end);
-  const pageCount = Math.ceil(orderedDeployments.length / rowsPerPage);
 
   return (
     <>

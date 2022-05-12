@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useCertificate } from "../../context/CertificateProvider";
 import { makeStyles, Checkbox, FormControlLabel, Box, Button, CircularProgress } from "@material-ui/core";
-import { useProviders } from "../../queries";
+import { useProviders, useLeaseStatus } from "../../queries";
 import { ToggleButtonGroup, ToggleButton, Alert } from "@material-ui/lab";
 import * as monaco from "monaco-editor";
 import { monacoOptions } from "../../shared/constants";
@@ -10,7 +10,6 @@ import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkel
 import { useThrottledCallback } from "../../hooks/useThrottle";
 import { useAsyncTask } from "../../context/AsyncTaskProvider";
 import { SelectCheckbox } from "../../shared/components/SelectCheckbox";
-import { useLeaseStatus } from "../../queries/useLeaseQuery";
 import { LeaseSelect } from "./LeaseSelect";
 import { MemoMonaco } from "../../shared/components/MemoMonaco";
 import { analytics } from "../../shared/utils/analyticsUtils";

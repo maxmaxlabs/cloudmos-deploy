@@ -9,6 +9,7 @@ import { Link, useLocation } from "react-router-dom";
 import { UrlService } from "../../shared/utils/urlUtils";
 import { accountBarHeight, statusBarHeight } from "../../shared/constants";
 import clsx from "clsx";
+import DnsIcon from "@material-ui/icons/Dns";
 
 export const closedDrawerWidth = 58;
 export const drawerWidth = 200;
@@ -62,10 +63,16 @@ export const LeftNav = ({ onOpenMenuClick, isNavOpen }) => {
   const location = useLocation();
 
   const routes = [
-    { title: "Dashboard", icon: (props) => <DashboardIcon {...props} />, url: UrlService.dashboard() },
-    { title: "Deployments", icon: (props) => <CloudIcon {...props} />, url: UrlService.deploymentList() },
-    { title: "Templates", icon: (props) => <CollectionsIcon {...props} />, url: UrlService.templates() },
-    { title: "Settings", icon: (props) => <SettingsIcon {...props} />, url: UrlService.settings() }
+    { title: "Dashboard", icon: (props) => <DashboardIcon {...props} />, url: UrlService.dashboard(), activeRoutes: [UrlService.dashboard()] },
+    {
+      title: "Deployments",
+      icon: (props) => <CloudIcon {...props} />,
+      url: UrlService.deploymentList(),
+      activeRoutes: [UrlService.deploymentList(), "/deployment"]
+    },
+    { title: "Templates", icon: (props) => <CollectionsIcon {...props} />, url: UrlService.templates(), activeRoutes: [UrlService.templates()] },
+    { title: "Providers", icon: (props) => <DnsIcon {...props} />, url: UrlService.providers(), activeRoutes: [UrlService.providers()] },
+    { title: "Settings", icon: (props) => <SettingsIcon {...props} />, url: UrlService.settings(), activeRoutes: [UrlService.settings()] }
   ];
 
   return (
@@ -93,7 +100,7 @@ export const LeftNav = ({ onOpenMenuClick, isNavOpen }) => {
         </ListItem>
 
         {routes.map((route) => {
-          const isSelected = location.pathname === route.url;
+          const isSelected = route.url === UrlService.dashboard() ? location.pathname === "/" : route.activeRoutes.some((x) => location.pathname.startsWith(x));
           const listItemIcon = (
             <ListItemIcon color="primary" className={classes.closedListItemIcon}>
               {route.icon({ color: isSelected ? "primary" : "disabled" })}

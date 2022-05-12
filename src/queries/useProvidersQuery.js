@@ -4,6 +4,20 @@ import axios from "axios";
 import { ApiUrlService, loadWithPagination } from "../shared/utils/apiUtils";
 import { useSettings } from "../context/SettingsProvider";
 import { providerStatusToDto, getNetworkCapacityDto } from "../shared/utils/providerUtils";
+import { akashlyticsApi } from "../shared/constants";
+
+async function getProviderDetail(apiEndpoint, owner) {
+  if (!owner) return {};
+
+  const response = await axios.get(ApiUrlService.providerDetail(apiEndpoint, owner));
+
+  return response.data;
+}
+
+export function useProviderDetail(owner, options) {
+  const { settings } = useSettings();
+  return useQuery(QueryKeys.getProviderDetailKey(owner), () => getProviderDetail(settings.apiEndpoint, owner), options);
+}
 
 async function getProviders(apiEndpoint) {
   const providers = await loadWithPagination(ApiUrlService.providers(apiEndpoint), "providers", 1000);
@@ -22,9 +36,32 @@ export function useProviders(options) {
   });
 }
 
+async function getDataNodeProviders() {
+  const response = await axios.get(`${akashlyticsApi}/providers`);
+
+  return response.data;
+}
+
+export function useDataNodeProviders(options) {
+  return useQuery(QueryKeys.getDataNodeProvidersKey(), () => getDataNodeProviders(), {
+    ...options,
+    refetchInterval: 15000,
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: false
+  });
+}
+
 async function getProviderStatus(providerUri) {
   const statusResponse = await window.electron.queryProvider(`${providerUri}/status`, "GET");
-  const versionResponse = await window.electron.queryProvider(`${providerUri}/version`, "GET");
+  let versionResponse = {};
+
+  try {
+    versionResponse = await window.electron.queryProvider(`${providerUri}/version`, "GET");
+  } catch (error) {
+    console.log(error);
+  }
+
   const result = providerStatusToDto(statusResponse, versionResponse);
 
   return result;
@@ -41,4 +78,20 @@ async function getNetworkCapacity() {
 
 export function useNetworkCapacity(options) {
   return useQuery(QueryKeys.getNetworkCapacity(), () => getNetworkCapacity(), options);
+}
+
+async function getAuditors() {
+  const response = await axios.get("https://raw.githubusercontent.com/Akashlytics/akashlytics-deploy/master/auditors.json");
+
+  return response.data;
+}
+
+export function useAuditors(options) {
+  return useQuery(QueryKeys.getAuditorsKey(), () => getAuditors(), {
+    ...options,
+    refetchInterval: false,
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false
+  });
 }

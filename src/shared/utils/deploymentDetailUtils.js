@@ -51,3 +51,27 @@ export const getStorageAmount = (resource) => {
 
   return storage;
 };
+
+export function leaseToDto(lease, deployment) {
+  const group = deployment ? deployment.groups.filter((g) => g.group_id.gseq === lease.lease.lease_id.gseq)[0] : {};
+  return {
+    id: lease.lease.lease_id.dseq + lease.lease.lease_id.gseq + lease.lease.lease_id.oseq,
+    owner: lease.lease.lease_id.owner,
+    provider: lease.lease.lease_id.provider,
+    dseq: lease.lease.lease_id.dseq,
+    gseq: lease.lease.lease_id.gseq,
+    oseq: lease.lease.lease_id.oseq,
+    state: lease.lease.state,
+    price: lease.lease.price,
+    cpuAmount: deployment ? deploymentGroupResourceSum(group, (r) => parseInt(r.cpu.units.val) / 1000) : undefined,
+    memoryAmount: deployment ? deploymentGroupResourceSum(group, (r) => parseInt(r.memory.quantity.val)) : undefined,
+    storageAmount: deployment
+      ? deploymentGroupResourceSum(group, (r) =>
+          convertToArrayIfNeeded(r.storage)
+            .map((x) => parseInt(x.quantity.val))
+            .reduce((a, b) => a + b, 0)
+        )
+      : undefined,
+    group
+  };
+}

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Box, Avatar, TextField, makeStyles, Typography, List, ListItem, ListItemText, ListItemAvatar, CircularProgress, IconButton } from "@material-ui/core";
+import { Box, Avatar, TextField, makeStyles, Typography, List, ListItem, ListItemText, ListItemAvatar, IconButton } from "@material-ui/core";
 import { Helmet } from "react-helmet-async";
 import { useTemplates } from "../../context/TemplatesProvider";
 import { Link } from "react-router-dom";
@@ -9,6 +9,7 @@ import ImageIcon from "@material-ui/icons/Image";
 import { useHistory } from "react-router-dom";
 import { useQueryParams } from "../../hooks/useQueryParams";
 import CloseIcon from "@material-ui/icons/Close";
+import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 
 const useStyles = makeStyles((theme) => ({
   gallery: {
@@ -109,8 +110,10 @@ export function TemplateGallery(props) {
   };
 
   return (
-    <Box className={classes.root}>
+    <>
       <Helmet title="Template Gallery" />
+
+      <LinearLoadingSkeleton isLoading={isLoading} />
 
       <Box padding="1rem">
         <Typography variant="h3" className={classes.title}>
@@ -169,12 +172,6 @@ export function TemplateGallery(props) {
         </ViewPanel>
       ) : (
         <>
-          {isLoading && (
-            <Box textAlign="center">
-              <CircularProgress />
-            </Box>
-          )}
-
           <Box className={classes.gallery}>
             <ViewPanel bottomElementId="footer" overflow="auto" className={classes.categoryList}>
               <List>
@@ -205,26 +202,12 @@ export function TemplateGallery(props) {
                       <ListItemText primary={template.name} secondary={template.summary} />
                     </ListItem>
                   ))}
-
-                  {selectedCategory?.title === "Blockchain" && (
-                    <ListItem button onClick={() => window.electron.openUrl("https://github.com/ovrclk/cosmos-omnibus")}>
-                      <ListItemAvatar>
-                        <div className={classes.logoPlaceholder}>
-                          <ImageIcon />
-                        </div>
-                      </ListItemAvatar>
-                      <ListItemText
-                        primary="Cosmos Omnibus"
-                        secondary={"Visit the Cosmos Omnibus repository for templates to deploy cosmos-sdk-based docker images and configuration onto Akash."}
-                      />
-                    </ListItem>
-                  )}
                 </List>
               </ViewPanel>
             )}
           </Box>
         </>
       )}
-    </Box>
+    </>
   );
 }
