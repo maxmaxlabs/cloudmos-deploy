@@ -8,11 +8,14 @@ import { LoadProviderDetail } from "./LoadProviderDetail";
 import { FavoriteButton } from "../../shared/components/FavoriteButton";
 import { useLocalNotes } from "../../context/LocalNoteProvider";
 import { AuditorButton } from "./AuditorButton";
+import { StatusPill } from "../../shared/components/StatusPill";
 
 const useStyles = makeStyles((theme) => ({
   dataRow: {
     lineHeight: "1rem",
-    marginBottom: ".5rem"
+    marginBottom: ".5rem",
+    display: "flex",
+    alignItems: "center"
   },
   summaryRow: {
     display: "flex",
@@ -85,7 +88,9 @@ export function ProviderSummary({ provider, leases }) {
             <div className={clsx("text-truncate", classes.dataRow)}>{provider.host_uri}</div>
             {provider.isActive && <div className={classes.dataRow}>{provider.leaseCount}</div>}
             <div className={classes.dataRow}>{numberOfDeployments}</div>
-            <div className={classes.dataRow}>{numberOfActiveLeases}</div>
+            <div className={classes.dataRow}>
+              {numberOfActiveLeases} {numberOfActiveLeases > 0 && <StatusPill state="active" size="small" />}
+            </div>
           </div>
         </div>
         {provider.isActive && (

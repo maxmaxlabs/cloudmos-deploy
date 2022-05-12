@@ -202,20 +202,6 @@ export function TemplateGallery(props) {
                       <ListItemText primary={template.name} secondary={template.summary} />
                     </ListItem>
                   ))}
-
-                  {selectedCategory?.title === "Blockchain" && (
-                    <ListItem button onClick={() => window.electron.openUrl("https://github.com/ovrclk/cosmos-omnibus")}>
-                      <ListItemAvatar>
-                        <div className={classes.logoPlaceholder}>
-                          <ImageIcon />
-                        </div>
-                      </ListItemAvatar>
-                      <ListItemText
-                        primary="Cosmos Omnibus"
-                        secondary={"Visit the Cosmos Omnibus repository for templates to deploy cosmos-sdk-based docker images and configuration onto Akash."}
-                      />
-                    </ListItem>
-                  )}
                 </List>
               </ViewPanel>
             )}
