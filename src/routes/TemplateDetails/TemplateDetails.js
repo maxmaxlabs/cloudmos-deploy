@@ -36,11 +36,11 @@ const useStyles = makeStyles((theme) => ({
 
 export function TemplateDetails() {
   const [activeTab, setActiveTab] = useState("README");
-  const { templatePath } = useParams();
-  const { getTemplateByPath } = useTemplates();
+  const { templateId } = useParams();
+  const { getTemplateById } = useTemplates();
   const history = useHistory();
   const classes = useStyles();
-  const template = getTemplateByPath(templatePath);
+  const template = getTemplateById(templateId);
 
   function handleBackClick() {
     history.goBack();
@@ -76,7 +76,7 @@ export function TemplateDetails() {
           size="medium"
           color="primary"
           component={Link}
-          to={UrlService.createDeploymentFromTemplate(template.path)}
+          to={UrlService.createDeploymentFromTemplate(template.id)}
         >
           <PublishIcon />
           &nbsp;Deploy

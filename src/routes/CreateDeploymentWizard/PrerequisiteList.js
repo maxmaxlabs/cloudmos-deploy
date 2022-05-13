@@ -33,7 +33,7 @@ export function PrerequisiteList({ selectedTemplate, setSelectedTemplate }) {
   const history = useHistory();
   const queryParams = useQueryParams();
   const { getDeploymentData } = useLocalNotes();
-  const { getTemplateByPath } = useTemplates();
+  const { getTemplateById } = useTemplates();
 
   const allCheckSucceeded = isCertificateValidated && isLocalCertificateValidated;
 
@@ -101,13 +101,13 @@ export function PrerequisiteList({ selectedTemplate, setSelectedTemplate }) {
 
   const getGalleryTemplate = () => {
     let template = null;
-    if (queryParams.get("templatePath")) {
-      const templateByPath = getTemplateByPath(queryParams.get("templatePath"));
-      if (templateByPath) {
+    if (queryParams.get("templateId")) {
+      const templateById = getTemplateById(queryParams.get("templateId"));
+      if (templateById) {
         template = {
           code: "empty",
-          content: templateByPath.deploy,
-          valuesToChange: templateByPath.valuesToChange || []
+          content: templateById.deploy,
+          valuesToChange: templateById.valuesToChange || []
         };
       }
     }

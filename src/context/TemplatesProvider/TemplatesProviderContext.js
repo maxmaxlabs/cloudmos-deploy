@@ -8,11 +8,11 @@ export const TemplatesProvider = ({ children }) => {
   const categories = data ? data.categories : [];
   const templates = data ? data.templates : [];
 
-  function getTemplateByPath(path) {
-    return categories.flatMap((x) => x.templates).find((x) => x.path === path);
+  function getTemplateById(id) {
+    return categories.flatMap((x) => x.templates).find((x) => x.id === id);
   }
 
-  return <TemplatesProviderContext.Provider value={{ isLoading, categories, templates, getTemplateByPath }}>{children}</TemplatesProviderContext.Provider>;
+  return <TemplatesProviderContext.Provider value={{ isLoading, categories, templates, getTemplateById }}>{children}</TemplatesProviderContext.Provider>;
 };
 
 export const useTemplates = () => {
