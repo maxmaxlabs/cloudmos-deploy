@@ -148,7 +148,7 @@ export function TemplateGallery(props) {
         <ViewPanel bottomElementId="footer" overflow="auto" className={classes.templateList}>
           <List className={classes.templateList}>
             {searchResults?.map((template) => (
-              <ListItem button key={template.path} component={Link} to={UrlService.templateDetails(template.path)}>
+              <ListItem button key={template.id} component={Link} to={UrlService.templateDetails(template.id)}>
                 <ListItemAvatar>
                   {template.logoUrl ? (
                     <Avatar src={template.logoUrl} variant="square" />
@@ -189,7 +189,7 @@ export function TemplateGallery(props) {
               <ViewPanel bottomElementId="footer" overflow="auto" className={classes.templateList}>
                 <List>
                   {selectedCategory.templates.map((template) => (
-                    <ListItem button key={template.path} component={Link} to={UrlService.templateDetails(template.path)}>
+                    <ListItem button key={template.id} component={Link} to={UrlService.templateDetails(template.id)}>
                       <ListItemAvatar>
                         {template.logoUrl ? (
                           <Avatar src={template.logoUrl} variant="square" />
