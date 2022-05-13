@@ -90,7 +90,7 @@ export function DeploymentDetail({ deployments }) {
       setDeploymentManifest(deploymentData?.manifest);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [deployment, loadLeases]);
+  }, [deployment, loadLeases, dseq]);
 
   useEffect(() => {
     if (deploymentDetail) {
@@ -138,68 +138,70 @@ export function DeploymentDetail({ deployments }) {
       />
 
       {deployment && (
-        <DeploymentSubHeader deployment={deployment} deploymentCost={hasLeases ? leases.reduce((prev, current) => prev + current.price.amount, 0) : 0} />
-      )}
+        <>
+          <DeploymentSubHeader deployment={deployment} deploymentCost={hasLeases ? leases.reduce((prev, current) => prev + current.price.amount, 0) : 0} />
 
-      <Tabs value={activeTab} onChange={onChangeTab} indicatorColor="primary" textColor="primary" classes={{ root: classes.tabsRoot }}>
-        <Tab value="LEASES" label="Leases" classes={{ selected: classes.selectedTab }} />
-        {deployment?.state === "active" && leases?.some((x) => x.state === "active") && (
-          <Tab value="LOGS" label="Logs" classes={{ selected: classes.selectedTab }} />
-        )}
-        {deployment?.state === "active" && leases?.some((x) => x.state === "active") && (
-          <Tab value="SHELL" label="Shell" classes={{ selected: classes.selectedTab }} />
-        )}
-        <Tab value="EDIT" label="Update" classes={{ selected: classes.selectedTab }} />
-        <Tab value="RAW_DATA" label="Raw Data" classes={{ selected: classes.selectedTab }} />
-      </Tabs>
+          <Tabs value={activeTab} onChange={onChangeTab} indicatorColor="primary" textColor="primary" classes={{ root: classes.tabsRoot }}>
+            <Tab value="LEASES" label="Leases" classes={{ selected: classes.selectedTab }} />
+            {deployment?.state === "active" && leases?.some((x) => x.state === "active") && (
+              <Tab value="LOGS" label="Logs" classes={{ selected: classes.selectedTab }} />
+            )}
+            {deployment?.state === "active" && leases?.some((x) => x.state === "active") && (
+              <Tab value="SHELL" label="Shell" classes={{ selected: classes.selectedTab }} />
+            )}
+            <Tab value="EDIT" label="Update" classes={{ selected: classes.selectedTab }} />
+            <Tab value="RAW_DATA" label="Raw Data" classes={{ selected: classes.selectedTab }} />
+          </Tabs>
 
-      {activeTab === "EDIT" && deployment && leases && (
-        <ManifestEditor
-          deployment={deployment}
-          leases={leases}
-          closeManifestEditor={() => {
-            setActiveTab("LOGS");
-            setSelectedLogsMode("events");
-          }}
-        />
-      )}
-      {activeTab === "LOGS" && <DeploymentLogs leases={leases} selectedLogsMode={selectedLogsMode} setSelectedLogsMode={setSelectedLogsMode} />}
-      {activeTab === "SHELL" && <DeploymentLeaseShell leases={leases} />}
-      {activeTab === "RAW_DATA" && deployment && (
-        <Box display="flex">
-          <DeploymentJsonViewer jsonObj={deployment} title="Deployment JSON" />
-          <DeploymentJsonViewer jsonObj={leases} title="Leases JSON" />
-        </Box>
-      )}
-      {activeTab === "LEASES" && (
-        <Box padding="1rem">
-          {leases && (!localCert || !isLocalCertMatching) && (
-            <Box marginBottom="1rem">
-              <Alert severity="warning">You do not have a valid local certificate. You need to create a new one to view lease status and details.</Alert>
+          {activeTab === "EDIT" && deployment && leases && (
+            <ManifestEditor
+              deployment={deployment}
+              leases={leases}
+              closeManifestEditor={() => {
+                setActiveTab("LOGS");
+                setSelectedLogsMode("events");
+              }}
+            />
+          )}
+          {activeTab === "LOGS" && <DeploymentLogs leases={leases} selectedLogsMode={selectedLogsMode} setSelectedLogsMode={setSelectedLogsMode} />}
+          {activeTab === "SHELL" && <DeploymentLeaseShell leases={leases} />}
+          {activeTab === "RAW_DATA" && deployment && (
+            <Box display="flex">
+              <DeploymentJsonViewer jsonObj={deployment} title="Deployment JSON" />
+              <DeploymentJsonViewer jsonObj={leases} title="Leases JSON" />
             </Box>
           )}
+          {activeTab === "LEASES" && (
+            <Box padding="1rem">
+              {leases && (!localCert || !isLocalCertMatching) && (
+                <Box marginBottom="1rem">
+                  <Alert severity="warning">You do not have a valid local certificate. You need to create a new one to view lease status and details.</Alert>
+                </Box>
+              )}
 
-          {leases &&
-            leases.map((lease, i) => (
-              <LeaseRow
-                key={lease.id}
-                lease={lease}
-                setActiveTab={setActiveTab}
-                ref={leaseRefs[i]}
-                deploymentManifest={deploymentManifest}
-                dseq={dseq}
-                providers={providers}
-              />
-            ))}
+              {leases &&
+                leases.map((lease, i) => (
+                  <LeaseRow
+                    key={lease.id}
+                    lease={lease}
+                    setActiveTab={setActiveTab}
+                    ref={leaseRefs[i]}
+                    deploymentManifest={deploymentManifest}
+                    dseq={dseq}
+                    providers={providers}
+                  />
+                ))}
 
-          {!hasLeases && !isLoadingLeases && !isLoadingDeployment && <>This deployment doesn't have any leases</>}
+              {!hasLeases && !isLoadingLeases && !isLoadingDeployment && <>This deployment doesn't have any leases</>}
 
-          {(isLoadingLeases || isLoadingDeployment) && !hasLeases && (
-            <Box textAlign="center" padding="2rem">
-              <CircularProgress />
+              {(isLoadingLeases || isLoadingDeployment) && !hasLeases && (
+                <Box textAlign="center" padding="2rem">
+                  <CircularProgress />
+                </Box>
+              )}
             </Box>
           )}
-        </Box>
+        </>
       )}
     </div>
   );

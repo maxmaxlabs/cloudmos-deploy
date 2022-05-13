@@ -23,7 +23,7 @@ export function AuditorButton({ provider }) {
   return (
     <>
       <IconButton onClick={onAuditorClick} size="small">
-        <SecurityIcon fontSize="small" />
+        <SecurityIcon fontSize="small" color="primary" />
       </IconButton>
 
       {isViewingAuditors && <AuditorsModal provider={provider} onClose={onClose} />}
