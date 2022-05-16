@@ -237,11 +237,12 @@ export function Manifest(yamlJson) {
       const msvc = {
         Name: svcName,
         Image: svc.image,
-        Command: null,
+        Command: svc.command || null,
         Args: svc.args || null,
         Env: svc.env || null,
         Resources: toResourceUnits(compute.resources),
         Count: svcdepl.count,
+        // Set below
         Expose: null
       };
 
