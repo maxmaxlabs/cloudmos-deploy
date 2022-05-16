@@ -27,7 +27,7 @@ export function RightContent() {
       <Route exact path="/deployments">
         <DeploymentList deployments={deployments} refreshDeployments={getDeployments} isLoadingDeployments={isFetchingDeployments} />
       </Route>
-      <Route path="/templates/:templatePath">
+      <Route path="/templates/:templateId">
         <TemplateDetails />
       </Route>
       <Route exact path="/templates">

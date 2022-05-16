@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import { useTemplates } from "../../context/TemplatesProvider";
 import MonacoEditor from "react-monaco-editor";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { UrlService } from "../../shared/utils/urlUtils";
 import { Helmet } from "react-helmet-async";
 import { ViewPanel } from "../../shared/components/ViewPanel";
@@ -35,11 +36,11 @@ const useStyles = makeStyles((theme) => ({
 
 export function TemplateDetails() {
   const [activeTab, setActiveTab] = useState("README");
-  const { templatePath } = useParams();
-  const { getTemplateByPath } = useTemplates();
+  const { templateId } = useParams();
+  const { getTemplateById } = useTemplates();
   const history = useHistory();
   const classes = useStyles();
-  const template = getTemplateByPath(templatePath);
+  const template = getTemplateById(templateId);
 
   function handleBackClick() {
     history.goBack();
@@ -75,7 +76,7 @@ export function TemplateDetails() {
           size="medium"
           color="primary"
           component={Link}
-          to={UrlService.createDeploymentFromTemplate(template.path)}
+          to={UrlService.createDeploymentFromTemplate(template.id)}
         >
           <PublishIcon />
           &nbsp;Deploy
@@ -90,7 +91,9 @@ export function TemplateDetails() {
 
       {activeTab === "README" && (
         <ViewPanel bottomElementId="footer" overflow="auto" padding="1rem">
-          <ReactMarkdown linkTarget="_blank">{template.readme}</ReactMarkdown>
+          <ReactMarkdown linkTarget="_blank" remarkPlugins={[remarkGfm]} className="markdownContainer">
+            {template.readme}
+          </ReactMarkdown>
         </ViewPanel>
       )}
       {activeTab === "SDL" && (
@@ -100,7 +103,9 @@ export function TemplateDetails() {
       )}
       {activeTab === "GUIDE" && (
         <ViewPanel bottomElementId="footer" overflow="auto" padding="1rem">
-          <ReactMarkdown linkTarget="_blank">{template.guide}</ReactMarkdown>
+          <ReactMarkdown linkTarget="_blank" remarkPlugins={[remarkGfm]} className="markdownContainer">
+            {template.guide}
+          </ReactMarkdown>
         </ViewPanel>
       )}
     </div>

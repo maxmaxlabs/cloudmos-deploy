@@ -8,13 +8,13 @@ export class UrlService {
   static deploymentList = () => `/deployments`;
   static deploymentDetails = (dseq, tab, logsMode) => `/deployment/${dseq}${appendSearchParams({ tab, logsMode })}`;
   static templates = (category, search) => `/templates${appendSearchParams({ category, search })}`;
-  static templateDetails = (templatePath) => `/templates/${templatePath}`;
+  static templateDetails = (templateId) => `/templates/${templateId}`;
   static providers = () => "/providers";
   static providerDetail = (owner) => `/providers/${owner}`;
   static settings = () => "/settings";
 
   static createDeployment = (dseq) => `/createDeployment${dseq ? "?redeploy=" + dseq : ""}`;
-  static createDeploymentFromTemplate = (templatePath) => `/createDeployment?templatePath=${templatePath}`;
+  static createDeploymentFromTemplate = (templateId) => `/createDeployment?templateId=${templateId}`;
   static createDeploymentStepTemplate = () => "/createDeployment/chooseTemplate";
   static createDeploymentStepManifest = () => "/createDeployment/editManifest";
   static createDeploymentStepBids = () => "/createDeployment/acceptBids";
