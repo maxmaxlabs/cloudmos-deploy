@@ -15,21 +15,6 @@
   
 </div>
 
-## Features
-
-- 👝 Create/Import wallet
-- 🚀 Create/Update/Manage deployments
-- 🌌 Template gallery
-- 🔐 Secure (your private key and certificate never leave your computer)
-- 📄 Real-time log and events viewer
-- ✔ Cross-platform (Windows, MacOS, Linux)
-- 💲 Send transactions
-- 🛠 More to come...
-
-## Support us! 
-- `akash13265twfqejnma6cc93rw5dxk4cldyz2zyy8cdm`
-- Delegate to our [Akash validator node](https://www.mintscan.io/akash/validators/akashvaloper14mt78hz73d9tdwpdvkd59ne9509kxw8yj7qy8f)
-
 ##  Installation:
 
 The latest version of the tool can be downloaded from the Akashlytics website:
@@ -37,25 +22,34 @@ https://www.akashlytics.com/deploy or from the [release page.](https://github.co
 
 ### Running locally:
 
-1. Running with npm
+Running with npm
 
 ```
-
 npm install
-
 # Start the react app
 npm start
-
 # Start the electron app
 npm run electron-dev
-
 ```
 
-## Disclaimer
+## Features
 
-- Akashlytics Deploy is currently in BETA. We strongly suggest you start with a new wallet and a small amount of AKT until we further stabilize the product.
-- We're not responsible for any loss or damages related to using the app.
-- The app has a high chance of containing bugs since it's in BETA, use at your own risk.
+- ✔ Cross-platform (Windows, MacOS, Linux)
+- 🔎 Akash Provider Search and Network Statistics
+- ⚙️ 100+ Application [Template gallery](https://github.com/ovrclk/awesome-akash)
+- 🚀 Deployment Manager : Create/Update/Manage deployments
+- 📄 Real-time log and events viewer
+- 🏦 Wallet Manager : Send/Receive Transactions and Create/Import/Export your wallet 
+- 🔐 Secure : Your private key and certificate never leave your computer
+- 🛠 More to come...
+
+## Add new applications to the Template gallery
+
+Want to see your application in Akashlytics?  Create a pull request on the [awesome-akash](https://github.com/ovrclk/awesome-akash) repository.  Once the pull requested is accepted on the main branch the new application will appear in Akashlytics > Templates.
+
+## Support us! 
+- `akash13265twfqejnma6cc93rw5dxk4cldyz2zyy8cdm`
+- Delegate to our [Akash validator node](https://www.mintscan.io/akash/validators/akashvaloper14mt78hz73d9tdwpdvkd59ne9509kxw8yj7qy8f)
 
 ## Useful links
 
@@ -63,3 +57,11 @@ npm run electron-dev
 - [Youtube Channel (with tutorials)](https://www.youtube.com/channel/UC1rgl1y8mtcQoa9R_RWO0UA)
 - [Discord](https://discord.gg/dsGZzUR4yb)
 - [Twitter](https://twitter.com/thereisnomax)
+
+## Disclaimer
+
+- Akashlytics Deploy is currently in BETA. We strongly suggest you start with a new wallet and a small amount of AKT until we further stabilize the product.
+- We're not responsible for any loss or damages related to using the app.
+- The app has a high chance of containing bugs since it's in BETA, use at your own risk.
+
+
