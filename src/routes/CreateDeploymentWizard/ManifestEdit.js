@@ -96,6 +96,9 @@ export function ManifestEdit(props) {
     window.electron.openUrl(url);
   }
 
+  /**
+   * Validate values to change in the template
+   */
   function validateDeploymentData(deploymentData) {
     if (selectedTemplate.valuesToChange) {
       for (const valueToChange of selectedTemplate.valuesToChange) {
