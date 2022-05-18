@@ -44,3 +44,15 @@ export function selectText(node) {
     console.warn("Could not select text in node: Unsupported browser.");
   }
 }
+
+export function stringToBoolean(str = "") {
+  switch (str.toLowerCase()) {
+    case "false":
+    case "no":
+    case "0":
+    case "":
+      return false;
+    default:
+      return true;
+  }
+}

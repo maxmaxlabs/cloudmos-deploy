@@ -1,5 +1,8 @@
 import { CustomValidationError, ManifestVersion, ParseServiceProtocol, getCurrentHeight, shouldBeIngress, parseSizeStr } from "./helpers";
 import { defaultInitialDeposit } from "../constants";
+import { stringToBoolean } from "../utils/stringUtils";
+
+const path = require("path");
 
 const defaultHTTPOptions = {
   MaxBodySize: 1048576,
@@ -103,32 +106,18 @@ export function toResourceUnits(computeResources) {
 function DeploymentGroups(yamlJson) {
   let groups = {};
 
+  // Validate the integrity of the yaml
+  validate(yamlJson);
+
   Object.keys(yamlJson.services).forEach((svcName) => {
     const svc = yamlJson.services[svcName];
     const depl = yamlJson.deployment[svcName];
-
-    if (!depl) {
-      throw new CustomValidationError(`Service "${svcName}" is not defined in the "deployment" section.`);
-    }
 
     Object.keys(depl).forEach((placementName) => {
       const svcdepl = depl[placementName];
       const compute = yamlJson.profiles.compute[svcdepl.profile];
       const infra = yamlJson.profiles.placement[placementName];
-
-      if (!infra) {
-        throw new CustomValidationError(`The placement "${placementName}" is not defined in the "placement" section.`);
-      }
-
       const price = infra.pricing[svcdepl.profile];
-
-      if (!price) {
-        throw new CustomValidationError(`The pricing for the "${svcdepl.profile}" profile is not defined in the "${placementName}" placement definition.`);
-      }
-
-      if (!compute) {
-        throw new CustomValidationError(`The compute requirements for the "${svcdepl.profile}" profile are not defined in the "compute" section.`);
-      }
 
       price.amount = price.amount.toString(); // Interpreted as number otherwise
 
@@ -203,6 +192,108 @@ function DeploymentGroups(yamlJson) {
   return result;
 }
 
+function validate(yamlJson) {
+  Object.keys(yamlJson.services).forEach((svcName) => {
+    const svc = yamlJson.services[svcName];
+    const depl = yamlJson.deployment[svcName];
+
+    if (!depl) {
+      throw new CustomValidationError(`Service "${svcName}" is not defined in the "deployment" section.`);
+    }
+
+    Object.keys(depl).forEach((placementName) => {
+      const svcdepl = depl[placementName];
+      const compute = yamlJson.profiles.compute[svcdepl.profile];
+      const infra = yamlJson.profiles.placement[placementName];
+
+      if (!infra) {
+        throw new CustomValidationError(`The placement "${placementName}" is not defined in the "placement" section.`);
+      }
+
+      const price = infra.pricing[svcdepl.profile];
+
+      if (!price) {
+        throw new CustomValidationError(`The pricing for the "${svcdepl.profile}" profile is not defined in the "${placementName}" placement definition.`);
+      }
+
+      if (!compute) {
+        throw new CustomValidationError(`The compute requirements for the "${svcdepl.profile}" profile are not defined in the "compute" section.`);
+      }
+
+      // STORAGE VALIDATION
+      const storages = compute.resources.storage.map ? compute.resources.storage : [compute.resources.storage];
+      const volumes = {};
+      const attr = {};
+      const mounts = {};
+
+      storages?.forEach((storage) => {
+        const name = storage.name || "default";
+        volumes[name] = {
+          name,
+          quantity: { val: parseSizeStr(storage.size) },
+          attributes:
+            storage.attributes &&
+            Object.keys(storage.attributes)
+              .sort()
+              .map((key) => {
+                const value = storage.attributes[key].toString();
+                // add the storage attributes
+                attr[key] = value;
+
+                return {
+                  key,
+                  value
+                };
+              })
+        };
+      });
+
+      if (svc.params) {
+        (Object.keys(svc.params?.storage || {}) || []).forEach((name) => {
+          const params = svc.params.storage[name];
+          if (!volumes[name]) {
+            throw new CustomValidationError(`Service "${svcName}" references to no-existing compute volume names "${name}".`);
+          }
+
+          if (!path.isAbsolute(params.mount)) {
+            throw new CustomValidationError(`Invalid value for "service.${svcName}.params.${name}.mount" parameter. expected absolute path.`);
+          }
+
+          // merge the service params attributes
+          attr["mount"] = params.mount;
+          attr["readOnly"] = params.readOnly || false;
+          const mount = attr["mount"];
+          const vlname = mounts[mount];
+          
+          if (vlname) {
+            if (!mount) {
+              throw new CustomValidationError("Multiple root ephemeral storages are not allowed");
+            }
+
+            throw new CustomValidationError(`Mount ${mount} already in use by volume ${vlname}.`);
+          }
+
+          mounts[mount] = name;
+        });
+      }
+
+      (Object.keys(volumes) || []).forEach((volume) => {
+        volumes[volume].attributes?.forEach((nd) => {
+          attr[nd.key] = nd.value;
+        });
+
+        const persistent = stringToBoolean(attr["persistent"]);
+
+        if (persistent && !attr["mount"]) {
+          throw new CustomValidationError(
+            `compute.storage.${volume} has persistent=true which requires service.${svcName}.params.storage.${volume} to have mount.`
+          );
+        }
+      });
+    });
+  });
+}
+
 function DepositFromFlags(deposit) {
   return {
     denom: "uakt",
@@ -237,11 +328,12 @@ export function Manifest(yamlJson) {
       const msvc = {
         Name: svcName,
         Image: svc.image,
-        Command: null,
+        Command: svc.command || null,
         Args: svc.args || null,
         Env: svc.env || null,
         Resources: toResourceUnits(compute.resources),
         Count: svcdepl.count,
+        // Set below
         Expose: null
       };
 
