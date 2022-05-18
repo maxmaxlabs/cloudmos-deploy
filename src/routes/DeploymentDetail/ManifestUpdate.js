@@ -16,10 +16,13 @@ import { useProviders } from "../../queries";
 import { ManifestErrorSnackbar } from "../../shared/components/ManifestErrorSnackbar";
 import { LinkTo } from "../../shared/components/LinkTo";
 import InfoIcon from "@material-ui/icons/Info";
+import WarningIcon from "@material-ui/icons/Warning";
 import { ViewPanel } from "../../shared/components/ViewPanel";
 import { monacoOptions } from "../../shared/constants";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 import { Snackbar } from "../../shared/components/Snackbar";
+import { getManifestVersion } from "../../shared/deploymentData/v1beta2";
+import clsx from "clsx";
 
 const yaml = require("js-yaml");
 
@@ -36,11 +39,15 @@ export const useStyles = makeStyles((theme) => ({
     fontSize: "1.5rem",
     marginLeft: "1rem",
     color: theme.palette.text.secondary
+  },
+  warningIcon: {
+    color: theme.palette.warning.main
   }
 }));
 
-export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
+export function ManifestUpdate({ deployment, leases, closeManifestEditor }) {
   const [parsingError, setParsingError] = useState(null);
+  const [deploymentVersion, setDeploymentVersion] = useState(null);
   const [editedManifest, setEditedManifest] = useState("");
   const [isSendingManifest, setIsSendingManifest] = useState(false);
   const [showOutsideDeploymentMessage, setShowOutsideDeploymentMessage] = useState(false);
@@ -53,8 +60,17 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
   const { data: providers } = useProviders();
 
   useEffect(() => {
-    const deploymentData = getDeploymentLocalData(deployment.dseq);
-    setEditedManifest(deploymentData?.manifest);
+    const init = async () => {
+      const deploymentData = getDeploymentLocalData(deployment.dseq);
+      setEditedManifest(deploymentData?.manifest);
+
+      const yamlVersion = yaml.load(deploymentData?.manifest);
+      const version = await getManifestVersion(yamlVersion);
+
+      setDeploymentVersion(version);
+    };
+
+    init();
 
     if (!deploymentData) {
       setShowOutsideDeploymentMessage(true);
@@ -69,9 +85,9 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
       try {
         if (!editedManifest) return null;
 
-        const doc = yaml.load(yamlStr);
+        const yamlJson = yaml.load(yamlStr);
 
-        await deploymentData.NewDeploymentData(settings.apiEndpoint, doc, dseq, address);
+        await deploymentData.NewDeploymentData(settings.apiEndpoint, yamlJson, dseq, address);
 
         setParsingError(null);
       } catch (err) {
@@ -93,10 +109,14 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
         clearTimeout(timeoutId);
       }
     };
-  }, [editedManifest, deployment.dseq, settings.apiEndpoint, address]);
+  }, [editedManifest, deployment.dseq, settings.apiEndpoint, address, deploymentVersion]);
 
   function handleTextChange(value) {
     setEditedManifest(value);
+
+    if (deploymentVersion) {
+      setDeploymentVersion(null);
+    }
   }
 
   function handleUpdateDocClick(ev) {
@@ -117,23 +137,27 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
   }
 
   async function handleUpdateClick() {
-    const doc = yaml.load(editedManifest);
-    const dd = await deploymentData.NewDeploymentData(settings.apiEndpoint, doc, parseInt(deployment.dseq), address); // TODO Flags
-    const mani = deploymentData.Manifest(doc);
+    let response, sendManifestKey;
 
     try {
-      const message = TransactionMessageData.getUpdateDeploymentMsg(dd);
-      const response = await sendTransaction([message]);
+      const doc = yaml.load(editedManifest);
+      const dd = await deploymentData.NewDeploymentData(settings.apiEndpoint, doc, parseInt(deployment.dseq), address); // TODO Flags
+      const mani = deploymentData.Manifest(doc);
+
+      // If it's actual update, send a transaction, else just send the manifest
+      if (dd.version !== deployment.version) {
+        const message = TransactionMessageData.getUpdateDeploymentMsg(dd);
+        response = await sendTransaction([message]);
+      } else {
+        response = true;
+      }
 
       if (response) {
         setIsSendingManifest(true);
 
         saveDeploymentManifest(dd.deploymentId.dseq, editedManifest, dd.version, address);
 
-        const sendManifestKey = enqueueSnackbar(<Snackbar title="Sending Manifest! 🚀" subTitle="Please wait a few seconds..." showLoading />, {
-          variant: "success",
-          autoHideDuration: null
-        });
+        sendManifestKey = showSendManifestSnackbar();
 
         const leaseProviders = leases.map((lease) => lease.provider).filter((v, i, s) => s.indexOf(v) === i);
 
@@ -152,9 +176,17 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
       }
     } catch (error) {
       setIsSendingManifest(false);
+      closeSnackbar(sendManifestKey);
       throw error;
     }
   }
+
+  const showSendManifestSnackbar = () => {
+    return enqueueSnackbar(<Snackbar title="Sending Manifest! 🚀" subTitle="Please wait a few seconds..." showLoading />, {
+      variant: "success",
+      autoHideDuration: null
+    });
+  };
 
   return (
     <>
@@ -193,6 +225,21 @@ export function ManifestEditor({ deployment, leases, closeManifestEditor }) {
                 >
                   <InfoIcon className={classes.tooltipIcon} />
                 </Tooltip>
+
+                {!!deploymentVersion && deploymentVersion !== deployment.version && (
+                  <Tooltip
+                    classes={{ tooltip: classes.tooltip }}
+                    arrow
+                    interactive
+                    title={
+                      <Alert severity="warning">
+                        Your local deployment file version doesn't match the one on-chain. If you click update, you will override the deployed version.
+                      </Alert>
+                    }
+                  >
+                    <WarningIcon className={clsx(classes.tooltipIcon, classes.warningIcon)} />
+                  </Tooltip>
+                )}
               </Box>
 
               <Box>
