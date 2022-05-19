@@ -109,7 +109,7 @@ export function ManifestUpdate({ deployment, leases, closeManifestEditor }) {
         clearTimeout(timeoutId);
       }
     };
-  }, [editedManifest, deployment.dseq, settings.apiEndpoint, address, deploymentVersion]);
+  }, [editedManifest, deployment.dseq, settings.apiEndpoint, address]);
 
   function handleTextChange(value) {
     setEditedManifest(value);
