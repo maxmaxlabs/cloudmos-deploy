@@ -98,7 +98,7 @@ export function TemplateDetails() {
       )}
       {activeTab === "SDL" && (
         <ViewPanel bottomElementId="footer" overflow="hidden">
-          <MonacoEditor height="100%" language="yaml" theme="vs-dark" value={template.deploy} options={monacoOptions} />
+          <MonacoEditor height="100%" language="yaml" theme="vs-dark" value={template.deploy} options={{ ...monacoOptions, readOnly: true }} />
         </ViewPanel>
       )}
       {activeTab === "GUIDE" && (
