@@ -264,7 +264,7 @@ function validate(yamlJson) {
           attr["readOnly"] = params.readOnly || false;
           const mount = attr["mount"];
           const vlname = mounts[mount];
-          
+
           if (vlname) {
             if (!mount) {
               throw new CustomValidationError("Multiple root ephemeral storages are not allowed");
@@ -410,6 +410,13 @@ export function Manifest(yamlJson) {
 
   let result = names.map((name) => groups[name]);
   return result;
+}
+
+export async function getManifestVersion(yamlJson) {
+  const mani = Manifest(yamlJson);
+  const version = await ManifestVersion(mani);
+
+  return version;
 }
 
 export async function NewDeploymentData(apiEndpoint, yamlJson, dseq, fromAddress, deposit = defaultInitialDeposit, depositorAddress = null) {

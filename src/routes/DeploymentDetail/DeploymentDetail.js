@@ -6,7 +6,7 @@ import { useStyles } from "./DeploymentDetail.styles";
 import { DeploymentSubHeader } from "./DeploymentSubHeader";
 import { useWallet } from "../../context/WalletProvider";
 import { DeploymentJsonViewer } from "./DeploymentJsonViewer";
-import { ManifestEditor } from "./ManifestEditor";
+import { ManifestUpdate } from "./ManifestUpdate";
 import { useDeploymentDetail, useDeploymentLeaseList } from "../../queries";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 import { Helmet } from "react-helmet-async";
@@ -154,12 +154,13 @@ export function DeploymentDetail({ deployments }) {
           </Tabs>
 
           {activeTab === "EDIT" && deployment && leases && (
-            <ManifestEditor
+            <ManifestUpdate
               deployment={deployment}
               leases={leases}
               closeManifestEditor={() => {
                 setActiveTab("LOGS");
                 setSelectedLogsMode("events");
+                loadDeploymentDetail();
               }}
             />
           )}

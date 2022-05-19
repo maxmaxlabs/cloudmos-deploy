@@ -21,6 +21,7 @@ export function deploymentToDto(d) {
   return {
     dseq: d.deployment.deployment_id.dseq,
     state: d.deployment.state,
+    version: d.deployment.version,
     createdAt: parseInt(d.deployment.created_at),
     escrowBalance: escrowBalanceUAkt,
     transferred: d.escrow_account.transferred,
