@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useSnackbar } from "notistack";
-import { openCert } from "../../shared/utils/certificateUtils";
+import { openCert, getCertPem } from "../../shared/utils/certificateUtils";
 import { useSettings } from "../SettingsProvider";
 import { useWallet } from "../WalletProvider";
 import { Snackbar } from "../../shared/components/Snackbar";
@@ -12,6 +12,7 @@ const CertificateProviderContext = React.createContext({});
 
 export const CertificateProvider = ({ children }) => {
   const [validCertificates, setValidCertificates] = useState([]);
+  const [selectedCertificate, setSelectedCertificate] = useState(null);
   const [isLoadingCertificates, setIsLoadingCertificates] = useState(false);
   const [localCert, setLocalCert] = useState(null);
   const [isLocalCertMatching, setIsLocalCertMatching] = useState(false);
@@ -20,7 +21,6 @@ export const CertificateProvider = ({ children }) => {
   const { address } = useWallet();
   const { getLocalStorageItem } = useLocalStorage();
   const { apiEndpoint } = settings;
-  const certificate = validCertificates[0];
 
   const loadValidCertificates = useCallback(
     async (showSnackbar) => {
@@ -28,16 +28,25 @@ export const CertificateProvider = ({ children }) => {
 
       try {
         const response = await axios.get(`${apiEndpoint}/akash/cert/${networkVersion}/certificates/list?filter.state=valid&filter.owner=${address}`);
-        const data = response.data;
+        const certs = (response.data.certificates || []).map((cert) => {
+          const parsed = atob(cert.certificate.cert);
+          const pem = getCertPem(parsed);
 
-        setValidCertificates(data.certificates || []);
+          return {
+            ...cert,
+            parsed,
+            pem
+          };
+        });
+
+        setValidCertificates(certs);
         setIsLoadingCertificates(false);
 
         if (showSnackbar) {
           enqueueSnackbar(<Snackbar title="Certificate refreshed!" iconVariant="success" />, { variant: "success" });
         }
 
-        return data.certificates[0];
+        return certs;
       } catch (error) {
         console.log(error);
 
@@ -47,26 +56,32 @@ export const CertificateProvider = ({ children }) => {
         return "Certificate error.";
       }
     },
-    [address, apiEndpoint, enqueueSnackbar]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [address, apiEndpoint, localCert, selectedCertificate]
   );
 
   useEffect(() => {
     if (address) {
       loadValidCertificates();
-    } else {
-      setLocalCert(null);
     }
   }, [address, loadValidCertificates]);
 
   useEffect(() => {
     let isMatching = false;
-    if (certificate && localCert) {
-      const parsed = atob(certificate.certificate.cert);
-      isMatching = parsed === localCert.certPem;
+    if (validCertificates?.length > 0 && localCert) {
+      let currentCert = validCertificates.find((x) => x.parsed === localCert.certPem);
+
+      if (!selectedCertificate && currentCert) {
+        setSelectedCertificate(currentCert);
+      } else {
+        currentCert = validCertificates.find((x) => x.parsed === localCert.certPem && selectedCertificate?.serial === x.serial);
+      }
+
+      isMatching = !!currentCert;
     }
 
     setIsLocalCertMatching(isMatching);
-  }, [certificate, localCert]);
+  }, [selectedCertificate, localCert, validCertificates]);
 
   const loadLocalCert = async (address, password) => {
     const certPem = getLocalStorageItem(address + ".crt");
@@ -78,7 +93,18 @@ export const CertificateProvider = ({ children }) => {
   };
 
   return (
-    <CertificateProviderContext.Provider value={{ loadValidCertificates, certificate, isLoadingCertificates, loadLocalCert, localCert, isLocalCertMatching }}>
+    <CertificateProviderContext.Provider
+      value={{
+        loadValidCertificates,
+        selectedCertificate,
+        setSelectedCertificate,
+        isLoadingCertificates,
+        loadLocalCert,
+        localCert,
+        isLocalCertMatching,
+        validCertificates
+      }}
+    >
       {children}
     </CertificateProviderContext.Provider>
   );
