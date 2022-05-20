@@ -41,7 +41,7 @@ export function CertificateListModal({ onClose, revokeCertificate }) {
                 <TableCell align="center">Local cert</TableCell>
                 <TableCell align="center">Issued on</TableCell>
                 <TableCell align="center">Expires</TableCell>
-                <TableCell>Serial</TableCell>
+                <TableCell align="center">Serial</TableCell>
                 <TableCell align="center"></TableCell>
               </TableRow>
             </TableHead>
@@ -58,7 +58,7 @@ export function CertificateListModal({ onClose, revokeCertificate }) {
                   <TableCell align="center">
                     <FormattedDate value={cert.pem.expiresOn} year="numeric" month="2-digit" day="2-digit" hour="2-digit" minute="2-digit" />
                   </TableCell>
-                  <TableCell>{cert.serial}</TableCell>
+                  <TableCell align="center">{cert.serial}</TableCell>
                   <TableCell align="center">
                     <Button onClick={() => revokeCertificate(cert)} color="secondary" size="small">
                       Revoke
