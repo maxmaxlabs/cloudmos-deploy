@@ -88,7 +88,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManifest, dseq, providers }, ref) => {
+export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManifest, dseq, providers, loadDeploymentDetail }, ref) => {
   const { enqueueSnackbar } = useSnackbar();
   const providerInfo = providers?.find((p) => p.owner === lease?.provider);
   const { localCert } = useCertificate();
@@ -172,6 +172,8 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
       await sendManifestToProvider(providerInfo, manifest, dseq, localCert);
 
       enqueueSnackbar(<Snackbar title="Manifest sent!" iconVariant="success" />, { variant: "success", autoHideDuration: 10_000 });
+
+      loadDeploymentDetail();
     } catch (err) {
       enqueueSnackbar(<ManifestErrorSnackbar err={err} iconVariant="error" />, { variant: "error", autoHideDuration: null });
     }

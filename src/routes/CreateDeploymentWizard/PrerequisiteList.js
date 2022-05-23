@@ -56,9 +56,10 @@ export function PrerequisiteList({ selectedTemplate, setSelectedTemplate }) {
       setIsLoadingPrerequisites(true);
 
       const balance = await refreshBalance();
-      const certificate = await loadValidCertificates();
+      const validCertificates = await loadValidCertificates();
+      const currentCert = validCertificates.find((x) => x.parsed === localCert?.certPem);
       const isBalanceValidated = balance >= 5000000;
-      const isCertificateValidated = certificate?.certificate?.state === "valid";
+      const isCertificateValidated = currentCert?.certificate?.state === "valid";
       const isLocalCertificateValidated = !!localCert && isLocalCertMatching;
 
       setIsBalanceValidated(isBalanceValidated);

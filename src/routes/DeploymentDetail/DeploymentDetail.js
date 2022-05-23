@@ -90,7 +90,7 @@ export function DeploymentDetail({ deployments }) {
       setDeploymentManifest(deploymentData?.manifest);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [deployment, loadLeases, dseq]);
+  }, [deployment, loadLeases, dseq, localCert]);
 
   useEffect(() => {
     if (deploymentDetail) {
@@ -190,6 +190,7 @@ export function DeploymentDetail({ deployments }) {
                     deploymentManifest={deploymentManifest}
                     dseq={dseq}
                     providers={providers}
+                    loadDeploymentDetail={loadDeploymentDetail}
                   />
                 ))}
 

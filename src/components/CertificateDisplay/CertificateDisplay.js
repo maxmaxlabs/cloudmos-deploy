@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { makeStyles, Box, Typography, Button, IconButton, Tooltip, CircularProgress, Menu } from "@material-ui/core";
 import { TransactionMessageData } from "../../shared/utils/TransactionMessageData";
 import { usePasswordConfirmationModal } from "../../context/ConfirmPasswordModal";
@@ -9,6 +9,7 @@ import RefreshIcon from "@material-ui/icons/Refresh";
 import MoreHorizIcon from "@material-ui/icons/MoreHoriz";
 import WarningIcon from "@material-ui/icons/Warning";
 import AutorenewIcon from "@material-ui/icons/Autorenew";
+import CreateIcon from "@material-ui/icons/Create";
 import { useCertificate } from "../../context/CertificateProvider";
 import { useWallet } from "../../context/WalletProvider";
 import { analytics } from "../../shared/utils/analyticsUtils";
@@ -18,6 +19,8 @@ import GetAppIcon from "@material-ui/icons/GetApp";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 import { accountBarHeight } from "../../shared/constants";
 import { CustomMenuItem } from "../../shared/components/CustomMenuItem";
+import { LinkTo } from "../../shared/components/LinkTo";
+import { CertificateListModal } from "./CertificateListModal";
 
 const useStyles = makeStyles({
   root: {
@@ -32,19 +35,21 @@ const useStyles = makeStyles({
 });
 
 export function CertificateDisplay() {
-  const { certificate, isLocalCertMatching, isLoadingCertificates, loadValidCertificates, loadLocalCert } = useCertificate();
+  const [isExportingCert, setIsExportingCert] = useState(false);
+  const [isShowingCertificates, setIsShowingCertificates] = useState(false);
+  const { selectedCertificate, isLocalCertMatching, isLoadingCertificates, loadValidCertificates, loadLocalCert, localCert, setSelectedCertificate } =
+    useCertificate();
   const classes = useStyles();
   const { askForPasswordConfirmation } = usePasswordConfirmationModal();
   const { sendTransaction } = useTransactionModal();
   const { address } = useWallet();
-  const [isExportingCert, setIsExportingCert] = useState(false);
   const { removeLocalStorageItem, setLocalStorageItem } = useLocalStorage();
   const [anchorEl, setAnchorEl] = useState(null);
 
   /**
    * Revoke certificate
    */
-  const revokeCertificate = useCallback(async () => {
+  const revokeCertificate = async (certificate) => {
     handleClose();
 
     try {
@@ -56,14 +61,20 @@ export function CertificateDisplay() {
         removeLocalStorageItem(address + ".crt");
         removeLocalStorageItem(address + ".key");
 
-        await loadValidCertificates();
+        const validCerts = await loadValidCertificates();
+
+        if (validCerts?.length > 0 && certificate.serial === selectedCertificate.serial) {
+          setSelectedCertificate(validCerts[0]);
+        } else if (validCerts?.length === 0) {
+          setSelectedCertificate(null);
+        }
 
         await analytics.event("deploy", "revoke certificate");
       }
     } catch (error) {
       throw error;
     }
-  }, [address, loadValidCertificates, removeLocalStorageItem, sendTransaction, certificate]);
+  };
 
   /**
    * Create certificate
@@ -84,8 +95,12 @@ export function CertificateDisplay() {
         setLocalStorageItem(address + ".crt", crtpem);
         setLocalStorageItem(address + ".key", encryptedKey);
 
-        loadValidCertificates();
+        const validCerts = await loadValidCertificates();
         loadLocalCert(address, password);
+
+        const currentCert = validCerts.find((x) => x.parsed === crtpem);
+
+        setSelectedCertificate(currentCert);
 
         await analytics.event("deploy", "create certificate");
       }
@@ -106,7 +121,7 @@ export function CertificateDisplay() {
     const { crtpem, pubpem, encryptedKey } = generateCertificate(address, password);
 
     try {
-      const revokeCertMsg = TransactionMessageData.getRevokeCertificateMsg(address, certificate.serial);
+      const revokeCertMsg = TransactionMessageData.getRevokeCertificateMsg(address, selectedCertificate.serial);
       const createCertMsg = TransactionMessageData.getCreateCertificateMsg(address, crtpem, pubpem);
       const response = await sendTransaction([revokeCertMsg, createCertMsg]);
 
@@ -145,14 +160,14 @@ export function CertificateDisplay() {
               {isLoadingCertificates ? <CircularProgress size="1.5rem" /> : <RefreshIcon />}
             </IconButton>
           </Box>
-          {certificate && (
+          {selectedCertificate && (
             <Box marginLeft=".2rem">
               <IconButton aria-label="settings" aria-haspopup="true" onClick={handleMenuClick} size="small">
                 <MoreHorizIcon />
               </IconButton>
             </Box>
           )}
-          {!isLoadingCertificates && !certificate && (
+          {!isLoadingCertificates && !selectedCertificate && (
             <Box marginLeft="1rem">
               <Button variant="contained" color="primary" size="small" onClick={() => createCertificate()}>
                 Create Certificate
@@ -162,13 +177,15 @@ export function CertificateDisplay() {
         </Box>
 
         <Box display="flex" alignItems="center">
-          {certificate && (
-            <Typography variant="caption" color="textSecondary">
-              Serial: {certificate.serial}
-            </Typography>
+          {selectedCertificate && (
+            <LinkTo onClick={() => setIsShowingCertificates(true)}>
+              <Typography variant="caption" color="textSecondary">
+                Serial: {selectedCertificate.serial}
+              </Typography>
+            </LinkTo>
           )}
 
-          {certificate && !isLocalCertMatching && (
+          {selectedCertificate && !isLocalCertMatching && (
             <Tooltip
               classes={{ tooltip: classes.tooltip }}
               arrow
@@ -180,7 +197,7 @@ export function CertificateDisplay() {
         </Box>
       </div>
 
-      {certificate && (
+      {selectedCertificate && (
         <Menu
           id="cert-menu"
           anchorEl={anchorEl}
@@ -198,13 +215,20 @@ export function CertificateDisplay() {
           }}
           onClick={handleClose}
         >
-          <CustomMenuItem onClick={() => revokeCertificate()} icon={<DeleteForeverIcon fontSize="small" />} text="Revoke" />
-          <CustomMenuItem onClick={() => regenerateCertificate()} icon={<AutorenewIcon fontSize="small" />} text="Regenerate" />
+          {/** If local, regenerate else create */}
+          {selectedCertificate.parsed === localCert?.certPem ? (
+            <CustomMenuItem onClick={() => regenerateCertificate()} icon={<AutorenewIcon fontSize="small" />} text="Regenerate" />
+          ) : (
+            <CustomMenuItem onClick={() => createCertificate()} icon={<CreateIcon fontSize="small" />} text="Create" />
+          )}
+
+          <CustomMenuItem onClick={() => revokeCertificate(selectedCertificate)} icon={<DeleteForeverIcon fontSize="small" />} text="Revoke" />
           <CustomMenuItem onClick={() => setIsExportingCert(true)} icon={<GetAppIcon fontSize="small" />} text="Export" />
         </Menu>
       )}
 
       {isExportingCert && <ExportCertificate isOpen={isExportingCert} onClose={() => setIsExportingCert(false)} />}
+      {isShowingCertificates && <CertificateListModal onClose={() => setIsShowingCertificates(false)} revokeCertificate={revokeCertificate} />}
     </>
   );
 }
