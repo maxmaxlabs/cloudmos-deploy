@@ -53,7 +53,7 @@ export const CertificateProvider = ({ children }) => {
         setIsLoadingCertificates(false);
         enqueueSnackbar(<Snackbar title="Error fetching certificate." iconVariant="error" />, { variant: "error" });
 
-        return "Certificate error.";
+        return [];
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
