@@ -7,6 +7,7 @@ import { Snackbar } from "../../shared/components/Snackbar";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 import axios from "axios";
 import { networkVersion } from "../../shared/constants";
+import { getSelectedWallet } from "../../shared/utils/walletUtils";
 
 const CertificateProviderContext = React.createContext({});
 
@@ -84,10 +85,11 @@ export const CertificateProvider = ({ children }) => {
   }, [selectedCertificate, localCert, validCertificates]);
 
   const loadLocalCert = async (address, password) => {
-    const certPem = getLocalStorageItem(address + ".crt");
-    const encryptedKeyPem = getLocalStorageItem(address + ".key");
+    const currentWallet = getSelectedWallet();
+    // const certPem = getLocalStorageItem(address + ".crt");
+    // const encryptedKeyPem = getLocalStorageItem(address + ".key");
 
-    const cert = await openCert(password, certPem, encryptedKeyPem);
+    const cert = await openCert(password, currentWallet.cert, currentWallet.certKey);
 
     setLocalCert(cert);
   };

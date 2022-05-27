@@ -49,8 +49,8 @@ export const WalletProvider = ({ children }) => {
     [address, apiEndpoint, enqueueSnackbar]
   );
 
-  const deleteWallet = (address) => {
-    deleteWalletFromStorage(address);
+  const deleteWallet = (address, deleteDeployments) => {
+    deleteWalletFromStorage(address, deleteDeployments);
     setSelectedWallet(null);
     history.push("/");
   };
