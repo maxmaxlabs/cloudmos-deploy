@@ -4,7 +4,6 @@ import { openCert, getCertPem } from "../../shared/utils/certificateUtils";
 import { useSettings } from "../SettingsProvider";
 import { useWallet } from "../WalletProvider";
 import { Snackbar } from "../../shared/components/Snackbar";
-import { useLocalStorage } from "../../hooks/useLocalStorage";
 import axios from "axios";
 import { networkVersion } from "../../shared/constants";
 import { getSelectedWallet } from "../../shared/utils/walletUtils";
@@ -20,7 +19,6 @@ export const CertificateProvider = ({ children }) => {
   const { settings } = useSettings();
   const { enqueueSnackbar } = useSnackbar();
   const { address } = useWallet();
-  const { getLocalStorageItem } = useLocalStorage();
   const { apiEndpoint } = settings;
 
   const loadValidCertificates = useCallback(
@@ -84,10 +82,8 @@ export const CertificateProvider = ({ children }) => {
     setIsLocalCertMatching(isMatching);
   }, [selectedCertificate, localCert, validCertificates]);
 
-  const loadLocalCert = async (address, password) => {
+  const loadLocalCert = async (password) => {
     const currentWallet = getSelectedWallet();
-    // const certPem = getLocalStorageItem(address + ".crt");
-    // const encryptedKeyPem = getLocalStorageItem(address + ".key");
 
     const cert = await openCert(password, currentWallet.cert, currentWallet.certKey);
 
