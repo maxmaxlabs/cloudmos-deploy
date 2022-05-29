@@ -6,7 +6,7 @@ import { useWallet } from "../WalletProvider";
 import { Snackbar } from "../../shared/components/Snackbar";
 import axios from "axios";
 import { networkVersion } from "../../shared/constants";
-import { getSelectedWallet } from "../../shared/utils/walletUtils";
+import { getSelectedWallet, getWallets } from "../../shared/utils/walletUtils";
 
 const CertificateProviderContext = React.createContext({});
 
@@ -14,6 +14,7 @@ export const CertificateProvider = ({ children }) => {
   const [validCertificates, setValidCertificates] = useState([]);
   const [selectedCertificate, setSelectedCertificate] = useState(null);
   const [isLoadingCertificates, setIsLoadingCertificates] = useState(false);
+  const [localCerts, setLocalCerts] = useState(null);
   const [localCert, setLocalCert] = useState(null);
   const [isLocalCertMatching, setIsLocalCertMatching] = useState(false);
   const { settings } = useSettings();
@@ -63,14 +64,18 @@ export const CertificateProvider = ({ children }) => {
     if (address) {
       loadValidCertificates();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [address]);
 
+  useEffect(() => {
     // Clear certs when no selected wallet
     if (!selectedWallet) {
       setValidCertificates([]);
       setSelectedCertificate(null);
       setLocalCert(null);
     }
-  }, [address, loadValidCertificates, selectedWallet]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedWallet]);
 
   useEffect(() => {
     let isMatching = false;
@@ -90,11 +95,24 @@ export const CertificateProvider = ({ children }) => {
   }, [selectedCertificate, localCert, validCertificates]);
 
   const loadLocalCert = async (password) => {
+    // open certs for all the wallets to be able to switch without needing the password
+    const wallets = getWallets();
     const currentWallet = getSelectedWallet();
+    const certs = [];
 
-    const cert = await openCert(password, currentWallet.cert, currentWallet.certKey);
+    for (let i = 0; i < wallets.length; i++) {
+      const _wallet = wallets[i];
 
-    setLocalCert(cert);
+      const cert = await openCert(password, _wallet.cert, _wallet.certKey);
+
+      certs.push({ ...cert, address: _wallet.address });
+
+      if (_wallet.address === currentWallet.address) {
+        setLocalCert(cert);
+      }
+    }
+
+    setLocalCerts(certs);
   };
 
   return (
@@ -106,8 +124,12 @@ export const CertificateProvider = ({ children }) => {
         isLoadingCertificates,
         loadLocalCert,
         localCert,
+        setLocalCert,
         isLocalCertMatching,
-        validCertificates
+        validCertificates,
+        setValidCertificates,
+        localCerts,
+        setLocalCerts
       }}
     >
       {children}

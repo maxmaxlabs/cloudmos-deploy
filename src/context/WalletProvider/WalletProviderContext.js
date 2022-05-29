@@ -10,6 +10,7 @@ const WalletProviderContext = React.createContext({});
 
 export const WalletProvider = ({ children }) => {
   const { settings } = useSettings();
+  const [wallets, setWallets] = useState(null);
   const [selectedWallet, setSelectedWallet] = useState(null);
   const [address, setAddress] = useState(null);
   const [balance, setBalance] = useState(null);
@@ -75,7 +76,9 @@ export const WalletProvider = ({ children }) => {
   }, [address, refreshBalance]);
 
   return (
-    <WalletProviderContext.Provider value={{ balance, setSelectedWallet, refreshBalance, selectedWallet, address, isRefreshingBalance, deleteWallet }}>
+    <WalletProviderContext.Provider
+      value={{ balance, setSelectedWallet, refreshBalance, selectedWallet, address, isRefreshingBalance, deleteWallet, wallets, setWallets }}
+    >
       {children}
     </WalletProviderContext.Provider>
   );

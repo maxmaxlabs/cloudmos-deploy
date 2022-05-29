@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import AccountBalanceWalletIcon from "@material-ui/icons/AccountBalanceWallet";
 import { Box, TextField, Container, Button, CircularProgress, makeStyles, FormControl, Typography, Select, MenuItem } from "@material-ui/core";
-import { useSelectedWalletFromStorage, openWallet, useStorageWallets, updateWallets, getWallets } from "../../shared/utils/walletUtils";
+import { useSelectedWalletFromStorage, useStorageWallets, updateWallets, getWallets, validateWallets } from "../../shared/utils/walletUtils";
 import { useCertificate } from "../../context/CertificateProvider";
 import { useWallet } from "../../context/WalletProvider";
 import { useSnackbar } from "notistack";
@@ -51,7 +51,7 @@ export function WalletOpen() {
   const [isLoading, setIsLoading] = useState(false);
   const classes = useStyles();
   const [selectedWalletAddress, setSelectedWalletAddress] = useState();
-  const { setSelectedWallet, deleteWallet } = useWallet();
+  const { setSelectedWallet, deleteWallet, setWallets } = useWallet();
   const { loadLocalCert } = useCertificate();
   const { enqueueSnackbar } = useSnackbar();
   const currentWallet = useSelectedWalletFromStorage();
@@ -106,10 +106,13 @@ export function WalletOpen() {
     setIsLoading(true);
 
     try {
-      const wallet = await openWallet(password);
-      setSelectedWallet(wallet);
+      const wallets = await validateWallets(password);
+      const selectedWallet = wallets.find((w) => w.selected);
 
-      // Load local certificate
+      setWallets(wallets);
+      setSelectedWallet(selectedWallet);
+
+      // Load local certificates
       loadLocalCert(password);
 
       await analytics.event("deploy", "open wallet");
@@ -225,10 +228,10 @@ const WalletValue = ({ wallet }) => {
   return (
     <Alert icon={<AccountBalanceWalletIcon />} variant="outlined" classes={{ root: classes.alertRoot, icon: classes.alertIcon, message: classes.alertMessage }}>
       <Typography variant="body1">
-        <strong>{wallet?.name}</strong>
+        <strong>{wallet.name}</strong>
       </Typography>
       <Typography variant="caption">
-        <Address address={wallet?.address} />
+        <Address address={wallet.address} />
       </Typography>
     </Alert>
   );

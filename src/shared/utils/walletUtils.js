@@ -116,6 +116,10 @@ export async function validateWallets(password) {
 
     const wallet = await DirectSecp256k1HdWallet.deserializeWithEncryptionKey(selectedWallet.serializedWallet, keyArray);
 
+    wallet.name = selectedWallet.name;
+    wallet.selected = selectedWallet.selected;
+    wallet.address = selectedWallet.address;
+
     wallets.push(wallet);
   }
 

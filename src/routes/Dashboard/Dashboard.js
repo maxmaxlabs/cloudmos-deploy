@@ -52,7 +52,7 @@ export function Dashboard({ deployments, isLoadingDeployments, refreshDeployment
     getNetworkCapacity();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [address]);
 
   useEffect(() => {
     refreshDeployments();
