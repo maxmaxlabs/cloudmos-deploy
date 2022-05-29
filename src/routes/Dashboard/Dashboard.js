@@ -56,7 +56,7 @@ export function Dashboard({ deployments, isLoadingDeployments, refreshDeployment
 
   useEffect(() => {
     refreshDeployments();
-  }, [refreshDeployments, apiEndpoint]);
+  }, [refreshDeployments, apiEndpoint, address]);
 
   const onSelectDeployment = (checked, dseq) => {
     setSelectedDeploymentDseqs((prev) => {

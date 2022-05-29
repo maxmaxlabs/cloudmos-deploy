@@ -55,8 +55,8 @@ export const AccountsModal = ({ onClose }) => {
   };
 
   const handleAddAccount = () => {
-    setSelectedWallet(null);
-    history.replace(UrlService.register(true));
+    history.push(UrlService.register(true));
+    onClose();
   };
 
   return (
