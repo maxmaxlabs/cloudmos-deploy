@@ -161,12 +161,12 @@ export function NewWallet() {
   const onSubmit = async ({ name, password }) => {
     clearErrors();
 
-    if (isKeyValidated) {
-      try {
+    try {
+      if (isKeyValidated) {
         setIsCreatingWallet(true);
 
         // validate that all wallets have the same password
-        await validateWallets(password);
+        // await validateWallets(password);
 
         const { account, change, addressIndex } = hdPath;
 
@@ -176,18 +176,24 @@ export function NewWallet() {
         await analytics.event("deploy", "create wallet");
 
         history.replace(UrlService.dashboard());
-      } catch (error) {
-        if (error.message === "ciphertext cannot be decrypted using that key") {
-          enqueueSnackbar(<Snackbar title="Invalid password" iconVariant="error" />, { variant: "error" });
-        } else {
-          console.error(error);
-          enqueueSnackbar(<Snackbar title="An error has occured" subTitle={error.message} iconVariant="error" />, { variant: "error" });
-        }
+      } else {
+        setIsCreatingWallet(true);
 
+        // validate that all wallets have the same password
+        await validateWallets(password);
+
+        setIsKeyValidating(true);
         setIsCreatingWallet(false);
       }
-    } else {
-      setIsKeyValidating(true);
+    } catch (error) {
+      if (error.message === "ciphertext cannot be decrypted using that key") {
+        enqueueSnackbar(<Snackbar title="Invalid password" iconVariant="error" />, { variant: "error" });
+      } else {
+        console.error(error);
+        enqueueSnackbar(<Snackbar title="An error has occured" subTitle={error.message} iconVariant="error" />, { variant: "error" });
+      }
+
+      setIsCreatingWallet(false);
     }
   };
 

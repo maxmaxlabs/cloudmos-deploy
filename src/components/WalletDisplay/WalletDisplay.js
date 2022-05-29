@@ -152,7 +152,7 @@ export function WalletDisplay() {
             <Box component="span" marginLeft=".5rem" marginRight="2px">
               {balance / 1000000} AKT
             </Box>
-            <ArrowDropDownIcon fontSize="small" color="textSecondary" />
+            <ArrowDropDownIcon fontSize="small" color="inherit" />
           </Button>
 
           <Box marginLeft="1rem">
