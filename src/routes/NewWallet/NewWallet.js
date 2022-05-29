@@ -2,7 +2,7 @@ import { Button, makeStyles, Container, Typography, ButtonGroup, Box, FormContro
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { UrlService } from "../../shared/utils/urlUtils";
-import { generateNewWallet } from "../../shared/utils/walletUtils";
+import { generateNewWallet, validateWallets } from "../../shared/utils/walletUtils";
 import Alert from "@material-ui/lab/Alert";
 import { useWallet } from "../../context/WalletProvider";
 import { useForm, Controller } from "react-hook-form";
@@ -15,6 +15,7 @@ import { HdPath } from "../../shared/components/HdPath";
 import { MnemonicTextarea } from "../../shared/components/MnemonicTextarea";
 import { arrayEquals } from "../../shared/utils/array";
 import { Layout } from "../../shared/components/Layout";
+import { useQueryParams } from "../../hooks/useQueryParams";
 
 const useStyles = makeStyles((theme) => ({
   root: { padding: "5% 0" },
@@ -63,6 +64,8 @@ export function NewWallet() {
   const [isKeyValidated, setIsKeyValidated] = useState(false);
   const [isCreatingWallet, setIsCreatingWallet] = useState(false);
   const [selectedWords, setSelectedWords] = useState([]);
+  const queryParams = useQueryParams();
+  const isAddAccount = !!queryParams.get("add");
   const [hdPath, setHdPath] = useState({ account: 0, change: 0, addressIndex: 0 });
   const history = useHistory();
   const {
@@ -143,7 +146,7 @@ export function NewWallet() {
       setIsKeyValidated(false);
       setSelectedWords([]);
     } else {
-      history.push(UrlService.register());
+      history.goBack();
     }
   };
 
@@ -161,6 +164,10 @@ export function NewWallet() {
     if (isKeyValidated) {
       try {
         setIsCreatingWallet(true);
+
+        // validate that all wallets have the same password
+        await validateWallets(password);
+
         const { account, change, addressIndex } = hdPath;
 
         const importedWallet = await importWallet(newWallet.mnemonic, name, password, account, change, addressIndex);
@@ -170,8 +177,13 @@ export function NewWallet() {
 
         history.replace(UrlService.dashboard());
       } catch (error) {
-        console.error(error);
-        enqueueSnackbar(<Snackbar title="An error has occured" subTitle={error.message} iconVariant="error" />, { variant: "error" });
+        if (error.message === "ciphertext cannot be decrypted using that key") {
+          enqueueSnackbar(<Snackbar title="Invalid password" iconVariant="error" />, { variant: "error" });
+        } else {
+          console.error(error);
+          enqueueSnackbar(<Snackbar title="An error has occured" subTitle={error.message} iconVariant="error" />, { variant: "error" });
+        }
+
         setIsCreatingWallet(false);
       }
     } else {
@@ -306,30 +318,32 @@ export function NewWallet() {
                   />
                 </FormControl>
 
-                <FormControl error={!errors.confirmPassword} className={classes.formControl} fullWidth>
-                  <Controller
-                    control={control}
-                    name="confirmPassword"
-                    rules={{
-                      required: true,
-                      validate: (value) => !!value && value === password
-                    }}
-                    render={({ fieldState, field }) => {
-                      const helperText = fieldState.error?.type === "validate" ? "Password doesn't match." : "Confirm password is required.";
+                {!isAddAccount && (
+                  <FormControl error={!errors.confirmPassword} className={classes.formControl} fullWidth>
+                    <Controller
+                      control={control}
+                      name="confirmPassword"
+                      rules={{
+                        required: true,
+                        validate: (value) => !!value && value === password
+                      }}
+                      render={({ fieldState, field }) => {
+                        const helperText = fieldState.error?.type === "validate" ? "Password doesn't match." : "Confirm password is required.";
 
-                      return (
-                        <TextField
-                          {...field}
-                          type="password"
-                          variant="outlined"
-                          label="Confirm password"
-                          error={!!fieldState.invalid}
-                          helperText={fieldState.invalid && helperText}
-                        />
-                      );
-                    }}
-                  />
-                </FormControl>
+                        return (
+                          <TextField
+                            {...field}
+                            type="password"
+                            variant="outlined"
+                            label="Confirm password"
+                            error={!!fieldState.invalid}
+                            helperText={fieldState.invalid && helperText}
+                          />
+                        );
+                      }}
+                    />
+                  </FormControl>
+                )}
 
                 <HdPath onChange={onHdPathChange} />
               </>

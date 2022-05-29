@@ -63,6 +63,7 @@ export const WalletProvider = ({ children }) => {
     if (selectedWallet) {
       getAddress();
     } else {
+      setBalance(null);
       setAddress(null);
     }
   }, [selectedWallet]);

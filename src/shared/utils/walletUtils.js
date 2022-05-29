@@ -80,20 +80,46 @@ export async function importWallet(mnemonic, name, password, account = 0, change
 
   const serializedWallet = await wallet.serializeWithEncryptionKey(keyArray, basicPasswordHashingOptions);
   const address = (await wallet.getAccounts())[0].address;
-
   const wallets = getWallets();
-  const newWallets = wallets.concat([
-    {
-      name: name,
-      address: address,
-      serializedWallet: serializedWallet
-    }
-  ]);
+
+  if (wallets.some((w) => w.address === address)) {
+    throw new Error("This wallet is already imported.");
+  }
+
+  const newWallets = wallets
+    .concat([
+      {
+        name,
+        address,
+        serializedWallet
+      }
+    ])
+    .map((w) => ({ ...w, selected: w.address === address }));
   updateWallets(newWallets);
 
   wallet.name = name;
 
   return wallet;
+}
+
+export async function validateWallets(password) {
+  const storageWallets = getWallets();
+  let wallets = [];
+
+  for (let i = 0; i < storageWallets.length; i++) {
+    const selectedWallet = storageWallets[i];
+
+    const kdfConf = extractKdfConfiguration(selectedWallet.serializedWallet);
+
+    const key = await window.electron.executeKdf(password, kdfConf);
+    const keyArray = Uint8Array.of(...Object.values(key));
+
+    const wallet = await DirectSecp256k1HdWallet.deserializeWithEncryptionKey(selectedWallet.serializedWallet, keyArray);
+
+    wallets.push(wallet);
+  }
+
+  return wallets;
 }
 
 export async function openWallet(password) {

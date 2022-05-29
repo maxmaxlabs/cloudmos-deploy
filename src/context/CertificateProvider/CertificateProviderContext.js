@@ -18,7 +18,7 @@ export const CertificateProvider = ({ children }) => {
   const [isLocalCertMatching, setIsLocalCertMatching] = useState(false);
   const { settings } = useSettings();
   const { enqueueSnackbar } = useSnackbar();
-  const { address } = useWallet();
+  const { address, selectedWallet } = useWallet();
   const { apiEndpoint } = settings;
 
   const loadValidCertificates = useCallback(
@@ -63,7 +63,14 @@ export const CertificateProvider = ({ children }) => {
     if (address) {
       loadValidCertificates();
     }
-  }, [address, loadValidCertificates]);
+
+    // Clear certs when no selected wallet
+    if (!selectedWallet) {
+      setValidCertificates([]);
+      setSelectedCertificate(null);
+      setLocalCert(null);
+    }
+  }, [address, loadValidCertificates, selectedWallet]);
 
   useEffect(() => {
     let isMatching = false;

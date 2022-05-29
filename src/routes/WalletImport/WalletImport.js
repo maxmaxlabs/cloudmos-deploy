@@ -1,15 +1,16 @@
 import { useState } from "react";
 import { CircularProgress, TextField, Container, makeStyles, Button, Box, FormControl, Typography } from "@material-ui/core";
-import { importWallet } from "../../shared/utils/walletUtils";
+import { importWallet, validateWallets } from "../../shared/utils/walletUtils";
 import { useWallet } from "../../context/WalletProvider";
 import { analytics } from "../../shared/utils/analyticsUtils";
-import { Link, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { UrlService } from "../../shared/utils/urlUtils";
 import { useForm, Controller } from "react-hook-form";
 import { TitleLogo } from "../../shared/components/TitleLogo";
 import { useSnackbar } from "notistack";
 import { Snackbar } from "../../shared/components/Snackbar";
 import { HdPath } from "../../shared/components/HdPath";
+import { useQueryParams } from "../../hooks/useQueryParams";
 
 const useStyles = makeStyles((theme) => ({
   root: { padding: "5% 0" },
@@ -36,6 +37,8 @@ export function WalletImport() {
   const { setSelectedWallet } = useWallet();
   const [isLoading, setIsLoading] = useState(false);
   const history = useHistory();
+  const queryParams = useQueryParams();
+  const isAddAccount = !!queryParams.get("add");
   const [hdPath, setHdPath] = useState({ account: 0, change: 0, addressIndex: 0 });
   const {
     handleSubmit,
@@ -65,6 +68,10 @@ export function WalletImport() {
 
     try {
       setIsLoading(true);
+
+      // validate that all wallets have the same password
+      await validateWallets(password);
+
       const trimmedMnemonic = mnemonic.trim();
       const { account, change, addressIndex } = hdPath;
 
@@ -75,8 +82,13 @@ export function WalletImport() {
 
       history.replace(UrlService.dashboard());
     } catch (error) {
-      console.error(error);
-      enqueueSnackbar(<Snackbar title="An error has occured" subTitle={error.message} iconVariant="error" />, { variant: "error" });
+      if (error.message === "ciphertext cannot be decrypted using that key") {
+        enqueueSnackbar(<Snackbar title="Invalid password" iconVariant="error" />, { variant: "error" });
+      } else {
+        console.error(error);
+        enqueueSnackbar(<Snackbar title="An error has occured" subTitle={error.message} iconVariant="error" />, { variant: "error" });
+      }
+    } finally {
       setIsLoading(false);
     }
   }
@@ -166,37 +178,37 @@ export function WalletImport() {
             />
           </FormControl>
 
-          <FormControl error={!errors.confirmPassword} className={classes.formControl} fullWidth>
-            <Controller
-              control={control}
-              name="confirmPassword"
-              rules={{
-                required: true,
-                validate: (value) => !!value && value === password
-              }}
-              render={({ fieldState, field }) => {
-                const helperText = fieldState.error?.type === "validate" ? "Password doesn't match." : "Confirm password is required.";
+          {!isAddAccount && (
+            <FormControl error={!errors.confirmPassword} className={classes.formControl} fullWidth>
+              <Controller
+                control={control}
+                name="confirmPassword"
+                rules={{
+                  required: true,
+                  validate: (value) => !!value && value === password
+                }}
+                render={({ fieldState, field }) => {
+                  const helperText = fieldState.error?.type === "validate" ? "Password doesn't match." : "Confirm password is required.";
 
-                return (
-                  <TextField
-                    {...field}
-                    type="password"
-                    variant="outlined"
-                    label="Confirm password"
-                    error={!!fieldState.invalid}
-                    helperText={fieldState.invalid && helperText}
-                  />
-                );
-              }}
-            />
-          </FormControl>
+                  return (
+                    <TextField
+                      {...field}
+                      type="password"
+                      variant="outlined"
+                      label="Confirm password"
+                      error={!!fieldState.invalid}
+                      helperText={fieldState.invalid && helperText}
+                    />
+                  );
+                }}
+              />
+            </FormControl>
+          )}
 
           <HdPath onChange={onHdPathChange} />
 
           <Box display="flex" alignItems="center" justifyContent="space-between" marginTop="1rem">
-            <Button component={Link} to={UrlService.register()}>
-              Back
-            </Button>
+            <Button onClick={() => history.goBack()}>Back</Button>
 
             <Button type="submit" variant="contained" color="primary" disabled={isLoading}>
               {isLoading ? <CircularProgress size="1.5rem" color="primary" /> : <>Import</>}

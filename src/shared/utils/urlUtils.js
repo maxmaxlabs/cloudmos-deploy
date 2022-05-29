@@ -1,8 +1,8 @@
 export class UrlService {
-  static register = (add) => `register${appendSearchParams({ add })}`;
-  static newWallet = () => "new-wallet";
-  static walletImport = () => "wallet-import";
-  static walletOpen = () => "wallet-open";
+  static register = (add) => `/register${appendSearchParams({ add })}`;
+  static newWallet = (add) => `/new-wallet${appendSearchParams({ add })}`;
+  static walletImport = (add) => `/wallet-import${appendSearchParams({ add })}`;
+  static walletOpen = () => "/wallet-open";
 
   static dashboard = () => "/";
   static deploymentList = () => `/deployments`;

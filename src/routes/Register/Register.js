@@ -39,16 +39,16 @@ export function Register() {
           {isAddAccount && (
             <Box display="flex" alignItems="center" justifyContent="space-between" marginBottom="1rem">
               <LinkTo onClick={() => history.goBack()}>Back</LinkTo>
-              <Typography variant="h6" color="textSecondary">
+              <Typography variant="h6">
                 Add account
               </Typography>
             </Box>
           )}
 
-          <Button className={classes.spacing} variant="outlined" component={Link} to={UrlService.newWallet()} color="primary">
+          <Button className={classes.spacing} variant="outlined" component={Link} to={UrlService.newWallet(isAddAccount)} color="primary">
             Create new account
           </Button>
-          <Button className={classes.spacing} variant="outlined" component={Link} to={UrlService.walletImport()} color="primary">
+          <Button className={classes.spacing} variant="outlined" component={Link} to={UrlService.walletImport(isAddAccount)} color="primary">
             Import existing account
           </Button>
 

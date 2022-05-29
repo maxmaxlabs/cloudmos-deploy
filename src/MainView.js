@@ -54,7 +54,7 @@ export function MainView() {
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [balance]);
+  }, [isRefreshingBalance, balance]);
 
   const onOpenMenuClick = () => {
     setIsNavOpen((prev) => !prev);

@@ -89,7 +89,6 @@ export function WalletOpen() {
   }
 
   const handleWalletChange = (event) => {
-    debugger;
     const value = event.target.value;
 
     let wallets = getWallets();
@@ -108,13 +107,12 @@ export function WalletOpen() {
 
     try {
       const wallet = await openWallet(password);
+      setSelectedWallet(wallet);
 
       // Load local certificate
       loadLocalCert(password);
 
       await analytics.event("deploy", "open wallet");
-
-      setSelectedWallet(wallet);
 
       history.push(UrlService.dashboard());
     } catch (err) {
