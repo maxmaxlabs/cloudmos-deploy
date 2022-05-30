@@ -36,10 +36,10 @@ export function updateWallet(address, func) {
   wallet = func(wallet);
 
   const newWallets = wallets.map((w) => (w.address === address ? wallet : w));
-  updateWallets(newWallets);
+  updateStorageWallets(newWallets);
 }
 
-export function updateWallets(wallets) {
+export function updateStorageWallets(wallets) {
   const selectedNetworkId = localStorage.getItem("selectedNetworkId");
   localStorage.setItem(`${selectedNetworkId}/wallets`, JSON.stringify(wallets));
 }
@@ -49,7 +49,7 @@ export function deleteWalletFromStorage(address, deleteDeployments) {
   const wallets = getWallets();
   const newWallets = wallets.filter((w) => w.address !== address);
 
-  updateWallets(newWallets);
+  updateStorageWallets(newWallets);
 
   if (deleteDeployments) {
     const deploymentKeys = Object.keys(localStorage).filter((key) => key.startsWith(`${selectedNetworkId}/${address}/deployments/`));
@@ -95,9 +95,11 @@ export async function importWallet(mnemonic, name, password, account = 0, change
       }
     ])
     .map((w) => ({ ...w, selected: w.address === address }));
-  updateWallets(newWallets);
+  updateStorageWallets(newWallets);
 
   wallet.name = name;
+  wallet.selected = true;
+  wallet.address = address;
 
   return wallet;
 }

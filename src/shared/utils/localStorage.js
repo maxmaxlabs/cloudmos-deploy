@@ -26,11 +26,7 @@ const migrations = {
       return newKey;
     }
 
-    debugger;
-
     networks.forEach((network) => {
-      debugger;
-
       const walletAddress = getWalletAddress(network.id);
 
       if (walletAddress) {

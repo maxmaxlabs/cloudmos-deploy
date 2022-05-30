@@ -1,5 +1,5 @@
 import { makeStyles, Button, Dialog, DialogContent, DialogActions, DialogTitle, List, ListItem, ListItemIcon, ListItemText, Box } from "@material-ui/core";
-import { useStorageWallets } from "../../shared/utils/walletUtils";
+import { useStorageWallets, updateStorageWallets } from "../../shared/utils/walletUtils";
 import { useWallet } from "../../context/WalletProvider";
 import CheckIcon from "@material-ui/icons/Check";
 import { UrlService } from "../../shared/utils/urlUtils";
@@ -33,12 +33,16 @@ export const AccountsModal = ({ onClose }) => {
     if (wallet.address !== address) {
       const newWallet = wallets.find((w) => w.address === wallet.address);
 
+      // Update memory wallets
       for (let i = 0; i < wallets.length; i++) {
         wallets[i].selected = wallets[i].address === wallet.address;
       }
 
+      // Update storage wallets
+      const newStorageWallets = storageWallets.map((w) => ({ ...w, selected: w.address === wallet.address }));
       const localCert = localCerts.find((c) => c.address === wallet.address);
 
+      updateStorageWallets(newStorageWallets);
       setWallets(wallets);
       setSelectedWallet(newWallet);
       setValidCertificates([]);

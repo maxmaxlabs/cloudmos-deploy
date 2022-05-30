@@ -57,15 +57,16 @@ export function CertificateDisplay() {
       const response = await sendTransaction([message]);
 
       if (response) {
+        const validCerts = await loadValidCertificates();
+        const isRevokingOtherCert = validCerts.some((c) => c.parsed === localCert.certPem);
+
         updateWallet(address, (wallet) => {
           return {
             ...wallet,
-            cert: undefined,
-            certKey: undefined
+            cert: isRevokingOtherCert ? wallet.cert : undefined,
+            certKey: isRevokingOtherCert ? wallet.certKey : undefined
           };
         });
-
-        const validCerts = await loadValidCertificates();
 
         if (validCerts?.length > 0 && certificate.serial === selectedCertificate.serial) {
           setSelectedCertificate(validCerts[0]);

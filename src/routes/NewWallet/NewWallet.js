@@ -16,6 +16,7 @@ import { MnemonicTextarea } from "../../shared/components/MnemonicTextarea";
 import { arrayEquals } from "../../shared/utils/array";
 import { Layout } from "../../shared/components/Layout";
 import { useQueryParams } from "../../hooks/useQueryParams";
+import { useCertificate } from "../../context/CertificateProvider";
 
 const useStyles = makeStyles((theme) => ({
   root: { padding: "5% 0" },
@@ -82,7 +83,8 @@ export function NewWallet() {
     }
   });
   const { password } = watch();
-  const { setSelectedWallet } = useWallet();
+  const { setSelectedWallet, wallets, setWallets } = useWallet();
+  const { setLocalCert, setValidCertificates, setSelectedCertificate } = useCertificate();
 
   useEffect(() => {
     const init = async () => {
@@ -165,13 +167,20 @@ export function NewWallet() {
       if (isKeyValidated) {
         setIsCreatingWallet(true);
 
-        // validate that all wallets have the same password
-        // await validateWallets(password);
-
         const { account, change, addressIndex } = hdPath;
 
         const importedWallet = await importWallet(newWallet.mnemonic, name, password, account, change, addressIndex);
+        const newWallets = wallets.concat([importedWallet]);
+
+        for (let i = 0; i < newWallets.length; i++) {
+          newWallets[i].selected = newWallets[i].address === importedWallet.address;
+        }
+
+        setWallets(newWallets);
         setSelectedWallet(importedWallet);
+        setValidCertificates([]);
+        setSelectedCertificate(null);
+        setLocalCert(null);
 
         await analytics.event("deploy", "create wallet");
 

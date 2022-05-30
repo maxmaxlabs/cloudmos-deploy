@@ -34,8 +34,10 @@ export const SettingsProvider = ({ children }) => {
 
       // Set the versions and metadata of available networks
       await initiateNetworkData();
+      
       // Apply local storage migrations
       migrateLocalStorage();
+
       // Init app types based on the selected network id
       initAppTypes();
 

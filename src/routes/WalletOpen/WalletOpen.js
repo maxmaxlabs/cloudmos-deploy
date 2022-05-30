@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import AccountBalanceWalletIcon from "@material-ui/icons/AccountBalanceWallet";
 import { Box, TextField, Container, Button, CircularProgress, makeStyles, FormControl, Typography, Select, MenuItem } from "@material-ui/core";
-import { useSelectedWalletFromStorage, useStorageWallets, updateWallets, getWallets, validateWallets } from "../../shared/utils/walletUtils";
+import { useSelectedWalletFromStorage, useStorageWallets, updateStorageWallets, getWallets, validateWallets } from "../../shared/utils/walletUtils";
 import { useCertificate } from "../../context/CertificateProvider";
 import { useWallet } from "../../context/WalletProvider";
 import { useSnackbar } from "notistack";
@@ -96,7 +96,7 @@ export function WalletOpen() {
       ...w,
       selected: w.address === value
     }));
-    updateWallets(wallets);
+    updateStorageWallets(wallets);
     setSelectedWalletAddress(value);
   };
 
