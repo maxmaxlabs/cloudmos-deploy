@@ -5,6 +5,7 @@ import { Snackbar } from "../../shared/components/Snackbar";
 import { deleteWalletFromStorage } from "../../shared/utils/walletUtils";
 import { useHistory } from "react-router-dom";
 import axios from "axios";
+import { UrlService } from "../../shared/utils/urlUtils";
 
 const WalletProviderContext = React.createContext({});
 
@@ -51,9 +52,20 @@ export const WalletProvider = ({ children }) => {
   );
 
   const deleteWallet = (address, deleteDeployments) => {
-    deleteWalletFromStorage(address, deleteDeployments);
+    const storageWallets = deleteWalletFromStorage(address, deleteDeployments);
+
+    // Disconnect
     setSelectedWallet(null);
-    history.push("/");
+
+    if (storageWallets.length > 0) {
+      if (history.location.pathname !== UrlService.walletOpen()) {
+        history.replace(UrlService.walletOpen());
+      }
+    } else {
+      history.replace(UrlService.register());
+    }
+
+    return storageWallets;
   };
 
   useEffect(() => {

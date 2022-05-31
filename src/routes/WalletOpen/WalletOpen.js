@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import AccountBalanceWalletIcon from "@material-ui/icons/AccountBalanceWallet";
 import { Box, TextField, Container, Button, CircularProgress, makeStyles, FormControl, Typography, Select, MenuItem } from "@material-ui/core";
-import { useSelectedWalletFromStorage, useStorageWallets, updateStorageWallets, getWallets, validateWallets } from "../../shared/utils/walletUtils";
+import { getStorageWallets, updateStorageWallets, validateWallets, getSelectedStorageWallet } from "../../shared/utils/walletUtils";
 import { useCertificate } from "../../context/CertificateProvider";
 import { useWallet } from "../../context/WalletProvider";
 import { useSnackbar } from "notistack";
@@ -54,8 +54,8 @@ export function WalletOpen() {
   const { setSelectedWallet, deleteWallet, setWallets } = useWallet();
   const { loadLocalCert } = useCertificate();
   const { enqueueSnackbar } = useSnackbar();
-  const currentWallet = useSelectedWalletFromStorage();
-  const { wallets } = useStorageWallets();
+  const storageWallets = getStorageWallets();
+  const selectedStorageWallet = getSelectedStorageWallet();
   const history = useHistory();
   const {
     handleSubmit,
@@ -71,32 +71,36 @@ export function WalletOpen() {
   const { password } = watch();
 
   useEffect(() => {
-    if (currentWallet && !selectedWalletAddress) {
-      setSelectedWalletAddress(currentWallet.address);
+    if (selectedStorageWallet && !selectedWalletAddress) {
+      setSelectedWalletAddress(selectedStorageWallet.address);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentWallet, selectedWalletAddress]);
+  }, [selectedStorageWallet, selectedWalletAddress]);
 
   function handleCancel() {
     setIsShowingConfirmationModal(false);
   }
 
   function handleConfirmDelete(deleteDeployments) {
-    deleteWallet(currentWallet?.address, deleteDeployments);
+    const newWallets = deleteWallet(selectedStorageWallet?.address, deleteDeployments);
     setIsShowingConfirmationModal(false);
 
-    history.replace(UrlService.register());
+    const newSelectedWallet = newWallets.find((w) => w.selected);
+
+    if (newSelectedWallet) {
+      setSelectedWalletAddress(newSelectedWallet.address);
+    }
   }
 
   const handleWalletChange = (event) => {
     const value = event.target.value;
 
-    let wallets = getWallets();
-    wallets = wallets.map((w) => ({
+    let storageWallets = getStorageWallets();
+    storageWallets = storageWallets.map((w) => ({
       ...w,
       selected: w.address === value
     }));
-    updateStorageWallets(wallets);
+    updateStorageWallets(storageWallets);
     setSelectedWalletAddress(value);
   };
 
@@ -107,7 +111,7 @@ export function WalletOpen() {
 
     try {
       const wallets = await validateWallets(password);
-      const selectedWallet = wallets.find((w) => w.selected);
+      const selectedWallet = wallets.find((w) => w.selected) || wallets[0];
 
       setWallets(wallets);
       setSelectedWallet(selectedWallet);
@@ -152,11 +156,11 @@ export function WalletOpen() {
                 value={selectedWalletAddress || ""}
                 onChange={handleWalletChange}
                 renderValue={(value) => {
-                  const _wallet = wallets.find((w) => w.address === value);
+                  const _wallet = storageWallets.find((w) => w.address === value);
                   return <WalletValue wallet={_wallet} />;
                 }}
               >
-                {wallets.map((wallet) => {
+                {storageWallets.map((wallet) => {
                   return (
                     <MenuItem value={wallet.address} key={wallet.address}>
                       <WalletValue wallet={wallet} />

@@ -6,7 +6,7 @@ import { useWallet } from "../WalletProvider";
 import { Snackbar } from "../../shared/components/Snackbar";
 import axios from "axios";
 import { networkVersion } from "../../shared/constants";
-import { getSelectedWallet, getWallets } from "../../shared/utils/walletUtils";
+import { getSelectedStorageWallet, getStorageWallets } from "../../shared/utils/walletUtils";
 
 const CertificateProviderContext = React.createContext({});
 
@@ -96,8 +96,8 @@ export const CertificateProvider = ({ children }) => {
 
   const loadLocalCert = async (password) => {
     // open certs for all the wallets to be able to switch without needing the password
-    const wallets = getWallets();
-    const currentWallet = getSelectedWallet();
+    const wallets = getStorageWallets();
+    const currentWallet = getSelectedStorageWallet();
     const certs = [];
 
     for (let i = 0; i < wallets.length; i++) {

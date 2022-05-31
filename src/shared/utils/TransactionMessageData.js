@@ -13,14 +13,14 @@ export function setMessageTypes() {
 
 export class TransactionMessageData {
   static Types = {
-    MSG_CLOSE_DEPLOYMENT: { type: "", gas: 700000 },
+    MSG_CLOSE_DEPLOYMENT: { type: "", gas: 1000000 },
     MSG_CREATE_DEPLOYMENT: { type: "", gas: 500000 },
     MSG_DEPOSIT_DEPLOYMENT: { type: "", gas: 300000 },
     MSG_UPDATE_DEPLOYMENT: { type: "", gas: 300000 },
     // TODO MsgCloseGroup
     // TODO MsgPauseGroup
     // TODO MsgStartGroup
-    MSG_CREATE_LEASE: { type: "", gas: 1000000 },
+    MSG_CREATE_LEASE: { type: "", gas: 1200000 },
     MSG_REVOKE_CERTIFICATE: { type: "", gas: 300000 },
     MSG_CREATE_CERTIFICATE: { type: "", gas: 300000 },
 

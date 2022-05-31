@@ -1,13 +1,12 @@
 import { Button, makeStyles, Container, Typography, ButtonGroup, Box, FormControl, TextField, CircularProgress } from "@material-ui/core";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { UrlService } from "../../shared/utils/urlUtils";
-import { generateNewWallet, validateWallets } from "../../shared/utils/walletUtils";
+import { generateNewWallet, importWallet, validateWallets } from "../../shared/utils/walletUtils";
 import Alert from "@material-ui/lab/Alert";
 import { useWallet } from "../../context/WalletProvider";
 import { useForm, Controller } from "react-hook-form";
 import { TitleLogo } from "../../shared/components/TitleLogo";
-import { importWallet } from "../../shared/utils/walletUtils";
 import { analytics } from "../../shared/utils/analyticsUtils";
 import { useSnackbar } from "notistack";
 import { Snackbar } from "../../shared/components/Snackbar";
@@ -55,6 +54,7 @@ const useStyles = makeStyles((theme) => ({
 
 export function NewWallet() {
   const classes = useStyles();
+  const walletsRef = useRef();
   const { enqueueSnackbar } = useSnackbar();
   const [numberOfWords, setNumberOfWords] = useState(12);
   const [error, setError] = useState("");
@@ -83,8 +83,8 @@ export function NewWallet() {
     }
   });
   const { password } = watch();
-  const { setSelectedWallet, wallets, setWallets } = useWallet();
-  const { setLocalCert, setValidCertificates, setSelectedCertificate } = useCertificate();
+  const { setSelectedWallet, setWallets } = useWallet();
+  const { setLocalCert, setValidCertificates, setSelectedCertificate, loadLocalCert } = useCertificate();
 
   useEffect(() => {
     const init = async () => {
@@ -170,7 +170,7 @@ export function NewWallet() {
         const { account, change, addressIndex } = hdPath;
 
         const importedWallet = await importWallet(newWallet.mnemonic, name, password, account, change, addressIndex);
-        const newWallets = wallets.concat([importedWallet]);
+        const newWallets = walletsRef.current.concat([importedWallet]);
 
         for (let i = 0; i < newWallets.length; i++) {
           newWallets[i].selected = newWallets[i].address === importedWallet.address;
@@ -182,6 +182,9 @@ export function NewWallet() {
         setSelectedCertificate(null);
         setLocalCert(null);
 
+        // Load local certificates
+        loadLocalCert(password);
+
         await analytics.event("deploy", "create wallet");
 
         history.replace(UrlService.dashboard());
@@ -189,7 +192,7 @@ export function NewWallet() {
         setIsCreatingWallet(true);
 
         // validate that all wallets have the same password
-        await validateWallets(password);
+        walletsRef.current = await validateWallets(password);
 
         setIsKeyValidating(true);
         setIsCreatingWallet(false);

@@ -36,13 +36,13 @@ const useStyles = makeStyles((theme) => ({
 export function WalletImport() {
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
-  const { setSelectedWallet, setWallets, wallets } = useWallet();
+  const { setSelectedWallet, setWallets } = useWallet();
   const [isLoading, setIsLoading] = useState(false);
   const history = useHistory();
   const queryParams = useQueryParams();
   const isAddAccount = !!queryParams.get("add");
   const [hdPath, setHdPath] = useState({ account: 0, change: 0, addressIndex: 0 });
-  const { setLocalCert, setValidCertificates, setSelectedCertificate } = useCertificate();
+  const { setLocalCert, setValidCertificates, setSelectedCertificate, loadLocalCert } = useCertificate();
   const {
     handleSubmit,
     control,
@@ -73,7 +73,7 @@ export function WalletImport() {
       setIsLoading(true);
 
       // validate that all wallets have the same password
-      await validateWallets(password);
+      const wallets = await validateWallets(password);
 
       const trimmedMnemonic = mnemonic.trim();
       const { account, change, addressIndex } = hdPath;
@@ -90,6 +90,9 @@ export function WalletImport() {
       setValidCertificates([]);
       setSelectedCertificate(null);
       setLocalCert(null);
+
+      // Load local certificates
+      loadLocalCert(password);
 
       await analytics.event("deploy", "import wallet");
 

@@ -12,18 +12,18 @@ const basicPasswordHashingOptions = {
 };
 
 export const useStorageWallets = () => {
-  const wallets = getWallets();
+  const wallets = getStorageWallets();
 
   return { wallets };
 };
 
-export function getSelectedWallet() {
-  const wallets = getWallets();
+export function getSelectedStorageWallet() {
+  const wallets = getStorageWallets();
 
   return wallets.find((w) => w.selected) || wallets[0] || {};
 }
 
-export function getWallets() {
+export function getStorageWallets() {
   const selectedNetworkId = localStorage.getItem("selectedNetworkId");
   const wallets = JSON.parse(localStorage.getItem(`${selectedNetworkId}/wallets`));
 
@@ -31,7 +31,7 @@ export function getWallets() {
 }
 
 export function updateWallet(address, func) {
-  const wallets = getWallets();
+  const wallets = getStorageWallets();
   let wallet = wallets.find((w) => w.address === address);
   wallet = func(wallet);
 
@@ -46,8 +46,8 @@ export function updateStorageWallets(wallets) {
 
 export function deleteWalletFromStorage(address, deleteDeployments) {
   const selectedNetworkId = localStorage.getItem("selectedNetworkId");
-  const wallets = getWallets();
-  const newWallets = wallets.filter((w) => w.address !== address);
+  const wallets = getStorageWallets();
+  const newWallets = wallets.filter((w) => w.address !== address).map((w, i) => ({ ...w, selected: i === 0 }));
 
   updateStorageWallets(newWallets);
 
@@ -57,6 +57,8 @@ export function deleteWalletFromStorage(address, deleteDeployments) {
       localStorage.removeItem(deploymentKey);
     }
   }
+
+  return newWallets;
 }
 
 export async function generateNewWallet(numberOfWords, password) {
@@ -80,7 +82,7 @@ export async function importWallet(mnemonic, name, password, account = 0, change
 
   const serializedWallet = await wallet.serializeWithEncryptionKey(keyArray, basicPasswordHashingOptions);
   const address = (await wallet.getAccounts())[0].address;
-  const wallets = getWallets();
+  const wallets = getStorageWallets();
 
   if (wallets.some((w) => w.address === address)) {
     throw new Error("This wallet is already imported.");
@@ -105,7 +107,7 @@ export async function importWallet(mnemonic, name, password, account = 0, change
 }
 
 export async function validateWallets(password) {
-  const storageWallets = getWallets();
+  const storageWallets = getStorageWallets();
   let wallets = [];
 
   for (let i = 0; i < storageWallets.length; i++) {
@@ -129,7 +131,7 @@ export async function validateWallets(password) {
 }
 
 export async function openWallet(password) {
-  const selectedWallet = getSelectedWallet();
+  const selectedWallet = getSelectedStorageWallet();
 
   const kdfConf = extractKdfConfiguration(selectedWallet.serializedWallet);
 
@@ -143,7 +145,7 @@ export async function openWallet(password) {
 }
 
 export function useSelectedWalletFromStorage() {
-  return getSelectedWallet();
+  return getSelectedStorageWallet();
 }
 
 export function updateLocalStorageWalletName(address, name) {
