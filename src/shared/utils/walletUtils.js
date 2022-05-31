@@ -51,6 +51,9 @@ export function deleteWalletFromStorage(address, deleteDeployments) {
 
   updateStorageWallets(newWallets);
 
+  localStorage.removeItem(`${selectedNetworkId}/${address}/settings`);
+  localStorage.removeItem(`${selectedNetworkId}/${address}/provider.data`);
+
   if (deleteDeployments) {
     const deploymentKeys = Object.keys(localStorage).filter((key) => key.startsWith(`${selectedNetworkId}/${address}/deployments/`));
     for (const deploymentKey of deploymentKeys) {
