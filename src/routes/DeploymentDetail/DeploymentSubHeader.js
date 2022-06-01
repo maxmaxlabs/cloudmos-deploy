@@ -45,11 +45,14 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function DeploymentSubHeader({ deployment, deploymentCost }) {
+export function DeploymentSubHeader({ deployment, leases }) {
   const classes = useStyles();
+  const hasLeases = leases && leases.length > 0;
+  const deploymentCost = hasLeases ? leases.reduce((prev, current) => prev + current.price.amount, 0) : 0;
   const realTimeLeft = useRealTimeLeft(deploymentCost, deployment.escrowBalance, deployment.escrowAccount.settled_at, deployment.createdAt);
   const avgCost = getAvgCostPerMonth(deploymentCost);
   const isActive = deployment.state === "active";
+  const hasActiveLeases = hasLeases && leases.some((l) => l.state === "active");
 
   return (
     <div className={classes.root}>
@@ -69,12 +72,12 @@ export function DeploymentSubHeader({ deployment, deploymentCost }) {
           <Box paddingLeft="1rem">
             <div>
               <strong>
-                <PriceValue value={uaktToAKT(isActive ? realTimeLeft?.escrow : deployment.escrowBalance, 6)} />
+                <PriceValue value={uaktToAKT(isActive && hasActiveLeases ? realTimeLeft?.escrow : deployment.escrowBalance, 6)} />
               </strong>
             </div>
             <div>
               <strong>
-                <PriceValue value={uaktToAKT(isActive ? realTimeLeft?.amountSpent : deployment.transferred.amount, 6)} />
+                <PriceValue value={uaktToAKT(isActive && hasActiveLeases ? realTimeLeft?.amountSpent : deployment.transferred.amount, 6)} />
               </strong>
             </div>
 
@@ -106,7 +109,7 @@ export function DeploymentSubHeader({ deployment, deploymentCost }) {
                 label="Balance:"
                 value={
                   <>
-                    {uaktToAKT(isActive ? realTimeLeft?.escrow : deployment.escrowBalance, 6)}&nbsp;AKT
+                    {uaktToAKT(isActive && hasActiveLeases ? realTimeLeft?.escrow : deployment.escrowBalance, 6)}&nbsp;AKT
                     <Box component="span" display="inline-flex" marginLeft=".5rem">
                       <Tooltip
                         classes={{ tooltip: classes.tooltip }}
@@ -116,7 +119,7 @@ export function DeploymentSubHeader({ deployment, deploymentCost }) {
                         <InfoIcon className={classes.tooltipIcon} />
                       </Tooltip>
 
-                      {!!realTimeLeft && realTimeLeft.escrow < 0 && isActive && (
+                      {isActive && hasActiveLeases && !!realTimeLeft && realTimeLeft.escrow <= 0 && (
                         <Tooltip
                           classes={{ tooltip: classes.tooltip }}
                           arrow
@@ -130,10 +133,12 @@ export function DeploymentSubHeader({ deployment, deploymentCost }) {
                 }
               />
             </Box>
-            <LabelValue label="Spent:" value={`${uaktToAKT(isActive ? realTimeLeft?.amountSpent : deployment.transferred.amount, 6)} AKT`} />
+            <LabelValue label="Spent:" value={`${uaktToAKT(isActive && hasActiveLeases ? realTimeLeft?.amountSpent : deployment.transferred.amount, 6)} AKT`} />
           </div>
           <div className={classes.gridItem}>
-            {isActive && <LabelValue label="Time left:" value={isValid(realTimeLeft?.timeLeft) && `~${formatDistanceToNow(realTimeLeft?.timeLeft)}`} />}
+            {isActive && hasActiveLeases && (
+              <LabelValue label="Time left:" value={isValid(realTimeLeft?.timeLeft) && `~${formatDistanceToNow(realTimeLeft?.timeLeft)}`} />
+            )}
             <LabelValue label="Cost/Month:" value={`${avgCost} AKT`} />
           </div>
         </div>

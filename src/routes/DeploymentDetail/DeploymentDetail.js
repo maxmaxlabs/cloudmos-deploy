@@ -139,7 +139,7 @@ export function DeploymentDetail({ deployments }) {
 
       {deployment && (
         <>
-          <DeploymentSubHeader deployment={deployment} deploymentCost={hasLeases ? leases.reduce((prev, current) => prev + current.price.amount, 0) : 0} />
+          <DeploymentSubHeader deployment={deployment} leases={leases} />
 
           <Tabs value={activeTab} onChange={onChangeTab} indicatorColor="primary" textColor="primary" classes={{ root: classes.tabsRoot }}>
             <Tab value="LEASES" label="Leases" classes={{ selected: classes.selectedTab }} />
