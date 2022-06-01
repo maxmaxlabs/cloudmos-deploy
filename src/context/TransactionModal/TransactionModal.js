@@ -15,7 +15,9 @@ import {
   List,
   ButtonGroup,
   Link,
-  CircularProgress
+  CircularProgress,
+  Tooltip,
+  InputAdornment
 } from "@material-ui/core";
 import { a11yProps } from "../../shared/utils/a11yUtils";
 import { TabPanel } from "../../shared/components/TabPanel";
@@ -33,6 +35,7 @@ import { analytics } from "../../shared/utils/analyticsUtils";
 import { transactionLink } from "../../shared/constants";
 import { BroadcastingError } from "../../shared/utils/errors";
 import OpenInNew from "@material-ui/icons/OpenInNew";
+import HelpIcon from "@material-ui/icons/Help";
 import { PriceValue } from "../../shared/components/PriceValue";
 import { selectedNetworkId } from "../../shared/deploymentData";
 
@@ -223,6 +226,21 @@ export function TransactionModal(props) {
               variant="outlined"
               inputProps={{
                 maxLength: 256
+              }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <Tooltip
+                      classes={{ tooltip: classes.tooltip }}
+                      arrow
+                      title="Memo field is usually used for specifying a customer ID for certain centralized exchanges.
+                      Never enter your mnemonic seed phrase / passphrase / password or anything sensitive!
+                      Everything in this field becomes permanently public, accessible by anyone!"
+                    >
+                      <HelpIcon fontSize="small" color="primary" />
+                    </Tooltip>
+                  </InputAdornment>
+                )
               }}
               classes={{ root: classes.fullWidth }}
             />

@@ -64,5 +64,8 @@ export const useStyles = makeStyles((theme) => ({
   },
   transactionLinkIcon: {
     fontSize: "1rem"
+  },
+  tooltip: {
+    fontSize: "1rem"
   }
 }));
