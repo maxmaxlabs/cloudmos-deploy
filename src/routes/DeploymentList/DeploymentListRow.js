@@ -119,6 +119,7 @@ export function DeploymentListRow({ deployment, isSelectable, onSelectDeployment
   const showWarning = differenceInCalendarDays(timeLeft, new Date()) < 7;
   const escrowBalance = isActive && hasActiveLeases ? realTimeLeft?.escrow : deployment.escrowBalance;
   const amountSpent = isActive && hasActiveLeases ? realTimeLeft?.amountSpent : deployment.transferred.amount;
+  const isValidTimeLeft = isActive && hasActiveLeases && isValid(realTimeLeft?.timeLeft);
 
   function viewDeployment() {
     history.push("/deployment/" + deployment.dseq);
@@ -186,7 +187,7 @@ export function DeploymentListRow({ deployment, isSelectable, onSelectDeployment
 
           {isActive && (
             <div className={classes.deploymentInfo}>
-              {hasActiveLeases && isValid(realTimeLeft?.timeLeft) && (
+              {isValidTimeLeft && (
                 <Box component="span" display="flex" alignItems="center">
                   Time left:&nbsp;<strong>~{formatDistanceToNow(realTimeLeft?.timeLeft)}</strong>
                   {showWarning && <WarningIcon fontSize="small" color="error" className={classes.warningIcon} />}
@@ -194,7 +195,7 @@ export function DeploymentListRow({ deployment, isSelectable, onSelectDeployment
               )}
 
               {!!escrowBalance && (
-                <Box marginLeft="1rem" display="flex">
+                <Box marginLeft={isValidTimeLeft ? "1rem" : 0} display="flex">
                   Balance:&nbsp;<strong>{uaktToAKT(escrowBalance, 2)} AKT</strong>
                   {escrowBalance <= 0 && (
                     <Tooltip
