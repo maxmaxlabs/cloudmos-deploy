@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { makeStyles, Box, CircularProgress, Menu, Typography } from "@material-ui/core";
+import { makeStyles, Box, CircularProgress, Menu, Typography, Button } from "@material-ui/core";
 import AccountBalanceWalletIcon from "@material-ui/icons/AccountBalanceWallet";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import IconButton from "@material-ui/core/IconButton";
@@ -29,10 +29,16 @@ import { ChangeAccountNameModal } from "./ChangeAccountNameModal";
 import { accountBarHeight } from "../../shared/constants";
 import { CustomMenuItem } from "../../shared/components/CustomMenuItem";
 import { GrantModal } from "../GrantModal";
+import { AccountsModal } from "../AccountsModal";
+import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     maxHeight: `${accountBarHeight}px`
+  },
+  walletButton: {
+    padding: "2px 4px",
+    textTransform: "initial"
   },
   delete: {
     color: theme.palette.secondary.main
@@ -47,6 +53,7 @@ export function WalletDisplay() {
   const [isShowingDepositModal, setIsShowingDepositModal] = useState(false);
   const [isShowingMnemonicModal, setIsShowingMnemonicModal] = useState(false);
   const [isShowinChangeAccountNameModal, setIsShowingChangeAccountNameModal] = useState(false);
+  const [isShowingAccountsModal, setIsShowingAccountsModal] = useState(false);
   const { address, balance, refreshBalance, isRefreshingBalance, deleteWallet, selectedWallet, setSelectedWallet } = useWallet();
   const { sendTransaction } = useTransactionModal();
   const classes = useStyles();
@@ -74,7 +81,6 @@ export function WalletDisplay() {
 
   function handleConfirmDelete(deleteDeployments) {
     deleteWallet(address, deleteDeployments);
-    history.push(UrlService.register());
   }
 
   const onSendClick = () => {
@@ -133,17 +139,20 @@ export function WalletDisplay() {
     <>
       <div className={classes.root}>
         <Box display="flex" alignItems="center">
-          {selectedWallet?.name && (
-            <Box marginRight="1rem">
-              <Typography variant="caption">
-                <strong>{selectedWallet?.name}</strong>
-              </Typography>
+          <Button onClick={() => setIsShowingAccountsModal(true)} size="small" className={classes.walletButton}>
+            {selectedWallet?.name && (
+              <Box marginRight=".5rem">
+                <Typography variant="caption">
+                  <strong>{selectedWallet?.name}</strong>
+                </Typography>
+              </Box>
+            )}
+            <AccountBalanceWalletIcon fontSize="small" />
+            <Box component="span" marginLeft=".5rem" marginRight="2px">
+              {balance / 1000000} AKT
             </Box>
-          )}
-          <AccountBalanceWalletIcon fontSize="small" />
-          <Box component="span" marginLeft="5px">
-            {balance / 1000000} AKT
-          </Box>
+            <ArrowDropDownIcon fontSize="small" color="inherit" />
+          </Button>
 
           <Box marginLeft="1rem">
             <IconButton onClick={() => refreshBalance(true)} aria-label="refresh" disabled={isRefreshingBalance} size="small">
@@ -211,6 +220,7 @@ export function WalletDisplay() {
       {isShowingMnemonicModal && <MnemonicModal onClose={() => setIsShowingMnemonicModal(false)} />}
       {isShowinChangeAccountNameModal && <ChangeAccountNameModal onClose={() => setIsShowingChangeAccountNameModal(false)} />}
       {isShowingGrantModal && <GrantModal address={address} onClose={() => setIsShowingGrantModal(false)} />}
+      {isShowingAccountsModal && <AccountsModal onClose={() => setIsShowingAccountsModal(false)} />}
     </>
   );
 }

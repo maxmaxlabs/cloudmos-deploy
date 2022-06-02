@@ -15,7 +15,9 @@ import {
   List,
   ButtonGroup,
   Link,
-  CircularProgress
+  CircularProgress,
+  Tooltip,
+  InputAdornment
 } from "@material-ui/core";
 import { a11yProps } from "../../shared/utils/a11yUtils";
 import { TabPanel } from "../../shared/components/TabPanel";
@@ -33,6 +35,8 @@ import { analytics } from "../../shared/utils/analyticsUtils";
 import { transactionLink } from "../../shared/constants";
 import { BroadcastingError } from "../../shared/utils/errors";
 import OpenInNew from "@material-ui/icons/OpenInNew";
+import HelpIcon from "@material-ui/icons/Help";
+import WarningIcon from "@material-ui/icons/Warning";
 import { PriceValue } from "../../shared/components/PriceValue";
 import { selectedNetworkId } from "../../shared/deploymentData";
 
@@ -45,6 +49,7 @@ export function TransactionModal(props) {
   const [isSendingTransaction, setIsSendingTransaction] = useState(false);
   const [tabIndex, setTabIndex] = useState(0);
   const [memo, setMemo] = useState("");
+  const [showMemoWarning, setShowMemoWarning] = useState(false);
   const baseGas = messages.map((m) => m.gas).reduce((a, b) => a + b, 0);
   const [gas, setGas] = useState(baseGas);
   const [customFee, setCustomFee] = useState(uaktToAKT(selectedNetworkId === "mainnet" ? fees["avg"] * messages.length : edgenetFees["avg"] * messages.length));
@@ -173,6 +178,14 @@ export function TransactionModal(props) {
     setIsCustomFee(!isSettingCustomFee);
   };
 
+  const onMemoChange = (event) => {
+    const newValue = event.target.value;
+    setMemo(newValue);
+
+    const splittedValue = (newValue || "").trim().split(" ");
+    setShowMemoWarning(splittedValue.length === 12 || splittedValue.length === 24);
+  };
+
   return (
     <Dialog
       open={isOpen}
@@ -218,11 +231,26 @@ export function TransactionModal(props) {
               label="Memo"
               disabled={isSendingTransaction}
               value={memo}
-              onChange={(ev) => setMemo(ev.target.value)}
+              onChange={onMemoChange}
               type="text"
               variant="outlined"
               inputProps={{
                 maxLength: 256
+              }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <Tooltip
+                      classes={{ tooltip: classes.tooltip }}
+                      arrow
+                      title="Memo field is usually used for specifying a customer ID for certain centralized exchanges.
+                      Never enter your mnemonic seed phrase / passphrase / password or anything sensitive!
+                      Everything in this field becomes permanently public, accessible by anyone!"
+                    >
+                      {showMemoWarning ? <WarningIcon fontSize="small" color="error" /> : <HelpIcon fontSize="small" color="primary" />}
+                    </Tooltip>
+                  </InputAdornment>
+                )
               }}
               classes={{ root: classes.fullWidth }}
             />

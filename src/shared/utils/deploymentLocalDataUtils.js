@@ -1,6 +1,9 @@
+import { getSelectedStorageWallet } from "./walletUtils";
+
 export function getDeploymentLocalData(dseq) {
   const selectedNetworkId = localStorage.getItem("selectedNetworkId");
-  const dataStr = localStorage.getItem(`${selectedNetworkId}/deployments/${dseq}.data`);
+  const selectedWallet = getSelectedStorageWallet();
+  const dataStr = localStorage.getItem(`${selectedNetworkId}/${selectedWallet.address}/deployments/${dseq}.data`);
   if (!dataStr) return null;
 
   const parsedData = JSON.parse(dataStr);
@@ -22,7 +25,8 @@ export function saveDeploymentManifest(dseq, manifest, version, address) {
   updateDeploymentLocalData(dseq, { owner: address, manifest: manifest, manifestVersion: version });
 
   const selectedNetworkId = localStorage.getItem("selectedNetworkId");
-  localStorage.setItem(`${selectedNetworkId}/deployments/${dseq}.data`, JSON.stringify(data));
+  const selectedWallet = getSelectedStorageWallet();
+  localStorage.setItem(`${selectedNetworkId}/${selectedWallet.address}/deployments/${dseq}.data`, JSON.stringify(data));
 }
 
 export function updateDeploymentLocalData(dseq, data) {
@@ -30,5 +34,6 @@ export function updateDeploymentLocalData(dseq, data) {
   const newData = { ...oldData, ...data };
 
   const selectedNetworkId = localStorage.getItem("selectedNetworkId");
-  localStorage.setItem(`${selectedNetworkId}/deployments/${dseq}.data`, JSON.stringify(newData));
+  const selectedWallet = getSelectedStorageWallet();
+  localStorage.setItem(`${selectedNetworkId}/${selectedWallet.address}/deployments/${dseq}.data`, JSON.stringify(newData));
 }

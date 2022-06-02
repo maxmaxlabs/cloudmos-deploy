@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AccountBalanceWalletIcon from "@material-ui/icons/AccountBalanceWallet";
-import { Box, TextField, Container, Button, CircularProgress, makeStyles, FormControl, Typography } from "@material-ui/core";
-import { useCurrentWalletFromStorage, openWallet } from "../../shared/utils/walletUtils";
+import { Box, TextField, Container, Button, CircularProgress, makeStyles, FormControl, Typography, Select, MenuItem } from "@material-ui/core";
+import { getStorageWallets, updateStorageWallets, validateWallets, getSelectedStorageWallet } from "../../shared/utils/walletUtils";
 import { useCertificate } from "../../context/CertificateProvider";
 import { useWallet } from "../../context/WalletProvider";
 import { useSnackbar } from "notistack";
@@ -15,6 +15,7 @@ import { Address } from "../../shared/components/Address";
 import { useForm, Controller } from "react-hook-form";
 import Alert from "@material-ui/lab/Alert";
 import { Layout } from "../../shared/components/Layout";
+import { Link } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   root: { padding: "5% 0" },
@@ -22,10 +23,6 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: "2rem",
     display: "flex",
     flexDirection: "column"
-  },
-  title: {
-    marginBottom: "1rem",
-    fontWeight: "bold"
   },
   walletAddress: {
     display: "block",
@@ -35,12 +32,17 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: "1rem"
   },
   alertRoot: {
-    borderColor: theme.palette.primary.main
+    border: "none",
+    padding: 0
   },
   alertIcon: {
     "&&": {
-      color: theme.palette.primary.main
+      color: theme.palette.primary.main,
+      alignItems: "center"
     }
+  },
+  alertMessage: {
+    padding: 0
   }
 }));
 
@@ -48,10 +50,12 @@ export function WalletOpen() {
   const [isShowingConfirmationModal, setIsShowingConfirmationModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const classes = useStyles();
-  const { setSelectedWallet, deleteWallet } = useWallet();
+  const [selectedWalletAddress, setSelectedWalletAddress] = useState();
+  const { setSelectedWallet, deleteWallet, setWallets } = useWallet();
   const { loadLocalCert } = useCertificate();
   const { enqueueSnackbar } = useSnackbar();
-  const currentWallet = useCurrentWalletFromStorage();
+  const storageWallets = getStorageWallets();
+  const selectedStorageWallet = getSelectedStorageWallet();
   const history = useHistory();
   const {
     handleSubmit,
@@ -66,16 +70,39 @@ export function WalletOpen() {
   });
   const { password } = watch();
 
+  useEffect(() => {
+    if (selectedStorageWallet && !selectedWalletAddress) {
+      setSelectedWalletAddress(selectedStorageWallet.address);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedStorageWallet, selectedWalletAddress]);
+
   function handleCancel() {
     setIsShowingConfirmationModal(false);
   }
 
   function handleConfirmDelete(deleteDeployments) {
-    deleteWallet(currentWallet?.address, deleteDeployments);
+    const newWallets = deleteWallet(selectedStorageWallet?.address, deleteDeployments);
     setIsShowingConfirmationModal(false);
 
-    history.replace(UrlService.register());
+    const newSelectedWallet = newWallets.find((w) => w.selected);
+
+    if (newSelectedWallet) {
+      setSelectedWalletAddress(newSelectedWallet.address);
+    }
   }
+
+  const handleWalletChange = (event) => {
+    const value = event.target.value;
+
+    let storageWallets = getStorageWallets();
+    storageWallets = storageWallets.map((w) => ({
+      ...w,
+      selected: w.address === value
+    }));
+    updateStorageWallets(storageWallets);
+    setSelectedWalletAddress(value);
+  };
 
   async function onSubmit({ password }) {
     clearErrors();
@@ -83,14 +110,16 @@ export function WalletOpen() {
     setIsLoading(true);
 
     try {
-      const wallet = await openWallet(password);
-      const address = (await wallet.getAccounts())[0].address;
+      const wallets = await validateWallets(password);
+      const selectedWallet = wallets.find((w) => w.selected) || wallets[0];
 
-      loadLocalCert(address, password);
+      setWallets(wallets);
+      setSelectedWallet(selectedWallet);
+
+      // Load local certificates
+      loadLocalCert(password);
 
       await analytics.event("deploy", "open wallet");
-
-      setSelectedWallet(wallet);
 
       history.push(UrlService.dashboard());
     } catch (err) {
@@ -110,19 +139,36 @@ export function WalletOpen() {
         <TitleLogo />
 
         <Container maxWidth="xs" className={classes.container}>
-          <Typography variant="h6" color="textSecondary" className={classes.title}>
-            Open account
-          </Typography>
+          <Box display="flex" alignItems="center" justifyContent="space-between" marginBottom="1rem">
+            <Typography variant="h6" color="textPrimary">
+              Open account
+            </Typography>
 
-          <Box marginBottom="2rem">
-            <Alert icon={<AccountBalanceWalletIcon />} variant="outlined" classes={{ root: classes.alertRoot, icon: classes.alertIcon }}>
-              <Typography variant="body1">
-                <strong>{currentWallet?.name}</strong>
-              </Typography>
-              <Typography variant="caption">
-                <Address address={currentWallet?.address} />
-              </Typography>
-            </Alert>
+            <Button variant="contained" size="small" color="primary" component={Link} to={UrlService.register(true)}>
+              Add account
+            </Button>
+          </Box>
+
+          <Box marginBottom="1rem">
+            <FormControl variant="outlined" className={classes.formControl} fullWidth>
+              <Select
+                fullWidth
+                value={selectedWalletAddress || ""}
+                onChange={handleWalletChange}
+                renderValue={(value) => {
+                  const _wallet = storageWallets.find((w) => w.address === value);
+                  return <WalletValue wallet={_wallet} />;
+                }}
+              >
+                {storageWallets.map((wallet) => {
+                  return (
+                    <MenuItem value={wallet.address} key={wallet.address}>
+                      <WalletValue wallet={wallet} />
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+            </FormControl>
           </Box>
 
           <form autoComplete={"false"} onSubmit={handleSubmit(onSubmit)}>
@@ -171,7 +217,7 @@ export function WalletOpen() {
 
           <DeleteWalletConfirm
             isOpen={isShowingConfirmationModal}
-            address={currentWallet?.address}
+            address={selectedWalletAddress}
             handleCancel={handleCancel}
             handleConfirmDelete={handleConfirmDelete}
           />
@@ -180,3 +226,17 @@ export function WalletOpen() {
     </Layout>
   );
 }
+
+const WalletValue = ({ wallet }) => {
+  const classes = useStyles();
+  return (
+    <Alert icon={<AccountBalanceWalletIcon />} variant="outlined" classes={{ root: classes.alertRoot, icon: classes.alertIcon, message: classes.alertMessage }}>
+      <Typography variant="body1">
+        <strong>{wallet.name}</strong>
+      </Typography>
+      <Typography variant="caption">
+        <Address address={wallet.address} />
+      </Typography>
+    </Alert>
+  );
+};

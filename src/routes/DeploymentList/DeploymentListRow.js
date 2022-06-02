@@ -100,8 +100,9 @@ export function DeploymentListRow({ deployment, isSelectable, onSelectDeployment
   const { address } = useWallet();
   const isActive = deployment.state === "active";
   const { data: leases, isLoading: isLoadingLeases } = useDeploymentLeaseList(address, deployment, { enabled: !!deployment && isActive });
-  const name = getDeploymentName(deployment.dseq);
   const hasLeases = leases && !!leases.length;
+  const hasActiveLeases = hasLeases && leases.some((l) => l.state === "active");
+  const name = getDeploymentName(deployment.dseq);
   const deploymentCost = hasLeases ? leases.reduce((prev, current) => prev + current.price.amount, 0) : 0;
   const timeLeft = getTimeLeft(deploymentCost, deployment.escrowBalance);
   const realTimeLeft = useRealTimeLeft(deploymentCost, deployment.escrowBalance, deployment.escrowAccount.settled_at, deployment.createdAt);
@@ -116,6 +117,9 @@ export function DeploymentListRow({ deployment, isSelectable, onSelectDeployment
     <span className={classes.dseq}>{deployment.dseq}</span>
   );
   const showWarning = differenceInCalendarDays(timeLeft, new Date()) < 7;
+  const escrowBalance = isActive && hasActiveLeases ? realTimeLeft?.escrow : deployment.escrowBalance;
+  const amountSpent = isActive && hasActiveLeases ? realTimeLeft?.amountSpent : deployment.transferred.amount;
+  const isValidTimeLeft = isActive && hasActiveLeases && isValid(realTimeLeft?.timeLeft);
 
   function viewDeployment() {
     history.push("/deployment/" + deployment.dseq);
@@ -183,17 +187,17 @@ export function DeploymentListRow({ deployment, isSelectable, onSelectDeployment
 
           {isActive && (
             <div className={classes.deploymentInfo}>
-              {isValid(realTimeLeft?.timeLeft) && (
+              {isValidTimeLeft && (
                 <Box component="span" display="flex" alignItems="center">
                   Time left:&nbsp;<strong>~{formatDistanceToNow(realTimeLeft?.timeLeft)}</strong>
                   {showWarning && <WarningIcon fontSize="small" color="error" className={classes.warningIcon} />}
                 </Box>
               )}
 
-              {!!realTimeLeft?.escrow && (
-                <Box marginLeft="1rem" display="flex">
-                  Balance:&nbsp;<strong>{uaktToAKT(realTimeLeft?.escrow, 2)} AKT</strong>
-                  {realTimeLeft.escrow < 0 && (
+              {!!escrowBalance && (
+                <Box marginLeft={isValidTimeLeft ? "1rem" : 0} display="flex">
+                  Balance:&nbsp;<strong>{uaktToAKT(escrowBalance, 2)} AKT</strong>
+                  {escrowBalance <= 0 && (
                     <Tooltip
                       classes={{ tooltip: classes.tooltip }}
                       arrow
@@ -205,9 +209,9 @@ export function DeploymentListRow({ deployment, isSelectable, onSelectDeployment
                 </Box>
               )}
 
-              {!!realTimeLeft?.amountSpent && (
+              {!!amountSpent && (
                 <Box marginLeft="1rem" display="flex">
-                  Spent:&nbsp;<strong>{uaktToAKT(realTimeLeft?.amountSpent, 2)} AKT</strong>
+                  Spent:&nbsp;<strong>{uaktToAKT(amountSpent, 2)} AKT</strong>
                 </Box>
               )}
             </div>

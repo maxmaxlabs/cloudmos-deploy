@@ -1,5 +1,4 @@
 import { DirectSecp256k1HdWallet, extractKdfConfiguration } from "@cosmjs/proto-signing";
-import { useCustomLocalStorage } from "../../hooks/useLocalStorage";
 import { stringToPath } from "@cosmjs/crypto";
 
 // default cosmojs KdfConfiguration
@@ -12,31 +11,57 @@ const basicPasswordHashingOptions = {
   }
 };
 
-export const useStorageWalletAddresses = () => {
-  const addresses = getWalletAddresses();
+export const useStorageWallets = () => {
+  const wallets = getStorageWallets();
 
-  return { addresses };
+  return { wallets };
 };
 
-export function getWalletAddresses() {
+export function getSelectedStorageWallet() {
+  const wallets = getStorageWallets();
+
+  return wallets.find((w) => w.selected) || wallets[0] || {};
+}
+
+export function getStorageWallets() {
   const selectedNetworkId = localStorage.getItem("selectedNetworkId");
-  return Object.keys(localStorage)
-    .filter((key) => key.startsWith(selectedNetworkId) && key.endsWith(".wallet"))
-    .map((key) => key.replace(".wallet", "").replace(`${selectedNetworkId}/`, ""));
+  const wallets = JSON.parse(localStorage.getItem(`${selectedNetworkId}/wallets`));
+
+  return wallets || [];
+}
+
+export function updateWallet(address, func) {
+  const wallets = getStorageWallets();
+  let wallet = wallets.find((w) => w.address === address);
+  wallet = func(wallet);
+
+  const newWallets = wallets.map((w) => (w.address === address ? wallet : w));
+  updateStorageWallets(newWallets);
+}
+
+export function updateStorageWallets(wallets) {
+  const selectedNetworkId = localStorage.getItem("selectedNetworkId");
+  localStorage.setItem(`${selectedNetworkId}/wallets`, JSON.stringify(wallets));
 }
 
 export function deleteWalletFromStorage(address, deleteDeployments) {
   const selectedNetworkId = localStorage.getItem("selectedNetworkId");
-  localStorage.removeItem(`${selectedNetworkId}/${address}.wallet`);
-  localStorage.removeItem(`${selectedNetworkId}/${address}.crt`);
-  localStorage.removeItem(`${selectedNetworkId}/${address}.key`);
+  const wallets = getStorageWallets();
+  const newWallets = wallets.filter((w) => w.address !== address).map((w, i) => ({ ...w, selected: i === 0 }));
+
+  updateStorageWallets(newWallets);
+
+  localStorage.removeItem(`${selectedNetworkId}/${address}/settings`);
+  localStorage.removeItem(`${selectedNetworkId}/${address}/provider.data`);
 
   if (deleteDeployments) {
-    const deploymentKeys = Object.keys(localStorage).filter((key) => key.startsWith(`${selectedNetworkId}/deployments/`));
+    const deploymentKeys = Object.keys(localStorage).filter((key) => key.startsWith(`${selectedNetworkId}/${address}/deployments/`));
     for (const deploymentKey of deploymentKeys) {
       localStorage.removeItem(deploymentKey);
     }
   }
+
+  return newWallets;
 }
 
 export async function generateNewWallet(numberOfWords, password) {
@@ -60,54 +85,74 @@ export async function importWallet(mnemonic, name, password, account = 0, change
 
   const serializedWallet = await wallet.serializeWithEncryptionKey(keyArray, basicPasswordHashingOptions);
   const address = (await wallet.getAccounts())[0].address;
+  const wallets = getStorageWallets();
 
-  const selectedNetworkId = localStorage.getItem("selectedNetworkId");
-  localStorage.setItem(
-    `${selectedNetworkId}/${address}.wallet`,
-    JSON.stringify({
-      name: name,
-      address: address,
-      serializedWallet: serializedWallet
-    })
-  );
+  if (wallets.some((w) => w.address === address)) {
+    throw new Error("This wallet is already imported.");
+  }
+
+  const newWallets = wallets
+    .concat([
+      {
+        name,
+        address,
+        serializedWallet
+      }
+    ])
+    .map((w) => ({ ...w, selected: w.address === address }));
+  updateStorageWallets(newWallets);
+
   wallet.name = name;
+  wallet.selected = true;
+  wallet.address = address;
 
   return wallet;
 }
 
-export async function openWallet(password) {
-  const walletAddress = getWalletAddresses()[0];
-  const selectedNetworkId = localStorage.getItem("selectedNetworkId");
-  const walletInfo = JSON.parse(localStorage.getItem(`${selectedNetworkId}/${walletAddress}.wallet`));
+export async function validateWallets(password) {
+  const storageWallets = getStorageWallets();
+  let wallets = [];
 
-  const kdfConf = extractKdfConfiguration(walletInfo.serializedWallet);
+  for (let i = 0; i < storageWallets.length; i++) {
+    const selectedWallet = storageWallets[i];
+
+    const kdfConf = extractKdfConfiguration(selectedWallet.serializedWallet);
+
+    const key = await window.electron.executeKdf(password, kdfConf);
+    const keyArray = Uint8Array.of(...Object.values(key));
+
+    const wallet = await DirectSecp256k1HdWallet.deserializeWithEncryptionKey(selectedWallet.serializedWallet, keyArray);
+
+    wallet.name = selectedWallet.name;
+    wallet.selected = selectedWallet.selected;
+    wallet.address = selectedWallet.address;
+
+    wallets.push(wallet);
+  }
+
+  return wallets;
+}
+
+export async function openWallet(password) {
+  const selectedWallet = getSelectedStorageWallet();
+
+  const kdfConf = extractKdfConfiguration(selectedWallet.serializedWallet);
 
   const key = await window.electron.executeKdf(password, kdfConf);
   const keyArray = Uint8Array.of(...Object.values(key));
 
-  const wallet = await DirectSecp256k1HdWallet.deserializeWithEncryptionKey(walletInfo.serializedWallet, keyArray);
-  wallet.name = walletInfo.name;
+  const wallet = await DirectSecp256k1HdWallet.deserializeWithEncryptionKey(selectedWallet.serializedWallet, keyArray);
+  wallet.name = selectedWallet.name;
 
   return wallet;
 }
 
-export function useCurrentWalletFromStorage() {
-  const [selectedNetworkId] = useCustomLocalStorage("selectedNetworkId", "mainnet");
-  const walletAddress = getWalletAddresses()[0];
-  const [walletInfo] = useCustomLocalStorage(`${selectedNetworkId}/${walletAddress}.wallet`, "{}");
-
-  return walletInfo;
+export function useSelectedWalletFromStorage() {
+  return getSelectedStorageWallet();
 }
 
 export function updateLocalStorageWalletName(address, name) {
-  const selectedNetworkId = localStorage.getItem("selectedNetworkId");
-  const walletInfo = JSON.parse(localStorage.getItem(`${selectedNetworkId}/${address}.wallet`));
-
-  localStorage.setItem(
-    `${selectedNetworkId}/${address}.wallet`,
-    JSON.stringify({
-      ...walletInfo,
-      name: name
-    })
-  );
+  updateWallet(address, (wallet) => {
+    return { ...wallet, name };
+  });
 }

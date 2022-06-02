@@ -1,20 +1,23 @@
 import { useEffect, useState } from "react";
 import { useEventListener } from "usehooks-ts";
+import { getSelectedStorageWallet } from "../shared/utils/walletUtils";
 
 export const useLocalStorage = () => {
+  const selectedNetworkId = localStorage.getItem("selectedNetworkId");
+
   const getLocalStorageItem = (key) => {
-    const selectedNetworkId = localStorage.getItem("selectedNetworkId");
-    return localStorage.getItem(`${selectedNetworkId}/${key}`);
+    const selectedWallet = getSelectedStorageWallet();
+    return localStorage.getItem(`${selectedNetworkId}/${selectedWallet.address}/${key}`);
   };
 
   const setLocalStorageItem = (key, value) => {
-    const selectedNetworkId = localStorage.getItem("selectedNetworkId");
-    localStorage.setItem(`${selectedNetworkId}/${key}`, value);
+    const selectedWallet = getSelectedStorageWallet();
+    localStorage.setItem(`${selectedNetworkId}/${selectedWallet.address}/${key}`, value);
   };
 
   const removeLocalStorageItem = (key) => {
-    const selectedNetworkId = localStorage.getItem("selectedNetworkId");
-    localStorage.removeItem(`${selectedNetworkId}/${key}`);
+    const selectedWallet = getSelectedStorageWallet();
+    localStorage.removeItem(`${selectedNetworkId}/${selectedWallet.address}/${key}`);
   };
 
   return {

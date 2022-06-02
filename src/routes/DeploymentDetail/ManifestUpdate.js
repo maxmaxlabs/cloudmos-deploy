@@ -62,19 +62,20 @@ export function ManifestUpdate({ deployment, leases, closeManifestEditor }) {
   useEffect(() => {
     const init = async () => {
       const deploymentData = getDeploymentLocalData(deployment.dseq);
-      setEditedManifest(deploymentData?.manifest);
 
-      const yamlVersion = yaml.load(deploymentData?.manifest);
-      const version = await getManifestVersion(yamlVersion);
+      if (deploymentData && deploymentData.manifest) {
+        setEditedManifest(deploymentData?.manifest);
 
-      setDeploymentVersion(version);
+        const yamlVersion = yaml.load(deploymentData?.manifest);
+        const version = await getManifestVersion(yamlVersion);
+
+        setDeploymentVersion(version);
+      } else {
+        setShowOutsideDeploymentMessage(true);
+      }
     };
 
     init();
-
-    if (!deploymentData) {
-      setShowOutsideDeploymentMessage(true);
-    }
   }, [deployment]);
 
   /**

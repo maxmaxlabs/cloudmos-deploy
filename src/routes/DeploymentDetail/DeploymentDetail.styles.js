@@ -15,6 +15,7 @@ export const useStyles = makeStyles((theme) => ({
   },
   tabsRoot: {
     minHeight: "36px",
+    borderBottom: `1px solid ${theme.palette.grey[300]}`,
     backgroundColor: theme.palette.grey[200],
     "& button": {
       minHeight: "36px"

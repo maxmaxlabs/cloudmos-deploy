@@ -5,11 +5,13 @@ import { Snackbar } from "../../shared/components/Snackbar";
 import { deleteWalletFromStorage } from "../../shared/utils/walletUtils";
 import { useHistory } from "react-router-dom";
 import axios from "axios";
+import { UrlService } from "../../shared/utils/urlUtils";
 
 const WalletProviderContext = React.createContext({});
 
 export const WalletProvider = ({ children }) => {
   const { settings } = useSettings();
+  const [wallets, setWallets] = useState(null);
   const [selectedWallet, setSelectedWallet] = useState(null);
   const [address, setAddress] = useState(null);
   const [balance, setBalance] = useState(null);
@@ -49,10 +51,21 @@ export const WalletProvider = ({ children }) => {
     [address, apiEndpoint, enqueueSnackbar]
   );
 
-  const deleteWallet = (address) => {
-    deleteWalletFromStorage(address);
+  const deleteWallet = (address, deleteDeployments) => {
+    const storageWallets = deleteWalletFromStorage(address, deleteDeployments);
+
+    // Disconnect
     setSelectedWallet(null);
-    history.push("/");
+
+    if (storageWallets.length > 0) {
+      if (history.location.pathname !== UrlService.walletOpen()) {
+        history.replace(UrlService.walletOpen());
+      }
+    } else {
+      history.replace(UrlService.register());
+    }
+
+    return storageWallets;
   };
 
   useEffect(() => {
@@ -63,6 +76,7 @@ export const WalletProvider = ({ children }) => {
     if (selectedWallet) {
       getAddress();
     } else {
+      setBalance(null);
       setAddress(null);
     }
   }, [selectedWallet]);
@@ -74,7 +88,9 @@ export const WalletProvider = ({ children }) => {
   }, [address, refreshBalance]);
 
   return (
-    <WalletProviderContext.Provider value={{ balance, setSelectedWallet, refreshBalance, selectedWallet, address, isRefreshingBalance, deleteWallet }}>
+    <WalletProviderContext.Provider
+      value={{ balance, setSelectedWallet, refreshBalance, selectedWallet, address, isRefreshingBalance, deleteWallet, wallets, setWallets }}
+    >
       {children}
     </WalletProviderContext.Provider>
   );

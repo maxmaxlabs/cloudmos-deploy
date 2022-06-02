@@ -4,9 +4,9 @@ import { openCert, getCertPem } from "../../shared/utils/certificateUtils";
 import { useSettings } from "../SettingsProvider";
 import { useWallet } from "../WalletProvider";
 import { Snackbar } from "../../shared/components/Snackbar";
-import { useLocalStorage } from "../../hooks/useLocalStorage";
 import axios from "axios";
 import { networkVersion } from "../../shared/constants";
+import { getSelectedStorageWallet, getStorageWallets } from "../../shared/utils/walletUtils";
 
 const CertificateProviderContext = React.createContext({});
 
@@ -14,12 +14,12 @@ export const CertificateProvider = ({ children }) => {
   const [validCertificates, setValidCertificates] = useState([]);
   const [selectedCertificate, setSelectedCertificate] = useState(null);
   const [isLoadingCertificates, setIsLoadingCertificates] = useState(false);
+  const [localCerts, setLocalCerts] = useState(null);
   const [localCert, setLocalCert] = useState(null);
   const [isLocalCertMatching, setIsLocalCertMatching] = useState(false);
   const { settings } = useSettings();
   const { enqueueSnackbar } = useSnackbar();
-  const { address } = useWallet();
-  const { getLocalStorageItem } = useLocalStorage();
+  const { address, selectedWallet } = useWallet();
   const { apiEndpoint } = settings;
 
   const loadValidCertificates = useCallback(
@@ -64,7 +64,18 @@ export const CertificateProvider = ({ children }) => {
     if (address) {
       loadValidCertificates();
     }
-  }, [address, loadValidCertificates]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [address]);
+
+  useEffect(() => {
+    // Clear certs when no selected wallet
+    if (!selectedWallet) {
+      setValidCertificates([]);
+      setSelectedCertificate(null);
+      setLocalCert(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedWallet]);
 
   useEffect(() => {
     let isMatching = false;
@@ -83,13 +94,25 @@ export const CertificateProvider = ({ children }) => {
     setIsLocalCertMatching(isMatching);
   }, [selectedCertificate, localCert, validCertificates]);
 
-  const loadLocalCert = async (address, password) => {
-    const certPem = getLocalStorageItem(address + ".crt");
-    const encryptedKeyPem = getLocalStorageItem(address + ".key");
+  const loadLocalCert = async (password) => {
+    // open certs for all the wallets to be able to switch without needing the password
+    const wallets = getStorageWallets();
+    const currentWallet = getSelectedStorageWallet();
+    const certs = [];
 
-    const cert = await openCert(password, certPem, encryptedKeyPem);
+    for (let i = 0; i < wallets.length; i++) {
+      const _wallet = wallets[i];
 
-    setLocalCert(cert);
+      const cert = await openCert(password, _wallet.cert, _wallet.certKey);
+
+      certs.push({ ...cert, address: _wallet.address });
+
+      if (_wallet.address === currentWallet.address) {
+        setLocalCert(cert);
+      }
+    }
+
+    setLocalCerts(certs);
   };
 
   return (
@@ -101,8 +124,12 @@ export const CertificateProvider = ({ children }) => {
         isLoadingCertificates,
         loadLocalCert,
         localCert,
+        setLocalCert,
         isLocalCertMatching,
-        validCertificates
+        validCertificates,
+        setValidCertificates,
+        localCerts,
+        setLocalCerts
       }}
     >
       {children}

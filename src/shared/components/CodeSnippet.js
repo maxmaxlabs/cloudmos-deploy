@@ -9,7 +9,7 @@ import { Snackbar } from "../../shared/components/Snackbar";
 const useStyles = makeStyles((theme) => ({
   root: {
     position: "relative",
-    padding: "2rem 1rem 1rem",
+    padding: "1rem",
     borderRadius: theme.spacing(0.5),
     backgroundColor: lighten("#000", 0.9)
   },

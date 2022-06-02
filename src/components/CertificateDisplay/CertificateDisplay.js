@@ -16,11 +16,11 @@ import { analytics } from "../../shared/utils/analyticsUtils";
 import { generateCertificate } from "../../shared/utils/certificateUtils";
 import { ExportCertificate } from "./ExportCertificate";
 import GetAppIcon from "@material-ui/icons/GetApp";
-import { useLocalStorage } from "../../hooks/useLocalStorage";
 import { accountBarHeight } from "../../shared/constants";
 import { CustomMenuItem } from "../../shared/components/CustomMenuItem";
 import { LinkTo } from "../../shared/components/LinkTo";
 import { CertificateListModal } from "./CertificateListModal";
+import { updateWallet } from "../../shared/utils/walletUtils";
 
 const useStyles = makeStyles({
   root: {
@@ -43,7 +43,6 @@ export function CertificateDisplay() {
   const { askForPasswordConfirmation } = usePasswordConfirmationModal();
   const { sendTransaction } = useTransactionModal();
   const { address } = useWallet();
-  const { removeLocalStorageItem, setLocalStorageItem } = useLocalStorage();
   const [anchorEl, setAnchorEl] = useState(null);
 
   /**
@@ -58,10 +57,16 @@ export function CertificateDisplay() {
       const response = await sendTransaction([message]);
 
       if (response) {
-        removeLocalStorageItem(address + ".crt");
-        removeLocalStorageItem(address + ".key");
-
         const validCerts = await loadValidCertificates();
+        const isRevokingOtherCert = validCerts.some((c) => c.parsed === localCert.certPem);
+
+        updateWallet(address, (wallet) => {
+          return {
+            ...wallet,
+            cert: isRevokingOtherCert ? wallet.cert : undefined,
+            certKey: isRevokingOtherCert ? wallet.certKey : undefined
+          };
+        });
 
         if (validCerts?.length > 0 && certificate.serial === selectedCertificate.serial) {
           setSelectedCertificate(validCerts[0]);
@@ -92,11 +97,16 @@ export function CertificateDisplay() {
       const response = await sendTransaction([message]);
 
       if (response) {
-        setLocalStorageItem(address + ".crt", crtpem);
-        setLocalStorageItem(address + ".key", encryptedKey);
+        updateWallet(address, (wallet) => {
+          return {
+            ...wallet,
+            cert: crtpem,
+            certKey: encryptedKey
+          };
+        });
 
         const validCerts = await loadValidCertificates();
-        loadLocalCert(address, password);
+        loadLocalCert(password);
 
         const currentCert = validCerts.find((x) => x.parsed === crtpem);
 
@@ -126,11 +136,20 @@ export function CertificateDisplay() {
       const response = await sendTransaction([revokeCertMsg, createCertMsg]);
 
       if (response) {
-        setLocalStorageItem(address + ".crt", crtpem);
-        setLocalStorageItem(address + ".key", encryptedKey);
+        updateWallet(address, (wallet) => {
+          return {
+            ...wallet,
+            cert: crtpem,
+            certKey: encryptedKey
+          };
+        });
 
-        loadValidCertificates();
-        loadLocalCert(address, password);
+        const validCerts = await loadValidCertificates();
+        loadLocalCert(password);
+
+        const currentCert = validCerts.find((x) => x.parsed === crtpem);
+
+        setSelectedCertificate(currentCert);
 
         await analytics.event("deploy", "regenerate certificate");
       }

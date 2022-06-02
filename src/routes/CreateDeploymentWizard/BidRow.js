@@ -1,4 +1,4 @@
-import { makeStyles, Radio, ListItemText, ListItemIcon, ListItem, Box, Chip, CircularProgress } from "@material-ui/core";
+import { makeStyles, Radio, ListItemText, ListItemIcon, ListItem, Box, Chip, CircularProgress, Typography } from "@material-ui/core";
 import { uaktToAKT } from "../../shared/utils/priceUtils";
 import { PriceEstimateTooltip } from "../../shared/components/PriceEstimateTooltip";
 import { PricePerMonth } from "../../shared/components/PricePerMonth";
@@ -20,7 +20,6 @@ const useStyles = makeStyles((theme) => ({
     fontSize: ".8rem"
   },
   chip: {
-    marginLeft: "4px",
     height: "16px"
   },
   priceTooltip: {
@@ -28,14 +27,27 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     color: theme.palette.grey[600]
   },
+  pricePerMonth: {
+    fontSize: "1.15rem"
+  },
+  bidState: {
+    marginBottom: "4px"
+  },
+  providerOffline: {
+    marginTop: "4px"
+  },
   stateIcon: {
-    marginLeft: ".5rem"
+    marginRight: ".5rem"
   },
   stateActive: {
     color: theme.palette.primary.main
   },
   stateInactive: {
     color: theme.palette.secondary.main
+  },
+  flexCenter: {
+    display: "flex",
+    alignItems: "center"
   }
 }));
 
@@ -90,12 +102,9 @@ export function BidRow({ bid, selectedBid, handleBidSelected, disabled, provider
         }}
         primary={
           <>
-            <Box marginBottom="2px" fontSize="1.1rem">
-              <PricePerMonth perBlockValue={uaktToAKT(bid.price.amount, 6)} />
-            </Box>
+            <PricePerMonth perBlockValue={uaktToAKT(bid.price.amount, 6)} className={classes.pricePerMonth} />
 
-            <Box display="flex" alignItems="center">
-              Bid:
+            <div className={clsx(classes.flexCenter, classes.bidState)}>
               <Chip
                 label={bid.state}
                 size="small"
@@ -108,23 +117,28 @@ export function BidRow({ bid, selectedBid, handleBidSelected, disabled, provider
               <Box className={classes.priceTooltip}>
                 <PriceEstimateTooltip value={uaktToAKT(bid.price.amount, 6)} />
               </Box>
-            </Box>
+            </div>
           </>
         }
         secondary={
           <div>
             {isLoadingStatus && <CircularProgress size="1rem" />}
 
-            {providerStatus && <div>Name: {providerStatus?.name}</div>}
+            {providerStatus && (
+              <Typography variant="body2" color="textSecondary">
+                {providerStatus?.name}
+              </Typography>
+            )}
 
             {error && (
-              <Box display="flex" alignItems="center">
-                <strong>OFFLINE</strong> <CloudOffIcon className={clsx(classes.stateIcon, classes.stateInactive)} fontSize="small" />
-              </Box>
+              <div className={clsx(classes.flexCenter, classes.providerOffline)}>
+                <CloudOffIcon className={clsx(classes.stateIcon, classes.stateInactive)} fontSize="small" />
+                <strong>OFFLINE</strong>
+              </div>
             )}
 
             {providerStatus && (
-              <Box display="flex" alignItems="center">
+              <div className={classes.flexCenter}>
                 <FavoriteButton isFavorite={isFavorite} onClick={onStarClick} />
 
                 {provider.isAudited && (
@@ -136,7 +150,7 @@ export function BidRow({ bid, selectedBid, handleBidSelected, disabled, provider
                 <Box marginLeft=".5rem" display="flex">
                   <LinkTo onClick={() => setIsViewingDetail(true)}>View details</LinkTo>
                 </Box>
-              </Box>
+              </div>
             )}
           </div>
         }

@@ -6,7 +6,7 @@ export async function openCert(password, certPem, encryptedKeyPem) {
   const key = rs.KEYUTIL.getKeyFromEncryptedPKCS8PEM(encryptedKeyPem, password);
 
   return {
-    certPem: certPem,
+    certPem,
     keyPem: rs.KEYUTIL.getPEM(key, "PKCS8PRV")
   };
 }

@@ -45,24 +45,30 @@ const useStyles = makeStyles((theme) => ({
 export function MainView() {
   const classes = useStyles();
   const [isShowingWelcome, setIsShowingWelcome] = useState(false);
+  const [isWelcomeShown, setIsWelcomeShown] = useState(false);
   const [isNavOpen, setIsNavOpen] = useState(true);
   const { balance, isRefreshingBalance } = useWallet();
 
   useEffect(() => {
-    if (!isRefreshingBalance && typeof balance === "number" && balance === 0 && !isShowingWelcome) {
+    if (!isRefreshingBalance && typeof balance === "number" && balance === 0 && !isShowingWelcome && !isWelcomeShown) {
       setIsShowingWelcome(true);
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [balance]);
+  }, [isRefreshingBalance, balance, isWelcomeShown, isShowingWelcome]);
 
   const onOpenMenuClick = () => {
     setIsNavOpen((prev) => !prev);
   };
 
+  const onWelcomeClose = () => {
+    setIsWelcomeShown(true);
+    setIsShowingWelcome(false);
+  };
+
   return (
     <Layout marginTop={`${accountBarHeight}px`} height={`calc(100% - ${accountBarHeight}px) !important`}>
-      {isShowingWelcome && <WelcomeModal open={isShowingWelcome} onClose={() => setIsShowingWelcome(false)} />}
+      {isShowingWelcome && <WelcomeModal open={isShowingWelcome} onClose={onWelcomeClose} />}
 
       <Box height="100%">
         <AppBar position="fixed" color="default" elevation={0} component="header" className={classes.accountAppBar}>

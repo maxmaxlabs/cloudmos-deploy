@@ -48,9 +48,10 @@ export function useRealTimeLeft(pricePerBlock, balance, settledAt, createdAt) {
 
   const blocksLeft = balance / pricePerBlock - blocksPassed;
   const timestamp = new Date().getTime();
+
   return {
     timeLeft: add(new Date(timestamp), { seconds: blocksLeft * averageBlockTime }),
-    escrow: blocksLeft * pricePerBlock,
-    amountSpent: blocksSinceCreation * pricePerBlock
+    escrow: Math.max(blocksLeft * pricePerBlock, 0),
+    amountSpent: Math.min(blocksSinceCreation * pricePerBlock, balance)
   };
 }

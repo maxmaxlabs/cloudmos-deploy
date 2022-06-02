@@ -33,6 +33,9 @@ const useStyles = makeStyles((theme) => ({
   websiteLink: {
     fontSize: "1rem",
     marginBottom: ".5rem"
+  },
+  auditorChip: {
+    marginBottom: "2px"
   }
 }));
 
@@ -89,7 +92,7 @@ export const AuditorsModal = ({ provider, onClose }) => {
                                   </div>
                                 }
                               >
-                                <Chip label={auditor.name} size="small" />
+                                <Chip label={auditor.name} size="small" className={classes.auditorChip} />
                               </Tooltip>
                             </div>
                           );

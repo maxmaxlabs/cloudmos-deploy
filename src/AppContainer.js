@@ -5,7 +5,7 @@ import { makeStyles } from "@material-ui/core";
 import { Route, useHistory } from "react-router-dom";
 import { BetaBanner } from "./components/BetaBanner";
 import { UrlService } from "./shared/utils/urlUtils";
-import { useStorageWalletAddresses } from "./shared/utils/walletUtils";
+import { useStorageWallets } from "./shared/utils/walletUtils";
 import { WalletOpen } from "./routes/WalletOpen";
 import { WalletImport } from "./routes/WalletImport";
 import { ErrorFallback } from "./shared/components/ErrorFallback";
@@ -26,16 +26,16 @@ export const AppContainer = () => {
   const classes = useStyles();
   const [isAppInitiated, setIsAppInitiated] = useState(false);
   const { address, selectedWallet } = useWallet();
-  const { addresses } = useStorageWalletAddresses();
+  const { wallets } = useStorageWallets();
   const [showBetaBanner, setShowBetaBanner] = useState(false);
   const history = useHistory();
 
-  const walletExists = addresses?.length > 0;
+  const walletsExist = wallets.length > 0;
 
   useEffect(() => {
     // Redirect to wallet import or open when no current selected wallet
     if (!selectedWallet || !address) {
-      if (walletExists) {
+      if (walletsExist) {
         history.replace(UrlService.walletOpen());
       } else {
         history.replace(UrlService.register());
