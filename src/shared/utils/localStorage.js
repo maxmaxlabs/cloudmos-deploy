@@ -56,21 +56,23 @@ const migrations = {
         localStorage.removeItem(_walletKey);
       }
 
-      Object.keys(localStorage).forEach((key) => {
-        if (!ignoredKeys.includes(key)) {
-          const newKey = migrateKeyToAddress(key, walletAddress);
-          if (newKey) {
-            updatedStorage[newKey] = localStorage.getItem(key);
-            // Update the localStorage with  the new keys prefixed with network id
-            localStorage.setItem(newKey, localStorage.getItem(key));
+      Object.keys(localStorage)
+        .filter((x) => x.startsWith(network.id))
+        .forEach((key) => {
+          if (!ignoredKeys.includes(key)) {
+            const newKey = migrateKeyToAddress(key, walletAddress);
+            if (newKey) {
+              updatedStorage[newKey] = localStorage.getItem(key);
+              // Update the localStorage with  the new keys prefixed with network id
+              localStorage.setItem(newKey, localStorage.getItem(key));
 
-            // Clean up the localStorage for unused keys
-            localStorage.removeItem(key);
+              // Clean up the localStorage for unused keys
+              localStorage.removeItem(key);
+            }
+          } else {
+            updatedStorage[key] = localStorage.getItem(key);
           }
-        } else {
-          updatedStorage[key] = localStorage.getItem(key);
-        }
-      });
+        });
     });
 
     // notify local storage hooks to update their values
