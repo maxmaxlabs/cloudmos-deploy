@@ -1,8 +1,9 @@
 import { Registry } from "@cosmjs/proto-signing";
-import { MsgSend } from "@cosmjs/stargate/build/codec/cosmos/bank/v1beta1/tx";
+import { MsgSend } from "cosmjs-types/cosmos/bank/v1beta1/tx";
 import { protoTypes } from "../protoTypes";
 import { TransactionMessageData } from "./TransactionMessageData";
 import { selectedNetworkId } from "../deploymentData";
+import { GasPrice } from "@cosmjs/stargate";
 
 export let customRegistry;
 
@@ -20,6 +21,9 @@ export function registerTypes() {
 
   customRegistry = registry;
 }
+
+// { low: 0.01, average: 0.025, high: 0.03 }
+export const gasPrices = { low: GasPrice.fromString("0.01uakt"), average: GasPrice.fromString("0.025uakt"), high: GasPrice.fromString("0.03uakt") };
 
 // TODO fees per node settings
 export const fees = {
