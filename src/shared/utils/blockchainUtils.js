@@ -40,9 +40,8 @@ export const edgenetFees = {
  * Get the fee object for an Akash transaction
  * @param {string} type low | avg | high
  * @param {number} gas transaction gas
- * @param {number} msgCount number of messages
  * @returns The fee object
  */
-export const createCustomFee = (fee, gas, msgCount = 1) => {
-  return { gas: gas.toString(), amount: [{ denom: "uakt", amount: (fee * msgCount).toString() }] };
+export const createCustomFee = (fee, gas) => {
+  return { gas: gas.toString(), amount: [{ denom: "uakt", amount: fee.toString() }] };
 };

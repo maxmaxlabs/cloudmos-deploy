@@ -107,14 +107,7 @@ export function TransactionModal({ isOpen, onConfirmTransaction, messages, onClo
         broadcastTimeoutMs: 300_000 // 5min
       });
 
-      const gasEstimation = await client.simulate(
-        address,
-        messages.map((m) => m.message),
-        memo
-      );
-      const fee = isSettingCustomFee
-        ? createCustomFee(aktToUakt(customFee), customGas, messages.length)
-        : calculateFee(Math.round(gasEstimation * gasPaddingMultiplier), gasPrices[currentFee]);
+      const fee = isSettingCustomFee ? createCustomFee(aktToUakt(customFee), customGas) : calculatedFees[currentFee];
 
       const response = await client.signAndBroadcast(
         address,
