@@ -22,7 +22,7 @@ import {
 import { a11yProps } from "../../shared/utils/a11yUtils";
 import { TabPanel } from "../../shared/components/TabPanel";
 import { customRegistry, createCustomFee, gasPrices } from "../../shared/utils/blockchainUtils";
-import { SigningStargateClient, calculateFee, GasPrice } from "@cosmjs/stargate";
+import { SigningStargateClient, calculateFee } from "@cosmjs/stargate";
 import { useWallet } from "../WalletProvider";
 import clsx from "clsx";
 import { TransactionMessage } from "./TransactionMessage";
@@ -47,9 +47,8 @@ export function TransactionModal({ isOpen, onConfirmTransaction, messages, onClo
   const [tabIndex, setTabIndex] = useState(0);
   const [memo, setMemo] = useState("");
   const [showMemoWarning, setShowMemoWarning] = useState(false);
-  // const [customFee, setCustomFee] = useState(uaktToAKT(selectedNetworkId === "mainnet" ? fees["avg"] * messages.length : edgenetFees["avg"] * messages.length));
-  const [customGas, setCustomGas] = useState(null);
-  const [customFee, setCustomFee] = useState(null); // TODO Set once we calculate fees
+  const [customGas, setCustomGas] = useState(null); // Set once we calculate fees
+  const [customFee, setCustomFee] = useState(null); // Set once we calculate fees
   const [isSettingCustomFee, setIsCustomFee] = useState(false);
   const [isCalculatingFees, setIsCalculatingFees] = useState(true);
   const [calculatedFees, setCalculatedFees] = useState(null);
@@ -57,9 +56,6 @@ export function TransactionModal({ isOpen, onConfirmTransaction, messages, onClo
   const { settings } = useSettings();
   const { address, selectedWallet, refreshBalance } = useWallet();
   const classes = useStyles();
-  // const lowFee = createFee("low", baseGas, messages.length);
-  // const avgFee = createFee("avg", baseGas, messages.length);
-  // const highFee = createFee("high", baseGas, messages.length);
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const isCustomFeeValid = customFee && parseFloat(customFee) > 0;
   const isGasValid = customGas && parseInt(customGas) > 0;
@@ -87,8 +83,6 @@ export function TransactionModal({ isOpen, onConfirmTransaction, messages, onClo
       setCalculatedFees(fees);
       setIsCalculatingFees(false);
 
-      // TODO set custom fee
-      // const baseGas = messages.map((m) => m.gas).reduce((a, b) => a + b, 0);
       setCustomFee(uaktToAKT(fees.average.amount[0].amount));
       setCustomGas(estimatedGas);
     })();
@@ -106,12 +100,6 @@ export function TransactionModal({ isOpen, onConfirmTransaction, messages, onClo
     });
 
     try {
-      debugger;
-      // const fee = isSettingCustomFee ? createCustomFee(aktToUakt(customFee), gas, messages.length) : createFee(currentFee, gas, messages.length);
-      // const tokenFee = isSettingCustomFee ? customFee * messages.length : uaktToAKT(fees[currentFee] * messages.length);
-      // { low: 0.01, average: 0.025, high: 0.03, }
-      // const gasPrice = GasPrice.fromString(`${tokenFee}uakt`);
-
       // Setup client
       const client = await SigningStargateClient.connectWithSigner(settings.rpcEndpoint, selectedWallet, {
         registry: customRegistry,
@@ -126,6 +114,7 @@ export function TransactionModal({ isOpen, onConfirmTransaction, messages, onClo
       const fee = isSettingCustomFee
         ? createCustomFee(aktToUakt(customFee), customGas, messages.length)
         : calculateFee(Math.round(gasEstimation * 1.3), gasPrices[currentFee]);
+
       const response = await client.signAndBroadcast(
         address,
         messages.map((m) => m.message),
@@ -236,7 +225,7 @@ export function TransactionModal({ isOpen, onConfirmTransaction, messages, onClo
   return (
     <Dialog
       open={isOpen}
-      onClose={!isSendingTransaction ? onClose : null}
+      onClose={!isSendingTransaction && !isCalculatingFees ? onClose : null}
       maxWidth="xs"
       fullWidth
       aria-labelledby="transaction-modal"
@@ -304,7 +293,9 @@ export function TransactionModal({ isOpen, onConfirmTransaction, messages, onClo
           </Box>
 
           {isCalculatingFees ? (
-            <CircularProgress size="24px" color="primary" />
+            <Box display="flex" alignItems="center" justifyContent="center">
+              <CircularProgress size="24px" color="primary" />
+            </Box>
           ) : (
             <>
               <Box>
@@ -430,7 +421,7 @@ export function TransactionModal({ isOpen, onConfirmTransaction, messages, onClo
           variant="contained"
           color="primary"
           onClick={handleSubmit}
-          disabled={isSendingTransaction || !isGasValid}
+          disabled={isSendingTransaction || !isGasValid || isCalculatingFees}
           classes={{ root: classes.actionButton }}
         >
           {isSendingTransaction ? <CircularProgress size="24px" color="primary" /> : "Approve"}
