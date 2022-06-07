@@ -41,6 +41,7 @@ import { PriceValue } from "../../shared/components/PriceValue";
 import { selectedNetworkId } from "../../shared/deploymentData";
 
 const a11yPrefix = "transaction-tab";
+const gasPaddingMultiplier = 1.5;
 
 export function TransactionModal({ isOpen, onConfirmTransaction, messages, onClose }) {
   const [isSendingTransaction, setIsSendingTransaction] = useState(false);
@@ -72,7 +73,7 @@ export function TransactionModal({ isOpen, onConfirmTransaction, messages, onClo
         messages.map((m) => m.message),
         memo
       );
-      const estimatedGas = Math.round(gasEstimation * 1.3);
+      const estimatedGas = Math.round(gasEstimation * gasPaddingMultiplier);
 
       const fees = {
         low: calculateFee(estimatedGas, gasPrices.low),
@@ -113,7 +114,7 @@ export function TransactionModal({ isOpen, onConfirmTransaction, messages, onClo
       );
       const fee = isSettingCustomFee
         ? createCustomFee(aktToUakt(customFee), customGas, messages.length)
-        : calculateFee(Math.round(gasEstimation * 1.3), gasPrices[currentFee]);
+        : calculateFee(Math.round(gasEstimation * gasPaddingMultiplier), gasPrices[currentFee]);
 
       const response = await client.signAndBroadcast(
         address,
