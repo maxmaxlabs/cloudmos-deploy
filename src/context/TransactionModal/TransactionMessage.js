@@ -40,7 +40,7 @@ export const TransactionMessage = ({ message }) => {
 
 const getMessage = (message, classes) => {
   switch (message.typeUrl) {
-    case TransactionMessageData.Types.MSG_CLOSE_DEPLOYMENT.type:
+    case TransactionMessageData.Types.MSG_CLOSE_DEPLOYMENT:
       return (
         <>
           <ListItemAvatar>
@@ -55,7 +55,7 @@ const getMessage = (message, classes) => {
           />
         </>
       );
-    case TransactionMessageData.Types.MSG_CREATE_CERTIFICATE.type:
+    case TransactionMessageData.Types.MSG_CREATE_CERTIFICATE:
       return (
         <>
           <ListItemAvatar>
@@ -66,7 +66,7 @@ const getMessage = (message, classes) => {
           <ListItemText primary="Create Certificate" classes={{ primary: classes.listItemPrimaryText }} />
         </>
       );
-    case TransactionMessageData.Types.MSG_CREATE_DEPLOYMENT.type:
+    case TransactionMessageData.Types.MSG_CREATE_DEPLOYMENT:
       return (
         <>
           <ListItemAvatar>
@@ -85,7 +85,7 @@ const getMessage = (message, classes) => {
           />
         </>
       );
-    case TransactionMessageData.Types.MSG_UPDATE_DEPLOYMENT.type:
+    case TransactionMessageData.Types.MSG_UPDATE_DEPLOYMENT:
       return (
         <>
           <ListItemAvatar>
@@ -104,7 +104,7 @@ const getMessage = (message, classes) => {
           />
         </>
       );
-    case TransactionMessageData.Types.MSG_DEPOSIT_DEPLOYMENT.type:
+    case TransactionMessageData.Types.MSG_DEPOSIT_DEPLOYMENT:
       return (
         <>
           <ListItemAvatar>
@@ -123,7 +123,7 @@ const getMessage = (message, classes) => {
           />
         </>
       );
-    case TransactionMessageData.Types.MSG_CREATE_LEASE.type:
+    case TransactionMessageData.Types.MSG_CREATE_LEASE:
       return (
         <>
           <ListItemAvatar>
@@ -143,7 +143,7 @@ const getMessage = (message, classes) => {
           />
         </>
       );
-    case TransactionMessageData.Types.MSG_REVOKE_CERTIFICATE.type:
+    case TransactionMessageData.Types.MSG_REVOKE_CERTIFICATE:
       return (
         <>
           <ListItemAvatar>
@@ -154,7 +154,7 @@ const getMessage = (message, classes) => {
           <ListItemText primary="Revoke Certificate" secondary={`Serial: ${message.value.id.serial}`} classes={{ primary: classes.listItemPrimaryText }} />
         </>
       );
-    case TransactionMessageData.Types.MSG_SEND_TOKENS.type:
+    case TransactionMessageData.Types.MSG_SEND_TOKENS:
       return (
         <>
           <ListItemAvatar>
@@ -173,7 +173,7 @@ const getMessage = (message, classes) => {
           />
         </>
       );
-    case TransactionMessageData.Types.MSG_GRANT.type:
+    case TransactionMessageData.Types.MSG_GRANT:
       return (
         <>
           <ListItemAvatar>

@@ -50,8 +50,8 @@
     ]
   },
   "dependencies": {
-    "@cosmjs/proto-signing": "^0.25.4",
-    "@cosmjs/stargate": "^0.25.4",
+    "@cosmjs/proto-signing": "^0.28.4",
+    "@cosmjs/stargate": "^0.28.4",
     "@material-ui/core": "^4.11.4",
     "@material-ui/icons": "^4.11.2",
     "@material-ui/lab": "^4.0.0-alpha.58",
@@ -61,6 +61,7 @@
     "@sentry/react": "^6.7.2",
     "axios": "^0.21.1",
     "clsx": "^1.1.1",
+    "cosmjs-types": "^0.4.1",
     "date-fns": "^2.22.1",
     "electron-google-analytics": "^1.0.2",
     "electron-is-dev": "^2.0.0",
