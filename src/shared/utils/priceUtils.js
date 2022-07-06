@@ -2,7 +2,7 @@ import add from "date-fns/add";
 import { averageDaysInMonth } from "./date";
 import { useBlock } from "../../queries";
 
-export const averageBlockTime = 6.174;
+export const averageBlockTime = 6.098;
 
 export function uaktToAKT(amount, precision = 3) {
   return Math.round((amount / 1000000 + Number.EPSILON) * Math.pow(10, precision)) / Math.pow(10, precision);
