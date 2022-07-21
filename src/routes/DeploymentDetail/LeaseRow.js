@@ -340,7 +340,7 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
                     )}
                   </Box>
 
-                  <Box display="flex" alignItems="center" marginTop="2px">
+                  <Box display="flex" alignItems="center" marginTop="4px">
                     <Box display="flex" alignItems="center">
                       <Typography variant="caption">Available:&nbsp;</Typography>
                       <Chip label={service.available} size="small" color={service.available > 0 ? "primary" : "default"} className={classes.serviceChip} />
@@ -382,34 +382,35 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
                   {service.uris?.length > 0 && (
                     <>
                       <Box marginTop=".5rem">
-                        <LabelValue label="Uris:" />
+                        <LabelValue label="Uri(s):" />
                         <List dense>
                           {service.uris.map((uri) => {
                             return (
                               <ListItem key={uri} className={classes.listItem}>
                                 <ListItemText
                                   primary={
-                                    <LinkTo className={classes.link} onClick={(ev) => handleExternalUrlClick(ev, uri)}>
-                                      {uri} <LaunchIcon fontSize="small" />
-                                    </LinkTo>
+                                    <Box display="flex" alignItems="center">
+                                      <LinkTo className={classes.link} onClick={(ev) => handleExternalUrlClick(ev, uri)}>
+                                        {uri} <LaunchIcon fontSize="small" />
+                                      </LinkTo>
+                                      &nbsp;&nbsp;
+                                      <IconButton
+                                        edge="end"
+                                        aria-label="uri"
+                                        size="small"
+                                        onClick={(ev) => {
+                                          copyTextToClipboard(uri);
+                                          enqueueSnackbar(<Snackbar title="Uri copied to clipboard!" iconVariant="success" />, {
+                                            variant: "success",
+                                            autoHideDuration: 2000
+                                          });
+                                        }}
+                                      >
+                                        <FileCopyIcon fontSize="small" />
+                                      </IconButton>
+                                    </Box>
                                   }
                                 />
-                                <ListItemSecondaryAction>
-                                  <IconButton
-                                    edge="end"
-                                    aria-label="uri"
-                                    size="small"
-                                    onClick={(ev) => {
-                                      copyTextToClipboard(uri);
-                                      enqueueSnackbar(<Snackbar title="Uri copied to clipboard!" iconVariant="success" />, {
-                                        variant: "success",
-                                        autoHideDuration: 2000
-                                      });
-                                    }}
-                                  >
-                                    <FileCopyIcon fontSize="small" />
-                                  </IconButton>
-                                </ListItemSecondaryAction>
                               </ListItem>
                             );
                           })}
@@ -419,6 +420,62 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
                   )}
                 </Box>
               ))}
+
+          {isLeaseActive && leaseStatus && leaseStatus.ips && (
+            <Box marginTop=".5rem">
+              <LabelValue label="IP(s):" />
+              <List dense>
+                {servicesNames
+                  .map((n) => leaseStatus.ips[n])
+                  .map((ips, i) => {
+                    return ips?.map((ip) => (
+                      <ListItem key={ip.IP} className={classes.listItem}>
+                        <ListItemText
+                          primary={
+                            <Box display="flex" alignItems="center">
+                              <LinkTo className={classes.link} onClick={(ev) => handleExternalUrlClick(ev, ip.IP)}>
+                                {ip.IP}:{ip.ExternalPort} <LaunchIcon fontSize="small" />
+                              </LinkTo>
+                              &nbsp;&nbsp;
+                              <Tooltip
+                                classes={{ tooltip: classes.tooltip }}
+                                arrow
+                                interactive
+                                title={
+                                  <>
+                                    <div>IP:&nbsp;{ip.IP}</div>
+                                    <div>External Port:&nbsp;{ip.ExternalPort}</div>
+                                    <div>Port:&nbsp;{ip.Port}</div>
+                                    <div>Protocol:&nbsp;{ip.Protocol}</div>
+                                  </>
+                                }
+                              >
+                                <InfoIcon className={classes.tooltipIcon} fontSize="small" />
+                              </Tooltip>
+                              &nbsp;&nbsp;
+                              <IconButton
+                                edge="end"
+                                size="small"
+                                onClick={(ev) => {
+                                  copyTextToClipboard(ip.IP);
+                                  enqueueSnackbar(<Snackbar title="Ip copied to clipboard!" iconVariant="success" />, {
+                                    variant: "success",
+                                    autoHideDuration: 2000
+                                  });
+                                }}
+                              >
+                                <FileCopyIcon fontSize="small" />
+                              </IconButton>
+                            </Box>
+                          }
+                        />
+                        <ListItemSecondaryAction></ListItemSecondaryAction>
+                      </ListItem>
+                    ));
+                  })}
+              </List>
+            </Box>
+          )}
         </CardContent>
       </Card>
     </>
