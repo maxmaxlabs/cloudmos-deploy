@@ -8,6 +8,8 @@ export const mainnetId = "mainnet";
 export const testnetId = "testnet";
 export const edgenetId = "edgenet";
 
+export let selectedNetworkId = "";
+
 // 5AKT aka 5000000uakt
 export const defaultInitialDeposit = 5000000;
 
@@ -24,21 +26,25 @@ export const transactionLink = (txHash, networkId) => {
 export let networkVersion;
 
 export function setNetworkVersion() {
-  const selectedNetworkId = localStorage.getItem("selectedNetworkId");
+  const _selectedNetworkId = localStorage.getItem("selectedNetworkId");
 
-  switch (selectedNetworkId) {
+  switch (_selectedNetworkId) {
     case mainnetId:
       networkVersion = "v1beta2";
+      selectedNetworkId = mainnetId;
       break;
     case testnetId:
       networkVersion = "v1beta2";
+      selectedNetworkId = testnetId;
       break;
     case edgenetId:
       networkVersion = "v1beta2";
+      selectedNetworkId = edgenetId;
       break;
 
     default:
       networkVersion = "v1beta2";
+      selectedNetworkId = mainnetId;
       break;
   }
 }
