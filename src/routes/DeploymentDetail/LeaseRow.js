@@ -370,9 +370,15 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
                         label="Forwarded Ports:"
                         value={leaseStatus.forwarded_ports[service.name].map((p) => (
                           <Box key={"port_" + p.externalPort} display="inline" mr={0.5}>
-                            <LinkTo label={``} disabled={p.available < 1} onClick={(ev) => handleExternalUrlClick(ev, `${p.host}:${p.externalPort}`)}>
-                              {p.externalPort}:{p.port}
-                            </LinkTo>
+                            {p.host ? (
+                              <LinkTo label={``} disabled={p.available < 1} onClick={(ev) => handleExternalUrlClick(ev, `${p.host}:${p.externalPort}`)}>
+                                {p.externalPort}:{p.port}
+                              </LinkTo>
+                            ) : (
+                              <>
+                                <Chip label={`${p.externalPort}:${p.port}`} size="small" />
+                              </>
+                            )}
                           </Box>
                         ))}
                       />
@@ -429,7 +435,7 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
                   .map((n) => leaseStatus.ips[n])
                   .map((ips, i) => {
                     return ips?.map((ip) => (
-                      <ListItem key={ip.IP} className={classes.listItem}>
+                      <ListItem key={`${ip.IP}${ip.ExternalPort}`} className={classes.listItem}>
                         <ListItemText
                           primary={
                             <Box display="flex" alignItems="center">

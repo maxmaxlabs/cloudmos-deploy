@@ -194,13 +194,13 @@ function DeploymentGroups(yamlJson) {
 
             // TODO Remove once merged on the mainnet
             if (selectedNetworkId === edgenetId) {
-              v.IP = to.ip || null;
+              v.IP = to.ip || "";
             }
 
             // Check to see if an IP endpoint is also specified
             if (to.ip?.length > 0) {
               const seqNo = ipEndpointNames[to.ip];
-              v.EndpointSequenceNumber = seqNo;
+              v.EndpointSequenceNumber = seqNo || 0;
               endpoints.push({ kind: Endpoint_LEASED_IP, sequence_number: seqNo });
             }
 
@@ -452,8 +452,8 @@ export function Manifest(yamlJson) {
 
             // TODO Remove once merged on the mainnet
             if (selectedNetworkId === edgenetId) {
-              _expose.IP = to.ip || null;
-              _expose.EndpointSequenceNumber = seqNo;
+              _expose.IP = to.ip || "";
+              _expose.EndpointSequenceNumber = seqNo || 0;
             }
 
             manifestExpose = manifestExpose.concat([_expose]);
