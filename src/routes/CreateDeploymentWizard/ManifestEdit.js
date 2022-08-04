@@ -48,9 +48,12 @@ export function ManifestEdit(props) {
   const history = useHistory();
   const classes = useStyles();
 
-  async function handleTextChange(value) {
-    setEditedManifest(value);
-  }
+  useEffect(() => {
+    if (selectedTemplate.name) {
+      setDeploymentName(selectedTemplate.name);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const timer = Timer(500);
@@ -66,6 +69,10 @@ export function ManifestEdit(props) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editedManifest]);
+
+  async function handleTextChange(value) {
+    setEditedManifest(value);
+  }
 
   async function createAndValidateDeploymentData(yamlStr, dseq = null, deposit = defaultInitialDeposit, depositorAddress = null) {
     try {
