@@ -123,7 +123,7 @@ export function NewWallet() {
       if (shouldAdd) {
         newWords = prevWords.concat([word]);
       } else {
-        newWords = prevWords.filter((w) => !(w.value === word.value && w.originalIndex === word.originalIndex));
+        newWords = prevWords.filter((w) => w.originalIndex !== word.originalIndex);
       }
 
       const originalMnemonic = newWallet.mnemonic.split(" ");
