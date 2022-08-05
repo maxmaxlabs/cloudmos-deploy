@@ -91,6 +91,7 @@ export function PrerequisiteList({ selectedTemplate, setSelectedTemplate }) {
 
       if (deploymentData && deploymentData.manifest) {
         template = {
+          name: deploymentData.name,
           code: "empty",
           content: deploymentData.manifest
         };

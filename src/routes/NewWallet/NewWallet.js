@@ -16,6 +16,7 @@ import { arrayEquals } from "../../shared/utils/array";
 import { Layout } from "../../shared/components/Layout";
 import { useQueryParams } from "../../hooks/useQueryParams";
 import { useCertificate } from "../../context/CertificateProvider";
+import isEqual from "lodash/isEqual";
 
 const useStyles = makeStyles((theme) => ({
   root: { padding: "5% 0" },
@@ -103,9 +104,8 @@ export function NewWallet() {
     setNewWallet(wallet);
     const shuffled = wallet.mnemonic
       .split(" ")
-      .map((value) => ({ value, sort: Math.random() }))
-      .sort((a, b) => a.sort - b.sort)
-      .map(({ value }) => value);
+      .map((value, i) => ({ value, sort: Math.random(), originalIndex: i }))
+      .sort((a, b) => a.sort - b.sort);
 
     setShuffledMnemonic(shuffled);
 
@@ -123,12 +123,17 @@ export function NewWallet() {
       if (shouldAdd) {
         newWords = prevWords.concat([word]);
       } else {
-        newWords = prevWords.filter((w) => w !== word);
+        newWords = prevWords.filter((w) => w.originalIndex !== word.originalIndex);
       }
 
       const originalMnemonic = newWallet.mnemonic.split(" ");
       if (newWords.length === originalMnemonic.length) {
-        if (arrayEquals(newWords, originalMnemonic)) {
+        if (
+          isEqual(
+            newWords.map((w) => w.value),
+            originalMnemonic
+          )
+        ) {
           setIsKeyValidated(true);
           setError("");
         } else {
@@ -231,7 +236,7 @@ export function NewWallet() {
                       key={`selected_word_${i}`}
                       size="small"
                     >
-                      {word}
+                      {word.value}
                     </Button>
                   ))}
                 </div>
@@ -240,10 +245,10 @@ export function NewWallet() {
 
                 <div>
                   {shuffledMnemonic
-                    .filter((w) => !selectedWords.some((_) => _ === w))
+                    .filter((w) => !selectedWords.some((_) => _.value === w.value && _.originalIndex === w.originalIndex))
                     .map((word, i) => (
                       <Button onClick={() => onWordClick(word, true)} className={classes.wordButton} variant="outlined" size="small" key={`word_${i}`}>
-                        {word}
+                        {word.value}
                       </Button>
                     ))}
                 </div>
