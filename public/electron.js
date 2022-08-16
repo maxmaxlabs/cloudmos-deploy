@@ -7,17 +7,9 @@ const isDev = require("electron-is-dev");
 const { autoUpdater } = require("electron-updater");
 const log = require("electron-log");
 
-const Sentry = require("@sentry/electron");
-
 const appVersion = app.getVersion();
 const appEnv = isDev ? "development" : "production";
 let startUrl = process.env.ELECTRON_START_URL;
-
-Sentry.init({
-  dsn: "https://fc8f0d800d664154a0f1babe0e318fbb@o877251.ingest.sentry.io/5827747",
-  environment: appEnv,
-  release: appVersion
-});
 
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = "info";
