@@ -25,7 +25,7 @@ autoUpdater.autoDownload = false;
 // autoUpdater.autoInstallOnAppQuit = false;
 
 // Set the app user model id for the notifications
-app.setAppUserModelId("Akashlytics Deploy");
+app.setAppUserModelId("Cloudmos Deploy");
 
 const logger = winston.createLogger({
   level: "info",
@@ -46,7 +46,7 @@ function createWindow() {
 
     // Create the browser window.
     const mainWindow = new BrowserWindow({
-      title: "Akashlytics Deploy",
+      title: "Cloudmos Deploy",
       width: 1024,
       height: 768,
       minWidth: 991,

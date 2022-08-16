@@ -41,7 +41,7 @@ export const DeleteWalletConfirm = ({ isOpen, address, balance, handleCancel, ha
           )}
         </p>
         <Alert severity="warning">
-          This wallet will be completely removed from Akashlytics Deploy along with your local certificate and deployments data. If you want to keep access to
+          This wallet will be completely removed from Cloudmos Deploy along with your local certificate and deployments data. If you want to keep access to
           this wallet, make sure you have a backup of the seed phrase or private key.
         </Alert>
         <br />

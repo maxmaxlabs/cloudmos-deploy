@@ -1,8 +1,8 @@
 [
    {
-      "id":"akash-node.akashlytics.com",
-      "api":"http://akash-node.akashlytics.com:1317",
-      "rpc":"http://akash-node.akashlytics.com:26657"
+      "id":"akash-node.cloudmos.io",
+      "api":"http://akash-node.cloudmos.io:1317",
+      "rpc":"http://akash-node.cloudmos.io:26657"
    },
    {
       "id":"akash.c29r3.xyz",

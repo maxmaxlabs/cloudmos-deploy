@@ -4,7 +4,7 @@ import axios from "axios";
 import { ApiUrlService, loadWithPagination } from "../shared/utils/apiUtils";
 import { useSettings } from "../context/SettingsProvider";
 import { providerStatusToDto, getNetworkCapacityDto } from "../shared/utils/providerUtils";
-import { akashlyticsApi } from "../shared/constants";
+import { cloudmosApi } from "../shared/constants";
 
 async function getProviderDetail(apiEndpoint, owner) {
   if (!owner) return {};
@@ -37,7 +37,7 @@ export function useProviders(options) {
 }
 
 async function getDataNodeProviders() {
-  const response = await axios.get(`${akashlyticsApi}/providers`);
+  const response = await axios.get(`${cloudmosApi}/providers`);
 
   return response.data;
 }

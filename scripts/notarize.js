@@ -10,7 +10,7 @@ exports.default = async function notarizing(context) {
   const appName = context.packager.appInfo.productFilename;
 
   return await notarize({
-    appBundleId: "com.akashlytics.deploy",
+    appBundleId: "com.cloudmos.deploy",
     appPath: `${appOutDir}/${appName}.app`,
     appleId: process.env.APPLEID,
     appleIdPassword: process.env.APPLEIDPASS

@@ -1,7 +1,7 @@
 import Analytics from "electron-google-analytics";
 const { nanoid } = require("nanoid");
 
-export const HOSTNAME = "https://deploy.akashlytics.com";
+export const HOSTNAME = "https://deploy.cloudmos.io";
 const LOCAL_STORAGE_USERID_KEY = "ga_user_id";
 
 export let analytics;

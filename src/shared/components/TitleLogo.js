@@ -21,8 +21,8 @@ export const TitleLogo = () => {
 
   return (
     <Typography variant="h1" className={classes.root}>
-      <img src="./icon.png" alt="Akashlytics Logo" />
-      Akashlytics Deploy
+      <img src="./icon.png" alt="Cloudmos Logo" />
+      Cloudmos Deploy
     </Typography>
   );
 };

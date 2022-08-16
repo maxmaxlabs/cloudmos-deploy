@@ -1,16 +1,16 @@
 {
-  "name": "akashlytics-deploy",
+  "name": "cloudmos-deploy",
   "version": "0.14.4",
   "private": false,
   "repository": {
     "type": "git",
     "url": "https://github.com/Akashlytics/akashlytics-deploy-tool.git"
   },
-  "description": "Akashlytics deploy tool.",
+  "description": "Cloudmos Deploy",
   "author": {
-    "name": "Akashlytics",
+    "name": "MaxMax Labs Inc.",
     "email": "admin@akashlytics.com",
-    "url": "https://www.akashlytics.com/"
+    "url": "https://cloudmos.io/"
   },
   "main": "public/electron.js",
   "homepage": "./",

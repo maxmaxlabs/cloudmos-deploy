@@ -38,7 +38,7 @@ export const BetaBanner = () => {
             </Box>
             <div className={classes.betaText}>
               <Typography variant="body1">
-                <strong>Akashlytics Deploy</strong> is currently in <strong>BETA</strong>. We strongly suggest you start with a new wallet and a small amount of
+                <strong>Cloudmos Deploy</strong> is currently in <strong>BETA</strong>. We strongly suggest you start with a new wallet and a small amount of
                 AKT until we further stabilize the product. Enjoy!
               </Typography>
             </div>

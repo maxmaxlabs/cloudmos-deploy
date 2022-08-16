@@ -1,4 +1,4 @@
-import { networkVersion, akashlyticsApi } from "../constants";
+import { networkVersion, cloudmosApi } from "../constants";
 import axios from "axios";
 
 export class ApiUrlService {
@@ -39,7 +39,7 @@ export class ApiUrlService {
     return `${apiEndpoint}/cosmos/staking/v1beta1/delegators/${address}/unbonding_delegations`;
   }
   static networkCapacity() {
-    return `${akashlyticsApi}/getNetworkCapacity`;
+    return `${cloudmosApi}/getNetworkCapacity`;
   }
 }
 
