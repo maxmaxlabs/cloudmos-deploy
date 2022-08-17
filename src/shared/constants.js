@@ -65,6 +65,9 @@ export const monacoOptions = {
   },
   padding: {
     bottom: 50
+  },
+  hover: {
+    enabled: false
   }
 };
 
