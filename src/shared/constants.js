@@ -15,7 +15,7 @@ export const defaultInitialDeposit = 5000000;
 
 export const transactionLink = (txHash, networkId) => {
   if (networkId === "mainnet") {
-    return `https://www.mintscan.io/akash/txs/${txHash}`;
+    return `https://cloudmos.io/transactions/${txHash}`;
   } else if (networkId === "edgenet") {
     return `https://testnet.akash.bigdipper.live/transactions/${txHash}`;
   }

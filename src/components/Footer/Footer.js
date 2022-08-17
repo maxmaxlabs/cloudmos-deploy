@@ -92,7 +92,7 @@ export const Footer = () => {
         <Box display="flex" alignItems="center">
           <Box marginRight="1rem">
             <Button
-              onClick={() => window.electron.openUrl("https://www.mintscan.io/akash/validators/akashvaloper14mt78hz73d9tdwpdvkd59ne9509kxw8yj7qy8f")}
+              onClick={() => window.electron.openUrl("https://cloudmos.io/validators/akashvaloper14mt78hz73d9tdwpdvkd59ne9509kxw8yj7qy8f")}
               size="small"
             >
               <Typography variant="caption" className={classes.caption}>
