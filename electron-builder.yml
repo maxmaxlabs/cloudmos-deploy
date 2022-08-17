@@ -1,6 +1,6 @@
 productName: "Cloudmos Deploy"
 artifactName: "Cloudmos-Deploy-${version}.${ext}"
-appId: "com.cloudmos.deploy"
+appId: "com.akashlytics.deploy"
 afterSign: "./scripts/notarize.js"
 win:
   target: "NSIS"

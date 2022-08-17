@@ -18,9 +18,6 @@ import { ErrorBoundary } from "react-error-boundary";
 })();
 
 function runApp() {
-  const appVersion = window.electron.getAppVersion();
-  const appEnvironment = window.electron.getAppEnvironment();
-
   ReactDOM.render(
     <React.StrictMode>
       <ErrorBoundary FallbackComponent={ErrorFallback}>

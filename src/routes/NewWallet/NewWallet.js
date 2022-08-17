@@ -12,7 +12,6 @@ import { useSnackbar } from "notistack";
 import { Snackbar } from "../../shared/components/Snackbar";
 import { HdPath } from "../../shared/components/HdPath";
 import { MnemonicTextarea } from "../../shared/components/MnemonicTextarea";
-import { arrayEquals } from "../../shared/utils/array";
 import { Layout } from "../../shared/components/Layout";
 import { useQueryParams } from "../../hooks/useQueryParams";
 import { useCertificate } from "../../context/CertificateProvider";
