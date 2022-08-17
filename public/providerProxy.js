@@ -128,11 +128,11 @@ exports.queryProvider = async function (url, method, body, certPem, prvPem) {
 function getProxyFilePath() {
   switch (process.platform) {
     case "win32":
-      return "./tools/akashlytics-provider-proxy.exe";
+      return "./tools/cloudmos-provider-proxy.exe";
     case "linux":
-      return "./tools/akashlytics-provider-proxy-lin";
+      return "./tools/cloudmos-provider-proxy-lin";
     case "darwin":
-      return "./tools/akashlytics-provider-proxy";
+      return "./tools/cloudmos-provider-proxy";
     default:
       throw new Error("Unsupported platform: " + process.platform);
   }
