@@ -121,7 +121,7 @@ export const Footer = () => {
               </LinkTo>
             </li>
             <li>
-              <LinkTo onClick={() => window.electron.openUrl("https://github.com/Akashlytics/akashlytics-deploy")} className={classes.socialLink}>
+              <LinkTo onClick={() => window.electron.openUrl("https://github.com/maxmaxlabs/cloudmos-deploy")} className={classes.socialLink}>
                 <GitHubIcon className={classes.socialIcon} />
               </LinkTo>
             </li>

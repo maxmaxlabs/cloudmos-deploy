@@ -136,23 +136,23 @@ export const NodeStatusBar = () => {
         <Box display="flex" alignItems="center" whiteSpace="nowrap">
           <div className={classes.stars}>
             <GitHubButton
-              href="https://github.com/Akashlytics/akashlytics-deploy"
+              href="https://github.com/maxmaxlabs/cloudmos-deploy"
               data-icon="octicon-star"
               // data-size="small"
               data-show-count="true"
-              aria-label="Star Akashlytics/akashlytics-deploy on GitHub"
+              aria-label="Star maxmaxlabs/cloudmos-deploy on GitHub"
             >
               Star
             </GitHubButton>
           </div>
 
-          <Button onClick={() => window.electron.openUrl("https://github.com/Akashlytics/akashlytics-deploy/issues")} size="small">
+          <Button onClick={() => window.electron.openUrl("https://github.com/maxmaxlabs/cloudmos-deploy/issues")} size="small">
             <Typography variant="caption" className={classes.caption}>
               Submit an issue
             </Typography>
           </Button>
           <Box>|</Box>
-          <Button onClick={() => window.electron.openUrl("https://github.com/Akashlytics/akashlytics-deploy")} size="small">
+          <Button onClick={() => window.electron.openUrl("https://github.com/maxmaxlabs/cloudmos-deploy")} size="small">
             <Typography variant="caption" className={classes.caption}>
               Fork me!
             </Typography>

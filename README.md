@@ -8,8 +8,8 @@
  
 **Cloudmos Deploy** is an app that let's you deploy any [docker container](https://www.docker.com/) on the [Akash Network](https://akash.network) in a few clicks... 🛠
   
-![version](https://img.shields.io/github/stars/Akashlytics/akashlytics-deploy)
-![license](https://img.shields.io/github/license/Akashlytics/akashlytics-deploy)
+![version](https://img.shields.io/github/stars/maxmaxlabs/cloudmos-deploy)
+![license](https://img.shields.io/github/license/maxmaxlabs/cloudmos-deploy)
 [![Twitter URL](https://img.shields.io/twitter/url/https/twitter.com/bukotsunikki.svg?style=social&label=Follow%20%cloudmosio)](https://twitter.com/cloudmosio)
 [![https://discord.gg/gc2VqQ9BTG](https://img.shields.io/badge/discord-join-7289DA.svg?logo=discord&longCache=true&style=flat)](https://discord.gg/gc2VqQ9BTG)
   
@@ -18,7 +18,7 @@
 ##  Installation:
 
 The latest version of the tool can be downloaded from the Cloudmos website:
-https://cloudmos.io/cloud-deploy or from the [release page.](https://github.com/Akashlytics/akashlytics-deploy/releases)
+https://cloudmos.io/cloud-deploy or from the [release page.](https://github.com/maxmaxlabs/cloudmos-deploy/releases)
 
 ### Running locally:
 
@@ -63,6 +63,6 @@ Want to see your application in Cloudmos Deploy?  Create a pull request on the [
 - Cloudmos Deploy is currently in BETA. We strongly suggest you start with a new wallet and a small amount of AKT until we further stabilize the product.
 - We're not responsible for any loss or damages related to using the app.
 - The app has a high chance of containing bugs since it's in BETA, use at your own risk.
-- [Only x86_64 processors are officially supported for Akash implementations.](https://docs.akash.network/guides/deploy/akashlytics-deploy-installation#cpu-support) But if the docker image is built [setting the target platform to linux/amd64](https://stackoverflow.com/a/69119815/8215759) it [is possible that it will work from others processors](https://github.com/ovrclk/docs/pull/239).
+- [Only x86_64 processors are officially supported for Akash implementations.](https://docs.akash.network/guides/deploy/cloudmos-deploy-installation#cpu-support) But if the docker image is built [setting the target platform to linux/amd64](https://stackoverflow.com/a/69119815/8215759) it [is possible that it will work from others processors](https://github.com/ovrclk/docs/pull/239).
 
 

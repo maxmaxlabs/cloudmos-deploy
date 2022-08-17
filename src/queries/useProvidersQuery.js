@@ -81,7 +81,7 @@ export function useNetworkCapacity(options) {
 }
 
 async function getAuditors() {
-  const response = await axios.get("https://raw.githubusercontent.com/Akashlytics/akashlytics-deploy/master/auditors.json");
+  const response = await axios.get("https://raw.githubusercontent.com/maxmaxlabs/cloudmos-deploy/master/auditors.json");
 
   return response.data;
 }

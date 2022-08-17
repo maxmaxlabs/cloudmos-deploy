@@ -4,7 +4,7 @@
   "private": false,
   "repository": {
     "type": "git",
-    "url": "https://github.com/Akashlytics/akashlytics-deploy-tool.git"
+    "url": "https://github.com/maxmaxlabs/cloudmos-deploy.git"
   },
   "description": "Cloudmos Deploy",
   "author": {
