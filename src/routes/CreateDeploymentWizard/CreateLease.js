@@ -70,6 +70,7 @@ const WARNING_NUM_OF_BID_REQUESTS = Math.round((60 * 1000) / REFRESH_BIDS_INTERV
 export function CreateLease({ dseq }) {
   const [isSendingManifest, setIsSendingManifest] = useState(false);
   const [isFilteringFavorites, setIsFilteringFavorites] = useState(false);
+  const [isFilteringAudited, setIsFilteringAudited] = useState(true);
   const [selectedBids, setSelectedBids] = useState({});
   const [filteredBids, setFilteredBids] = useState([]);
   const [search, setSearch] = useState("");
@@ -116,7 +117,7 @@ export function CreateLease({ dseq }) {
   // Filter bids by search
   useEffect(() => {
     let fBids = [];
-    if ((search || isFilteringFavorites) && providers) {
+    if ((search || isFilteringFavorites || isFilteringAudited) && providers) {
       bids?.forEach((bid) => {
         let isAdded = false;
 
@@ -138,6 +139,16 @@ export function CreateLease({ dseq }) {
 
           if (provider) {
             fBids.push(bid.id);
+            isAdded = true;
+          }
+        }
+
+        // Filter for audited
+        if (!isAdded && isFilteringAudited) {
+          const provider = providers.filter((x) => x.isAudited).find((p) => p.owner === bid.provider);
+
+          if (provider) {
+            fBids.push(bid.id);
           }
         }
       });
@@ -147,7 +158,7 @@ export function CreateLease({ dseq }) {
 
     setFilteredBids(fBids);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, bids, providers, isFilteringFavorites]);
+  }, [search, bids, providers, isFilteringFavorites, isFilteringAudited]);
 
   const handleBidSelected = (bid) => {
     setSelectedBids({ ...selectedBids, [bid.gseq]: bid });
@@ -381,6 +392,11 @@ export function CreateLease({ dseq }) {
               <FormControlLabel
                 control={<Checkbox checked={isFilteringFavorites} onChange={(ev, value) => setIsFilteringFavorites(value)} color="primary" size="small" />}
                 label="Favorites"
+              />
+
+              <FormControlLabel
+                control={<Checkbox checked={isFilteringAudited} onChange={(ev, value) => setIsFilteringAudited(value)} color="primary" size="small" />}
+                label="Audited"
               />
             </Box>
 
