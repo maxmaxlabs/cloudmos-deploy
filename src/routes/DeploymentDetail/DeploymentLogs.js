@@ -66,6 +66,19 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
   }, []);
 
   useEffect(() => {
+    if (monacoRef.current) {
+      const editor = monacoRef.current.editor;
+
+      editor.onDidScrollChange((event) => {
+        if (event.scrollTop < event._oldScrollTop) {
+          setStickToBottom(false);
+        }
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [monacoRef.current]);
+
+  useEffect(() => {
     // Set the services and default selected services
     if (leaseStatus) {
       setServices(Object.keys(leaseStatus.services));
