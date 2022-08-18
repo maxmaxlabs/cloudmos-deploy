@@ -5,9 +5,9 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { ErrorFallback } from "./shared/components/ErrorFallback";
 import { CssBaseline, ThemeProvider } from "@material-ui/core";
-import * as Sentry from "@sentry/react";
 import { initAnalytics } from "./shared/utils/analyticsUtils";
 import { theme } from "./shared/theme";
+import { ErrorBoundary } from "react-error-boundary";
 
 (async () => {
   const isDev = await window.electron.isDev();
@@ -18,23 +18,14 @@ import { theme } from "./shared/theme";
 })();
 
 function runApp() {
-  const appVersion = window.electron.getAppVersion();
-  const appEnvironment = window.electron.getAppEnvironment();
-
-  Sentry.init({
-    dsn: "https://fc8f0d800d664154a0f1babe0e318fbb@o877251.ingest.sentry.io/5827747",
-    environment: appEnvironment,
-    release: appVersion
-  });
-
   ReactDOM.render(
     <React.StrictMode>
-      <Sentry.ErrorBoundary fallback={({ error, resetError }) => <ErrorFallback error={error} resetErrorBoundary={resetError} />}>
+      <ErrorBoundary FallbackComponent={ErrorFallback}>
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <App />
         </ThemeProvider>
-      </Sentry.ErrorBoundary>
+      </ErrorBoundary>
     </React.StrictMode>,
     document.getElementById("root")
   );

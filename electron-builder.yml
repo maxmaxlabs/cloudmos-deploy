@@ -1,5 +1,5 @@
-productName: "Akashlytics Deploy"
-artifactName: "Akashlytics-Deploy-${version}.${ext}"
+productName: "Cloudmos Deploy"
+artifactName: "Cloudmos-Deploy-${version}.${ext}"
 appId: "com.akashlytics.deploy"
 afterSign: "./scripts/notarize.js"
 win:
@@ -26,7 +26,7 @@ nsis:
   allowToChangeInstallationDirectory: true
 asar:
   smartUnpack: true
-asarUnpack: "**/akashlytics-provider-proxy*"
+asarUnpack: "**/cloudmos-provider-proxy*"
 npmRebuild: false
 publish:
   provider: github

@@ -83,7 +83,7 @@ export const AutoUpdater = () => {
           <div>
             <Box marginBottom={1}>
               A new update {releaseName} is available! Download now?{" "}
-              <LinkTo className={classes.white} onClick={() => window.electron.openUrl("https://github.com/Akashlytics/akashlytics-deploy/releases")}>
+              <LinkTo className={classes.white} onClick={() => window.electron.openUrl("https://github.com/maxmaxlabs/cloudmos-deploy/releases")}>
                 View release notes
               </LinkTo>
             </Box>
@@ -144,7 +144,7 @@ export const AutoUpdater = () => {
           <div>
             <Box marginBottom=".5rem">
               Update {releaseName} Downloaded! It will be installed on restart.{" "}
-              <LinkTo className={classes.white} onClick={() => window.electron.openUrl("https://github.com/Akashlytics/akashlytics-deploy/releases")}>
+              <LinkTo className={classes.white} onClick={() => window.electron.openUrl("https://github.com/maxmaxlabs/cloudmos-deploy/releases")}>
                 View release notes
               </LinkTo>
             </Box>

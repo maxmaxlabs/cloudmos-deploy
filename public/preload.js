@@ -1,19 +1,12 @@
 const { ipcRenderer, shell, contextBridge } = require("electron");
 const { fork } = require("child_process");
 const providerProxy = require("./providerProxy");
-const Sentry = require("@sentry/electron");
 const path = require("path");
 const fs = require("fs/promises");
 const helpers = require("./helpers");
 
 const appVersion = window.process.argv[window.process.argv.length - 2];
 const appEnvironment = window.process.argv[window.process.argv.length - 1];
-
-Sentry.init({
-  dsn: "https://fc8f0d800d664154a0f1babe0e318fbb@o877251.ingest.sentry.io/5827747",
-  environment: appEnvironment,
-  release: appVersion
-});
 
 // whitelist channels
 const validChannels = ["update_available", "update_downloaded", "download_update", "restart_app", "show_notification", "check_update", "relaunch"];

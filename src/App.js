@@ -69,7 +69,7 @@ function App() {
                             <LocalNoteProvider>
                               <AkashProvider>
                                 <TemplatesProvider>
-                                  <Helmet defaultTitle="Akashlytics Deploy" titleTemplate="Akashlytics Deploy - %s" />
+                                  <Helmet defaultTitle="Cloudmos Deploy" titleTemplate="Cloudmos Deploy - %s" />
 
                                   <AppSettingsContainer />
                                 </TemplatesProvider>

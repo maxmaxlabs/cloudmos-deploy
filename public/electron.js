@@ -7,17 +7,9 @@ const isDev = require("electron-is-dev");
 const { autoUpdater } = require("electron-updater");
 const log = require("electron-log");
 
-const Sentry = require("@sentry/electron");
-
 const appVersion = app.getVersion();
 const appEnv = isDev ? "development" : "production";
 let startUrl = process.env.ELECTRON_START_URL;
-
-Sentry.init({
-  dsn: "https://fc8f0d800d664154a0f1babe0e318fbb@o877251.ingest.sentry.io/5827747",
-  environment: appEnv,
-  release: appVersion
-});
 
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = "info";
@@ -25,7 +17,7 @@ autoUpdater.autoDownload = false;
 // autoUpdater.autoInstallOnAppQuit = false;
 
 // Set the app user model id for the notifications
-app.setAppUserModelId("Akashlytics Deploy");
+app.setAppUserModelId("Cloudmos Deploy");
 
 const logger = winston.createLogger({
   level: "info",
@@ -46,7 +38,7 @@ function createWindow() {
 
     // Create the browser window.
     const mainWindow = new BrowserWindow({
-      title: "Akashlytics Deploy",
+      title: "Cloudmos Deploy",
       width: 1024,
       height: 768,
       minWidth: 991,

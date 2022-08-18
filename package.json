@@ -1,16 +1,16 @@
 {
   "name": "akashlytics-deploy",
-  "version": "0.14.4",
+  "version": "0.15.0",
   "private": false,
   "repository": {
     "type": "git",
-    "url": "https://github.com/Akashlytics/akashlytics-deploy-tool.git"
+    "url": "https://github.com/maxmaxlabs/cloudmos-deploy.git"
   },
-  "description": "Akashlytics deploy tool.",
+  "description": "Cloudmos Deploy",
   "author": {
-    "name": "Akashlytics",
+    "name": "MaxMax Labs Inc.",
     "email": "admin@akashlytics.com",
-    "url": "https://www.akashlytics.com/"
+    "url": "https://cloudmos.io/"
   },
   "main": "public/electron.js",
   "homepage": "./",
@@ -57,8 +57,6 @@
     "@material-ui/lab": "^4.0.0-alpha.58",
     "@nivo/core": "^0.79.0",
     "@nivo/pie": "^0.79.1",
-    "@sentry/electron": "^2.5.0",
-    "@sentry/react": "^6.7.2",
     "axios": "^0.21.1",
     "clsx": "^1.1.1",
     "cosmjs-types": "^0.4.1",

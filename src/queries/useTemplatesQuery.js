@@ -1,10 +1,10 @@
 import { useQuery } from "react-query";
 import { QueryKeys } from "./queryKeys";
 import axios from "axios";
-import { akashlyticsApi } from "../shared/constants";
+import { cloudmosApi } from "../shared/constants";
 
 async function getTemplates() {
-  const response = await axios.get(`${akashlyticsApi}/templates`);
+  const response = await axios.get(`${cloudmosApi}/templates`);
   let categories = response.data.filter((x) => (x.templates || []).length > 0);
   categories.forEach((c) => {
     c.templates.forEach((t) => (t.category = c.title));

@@ -63,29 +63,37 @@ export function TransactionModal({ isOpen, onConfirmTransaction, messages, onClo
 
   useEffect(() => {
     (async () => {
-      const client = await SigningStargateClient.connectWithSigner(settings.rpcEndpoint, selectedWallet, {
-        registry: customRegistry,
-        broadcastTimeoutMs: 300_000 // 5min
-      });
+      try {
+        const client = await SigningStargateClient.connectWithSigner(settings.rpcEndpoint, selectedWallet, {
+          registry: customRegistry,
+          broadcastTimeoutMs: 300_000 // 5min
+        });
 
-      const gasEstimation = await client.simulate(
-        address,
-        messages.map((m) => m.message),
-        memo
-      );
-      const estimatedGas = Math.round(gasEstimation * gasPaddingMultiplier);
+        const gasEstimation = await client.simulate(
+          address,
+          messages.map((m) => m.message),
+          memo
+        );
+        const estimatedGas = Math.round(gasEstimation * gasPaddingMultiplier);
 
-      const fees = {
-        low: calculateFee(estimatedGas, gasPrices.low),
-        average: calculateFee(estimatedGas, gasPrices.average),
-        high: calculateFee(estimatedGas, gasPrices.high)
-      };
+        const fees = {
+          low: calculateFee(estimatedGas, gasPrices.low),
+          average: calculateFee(estimatedGas, gasPrices.average),
+          high: calculateFee(estimatedGas, gasPrices.high)
+        };
 
-      setCalculatedFees(fees);
-      setIsCalculatingFees(false);
+        setCalculatedFees(fees);
+        setIsCalculatingFees(false);
 
-      setCustomFee(uaktToAKT(fees.average.amount[0].amount));
-      setCustomGas(estimatedGas);
+        setCustomFee(uaktToAKT(fees.average.amount[0].amount));
+        setCustomGas(estimatedGas);
+      } catch (error) {
+        setIsCalculatingFees(false);
+        enqueueSnackbar(<Snackbar title="Error" subTitle="An error occured while simulating the tx." iconVariant="error" />, {
+          variant: "error",
+          autoHideDuration: 10000
+        });
+      }
     })();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -290,7 +298,7 @@ export function TransactionModal({ isOpen, onConfirmTransaction, messages, onClo
             <Box display="flex" alignItems="center" justifyContent="center">
               <CircularProgress size="24px" color="primary" />
             </Box>
-          ) : (
+          ) : calculatedFees ? (
             <>
               <Box>
                 <ButtonGroup
@@ -395,7 +403,7 @@ export function TransactionModal({ isOpen, onConfirmTransaction, messages, onClo
                 )}
               </Box>
             </>
-          )}
+          ) : null}
         </TabPanel>
         <TabPanel value={tabIndex} index={1} className={clsx(classes.tabPanel)}>
           <Box className={classes.messagesData}>
@@ -415,7 +423,7 @@ export function TransactionModal({ isOpen, onConfirmTransaction, messages, onClo
           variant="contained"
           color="primary"
           onClick={handleSubmit}
-          disabled={isSendingTransaction || !isGasValid || isCalculatingFees}
+          disabled={isSendingTransaction || !isGasValid || isCalculatingFees || !calculatedFees}
           classes={{ root: classes.actionButton }}
         >
           {isSendingTransaction ? <CircularProgress size="24px" color="primary" /> : "Approve"}

@@ -131,7 +131,7 @@ const helloWorldTemplate = {
   code: "hello-world",
   category: "General",
   description: "Simple next.js web application showing hello world.",
-  githubUrl: "https://github.com/Akashlytics/hello-akash-world",
+  githubUrl: "https://github.com/maxmaxlabs/hello-akash-world",
   valuesToChange: [],
   content: `# Welcome to the Akash Network! 🚀☁
 # This file is called a Stack Definition Laguage (SDL)
@@ -149,7 +149,7 @@ services:
   # The name of the service "web"
   web:
     # The docker container image with version. You must specify a version, the "latest" tag doesn't work.
-    image: akashlytics/hello-akash-world:0.1.4
+    image: akashlytics/hello-akash-world:0.2.0
     # You can map ports here https://docs.akash.network/intro-to-akash/stack-definition-language#services.expose
     expose:
       - port: 3000
