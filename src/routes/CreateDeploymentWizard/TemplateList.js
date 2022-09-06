@@ -5,9 +5,12 @@ import { useHistory } from "react-router";
 import { Helmet } from "react-helmet-async";
 import { UrlService } from "../../shared/utils/urlUtils";
 import InsertDriveFileIcon from "@material-ui/icons/InsertDriveFile";
-import CloudIcon from '@material-ui/icons/Cloud';
-import DescriptionIcon from '@material-ui/icons/Description';
+import CloudIcon from "@material-ui/icons/Cloud";
+import DescriptionIcon from "@material-ui/icons/Description";
 import CollectionsIcon from "@material-ui/icons/Collections";
+import BuildIcon from "@material-ui/icons/Build";
+import OpenInNewIcon from "@material-ui/icons/OpenInNew";
+import NewReleasesIcon from "@material-ui/icons/NewReleases";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -59,15 +62,45 @@ export function TemplateList(props) {
     history.push(UrlService.templates());
   }
 
+  function onSDLBuilderClick() {
+    window.electron.openUrl("https://cloudmos.io/sdl-builder");
+    selectTemplate(sdlBuilderTemplate);
+  }
+
   return (
     <>
       <Helmet title="Create Deployment - Template List" />
 
       <Box padding="1rem">
-        <Typography variant="h5"><strong>What do you want to deploy?</strong></Typography>
+        <Typography variant="h5">
+          <strong>What do you want to deploy?</strong>
+        </Typography>
       </Box>
 
       <List className={classes.root}>
+        <ListItem dense button onClick={onSDLBuilderClick}>
+          <ListItemAvatar>
+            <div className={classes.logoItem}>
+              <BuildIcon />
+            </div>
+          </ListItemAvatar>
+          <ListItemText
+            primary={
+              <Box display="flex" alignItems="center">
+                <NewReleasesIcon color="primary" />
+                <Box component="span" marginLeft=".5rem">
+                  Build your template
+                </Box>
+              </Box>
+            }
+            secondary="With our new SDL Builder, you can create your own SDL from scratch in a few clicks!"
+          />
+          <ListItemSecondaryAction>
+            <IconButton edge="end" onClick={onSDLBuilderClick}>
+              <OpenInNewIcon />
+            </IconButton>
+          </ListItemSecondaryAction>
+        </ListItem>
         <ListItem dense button onClick={() => selectTemplate(emptyTemplate)}>
           <ListItemAvatar>
             <div className={classes.logoItem}>
@@ -119,6 +152,13 @@ export function TemplateList(props) {
   );
 }
 
+const sdlBuilderTemplate = {
+  title: "Empty",
+  code: "empty",
+  category: "General",
+  description: "An empty template with some basic config to get started.",
+  content: "# Paste your SDL here!"
+};
 const emptyTemplate = {
   title: "Empty",
   code: "empty",
