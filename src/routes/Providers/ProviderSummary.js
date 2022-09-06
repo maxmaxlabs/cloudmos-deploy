@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { makeStyles, Box } from "@material-ui/core";
+import { makeStyles, Box, Paper } from "@material-ui/core";
 import { Address } from "../../shared/components/Address";
 import { LinkTo } from "../../shared/components/LinkTo";
 import clsx from "clsx";
@@ -9,8 +9,22 @@ import { FavoriteButton } from "../../shared/components/FavoriteButton";
 import { useLocalNotes } from "../../context/LocalNoteProvider";
 import { AuditorButton } from "./AuditorButton";
 import { StatusPill } from "../../shared/components/StatusPill";
+import { UrlService } from "../../shared/utils/urlUtils";
+import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    height: "100%",
+    padding: ".5rem",
+    borderRadius: ".3rem"
+  },
+  rootClickable: {
+    cursor: "pointer",
+    transition: "background-color .2s ease",
+    "&:hover": {
+      backgroundColor: theme.palette.grey[200]
+    }
+  },
   dataRow: {
     lineHeight: "1rem",
     marginBottom: ".5rem",
@@ -39,13 +53,12 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function ProviderSummary({ provider, leases }) {
+export function ProviderSummary({ provider, leases, canViewDetail = false }) {
   const classes = useStyles();
+  const history = useHistory();
   const [isViewingDetail, setIsViewingDetail] = useState(false);
   const { favoriteProviders, updateFavoriteProviders } = useLocalNotes();
   const isFavorite = favoriteProviders.some((x) => provider.owner === x);
-  const numberOfDeployments = leases?.filter((d) => d.provider === provider.owner).length || 0;
-  const numberOfActiveLeases = leases?.filter((d) => d.provider === provider.owner && d.state === "active").length || 0;
 
   const onStarClick = (event) => {
     event.preventDefault();
@@ -70,61 +83,69 @@ export function ProviderSummary({ provider, leases }) {
     setIsViewingDetail(false);
   };
 
+  const cardClick = () => {
+    if (canViewDetail) {
+      history.push(UrlService.providerDetail(provider.owner));
+    }
+  };
+
   return (
     <>
-      <div className={classes.summaryRow}>
-        <div className={classes.summaryLabelValues}>
-          <div className={classes.summaryLabels}>
-            <div className={classes.dataRow}>Owner</div>
-            <div className={classes.dataRow}>Uri</div>
-            {provider.isActive && <div className={classes.dataRow}>Active leases</div>}
-            <div className={classes.dataRow}>Your leases</div>
-            <div className={classes.dataRow}>Active leases</div>
-          </div>
-          <div className={clsx("text-truncate", classes.summaryValues)}>
-            <div className={classes.dataRow}>
-              <Address address={provider.owner} isCopyable />
+      <Paper elevation={1} className={clsx(classes.root, { [classes.rootClickable]: canViewDetail })} onClick={cardClick}>
+        <div className={classes.summaryRow}>
+          <div className={classes.summaryLabelValues}>
+            <div className={classes.summaryLabels}>
+              <div className={classes.dataRow}>Owner</div>
+              <div className={classes.dataRow}>Uri</div>
+              {provider.isActive && <div className={classes.dataRow}>Active leases</div>}
+              <div className={classes.dataRow}>Your leases</div>
+              <div className={classes.dataRow}>Your Active leases</div>
             </div>
-            <div className={clsx("text-truncate", classes.dataRow)}>{provider.host_uri}</div>
-            {provider.isActive && <div className={classes.dataRow}>{provider.leaseCount}</div>}
-            <div className={classes.dataRow}>{numberOfDeployments}</div>
-            <div className={classes.dataRow}>
-              {numberOfActiveLeases} {numberOfActiveLeases > 0 && <StatusPill state="active" size="small" />}
+            <div className={clsx("text-truncate", classes.summaryValues)}>
+              <div className={classes.dataRow}>
+                <Address address={provider.owner} isCopyable />
+              </div>
+              <div className={clsx("text-truncate", classes.dataRow)}>{provider.host_uri}</div>
+              {provider.isActive && <div className={classes.dataRow}>{provider.leaseCount}</div>}
+              <div className={classes.dataRow}>{provider.userLeases}</div>
+              <div className={classes.dataRow}>
+                {provider.userActiveLeases} {provider.userActiveLeases > 0 && <StatusPill state="active" size="small" />}
+              </div>
             </div>
           </div>
-        </div>
-        {provider.isActive && (
-          <Box flexBasis="50%">
-            <ResourceBars
-              activeCPU={provider.activeStats.cpu / 1000}
-              activeMemory={provider.activeStats.memory}
-              activeStorage={provider.activeStats.storage}
-              pendingCPU={provider.pendingStats.cpu / 1000}
-              pendingMemory={provider.pendingStats.memory}
-              pendingStorage={provider.pendingStats.storage}
-              totalCPU={(provider.availableStats.cpu + provider.pendingStats.cpu + provider.activeStats.cpu) / 1000}
-              totalMemory={provider.availableStats.memory + provider.pendingStats.memory + provider.activeStats.memory}
-              totalStorage={provider.availableStats.storage + provider.pendingStats.storage + provider.activeStats.storage}
-            />
-          </Box>
-        )}
-      </div>
-
-      <div className={classes.buttonRow}>
-        <Box display="flex" alignItems="center">
-          <FavoriteButton isFavorite={isFavorite} onClick={onStarClick} />
-
-          {provider.isAudited && (
-            <Box marginLeft=".5rem">
-              <AuditorButton provider={provider} />
+          {provider.isActive && (
+            <Box flexBasis="50%">
+              <ResourceBars
+                activeCPU={provider.activeStats.cpu / 1000}
+                activeMemory={provider.activeStats.memory}
+                activeStorage={provider.activeStats.storage}
+                pendingCPU={provider.pendingStats.cpu / 1000}
+                pendingMemory={provider.pendingStats.memory}
+                pendingStorage={provider.pendingStats.storage}
+                totalCPU={(provider.availableStats.cpu + provider.pendingStats.cpu + provider.activeStats.cpu) / 1000}
+                totalMemory={provider.availableStats.memory + provider.pendingStats.memory + provider.activeStats.memory}
+                totalStorage={provider.availableStats.storage + provider.pendingStats.storage + provider.activeStats.storage}
+              />
             </Box>
           )}
-        </Box>
-
-        <div>
-          <LinkTo onClick={onViewDetailsClick}>View details</LinkTo>
         </div>
-      </div>
+
+        <div className={classes.buttonRow}>
+          <Box display="flex" alignItems="center">
+            <FavoriteButton isFavorite={isFavorite} onClick={onStarClick} />
+
+            {provider.isAudited && (
+              <Box marginLeft=".5rem">
+                <AuditorButton provider={provider} />
+              </Box>
+            )}
+          </Box>
+
+          <div>
+            <LinkTo onClick={onViewDetailsClick}>View details</LinkTo>
+          </div>
+        </div>
+      </Paper>
 
       {isViewingDetail && <LoadProviderDetail provider={provider} address={provider.owner} onClose={onCloseClick} />}
     </>

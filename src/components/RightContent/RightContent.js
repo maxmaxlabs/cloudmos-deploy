@@ -10,11 +10,16 @@ import { TemplateDetails } from "../../routes/TemplateDetails";
 import { Providers } from "../../routes/Providers";
 import { ProviderDetail } from "../../routes/ProviderDetail";
 import { useAllLeases, useDeploymentList } from "../../queries";
+import { useEffect } from "react";
 
 export function RightContent() {
   const { address } = useWallet();
   const { data: deployments, isFetching: isFetchingDeployments, refetch: getDeployments } = useDeploymentList(address, { enabled: false });
   const { data: leases, isFetching: isFetchingLeases, refetch: getLeases } = useAllLeases(address, { enabled: false });
+
+  useEffect(() => {
+    getDeployments();
+  }, [getDeployments, address]);
 
   return (
     <>
