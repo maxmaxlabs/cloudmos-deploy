@@ -126,7 +126,7 @@ export function CreateLease({ dseq }) {
           const provider = providers.find((p) => p.owner === bid.provider);
           // Filter by attribute value
           provider?.attributes.forEach((att) => {
-            if (att.value?.includes(search)) {
+            if (att.value?.toLowerCase().includes(search.toLowerCase())) {
               fBids.push(bid.id);
               isAdded = true;
             }

@@ -104,7 +104,7 @@ export function Providers({ leases, isLoadingLeases, getLeases }) {
 
       // Filter for search
       if (search) {
-        filteredProviders = filteredProviders.filter((x) => x.hostUri?.includes(search));
+        filteredProviders = filteredProviders.filter((x) => x.hostUri?.includes(search.toLowerCase()));
       }
 
       if (isFilteringActive) {
@@ -291,6 +291,12 @@ export function Providers({ leases, isLoadingLeases, getLeases }) {
             ))}
           </Grid>
         </Box>
+
+        {search && currentPageProviders.length === 0 && (
+          <Box padding="1rem">
+            <Typography>No provider found.</Typography>
+          </Box>
+        )}
 
         <Box padding="1rem 1rem 2rem">
           <Pagination count={pageCount} onChange={handleChangePage} page={page} size="large" />
