@@ -10,12 +10,12 @@ import {
   List,
   ListItem,
   ListItemText,
-  ListItemSecondaryAction,
   CircularProgress,
   Button,
   Tooltip,
   Typography,
-  Chip
+  Chip,
+  useTheme
 } from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
 import FileCopyIcon from "@material-ui/icons/FileCopy";
@@ -36,7 +36,6 @@ import { PricePerMonth } from "../../shared/components/PricePerMonth";
 import { PriceEstimateTooltip } from "../../shared/components/PriceEstimateTooltip";
 import LaunchIcon from "@material-ui/icons/Launch";
 import InfoIcon from "@material-ui/icons/Info";
-import { ProviderAttributes } from "../../shared/components/ProviderAttributes";
 import { ProviderDetailModal } from "../../components/ProviderDetail";
 import { FormattedNumber } from "react-intl";
 import { FavoriteButton } from "../../shared/components/FavoriteButton";
@@ -71,7 +70,7 @@ const useStyles = makeStyles((theme) => ({
   },
   tooltipIcon: {
     fontSize: "1rem",
-    color: theme.palette.grey[600]
+    color: theme.palette.grey[500]
   },
   whiteLink: {
     fontWeight: "bold",
@@ -122,6 +121,7 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
   const isLeaseNotFound = error && error.includes && error.includes("lease not found") && isLeaseActive;
   const servicesNames = leaseStatus ? Object.keys(leaseStatus.services) : [];
   const classes = useStyles();
+  const theme = useTheme();
   const [isSendingManifest, setIsSendingManifest] = useState(false);
 
   React.useImperativeHandle(ref, () => ({
@@ -237,7 +237,7 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
                   <>
                     <PricePerMonth perBlockValue={uaktToAKT(lease.price.amount, 6)} />
                     <PriceEstimateTooltip value={uaktToAKT(lease.price.amount, 6)} />
-                    <Box component="span" marginLeft=".5rem">
+                    <Box component="span" marginLeft=".5rem" fontSize=".75rem">
                       <FormattedNumber value={lease.price.amount} maximumSignificantDigits={18} />
                       uakt ({`~${getAvgCostPerMonth(lease.price.amount)}akt/month`})
                     </Box>
@@ -272,17 +272,11 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
                       )}
                     </>
                   }
-                  marginTop="5px"
-                  marginBottom=".5rem"
+                  marginTop=".25rem"
+                  marginBottom="1rem"
                 />
               )}
             </Box>
-
-            {providerInfo && (
-              <Box paddingLeft="1rem" flexGrow={1}>
-                <ProviderAttributes provider={providerInfo} />
-              </Box>
-            )}
           </Box>
 
           {isLeaseNotFound && (
@@ -310,7 +304,12 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
             servicesNames
               .map((n) => leaseStatus.services[n])
               .map((service, i) => (
-                <Box mb={1} key={`${service.name}_${i}`}>
+                <Box
+                  pb={servicesNames.length === i + 1 ? 0 : 2}
+                  mb={servicesNames.length === i + 1 ? 0 : 2}
+                  borderBottom={servicesNames.length === i + 1 ? 0 : `1px solid ${theme.palette.grey[300]}`}
+                  key={`${service.name}_${i}`}
+                >
                   <Box display="flex" alignItems="center">
                     <LabelValue label="Group:" value={service.name} fontSize="1rem" />
                     {isLoadingLeaseStatus || !isServicesAvailable ? (
@@ -340,27 +339,26 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
                     )}
                   </Box>
 
-                  <Box display="flex" alignItems="center" marginTop="4px">
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    mb={service.uris?.length > 0 || (leaseStatus.forwarded_ports && leaseStatus.forwarded_ports[service.name]?.length > 0) ? "1rem" : 0}
+                  >
                     <Box display="flex" alignItems="center">
                       <Typography variant="caption">Available:&nbsp;</Typography>
-                      <Chip label={service.available} size="small" color={service.available > 0 ? "primary" : "default"} className={classes.serviceChip} />
+                      <Chip label={service.available} size="small" color="default" className={classes.serviceChip} />
                     </Box>
                     <Box display="flex" alignItems="center">
                       <Typography variant="caption" className={classes.marginLeft}>
                         Ready Replicas:&nbsp;
                       </Typography>
-                      <Chip
-                        label={service.ready_replicas}
-                        size="small"
-                        color={service.ready_replicas > 0 ? "primary" : "default"}
-                        className={classes.serviceChip}
-                      />
+                      <Chip label={service.ready_replicas} size="small" color="default" className={classes.serviceChip} />
                     </Box>
                     <Box display="flex" alignItems="center">
                       <Typography variant="caption" className={classes.marginLeft}>
                         Total:&nbsp;
                       </Typography>
-                      <Chip label={service.total} size="small" color="primary" className={classes.serviceChip} />
+                      <Chip label={service.total} size="small" color="default" className={classes.serviceChip} />
                     </Box>
                   </Box>
 
@@ -388,11 +386,11 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
                   {service.uris?.length > 0 && (
                     <>
                       <Box marginTop=".5rem">
-                        <LabelValue label="Uri(s):" />
+                        <LabelValue label="URI(s):" />
                         <List dense>
                           {service.uris.map((uri) => {
                             return (
-                              <ListItem key={uri} className={classes.listItem}>
+                              <ListItem key={uri} dense>
                                 <ListItemText
                                   primary={
                                     <Box display="flex" alignItems="center">
@@ -434,8 +432,8 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
                 {servicesNames
                   .map((n) => leaseStatus.ips[n])
                   .map((ips, i) => {
-                    return ips?.map((ip) => (
-                      <ListItem key={`${ip.IP}${ip.ExternalPort}`} className={classes.listItem}>
+                    return ips?.map((ip, ii) => (
+                      <ListItem key={`${ip.IP}${ip.ExternalPort}`}>
                         <ListItemText
                           primary={
                             <Box display="flex" alignItems="center">
@@ -475,7 +473,6 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
                             </Box>
                           }
                         />
-                        <ListItemSecondaryAction></ListItemSecondaryAction>
                       </ListItem>
                     ));
                   })}
