@@ -20,7 +20,9 @@ const useStyles = makeStyles((theme) => ({
     fontSize: ".8rem"
   },
   chip: {
-    height: "16px"
+    height: ".9rem",
+    fontSize: ".7rem",
+    lineHeight: ".7rem"
   },
   priceTooltip: {
     display: "flex",
@@ -111,7 +113,7 @@ export function BidRow({ bid, selectedBid, handleBidSelected, disabled, provider
                 color={bid.state === "open" ? "primary" : bid.state === "active" ? "primary" : "secondary"}
                 classes={{ root: classes.chip }}
               />
-              <Box component="span" marginLeft=".5rem">
+              <Box component="span" marginLeft=".5rem" fontSize=".75rem">
                 <FormattedNumber value={bid.price.amount} maximumFractionDigits={18} /> uakt / block
               </Box>
               <Box className={classes.priceTooltip}>

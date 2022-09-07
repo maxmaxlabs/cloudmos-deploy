@@ -16,7 +16,9 @@ const useStyles = makeStyles((theme) => ({
   },
   chipRoot: {
     padding: "2px 0",
-    height: "auto"
+    height: "auto",
+    backgroundColor: theme.palette.grey[100],
+    borderRadius: "2rem"
   },
   chipLabel: {
     display: "flex",
@@ -83,7 +85,7 @@ export function SpecDetail({ cpuAmount, memoryAmount, storageAmount, color = "de
                 [classes.specDetailLarge]: size === "large"
               })}
             >
-              {cpuAmount + "vcpu"}
+              {cpuAmount + " vCPU"}
             </Box>
           </div>
         }

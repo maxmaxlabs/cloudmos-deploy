@@ -133,6 +133,10 @@ export function DeploymentLogs({ leases, selectedLogsMode, setSelectedLogsMode }
     socket = window.electron.openWebSocket(url, localCert.certPem, localCert.keyPem, (message) => {
       setIsLoadingLogs(true);
 
+      if (logs.current.length === 0) {
+        setStickToBottom(true);
+      }
+
       let parsedLog = null;
       if (selectedLogsMode === "logs") {
         parsedLog = JSON.parse(message);

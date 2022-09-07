@@ -7,10 +7,13 @@ const useStyles = makeStyles((theme) => ({
     border: "none",
     cursor: "pointer",
     textDecoration: "underline",
-    display: "inline",
+    display: "inline-flex",
     margin: 0,
     padding: 0,
-    color: theme.palette.info.dark,
+    color: "#0000EE",
+    "&:visited": {
+      color: "#551A8B"
+    },
     "&:disabled": {
       color: theme.palette.grey[500],
       cursor: "initial"

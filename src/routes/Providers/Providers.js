@@ -1,13 +1,28 @@
 import { useState, useEffect } from "react";
-import { Box, makeStyles, Typography, IconButton, Grid, FormControlLabel, Checkbox } from "@material-ui/core";
+import {
+  Box,
+  makeStyles,
+  Typography,
+  IconButton,
+  Grid,
+  FormControlLabel,
+  Checkbox,
+  TextField,
+  InputAdornment,
+  FormControl,
+  Select,
+  MenuItem,
+  InputLabel
+} from "@material-ui/core";
 import { Helmet } from "react-helmet-async";
 import { LinearLoadingSkeleton } from "../../shared/components/LinearLoadingSkeleton";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import Pagination from "@material-ui/lab/Pagination";
 import { useSettings } from "../../context/SettingsProvider";
-import { ProviderCard } from "./ProviderCard";
 import { useLocalNotes } from "../../context/LocalNoteProvider";
 import { useAkash } from "../../context/AkashProvider";
+import CloseIcon from "@material-ui/icons/Close";
+import { ProviderSummary } from "./ProviderSummary";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -26,8 +41,23 @@ const useStyles = makeStyles((theme) => ({
   },
   checkbox: {
     padding: "4px"
+  },
+  selectLabel: {
+    top: "-6px",
+    left: "14px"
+  },
+  selectFormControl: {
+    flexBasis: "150px",
+    marginLeft: "1rem"
   }
 }));
+
+const sortOptions = [
+  { id: 1, title: "Active Leases (desc)" },
+  { id: 2, title: "Active Leases (asc)" },
+  { id: 3, title: "Your Leases (desc)" },
+  { id: 4, title: "Your Active Leases (desc)" }
+];
 
 export function Providers({ leases, isLoadingLeases, getLeases }) {
   const classes = useStyles();
@@ -36,6 +66,8 @@ export function Providers({ leases, isLoadingLeases, getLeases }) {
   const [isFilteringFavorites, setIsFilteringFavorites] = useState(false);
   const [isFilteringAudited, setIsFilteringAudited] = useState(false);
   const [filteredProviders, setFilteredProviders] = useState([]);
+  const [sort, setSort] = useState(1);
+  const [search, setSearch] = useState("");
   const { settings } = useSettings();
   const { favoriteProviders } = useLocalNotes();
   const { apiEndpoint } = settings;
@@ -59,7 +91,21 @@ export function Providers({ leases, isLoadingLeases, getLeases }) {
 
   useEffect(() => {
     if (providers) {
-      let filteredProviders = [...providers];
+      let filteredProviders = [...providers].map((p) => {
+        const numberOfDeployments = leases?.filter((d) => d.provider === p.owner).length || 0;
+        const numberOfActiveLeases = leases?.filter((d) => d.provider === p.owner && d.state === "active").length || 0;
+
+        return {
+          ...p,
+          userLeases: numberOfDeployments,
+          userActiveLeases: numberOfActiveLeases
+        };
+      });
+
+      // Filter for search
+      if (search) {
+        filteredProviders = filteredProviders.filter((x) => x.hostUri?.includes(search.toLowerCase()));
+      }
 
       if (isFilteringActive) {
         filteredProviders = filteredProviders.filter((x) => x.isActive);
@@ -73,9 +119,23 @@ export function Providers({ leases, isLoadingLeases, getLeases }) {
         filteredProviders = filteredProviders.filter((x) => x.isAudited);
       }
 
+      filteredProviders = filteredProviders.sort((a, b) => {
+        if (sort === 1) {
+          return b.leaseCount - a.leaseCount;
+        } else if (sort === 2) {
+          return a.leaseCount - b.leaseCount;
+        } else if (sort === 3) {
+          return b.userLeases - a.userLeases;
+        } else if (sort === 4) {
+          return b.userActiveLeases - a.userActiveLeases;
+        } else {
+          return true;
+        }
+      });
+
       setFilteredProviders(filteredProviders);
     }
-  }, [providers, isFilteringActive, isFilteringFavorites, isFilteringAudited, favoriteProviders]);
+  }, [providers, isFilteringActive, isFilteringFavorites, isFilteringAudited, favoriteProviders, search, sort, leases]);
 
   const refresh = () => {
     getProviders();
@@ -98,6 +158,17 @@ export function Providers({ leases, isLoadingLeases, getLeases }) {
   const onIsFilteringAuditedClick = (ev, value) => {
     setPage(1);
     setIsFilteringAudited(value);
+  };
+
+  const onSearchChange = (event) => {
+    const value = event.target.value;
+    setSearch(value);
+  };
+
+  const handleSortChange = (event) => {
+    const value = event.target.value;
+
+    setSort(value);
   };
 
   return (
@@ -164,13 +235,68 @@ export function Providers({ leases, isLoadingLeases, getLeases }) {
             </>
           )}
         </Box>
+
+        <Box padding=".5rem 1rem 1rem" display="flex" alignItems="center">
+          <TextField
+            label="Search Providers"
+            value={search}
+            onChange={onSearchChange}
+            type="text"
+            variant="outlined"
+            autoFocus
+            fullWidth
+            size="medium"
+            InputProps={{
+              endAdornment: search && (
+                <InputAdornment position="end">
+                  <IconButton size="small" onClick={() => setSearch("")}>
+                    <CloseIcon />
+                  </IconButton>
+                </InputAdornment>
+              )
+            }}
+          />
+
+          <FormControl className={classes.selectFormControl}>
+            <InputLabel id="sort-select-label" className={classes.selectLabel}>
+              Sort by
+            </InputLabel>
+            <Select
+              labelId="sort-select-label"
+              label="Sort by"
+              value={sort}
+              onChange={handleSortChange}
+              variant="outlined"
+              classes={{
+                selectMenu: classes.menuRoot
+              }}
+            >
+              {sortOptions.map((l) => (
+                <MenuItem key={l.id} value={l.id} size="small">
+                  <Typography variant="caption" className={classes.selectItem}>
+                    {l.title}
+                  </Typography>
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
+
         <Box padding="0 1rem">
           <Grid container spacing={2}>
             {currentPageProviders.map((provider) => (
-              <ProviderCard key={provider.owner} provider={provider} leases={leases} />
+              <Grid item xs={12} key={provider.owner}>
+                <ProviderSummary provider={provider} leases={leases} canViewDetail />
+              </Grid>
             ))}
           </Grid>
         </Box>
+
+        {search && currentPageProviders.length === 0 && (
+          <Box padding="1rem">
+            <Typography>No provider found.</Typography>
+          </Box>
+        )}
 
         <Box padding="1rem 1rem 2rem">
           <Pagination count={pageCount} onChange={handleChangePage} page={page} size="large" />

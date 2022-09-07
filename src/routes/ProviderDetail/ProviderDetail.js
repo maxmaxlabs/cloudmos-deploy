@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { makeStyles, IconButton, Typography, Box, Paper } from "@material-ui/core";
+import { makeStyles, IconButton, Typography, Box } from "@material-ui/core";
 import { useAkash } from "../../context/AkashProvider";
 import { ProviderSummary } from "../Providers/ProviderSummary";
 import { Helmet } from "react-helmet-async";
@@ -27,9 +27,6 @@ const useStyles = makeStyles((theme) => ({
   },
   content: {
     padding: "0 1rem"
-  },
-  summaryContainer: {
-    padding: ".5rem"
   }
 }));
 
@@ -43,7 +40,11 @@ export function ProviderDetail({ leases, getLeases, isLoadingLeases }) {
 
   useEffect(() => {
     const providerFromList = providers?.find((d) => d.owner === owner);
-    setProvider(providerFromList);
+
+    const numberOfDeployments = leases?.filter((d) => d.provider === providerFromList.owner).length || 0;
+    const numberOfActiveLeases = leases?.filter((d) => d.provider === providerFromList.owner && d.state === "active").length || 0;
+
+    setProvider({ ...providerFromList, userLeases: numberOfDeployments, userActiveLeases: numberOfActiveLeases });
 
     if (!isLoadingLeases) {
       getLeases();
@@ -92,9 +93,7 @@ export function ProviderDetail({ leases, getLeases, isLoadingLeases }) {
 
       {provider && (
         <div className={classes.content}>
-          <Paper elevation={1} className={classes.summaryContainer}>
-            <ProviderSummary provider={provider} leases={leases} />
-          </Paper>
+          <ProviderSummary provider={provider} leases={leases} />
 
           <LeaseList isLoadingLeases={isLoadingLeases} leases={filteredLeases} />
         </div>

@@ -36,6 +36,9 @@ export async function sendManifestToProvider(providerInfo, manifest, dseq, local
     }
   }
 
+  // Waiting for 5 sec for provider to boot up workload
+  await wait(5000);
+
   return response;
 }
 

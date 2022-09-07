@@ -11,7 +11,7 @@ const useStyles = makeStyles((theme) => ({
   tooltipIcon: {
     marginLeft: ".5rem",
     fontSize: "1rem",
-    color: theme.palette.text.secondary
+    color: theme.palette.grey[500]
   },
   chip: {
     height: "16px"

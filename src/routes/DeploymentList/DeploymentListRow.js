@@ -96,20 +96,19 @@ export function DeploymentListRow({ deployment, isSelectable, onSelectDeployment
   const { sendTransaction } = useTransactionModal();
   const [isDepositingDeployment, setIsDepositingDeployment] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
-  const { getDeploymentName, changeDeploymentName } = useLocalNotes();
+  const { changeDeploymentName } = useLocalNotes();
   const { address } = useWallet();
   const isActive = deployment.state === "active";
   const { data: leases, isLoading: isLoadingLeases } = useDeploymentLeaseList(address, deployment, { enabled: !!deployment && isActive });
   const hasLeases = leases && !!leases.length;
   const hasActiveLeases = hasLeases && leases.some((l) => l.state === "active");
-  const name = getDeploymentName(deployment.dseq);
   const deploymentCost = hasLeases ? leases.reduce((prev, current) => prev + current.price.amount, 0) : 0;
   const timeLeft = getTimeLeft(deploymentCost, deployment.escrowBalance);
   const realTimeLeft = useRealTimeLeft(deploymentCost, deployment.escrowBalance, deployment.escrowAccount.settled_at, deployment.createdAt);
-  const deploymentName = name ? (
+  const deploymentName = deployment.name ? (
     <>
       <Typography variant="body2" className="text-truncate">
-        <strong>{name}</strong>
+        <strong>{deployment.name}</strong>
       </Typography>
       <span className={classes.dseq}>&nbsp;-&nbsp;{deployment.dseq}</span>
     </>
