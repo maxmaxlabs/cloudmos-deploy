@@ -326,7 +326,7 @@ export function CreateLease({ dseq }) {
                 color="primary"
                 onClick={handleNext}
                 classes={{ label: classes.nowrap }}
-                disabled={dseqList.some((gseq) => !selectedBids[gseq]) || isSendingManifest || !providers}
+                disabled={dseqList.some((gseq) => !selectedBids[gseq]) || isSendingManifest}
               >
                 Accept Bid{dseqList.length > 1 ? "s" : ""}
                 <Box component="span" marginLeft=".5rem" display="flex" alignItems="center">
@@ -430,6 +430,7 @@ export function CreateLease({ dseq }) {
               filteredBids={filteredBids}
               deploymentDetail={deploymentDetail}
               isFilteringFavorites={isFilteringFavorites}
+              isFilteringAudited={isFilteringAudited}
               groupIndex={i}
               totalBids={dseqList.length}
             />

@@ -64,6 +64,7 @@ export function BidGroup({
   filteredBids,
   deploymentDetail,
   isFilteringFavorites,
+  isFilteringAudited,
   groupIndex,
   totalBids
 }) {
@@ -125,6 +126,14 @@ export function BidGroup({
           <Box padding=".5rem 1rem">
             <Alert severity="info" variant="outlined">
               <Typography variant="caption">There are no favorite providers for this group...</Typography>
+            </Alert>
+          </Box>
+        )}
+
+        {isFilteringAudited && fBids.length === 0 && (
+          <Box padding=".5rem 1rem">
+            <Alert severity="info" variant="outlined">
+              <Typography variant="caption">There are no audited providers for this group... Try unchecking the "Audited" flag.</Typography>
             </Alert>
           </Box>
         )}

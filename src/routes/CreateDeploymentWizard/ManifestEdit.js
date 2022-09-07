@@ -49,7 +49,7 @@ export function ManifestEdit(props) {
   const classes = useStyles();
 
   useEffect(() => {
-    if (selectedTemplate.name) {
+    if (selectedTemplate?.name) {
       setDeploymentName(selectedTemplate.name);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

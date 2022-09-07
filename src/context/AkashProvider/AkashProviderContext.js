@@ -35,6 +35,8 @@ export const AkashProvider = ({ children }) => {
       });
 
       setMergedProviders(_mergedProviders);
+    } else if (providers && !dataNodeProviders) {
+      setMergedProviders(providers);
     }
   }, [providers, dataNodeProviders, auditors]);
 
