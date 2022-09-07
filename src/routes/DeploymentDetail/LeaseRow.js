@@ -199,7 +199,7 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
         <CardHeader
           classes={{ title: classes.cardHeaderTitle, root: classes.cardHeader }}
           title={
-            <Box display="flex">
+            <Box display="flex" alignItems="center">
               <LabelValue
                 label="Status:"
                 value={
@@ -363,18 +363,18 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
                   </Box>
 
                   {leaseStatus.forwarded_ports && leaseStatus.forwarded_ports[service.name]?.length > 0 && (
-                    <Box marginTop="4px">
+                    <Box marginTop=".5rem" mb={service.uris?.length > 0 ? "1rem" : 0}>
                       <LabelValue
                         label="Forwarded Ports:"
                         value={leaseStatus.forwarded_ports[service.name].map((p) => (
                           <Box key={"port_" + p.externalPort} display="inline" mr={0.5}>
                             {p.host ? (
                               <LinkTo label={``} disabled={p.available < 1} onClick={(ev) => handleExternalUrlClick(ev, `${p.host}:${p.externalPort}`)}>
-                                {p.externalPort}:{p.port}
+                                {p.port}:{p.externalPort}
                               </LinkTo>
                             ) : (
                               <>
-                                <Chip label={`${p.externalPort}:${p.port}`} size="small" />
+                                <Chip label={`${p.port}:${p.externalPort}`} size="small" />
                               </>
                             )}
                           </Box>
