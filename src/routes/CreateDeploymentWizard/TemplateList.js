@@ -164,7 +164,7 @@ const emptyTemplate = {
   code: "empty",
   category: "General",
   description: "An empty template with some basic config to get started.",
-  content: ""
+  content: "# Write or paste your SDL here!"
 };
 const helloWorldTemplate = {
   title: "Hello Akash World",

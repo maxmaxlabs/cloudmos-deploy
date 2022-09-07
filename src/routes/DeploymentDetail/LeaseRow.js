@@ -36,6 +36,7 @@ import { PricePerMonth } from "../../shared/components/PricePerMonth";
 import { PriceEstimateTooltip } from "../../shared/components/PriceEstimateTooltip";
 import LaunchIcon from "@material-ui/icons/Launch";
 import InfoIcon from "@material-ui/icons/Info";
+import CheckIcon from "@material-ui/icons/CheckCircle";
 import { ProviderDetailModal } from "../../components/ProviderDetail";
 import { FormattedNumber } from "react-intl";
 import { FavoriteButton } from "../../shared/components/FavoriteButton";
@@ -84,6 +85,11 @@ const useStyles = makeStyles((theme) => ({
     lineHeight: ".875rem",
     fontSize: ".5rem",
     fontWeight: "bold"
+  },
+  activeLeaseIcon: {
+    fontSize: "1rem",
+    display: "flex",
+    color: theme.palette.success.dark
   }
 }));
 
@@ -229,6 +235,7 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
                   memoryAmount={lease.memoryAmount}
                   storageAmount={lease.storageAmount}
                   color={isLeaseActive ? "primary" : "default"}
+                  size="medium"
                 />
               </Box>
               <LabelValue
@@ -335,6 +342,12 @@ export const LeaseRow = React.forwardRef(({ lease, setActiveTab, deploymentManif
                         >
                           <InfoIcon className={classes.tooltipIcon} fontSize="small" />
                         </Tooltip>
+                      </Box>
+                    )}
+
+                    {isServicesAvailable && (
+                      <Box marginLeft=".5rem">
+                        <CheckIcon className={classes.activeLeaseIcon} />
                       </Box>
                     )}
                   </Box>
