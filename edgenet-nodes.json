@@ -1,7 +1,7 @@
 [
    {
-      "id":"validator1.iptestnet.akashian.io",
-      "api":"http://validator1.iptestnet.akashian.io:1317",
-      "rpc":"http://validator1.iptestnet.akashian.io:26657"
+      "id":"edgenet.bhs.aksh.pw",
+      "api":"http://api.edgenet.bhs.aksh.pw:1317",
+      "rpc":"http://rpc.edgenet.bhs.aksh.pw:26657"
    }
 ]
