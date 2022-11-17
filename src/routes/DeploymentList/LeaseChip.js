@@ -36,22 +36,7 @@ export const LeaseChip = ({ lease, providers }) => {
       size="small"
       className={classes.leaseChip}
       classes={{ label: classes.chipLabel }}
-      label={
-        <>
-          <span>
-            GSEQ: <strong>{lease.gseq}</strong>
-          </span>
-          <Box component="span" marginLeft=".5rem">
-            OSEQ: <strong>{lease.oseq}</strong>
-          </Box>
-
-          {providerName && (
-            <Box component="span" marginLeft=".5rem">
-              Name: <strong>{providerName}</strong>
-            </Box>
-          )}
-        </>
-      }
+      label={<>{providerName && <strong>{providerName}</strong>}</>}
       icon={<StatusPill state={lease.state} size="small" />}
     />
   );
