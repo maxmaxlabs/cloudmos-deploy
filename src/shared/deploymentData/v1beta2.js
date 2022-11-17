@@ -1,5 +1,5 @@
 import { CustomValidationError, ManifestVersion, ParseServiceProtocol, getCurrentHeight, shouldBeIngress, parseSizeStr } from "./helpers";
-import { defaultInitialDeposit, edgenetId, selectedNetworkId } from "../constants";
+import { defaultInitialDeposit } from "../constants";
 import { stringToBoolean } from "../utils/stringUtils";
 
 const endpointNameValidationRegex = /^[a-z]+[-_\da-z]+$/;
@@ -189,13 +189,9 @@ function DeploymentGroups(yamlJson) {
               service: to.service || null,
               global: !!to.global,
               hosts: expose.accept || null,
-              HTTPOptions: getHttpOptions(expose["http_options"])
+              HTTPOptions: getHttpOptions(expose["http_options"]),
+              IP: to.ip || ""
             };
-
-            // TODO Remove once merged on the mainnet
-            if (selectedNetworkId === edgenetId) {
-              v.IP = to.ip || "";
-            }
 
             // Check to see if an IP endpoint is also specified
             if (to.ip?.length > 0) {
@@ -447,14 +443,10 @@ export function Manifest(yamlJson) {
               Service: to.service || "",
               Global: !!to.global,
               Hosts: expose.accept || null,
-              HTTPOptions: getHttpOptions(expose["http_options"])
+              HTTPOptions: getHttpOptions(expose["http_options"]),
+              IP: to.ip || "",
+              EndpointSequenceNumber: seqNo || 0
             };
-
-            // TODO Remove once merged on the mainnet
-            if (selectedNetworkId === edgenetId) {
-              _expose.IP = to.ip || "";
-              _expose.EndpointSequenceNumber = seqNo || 0;
-            }
 
             manifestExpose = manifestExpose.concat([_expose]);
           });
@@ -466,13 +458,9 @@ export function Manifest(yamlJson) {
             Service: "",
             Global: false,
             Hosts: expose.accept?.items || null,
-            HTTPOptions: getHttpOptions(expose["http_options"])
+            HTTPOptions: getHttpOptions(expose["http_options"]),
+            IP: ""
           };
-
-          // TODO Remove once merged on the mainnet
-          if (selectedNetworkId === edgenetId) {
-            _expose.IP = "";
-          }
 
           manifestExpose = manifestExpose.concat([_expose]);
         }

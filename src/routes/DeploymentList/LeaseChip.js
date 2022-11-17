@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { makeStyles, Box, Chip } from "@material-ui/core";
+import { makeStyles, Chip } from "@material-ui/core";
 import { StatusPill } from "../../shared/components/StatusPill";
 
 const useStyles = makeStyles((theme) => ({
