@@ -92,7 +92,7 @@ export function ParseServiceProtocol(input) {
       result = "UDP";
       break;
     default:
-      throw new Error("ErrUnsupportedServiceProtocol");
+      throw new CustomValidationError("Unsupported Service Protocol " + input);
   }
 
   return result;

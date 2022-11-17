@@ -218,7 +218,7 @@ export function DeploymentListRow({ deployment, isSelectable, onSelectDeployment
 
           {hasLeases && (
             <Box display="flex" alignItems="center" flexWrap="wrap">
-              <Typography variant="caption">Leases:</Typography>{" "}
+              <Typography variant="caption">Leases</Typography>{" "}
               {leases?.map((lease) => (
                 <LeaseChip key={lease.id} lease={lease} providers={providers} />
               ))}
