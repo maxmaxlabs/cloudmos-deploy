@@ -153,7 +153,7 @@ function DeploymentGroups(yamlJson) {
         group = {
           name: placementName,
           requirements: {
-            attributes: infra.attributes ? Object.keys(infra.attributes).map((key) => ({ key: key, value: infra.attributes[key] })) : [],
+            attributes: infra.attributes ? Object.keys(infra.attributes).map((key) => ({ key: key, value: infra.attributes[key]?.toString() })) : [],
             signed_by: {
               all_of: infra.signedBy?.allOf || [],
               any_of: infra.signedBy?.anyOf || []
@@ -219,6 +219,7 @@ function DeploymentGroups(yamlJson) {
   names = names.sort((a, b) => a < b);
 
   let result = names.map((name) => groups[name]);
+  console.log(result);
   return result;
 }
 
