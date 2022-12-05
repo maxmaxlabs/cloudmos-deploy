@@ -119,7 +119,9 @@ export function BidGroup({
       >
         {fBids.map((bid) => {
           const provider = providers && providers.find((x) => x.owner === bid.provider);
-          return <BidRow key={bid.id} bid={bid} provider={provider} handleBidSelected={handleBidSelected} disabled={disabled} selectedBid={selectedBid} />;
+          return !provider || provider.isValidVersion ? (
+            <BidRow key={bid.id} bid={bid} provider={provider} handleBidSelected={handleBidSelected} disabled={disabled} selectedBid={selectedBid} />
+          ) : null;
         })}
 
         {isFilteringFavorites && fBids.length === 0 && (
