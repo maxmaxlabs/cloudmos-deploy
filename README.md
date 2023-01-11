@@ -20,6 +20,12 @@
 The latest version of the tool can be downloaded from the Cloudmos website:
 https://cloudmos.io/cloud-deploy or from the [release page.](https://github.com/maxmaxlabs/cloudmos-deploy/releases)
 
+### Linux
+
+For some distributions you might have to disable the gpu sandbox to make it work, like so:
+
+`./Cloudmos-Deploy-0.17.2.AppImage --disable-gpu-sandbox`
+
 ### Running locally:
 
 Running with npm
