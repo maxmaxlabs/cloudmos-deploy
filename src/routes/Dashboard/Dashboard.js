@@ -16,6 +16,7 @@ import { DashboardInfoPanel } from "./DashboardInfoPanel";
 import { useProviders, useBalances, useNetworkCapacity } from "../../queries";
 import { LinkTo } from "../../shared/components/LinkTo";
 import { useLocalNotes } from "../../context/LocalNoteProvider";
+import LaunchIcon from "@material-ui/icons/Launch";
 
 const useStyles = makeStyles((theme) => ({
   titleContainer: {
@@ -142,6 +143,29 @@ export function Dashboard({ deployments, isLoadingDeployments, refreshDeployment
             </Button>
           )}
         </Box>
+
+        {orderedDeployments.length > 0 && (
+          <Box className={classes.titleContainer} justifyContent="space-between">
+            <Box>You have {orderedDeployments.length} active deployments</Box>
+
+            <Box>
+              Monitor your deployment balances with{" "}
+              <LinkTo
+                onClick={() =>
+                  window.electron.openUrl(
+                    UrlService.alertsCreate(null, "akash", "deployment-balance-monitor", {
+                      owner: { operator: "eq", value: address }
+                    })
+                  )
+                }
+              >
+                <Box component="span" display="flex" alignItems="center">
+                Cloudmos Alerts <LaunchIcon fontSize="small" />
+                </Box>
+              </LinkTo>
+            </Box>
+          </Box>
+        )}
 
         <div>
           {orderedDeployments.length > 0 ? (

@@ -15,6 +15,7 @@ import RefreshIcon from "@material-ui/icons/Refresh";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import EditIcon from "@material-ui/icons/Edit";
 import clsx from "clsx";
+import AddAlertIcon from "@material-ui/icons/AddAlert";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -52,6 +53,7 @@ export function DeploymentDetailTopBar({ address, loadDeploymentDetail, removeLe
   const [isDepositingDeployment, setIsDepositingDeployment] = useState(false);
   const storageDeploymentData = getDeploymentData(deployment?.dseq);
   const deploymentName = getDeploymentName(deployment?.dseq);
+  const isActive = deployment?.state === "active";
 
   function handleBackClick() {
     history.goBack();
@@ -115,6 +117,17 @@ export function DeploymentDetailTopBar({ address, loadDeploymentDetail, removeLe
     }
   };
 
+  const onSetAlert = () => {
+    window.electron.openUrl(
+      UrlService.alertsCreate(null, "akash", "deployment-balance-monitor", {
+        owner: { operator: "eq", value: address },
+        dseq: { operator: "eq", value: deployment.dseq }
+      })
+    );
+
+    handleMenuClose();
+  };
+
   return (
     <>
       <div className={classes.root}>
@@ -165,6 +178,7 @@ export function DeploymentDetailTopBar({ address, loadDeploymentDetail, removeLe
             >
               <CustomMenuItem onClick={() => onChangeName()} icon={<EditIcon fontSize="small" />} text="Edit Name" />
               {storageDeploymentData?.manifest && <CustomMenuItem onClick={() => redeploy()} icon={<PublishIcon fontSize="small" />} text="Redeploy" />}
+              {isActive && <CustomMenuItem onClick={() => onSetAlert()} icon={<AddAlertIcon fontSize="small" />} text="Balance Alert" />}
               <CustomMenuItem onClick={() => onCloseDeployment()} icon={<CancelPresentationIcon fontSize="small" />} text="Close" />
             </Menu>
           </Box>

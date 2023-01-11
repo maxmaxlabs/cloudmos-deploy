@@ -21,8 +21,10 @@ import { CustomMenuItem } from "../../shared/components/CustomMenuItem";
 import MoreHorizIcon from "@material-ui/icons/MoreHoriz";
 import { DeploymentDepositModal } from "../DeploymentDetail/DeploymentDepositModal";
 import CancelPresentationIcon from "@material-ui/icons/CancelPresentation";
+import AddAlertIcon from "@material-ui/icons/AddAlert";
 import { useRealTimeLeft } from "../../shared/utils/priceUtils";
 import clsx from "clsx";
+import { UrlService } from "../../shared/utils/urlUtils";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -170,6 +172,17 @@ export function DeploymentListRow({ deployment, isSelectable, onSelectDeployment
     }
   };
 
+  const onSetAlert = () => {
+    window.electron.openUrl(
+      UrlService.alertsCreate(null, "akash", "deployment-balance-monitor", {
+        owner: { operator: "eq", value: address },
+        dseq: { operator: "eq", value: deployment.dseq }
+      })
+    );
+
+    handleMenuClose();
+  };
+
   return (
     <>
       <div className={classes.root} onClick={() => viewDeployment()}>
@@ -273,6 +286,7 @@ export function DeploymentListRow({ deployment, isSelectable, onSelectDeployment
       >
         {isActive && <CustomMenuItem onClick={() => setIsDepositingDeployment(true)} icon={<AddIcon fontSize="small" />} text="Deposit" />}
         <CustomMenuItem onClick={() => changeDeploymentName(deployment.dseq)} icon={<EditIcon fontSize="small" />} text="Edit name" />
+        {isActive && <CustomMenuItem onClick={() => onSetAlert()} icon={<AddAlertIcon fontSize="small" />} text="Balance Alert" />}
         {isActive && <CustomMenuItem onClick={() => onCloseDeployment()} icon={<CancelPresentationIcon fontSize="small" />} text="Close" />}
       </Menu>
 

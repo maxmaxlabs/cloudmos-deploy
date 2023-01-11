@@ -18,6 +18,32 @@ export class UrlService {
   static createDeploymentStepTemplate = () => "/createDeployment/chooseTemplate";
   static createDeploymentStepManifest = () => "/createDeployment/editManifest";
   static createDeploymentStepBids = () => "/createDeployment/acceptBids";
+
+  // Cloudmos explorer
+  /**
+   * Example
+   * UrlService.alertsCreate(null, "akt", "send-tokens", {
+        from: { operator: "eq", value: address },
+        amount: { operator: "gt", value: 10000 }
+      })
+   */
+  static alertsCreate = (id, chain, type, conditions) => {
+    const _conditions = {};
+
+    for (const key in conditions) {
+      if (conditions[key].operator) {
+        _conditions[`c.${key}.o`] = conditions[key].operator;
+      }
+      if (conditions[key].value) {
+        _conditions[`c.${key}.v`] = conditions[key].value;
+      }
+      if (conditions[key].unit) {
+        _conditions[`c.${key}.u`] = conditions[key].unit;
+      }
+    }
+
+    return `https://cloudmos.io/alerts/create${appendSearchParams({ id, chain, type, ..._conditions })}`;
+  };
 }
 
 // Must update this when adding a route for analytics logging
