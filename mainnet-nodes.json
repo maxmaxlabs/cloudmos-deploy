@@ -5,11 +5,6 @@
       "rpc":"https://akash-rpc.lavenderfive.com:443"
    },
    {
-      "id":"ecostake.com",
-      "api":"https://rest-akash.ecostake.com",
-      "rpc":"https://rpc-akash.ecostake.com:443"
-   },
-   {
       "id":"polkachu.com",
       "api":"https://akash-api.polkachu.com:443",
       "rpc":"https://akash-rpc.polkachu.com:443"
@@ -18,11 +13,6 @@
       "id":"c29r3.xyz",
       "api":"https://akash.c29r3.xyz:443/api",
       "rpc":"http://akash.c29r3.xyz:80/rpc"
-   },
-   {
-      "id":"forbole.com",
-      "api":"https://api.akash.forbole.com:443",
-      "rpc":"https://rpc.akash.forbole.com:443"
    },
    {
       "id":"notional.ventures",
