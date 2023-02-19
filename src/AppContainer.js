@@ -14,12 +14,15 @@ import { NodeStatusBar } from "./components/NodeStatusBar";
 import { Register } from "./routes/Register";
 import { NewWallet } from "./routes/NewWallet";
 import { Footer } from "./components/Footer";
+import { AppBar, Toolbar } from "@material-ui/core";
+import { LinkTo } from "./shared/components/LinkTo";
 
 const useStyles = makeStyles((theme) => ({
   body: {
-    paddingTop: "30px",
-    height: "calc(100% - 30px)"
-  }
+    paddingTop: "78px",
+    height: "calc(100% - 78px)"
+  },
+  checkItOut: { marginLeft: ".5rem", fontWeight: "bold", color: theme.palette.secondary.contrastText }
 }));
 
 export const AppContainer = () => {
@@ -27,7 +30,7 @@ export const AppContainer = () => {
   const [isAppInitiated, setIsAppInitiated] = useState(false);
   const { address, selectedWallet } = useWallet();
   const { wallets } = useStorageWallets();
-  const [showBetaBanner, setShowBetaBanner] = useState(false);
+  const [showBetaBanner, setShowBetaBanner] = useState(true);
   const history = useHistory();
 
   const walletsExist = wallets.length > 0;
@@ -42,9 +45,9 @@ export const AppContainer = () => {
       }
     }
 
-    let isBetaBannerSeen = localStorage.getItem("isBetaBannerSeen");
-    isBetaBannerSeen = !!isBetaBannerSeen && isBetaBannerSeen === "true" ? true : false;
-    setShowBetaBanner(!isBetaBannerSeen);
+    // let isBetaBannerSeen = localStorage.getItem("isBetaBannerSeen");
+    // isBetaBannerSeen = !!isBetaBannerSeen && isBetaBannerSeen === "true" ? true : false;
+    // setShowBetaBanner(!isBetaBannerSeen);
     setIsAppInitiated(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -52,6 +55,15 @@ export const AppContainer = () => {
   return (
     <>
       {showBetaBanner && <BetaBanner />}
+      <AppBar color="secondary">
+        <Toolbar variant="dense" className={classes.toolbar}>
+          Cloudmos Deploy desktop is now being deprecated. We're now officially in the browser!{" "}
+          <LinkTo onClick={() => window.electron.openUrl("https://deploy.cloudmos.io")} className={classes.checkItOut}>
+            Check it out!
+          </LinkTo>
+        </Toolbar>
+      </AppBar>
+
       <NodeStatusBar />
 
       <div className={classes.body}>

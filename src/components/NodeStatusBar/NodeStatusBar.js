@@ -11,6 +11,9 @@ import { LinkTo } from "../../shared/components/LinkTo";
 import GitHubButton from "react-github-btn";
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    top: "48px"
+  },
   toolbar: {
     minHeight: "30px",
     maxHeight: "30px",
@@ -86,7 +89,7 @@ export const NodeStatusBar = () => {
   };
 
   return (
-    <AppBar position="fixed" color="default" elevation={0}>
+    <AppBar position="fixed" color="default" elevation={0} className={classes.root}>
       {isEditingSettings && <SettingsModal onClose={onSettingsModalClose} />}
       {isSelectingNetwork && <SelectNetworkModal onClose={onSelectNetworkModalClose} />}
 

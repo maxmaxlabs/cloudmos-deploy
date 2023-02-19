@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
     height: "100%"
   },
   accountAppBar: {
-    top: "30px",
+    top: "78px",
     backgroundColor: theme.palette.grey[300]
   },
   accountBar: {
@@ -68,8 +68,6 @@ export function MainView() {
 
   return (
     <Layout marginTop={`${accountBarHeight}px`} height={`calc(100% - ${accountBarHeight}px) !important`}>
-      {isShowingWelcome && <WelcomeModal open={isShowingWelcome} onClose={onWelcomeClose} />}
-
       <Box height="100%">
         <AppBar position="fixed" color="default" elevation={0} component="header" className={classes.accountAppBar}>
           <Toolbar variant="dense" className={classes.accountBar}>
