@@ -30,7 +30,6 @@ export const AppContainer = () => {
   const [isAppInitiated, setIsAppInitiated] = useState(false);
   const { address, selectedWallet } = useWallet();
   const { wallets } = useStorageWallets();
-  const [showBetaBanner, setShowBetaBanner] = useState(true);
   const history = useHistory();
 
   const walletsExist = wallets.length > 0;
@@ -54,7 +53,7 @@ export const AppContainer = () => {
 
   return (
     <>
-      {showBetaBanner && <BetaBanner />}
+      <BetaBanner />
       <AppBar color="secondary">
         <Toolbar variant="dense" className={classes.toolbar}>
           Cloudmos Deploy desktop is now being deprecated. We're now officially in the browser!{" "}

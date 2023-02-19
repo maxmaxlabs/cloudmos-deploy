@@ -5,9 +5,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "./shared/components/ErrorFallback";
 import { LeftNav, drawerWidth, closedDrawerWidth } from "./components/LeftNav";
 import { RightContent } from "./components/RightContent";
-import { useEffect, useState } from "react";
-import { useWallet } from "./context/WalletProvider";
-import { WelcomeModal } from "./components/WelcomeModal";
+import { useState } from "react";
 import { Layout } from "./shared/components/Layout";
 import { accountBarHeight } from "./shared/constants";
 
@@ -44,26 +42,10 @@ const useStyles = makeStyles((theme) => ({
 
 export function MainView() {
   const classes = useStyles();
-  const [isShowingWelcome, setIsShowingWelcome] = useState(false);
-  const [isWelcomeShown, setIsWelcomeShown] = useState(false);
   const [isNavOpen, setIsNavOpen] = useState(true);
-  const { balance, isRefreshingBalance } = useWallet();
-
-  useEffect(() => {
-    if (!isRefreshingBalance && typeof balance === "number" && balance === 0 && !isShowingWelcome && !isWelcomeShown) {
-      setIsShowingWelcome(true);
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isRefreshingBalance, balance, isWelcomeShown, isShowingWelcome]);
 
   const onOpenMenuClick = () => {
     setIsNavOpen((prev) => !prev);
-  };
-
-  const onWelcomeClose = () => {
-    setIsWelcomeShown(true);
-    setIsShowingWelcome(false);
   };
 
   return (
